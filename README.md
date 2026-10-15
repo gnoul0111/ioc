@@ -76,10 +76,27 @@ vercel --prod
 
 `vercel.json` chuyển `/` về `demo_ioc.html` và chuyển tiếp `/api/ioc/*` sang máy chủ API. Các thư mục nội bộ (`docs/`, `tools/`, `tests/`, `standalone/`) không được deploy, xem `.vercelignore`. Hướng dẫn chi tiết ở [docs/CHUNG/README_DEPLOY_IOC.md](./docs/CHUNG/README_DEPLOY_IOC.md).
 
-## Đẩy và kéo code (Windows)
+## Làm việc nhóm
 
-- **Đẩy code lên GitHub:** nháy đúp `day-code.bat`, gõ mô tả thay đổi rồi Enter.
-- **Kéo code mới nhất về:** nháy đúp `keo-code.bat`.
-- **Tải về máy mới:** `git clone https://github.com/gnoul0111/ioc.git`
+| Nhánh | Vai trò |
+| --- | --- |
+| `dev` | Nơi cả nhóm làm việc hằng ngày, đẩy code trực tiếp lên đây |
+| `main` | Bản chính thức để deploy. Không đẩy thẳng, chỉ gộp từ `dev` qua Pull Request trên GitHub |
+
+Lần đầu tham gia:
+
+```bash
+git clone https://github.com/gnoul0111/ioc.git
+cd ioc
+git switch dev
+```
+
+Hằng ngày (Windows):
+
+1. **Trước khi bắt đầu sửa:** nháy đúp `keo-code.bat` để lấy code mới nhất của mọi người.
+2. **Sửa xong:** nháy đúp `day-code.bat`, gõ mô tả thay đổi rồi Enter. File này không cho đẩy lên `main`.
+3. **Đưa lên bản chính thức:** vào GitHub, tạo Pull Request từ `dev` vào `main`, xem lại rồi Merge.
+
+Nếu hai người sửa cùng một chỗ trong cùng một file, Git sẽ báo xung đột và dừng lại. Khi đó cần mở file, chọn giữ phần nào, rồi commit lại.
 
 Repo không chứa: video và âm thanh đã dựng trong `tools/video/`, `node_modules/`, bản sao lưu `_backups/`, tài liệu nghiệp vụ nội bộ trong `docs/` và tài liệu đối tác `api/HCC_NEW/`. Muốn dựng video thì vào `tools/video` chạy `npm install`.

@@ -10,6 +10,7 @@ chcp 65001 >nul
 cd /d "%~dp0"
 set "PATH=C:\Program Files\Git\cmd;%PATH%"
 
+for /f "delims=" %%b in ('git branch --show-current') do echo Nhanh hien tai: %%b
 git pull --no-edit
 
 echo.
