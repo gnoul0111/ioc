@@ -1,0 +1,142 @@
+/* ============================== btctw-national-map.css ==============================
+   Style cho khối "Bản đồ số toàn quốc" (#btctwMapWidget, chỉ hiện với Ban Tổ chức Trung ương) — xem
+   js/features/btctw-national-map.js. Màu biển/đất láng giềng/nhãn đặt bằng biến CSS để đổi theo giao diện
+   tối/sáng/tươi mát (html.theme-light / html.theme-green). */
+#btctwMapWidget{
+ --btm-card:rgba(6,26,48,.85);--btm-card-line:rgba(87,178,255,.22);--btm-text:#e6f3ff;--btm-muted:#9fbad0;
+ --btm-sea:#0b2744;--btm-land:#1a2a3b;--btm-land-line:#34506d;--btm-lbl:#e9f4ff;--btm-lbl-halo:rgba(4,16,30,.9);
+ --btm-sea-lbl:#6fa6cf;--btm-country-lbl:#7f93a8;--btm-island-lbl:#ffe08a;
+ margin:0 0 14px
+}
+html.theme-light #btctwMapWidget,html.theme-green #btctwMapWidget{
+ --btm-card:#ffffff;--btm-card-line:#dde3ec;--btm-text:#1f2937;--btm-muted:#64748b;
+ --btm-sea:#a9d6f0;--btm-land:#e6e6e6;--btm-land-line:#c8c8c8;--btm-lbl:#1f2937;--btm-lbl-halo:rgba(255,255,255,.95);
+ --btm-sea-lbl:#3f7fae;--btm-country-lbl:#6b7280;--btm-island-lbl:#9a3412
+}
+#btctwMapWidget .widget-body{padding:12px}
+.btm-head-tools{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.btm-mode{display:flex;border:1px solid rgba(255,255,255,.28);border-radius:8px;overflow:hidden}
+.btm-mode button{border:0;background:rgba(255,255,255,.06);color:#fff;font-size:11.5px;font-weight:800;padding:5px 11px;cursor:pointer;white-space:nowrap}
+.btm-mode button+button{border-left:1px solid rgba(255,255,255,.2)}
+.btm-mode button.active{background:#ffd54b;color:#5b0c10}
+.btm-subhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 10px;flex-wrap:wrap}
+.btm-subtitle{font-weight:900;font-size:14px;color:#ff6b6b}
+html.theme-light .btm-subtitle,html.theme-green .btm-subtitle{color:#b91c1c}
+.btm-updated{font-size:11.5px;font-style:italic;color:var(--btm-muted)}
+.btm-demo{font-style:normal;font-weight:800;color:#f0b429;border:1px solid rgba(240,180,41,.5);border-radius:6px;padding:1px 6px;margin-left:6px}
+
+/* Thẻ số liệu: 3 thẻ nhỏ + 2 thẻ rộng có số con (giống mẫu) */
+.btm-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) repeat(2,minmax(0,1.55fr));gap:10px}
+.btm-kpi{background:var(--btm-card);border:1px solid var(--btm-card-line);border-radius:10px;padding:12px 12px 10px;text-align:center;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.btm-kpi-l{font-size:12px;font-weight:700;color:var(--btm-text);line-height:1.3}
+.btm-kpi-v{font-size:26px;font-weight:900;margin-top:6px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btm-kpi-wide .btm-kpi-v{font-size:24px;margin-top:2px}
+.btm-kpi-subs{display:flex;border-top:1px solid var(--btm-card-line);margin-top:8px;padding-top:6px}
+.btm-kpi-subs>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.btm-kpi-subs>div+div{border-left:1px solid var(--btm-card-line)}
+.btm-kpi-subs small{font-size:10.5px;color:var(--btm-muted);line-height:1.25}
+.btm-kpi-subs b{font-size:16px;font-weight:900}
+.is-green{color:#2fbf6b}.is-yellow{color:#f0b429}.is-red{color:#ff5a5a}.is-orange{color:#f08a3c}.is-blue{color:#4fb3ff}.is-teal{color:#39d5d0}
+html.theme-light #btctwMapWidget .is-green,html.theme-green #btctwMapWidget .is-green{color:#15803d}
+html.theme-light #btctwMapWidget .is-yellow,html.theme-green #btctwMapWidget .is-yellow{color:#b7791f}
+html.theme-light #btctwMapWidget .is-red,html.theme-green #btctwMapWidget .is-red{color:#c81e1e}
+html.theme-light #btctwMapWidget .is-orange,html.theme-green #btctwMapWidget .is-orange{color:#ea7a2a}
+html.theme-light #btctwMapWidget .is-blue,html.theme-green #btctwMapWidget .is-blue{color:#1683c7}
+html.theme-light #btctwMapWidget .is-teal,html.theme-green #btctwMapWidget .is-teal{color:#0d9aa0}
+
+/* Bản đồ + bảng xếp hạng */
+.btm-main{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:12px;margin-top:12px}
+.btm-card{background:var(--btm-card);border:1px solid var(--btm-card-line);border-radius:10px;padding:10px 12px;min-width:0;display:flex;flex-direction:column}
+.btm-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;color:var(--btm-text)}
+.btm-card-head b{font-size:13px;font-weight:800}
+.btm-card-head small{display:block;font-size:10.5px;color:var(--btm-muted);margin-top:2px}
+.btm-map-card,.btm-rank-card{height:600px}
+.btm-map-wrap{position:relative;flex:1;min-height:0;border-radius:8px;overflow:hidden}
+#btmMap{position:absolute;inset:0;background:var(--btm-sea)}
+/* Bấm vào 1 tỉnh thì trình duyệt tự vẽ viền focus hình chữ nhật quanh KHUNG BAO của cả tỉnh (Hải Phòng kéo dài
+   tới tận Bạch Long Vĩ nên thành 1 khung lớn giữa biển) — tắt đi, tỉnh đang chọn đã có viền riêng (btmProvStyle). */
+#btmMap path.leaflet-interactive:focus,#btmMap path.leaflet-interactive:focus-visible{outline:none}
+#btmMap .btm-neighbor{fill:var(--btm-land);fill-opacity:1;stroke:var(--btm-land-line)}
+.btm-select{position:absolute;z-index:500;top:8px;left:8px;height:30px;max-width:calc(100% - 70px);min-width:200px;border:1px solid var(--btm-card-line);background:var(--btm-card);color:var(--btm-text);border-radius:6px;padding:0 8px;font-size:12px;font-weight:700;cursor:pointer}
+.btm-legend{position:absolute;z-index:500;left:8px;bottom:8px;background:var(--btm-card);border:1px solid var(--btm-card-line);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--btm-text);line-height:1.8}
+.btm-legend b{display:block;font-size:11px;margin-bottom:1px}
+.btm-legend i{display:inline-block;width:18px;height:12px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+/* Nhãn trên bản đồ (icon 0x0, chữ căn giữa bằng lớp bọc) */
+.btm-geo-lbl{pointer-events:none}
+.btm-lbl-in{position:absolute;left:0;top:0;transform:translate(-50%,-50%);white-space:nowrap;text-align:center;line-height:1.2;font-weight:700}
+.btm-prov-lbl .btm-lbl-in{font-size:10.5px;color:var(--btm-lbl);text-shadow:0 0 3px var(--btm-lbl-halo),0 0 3px var(--btm-lbl-halo),0 0 2px var(--btm-lbl-halo)}
+.btm-prov-lbl .btm-lbl-in i{display:block;width:5px;height:5px;margin:0 auto 1px;border-radius:50%;background:var(--btm-lbl);box-shadow:0 0 0 1.5px var(--btm-lbl-halo)}
+.btm-island .btm-lbl-in{font-size:10.5px;font-weight:800;color:var(--btm-island-lbl);text-shadow:0 0 3px var(--btm-lbl-halo),0 0 3px var(--btm-lbl-halo)}
+.btm-left .btm-lbl-in{transform:translate(calc(-100% - 6px),-50%)}
+.btm-right .btm-lbl-in{transform:translate(6px,-50%)}
+.btm-sea .btm-lbl-in{font-size:13px;font-style:italic;font-weight:800;letter-spacing:.5px;color:var(--btm-sea-lbl)}
+.btm-country .btm-lbl-in{font-size:12px;font-weight:800;letter-spacing:1.5px;color:var(--btm-country-lbl)}
+.btm-small .btm-lbl-in{font-size:9.5px}
+.btm-sea.btm-small .btm-lbl-in{font-size:10.5px}
+
+/* Khung thông tin tỉnh — tooltip khi rê chuột & popup khi chọn */
+.leaflet-tooltip.btm-tip{background:#fff;color:#1f2937;border:1.5px solid #d33a44;border-radius:8px;padding:8px 10px;box-shadow:0 10px 26px rgba(0,0,0,.3);white-space:normal;width:270px}
+.leaflet-tooltip.btm-tip::before{display:none}
+/* !important: gis.css có style popup nền tối dùng chung cho mọi bản đồ — khung này luôn nền trắng chữ đậm như mẫu. */
+.btm-popup .leaflet-popup-content-wrapper{background:#fff!important;border:1.5px solid #d33a44!important;border-radius:8px!important;box-shadow:0 10px 26px rgba(0,0,0,.35)!important;opacity:1!important}
+.btm-popup .leaflet-popup-tip{background:#fff!important}
+.btm-popup .leaflet-popup-content{margin:9px 12px;width:260px!important}
+.btm-popup .leaflet-popup-content,.btm-popup .leaflet-popup-content *{color:#1f2937!important;opacity:1!important}
+.btm-popup .btm-info-merge{color:#6b7280!important}
+.btm-popup .btm-info-h{padding-right:16px}
+.btm-popup a.leaflet-popup-close-button{color:#6b7280!important}
+.btm-info-h{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;margin-bottom:4px}
+.btm-info-h i{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.btm-info-h span{flex:1;min-width:0}
+.btm-info ul{margin:0;padding:0;list-style:none;font-size:11.5px;line-height:1.6}
+.btm-info li::before{content:"- "}
+.btm-info-merge{margin-top:5px;padding-top:4px;border-top:1px dashed #e5e7eb;font-size:10.5px;color:#6b7280}
+
+/* Bảng xếp hạng */
+.btm-table-wrap{flex:1;min-height:0;overflow:auto;border:1px solid var(--btm-card-line);border-radius:8px}
+.btm-table{width:100%;border-collapse:collapse;font-size:12px;color:var(--btm-text)}
+.btm-table th{position:sticky;top:0;z-index:1;background:var(--btm-card);text-align:left;font-weight:800;font-size:11.5px;padding:8px;border-bottom:1px solid var(--btm-card-line)}
+html:not(.theme-light):not(.theme-green) .btm-table th{background:#0a2440}
+.btm-table th:first-child,.btm-table td:first-child{text-align:center;width:44px}
+.btm-table th.btm-sortable{cursor:pointer;text-align:center;user-select:none}
+.btm-table th.btm-sortable em{font-style:normal;color:var(--btm-muted)}
+.btm-table td{padding:7px 8px;border-bottom:1px solid var(--btm-card-line)}
+.btm-table td:nth-child(n+3){text-align:center}
+.btm-table tbody tr{cursor:pointer}
+.btm-table tbody tr:hover{background:rgba(79,179,255,.08)}
+.btm-table tbody tr.is-sel{background:rgba(255,213,75,.14)}
+.btm-badge{display:inline-block;min-width:64px;padding:2px 8px;border-radius:5px;font-weight:800;font-size:11.5px;border:1px solid}
+.btm-badge.is-green{background:rgba(34,165,91,.12);border-color:rgba(34,165,91,.55)}
+.btm-badge.is-yellow{background:rgba(240,180,41,.12);border-color:rgba(240,180,41,.6)}
+.btm-badge.is-red{background:rgba(224,59,59,.12);border-color:rgba(224,59,59,.6)}
+.btm-tag{display:inline-block;font-size:9.5px;font-weight:800;padding:0 5px;border-radius:4px;border:1px solid rgba(79,179,255,.5);color:#4fb3ff;vertical-align:1px;margin-left:4px}
+.btm-head-btns{display:flex;gap:6px;flex-shrink:0}
+.btm-excel,.btm-back{border:0;border-radius:6px;padding:6px 10px;font-size:11.5px;font-weight:800;cursor:pointer;white-space:nowrap}
+.btm-excel{background:#b91c1c;color:#fff}
+.btm-back{background:rgba(79,179,255,.15);color:var(--btm-text);border:1px solid var(--btm-card-line)}
+
+/* Biểu đồ diễn biến */
+.btm-trend-card{margin-top:12px}
+.btm-trend-box{position:relative;height:220px}
+
+/* Bố cục dashboard khi đăng nhập BTCTW: ẩn GIS Hà Nội + Nguồn dữ liệu (xem btmApplyTwLayout), 2 widget còn lại
+   xếp 1 hàng: Chỉ tiêu (2/3 trái) + Notify (1/3 phải), cao bằng nhau. */
+.dashboard-grid .btm-role-hidden{display:none!important}
+.dashboard-grid.btm-tw-layout #indicatorsWidget{grid-column:1/3;grid-row:1;height:750px}
+.dashboard-grid.btm-tw-layout #notificationsWidget{grid-column:3;grid-row:1;height:750px}
+@media (max-width:1450px){.dashboard-grid.btm-tw-layout #indicatorsWidget{grid-column:1/3;grid-row:1}.dashboard-grid.btm-tw-layout #notificationsWidget{grid-column:1/3;grid-row:2;height:550px}}
+@media (max-width:1000px){.dashboard-grid.btm-tw-layout #indicatorsWidget,.dashboard-grid.btm-tw-layout #notificationsWidget{grid-column:1!important}}
+
+/* Toàn màn hình */
+#btctwMapWidget.btm-fs{position:fixed!important;inset:0!important;z-index:8000!important;margin:0!important;border-radius:0!important;overflow:auto!important}
+#btctwMapWidget.btm-fs .btm-map-card,#btctwMapWidget.btm-fs .btm-rank-card{height:calc(100vh - 250px);min-height:520px}
+
+@media (max-width:1300px){.btm-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.btm-kpi-wide{grid-column:span 3}.btm-kpi-wide:last-child{grid-column:span 3}}
+@media (max-width:1100px){.btm-main{grid-template-columns:1fr}.btm-map-card{height:520px}.btm-rank-card{height:460px}}
+@media (max-width:700px){.btm-kpis{grid-template-columns:1fr 1fr}.btm-kpi-wide{grid-column:span 2!important}.btm-kpi-v{font-size:21px}.btm-head-tools .btm-mode button{padding:5px 7px}}
+
+/* Lớp phủ toàn màn hình nhúng bộ btctw/ cho tài khoản Ban Tổ chức Trung ương — xem js/features/btctw-embed.js */
+.btctw-embed{position:fixed;inset:0;z-index:900;background:#041224}
+.btctw-embed.hidden{display:none}
+.btctw-embed iframe{display:block;width:100%;height:100%;border:0}

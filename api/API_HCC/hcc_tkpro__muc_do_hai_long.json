@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_type": "response_baseline_schema_v1",
+  "source": "hcc_tkpro",
+  "endpoint": "muc_do_hai_long",
+  "table_name": "iceberg.bronze.hcc_tkpro__muc_do_hai_long",
+  "version": 1,
+  "allow_additive": true,
+  "fields": {
+    "id": "int64",
+    "code": "string",
+    "name": "string",
+    "level": "int64",
+    "sortOrder": "int64",
+    "parentId": "int64",
+    "total": "int64",
+    "rat_Hai_Long": "int64",
+    "hai_Long": "int64",
+    "binh_Thuong": "int64",
+    "khong_Hai_Long": "int64",
+    "rat_Khong_Hai_Long": "int64"
+  },
+  "required_fields": [
+    "id"
+  ],
+  "defaults": {
+    "id": null,
+    "code": null,
+    "name": null,
+    "level": null,
+    "sortOrder": null,
+    "parentId": null,
+    "total": null,
+    "rat_Hai_Long": null,
+    "hai_Long": null,
+    "binh_Thuong": null,
+    "khong_Hai_Long": null,
+    "rat_Khong_Hai_Long": null
+  }
+}

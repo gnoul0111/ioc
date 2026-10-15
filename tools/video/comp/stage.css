@@ -1,0 +1,120 @@
+﻿:root {
+  --navy-0: #030816;
+  --navy-1: #071331;
+  --navy-2: #0c1f4d;
+  --blue: #2563eb;
+  --cyan: #4cc9ff;
+  --gold: #f2c14e;
+  --gold-hi: #fff1c1;
+  --gold-lo: #a8741a;
+  --white: #f4f7ff;
+  --muted: #9fb3d9;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--navy-0); }
+body { font-family: 'Be Vietnam Pro', sans-serif; color: var(--white); -webkit-font-smoothing: antialiased; }
+
+#stage { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--navy-0); }
+.layer { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+canvas.layer { display: block; }
+.hidden0 { opacity: 0; }
+
+/* ---------- Vignette phủ toàn cảnh ---------- */
+#vignette { pointer-events: none; background: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,3,12,.55) 100%); z-index: 80; }
+
+/* ---------- Phụ đề ---------- */
+#subs { position: absolute; left: 0; right: 0; bottom: 46px; display: flex; justify-content: center; z-index: 90; pointer-events: none; }
+#subs .cue { max-width: 1480px; padding: 12px 30px 14px; border-radius: 10px; background: rgba(2, 8, 24, .72);
+  font-size: 38px; font-weight: 500; line-height: 1.38; text-align: center; color: #fff; letter-spacing: .1px;
+  box-shadow: 0 6px 30px rgba(0,0,0,.35); border-bottom: 2px solid rgba(242,193,78,.55); }
+
+/* ---------- Thẻ chương ---------- */
+.chapter { z-index: 70; pointer-events: none; }
+.chapter .band { position: absolute; top: -200px; left: 0; width: 2900px; height: 1480px; transform-origin: 0 0;
+  background: linear-gradient(90deg, #0a1a44 0%, #0f2d73 45%, #0a1a44 100%); }
+.chapter .band::before, .chapter .band::after { content: ''; position: absolute; top: 0; bottom: 0; width: 6px;
+  background: linear-gradient(180deg, transparent, var(--gold), var(--gold-hi), var(--gold), transparent); box-shadow: 0 0 30px var(--gold); }
+.chapter .band::before { left: 0; }
+.chapter .band::after { right: 0; }
+.chapter .ctext { position: absolute; left: 0; right: 0; top: 430px; text-align: center; }
+.chapter .cnum { font-size: 120px; font-weight: 900; letter-spacing: 6px;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold) 50%, var(--gold-lo)); -webkit-background-clip: text; color: transparent; }
+.chapter .cname { margin-top: 6px; font-size: 54px; font-weight: 800; letter-spacing: 10px; text-transform: uppercase; }
+.chapter .cline { margin: 22px auto 0; height: 3px; width: 520px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+
+/* ---------- Cảnh A: lật màn hình ---------- */
+#flipWrap { perspective: 1800px; perspective-origin: 50% 50%; z-index: 10; }
+#flipCam { position: absolute; left: 160px; top: 90px; width: 1600px; height: 900px; transform-style: preserve-3d; }
+.fpage { position: absolute; inset: 0; transform-origin: 0% 50%; backface-visibility: hidden; border-radius: 14px; overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0,0,0,.65), 0 0 0 2px rgba(242,193,78,.55), 0 0 40px rgba(242,193,78,.18); opacity: 0; }
+.fpage img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fpage .shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,.6)); opacity: 0; }
+#flipTint { position: absolute; inset: 0; pointer-events: none; z-index: 12;
+  background: radial-gradient(ellipse at 50% 48%, rgba(0,0,0,0) 52%, rgba(2,6,18,.55) 100%); }
+.fpage img { filter: brightness(1.18) contrast(1.06) saturate(1.1); }
+#flipLabel { position: absolute; left: 120px; bottom: 120px; z-index: 14; padding: 14px 26px; border-radius: 8px;
+  background: rgba(3,10,30,.82); border: 2px solid var(--gold); font-size: 34px; font-weight: 700; letter-spacing: 1px;
+  box-shadow: 0 0 30px rgba(242,193,78,.35); opacity: 0; }
+#flipLabel b { color: var(--gold); margin-right: 12px; }
+
+/* ---------- Cảnh A: tiêu đề ---------- */
+#title { z-index: 30; text-align: center; }
+#title .t1 { position: absolute; left: 0; right: 0; top: 618px; font-size: 58px; font-weight: 800; letter-spacing: 3px; }
+#title .t1 span { display: inline-block; margin: 0 9px; opacity: 0; }
+#title .t2 { position: absolute; left: 0; right: 0; top: 712px; font-size: 32px; font-weight: 500; color: var(--muted); letter-spacing: 1px; }
+#title .t2 span { display: inline-block; margin: 0 5px; opacity: 0; }
+#title .rule { position: absolute; left: 660px; width: 600px; top: 698px; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); transform: scaleX(0); }
+
+/* ---------- Cảnh B: sơ đồ ---------- */
+#dgWrap { perspective: 2200px; perspective-origin: 50% 40%; z-index: 20; }
+#dgCam { position: absolute; inset: 0; transform-origin: 1130px 470px; transform-style: preserve-3d; }
+.tlabel { position: absolute; left: 70px; width: 300px; display: flex; align-items: center; gap: 16px; }
+.tlabel .no { flex: 0 0 54px; height: 54px; border-radius: 8px; background: linear-gradient(180deg, #1f4fc4, #12307e);
+  border: 1px solid rgba(255,255,255,.25); font-size: 30px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+.tlabel .tx { font-size: 21px; font-weight: 800; line-height: 1.25; letter-spacing: .5px; text-transform: uppercase; }
+.dbox { position: absolute; border-radius: 14px; background: linear-gradient(180deg, rgba(16,38,92,.92), rgba(8,22,58,.92));
+  border: 1.5px solid rgba(110,160,255,.35); box-shadow: 0 10px 40px rgba(0,0,0,.35); }
+.dim { opacity: .28; filter: saturate(.6); }
+.band-title { position: absolute; left: 0; right: 0; top: 12px; text-align: center; font-size: 24px; font-weight: 800; letter-spacing: 3px; color: #dfe9ff; }
+.chips { position: absolute; left: 24px; right: 24px; bottom: 16px; display: flex; gap: 14px; justify-content: space-between; }
+.chip { flex: 1; height: 54px; border-radius: 8px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14);
+  display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 17px; font-weight: 600; color: #cfe0ff; text-align: center; line-height: 1.15; padding: 0 8px; }
+.src .num { position: absolute; left: 0; right: 0; top: 34px; text-align: center; font-size: 66px; font-weight: 900; letter-spacing: 1px; }
+.src .lbl { position: absolute; left: 0; right: 0; top: 118px; text-align: center; font-size: 28px; font-weight: 700; color: #e8efff; }
+.src .people { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: center; gap: 10px; }
+.src .people svg { width: 26px; height: 26px; opacity: 0; }
+.hub-title { position: absolute; left: 0; right: 0; top: 16px; text-align: center; font-size: 26px; font-weight: 900; letter-spacing: 4px; }
+.sub { position: absolute; top: 74px; width: 330px; height: 250px; border-radius: 12px; background: rgba(255,255,255,.05); border: 1.5px solid rgba(255,255,255,.14); padding: 18px 20px; }
+.sub .h { font-size: 21px; font-weight: 800; line-height: 1.25; margin-bottom: 14px; min-height: 52px; }
+.sub ul { list-style: none; }
+.sub li { font-size: 18px; color: #c9d8f5; line-height: 1.7; padding-left: 18px; position: relative; }
+.sub li::before { content: ''; position: absolute; left: 0; top: 13px; width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: .8; }
+.sub .ic { position: absolute; right: 16px; top: 16px; width: 44px; height: 44px; opacity: .9; }
+.glow { position: absolute; inset: -2px; border-radius: inherit; border: 2px solid var(--gold); box-shadow: 0 0 34px rgba(242,193,78,.55), inset 0 0 24px rgba(242,193,78,.18); opacity: 0; pointer-events: none; }
+
+/* ---------- Cảnh C: băng chuyền + tách lớp ---------- */
+#carWrap { perspective: 2000px; perspective-origin: 50% 45%; z-index: 20; }
+#carRing { position: absolute; left: 960px; top: 470px; width: 0; height: 0; transform-style: preserve-3d; }
+.ccard { position: absolute; left: -440px; top: -248px; width: 880px; height: 495px; border-radius: 14px; overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 2px rgba(242,193,78,.45); backface-visibility: hidden; }
+.ccard img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ccap { position: absolute; left: -440px; top: 268px; width: 880px; text-align: center; font-size: 30px; font-weight: 700; color: #fff;
+  text-shadow: 0 2px 12px rgba(0,0,0,.8); backface-visibility: hidden; }
+.ccap i { font-style: normal; color: var(--gold); }
+#xbase { position: absolute; left: 210px; top: 118px; width: 1500px; height: 844px; border-radius: 14px; overflow: hidden; opacity: 0;
+  box-shadow: 0 30px 90px rgba(0,0,0,.6), 0 0 0 2px rgba(242,193,78,.5); }
+#xbase img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#xparts { perspective: 1600px; }
+.xpart { position: absolute; border-radius: 12px; overflow: hidden; opacity: 0; transform-style: preserve-3d;
+  box-shadow: 0 26px 70px rgba(0,0,0,.7), 0 0 0 2px var(--gold), 0 0 40px rgba(242,193,78,.35); background: #061230; }
+.xpart img { display: block; width: 100%; }
+.xchip { position: absolute; padding: 10px 20px 10px 14px; border-radius: 30px; background: rgba(3,10,30,.92); border: 2px solid var(--gold);
+  font-size: 27px; font-weight: 800; white-space: nowrap; opacity: 0; display: flex; align-items: center; gap: 12px; box-shadow: 0 0 26px rgba(242,193,78,.4); }
+.xchip .n { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(180deg, var(--gold-hi), var(--gold)); color: #1a1200;
+  font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+#lower3 { position: absolute; left: 70px; top: 60px; z-index: 60; display: flex; align-items: center; gap: 16px; opacity: 0; }
+#lower3 .bar { width: 6px; height: 56px; background: linear-gradient(180deg, var(--gold-hi), var(--gold)); border-radius: 3px; }
+#lower3 .k { font-size: 20px; font-weight: 700; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; }
+#lower3 .v { font-size: 32px; font-weight: 800; }
+#fadeBlack { background: #000; opacity: 0; z-index: 95; pointer-events: none; }
+

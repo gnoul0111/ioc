@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>IOC video – bản đầy đủ</title>
+<link rel="stylesheet" href="../node_modules/@fontsource/be-vietnam-pro/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/be-vietnam-pro/500.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/be-vietnam-pro/600.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/be-vietnam-pro/700.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/be-vietnam-pro/800.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/be-vietnam-pro/900.css">
+<link rel="stylesheet" href="full.css">
+<script src="../node_modules/gsap/dist/gsap.min.js"></script>
+<script src="../assets/vn34-map-data.js"></script>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bg" class="layer" width="1920" height="1080"></canvas>
+  <div id="scenes" class="layer"></div>
+  <canvas id="logo" class="layer" width="1920" height="1080" style="z-index:25"></canvas>
+  <canvas id="fx" class="layer" width="1920" height="1080" style="z-index:45; mix-blend-mode:screen"></canvas>
+  <div id="chapters"></div>
+  <div id="flashW" class="layer"></div>
+  <div id="vignette" class="layer"></div>
+  <canvas id="grain" class="layer" width="960" height="540"></canvas>
+  <div id="subs"></div>
+  <div id="fadeBlack" class="layer"></div>
+</div>
+<script src="engine.js"></script>
+<script src="full-intro.js"></script>
+<script src="full-p1.js"></script>
+<script src="full-p2.js"></script>
+<script src="full-p3.js"></script>
+<script src="full-p4.js"></script>
+<script src="full-main.js"></script>
+</body>
+</html>

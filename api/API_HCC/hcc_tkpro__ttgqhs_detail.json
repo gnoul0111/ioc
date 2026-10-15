@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_type": "response_baseline_schema_v1",
+  "source": "hcc_tkpro",
+  "endpoint": "ttgqhs_detail",
+  "table_name": "iceberg.bronze.hcc_tkpro__ttgqhs_detail",
+  "version": 1,
+  "allow_additive": true,
+  "fields": {
+    "id": "int64",
+    "code": "string",
+    "applicant_name": "string",
+    "date_of_expiration": "string",
+    "date_of_reception": "string",
+    "formalities_code": "string",
+    "formalities_name": "string",
+    "department_name": "string",
+    "date_of_completion": "string",
+    "request_name": "string",
+    "curator_full_name": "string",
+    "status_text": "string",
+    "status": "int64"
+  },
+  "required_fields": [
+    "id"
+  ],
+  "defaults": {
+    "id": null,
+    "code": null,
+    "applicant_name": null,
+    "date_of_expiration": null,
+    "date_of_reception": null,
+    "formalities_code": null,
+    "formalities_name": null,
+    "department_name": null,
+    "date_of_completion": null,
+    "request_name": null,
+    "curator_full_name": null,
+    "status_text": null,
+    "status": null
+  }
+}

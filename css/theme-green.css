@@ -1,0 +1,333 @@
+ /* ============================== THEME MỚI (theme-green) — tông xanh lá tươi + header navy theo yêu cầu, chỉ đổi màu, không đổi bố cục/HTML, không đụng theme-light/theme-dark ============================== */
+ html.theme-green{--muted:#475569;--text:#1f2937;--line-soft:rgba(46,157,91,.18);--panel:#ffffff;--panel2:#eef9f3}
+ html.theme-green body{background:#f6f8f6}
+ html.theme-green .login{background:#f6f8f6}
+ /* ===== Bộ màu TRẠNG THÁI chuẩn hóa theo Design Token ===== Cả 2 hệ trạng thái (statusDefs = nhiệm vụ giao/nhận,
+ CAT_ST = chỉ tiêu đạt/không đạt mục tiêu) đều tô màu qua inline style (background/color lấy trực tiếp từ dữ liệu
+ JS, không qua class CSS) nên phải bắt theo đúng mã hex gốc từng trạng thái, không sửa được bằng cách đổi 1 class
+ chung. Mỗi trạng thái có 2 rule: 1 set màu chữ, 1 set nền pastel + viền cho badge/pill. */
+ html.theme-green [style*="color:#58b7ff"]{color:#2563EB!important}
+ html.theme-green [style*="background:#58b7ff"]:not(i):not(.seg):not(.rank-fill){background:#EFF6FF!important;border-color:#93C5FD!important}
+ html.theme-green [style*="color:#2c7dd2"]{color:#0891B2!important}
+ html.theme-green [style*="background:#2c7dd2"]:not(i):not(.seg):not(.rank-fill){background:#ECFEFF!important;border-color:#67E8F9!important}
+ html.theme-green [style*="color:#d8a50c"]{color:#D97706!important}
+ html.theme-green [style*="background:#d8a50c"]:not(i):not(.seg):not(.rank-fill){background:#FFFBEB!important;border-color:#FCD34D!important}
+ html.theme-green [style*="color:#8b5cf6"]{color:#7C3AED!important}
+ html.theme-green [style*="background:#8b5cf6"]:not(i):not(.seg):not(.rank-fill){background:#F5F3FF!important;border-color:#C4B5FD!important}
+ html.theme-green [style*="color:#2fb174"]{color:#059669!important}
+ html.theme-green [style*="background:#2fb174"]:not(i):not(.seg):not(.rank-fill){background:#ECFDF5!important;border-color:#6EE7B7!important}
+ html.theme-green [style*="color:#6f93b3"]{color:#64748B!important}
+ html.theme-green [style*="background:#6f93b3"]:not(i):not(.seg):not(.rank-fill){background:#F1F5F9!important;border-color:#c8e6d5!important}
+ html.theme-green [style*="color:#d33a44"]{color:#DC2626!important}
+ html.theme-green [style*="background:#d33a44"]:not(i):not(.seg):not(.rank-fill){background:#FEF2F2!important;border-color:#FCA5A5!important}
+ html.theme-green [style*="color:#39d5ff"]{color:#2563EB!important}
+ html.theme-green [style*="background:#39d5ff"]:not(i):not(.seg):not(.rank-fill){background:#EFF6FF!important;border-color:#93C5FD!important}
+ html.theme-green [style*="color:#d25a19"]{color:#64748B!important}
+ html.theme-green [style*="background:#d25a19"]:not(i):not(.seg):not(.rank-fill){background:#F1F5F9!important;border-color:#c8e6d5!important}
+ html.theme-green [style*="color:#ef4444"]{color:#DC2626!important}
+ html.theme-green [style*="background:#ef4444"]:not(i):not(.seg):not(.rank-fill){background:#FEF2F2!important;border-color:#FCA5A5!important}
+ /* Bộ màu trạng thái chuẩn hóa theo Design Token — dùng cho số/nhãn tô màu theo ngữ nghĩa (.ok/.warn/.blue là utility class dùng lại ở rất nhiều KPI, số liệu) */
+ html.theme-green .ok{color:#059669}
+ html.theme-green .warn{color:#D97706}
+ html.theme-green .blue{color:#2563EB}
+ html.theme-green button:not(:disabled):hover{filter:brightness(1.06)}
+ html.theme-green .app-bg-grid:before,html.theme-green .app-bg-grid:after{opacity:.15}
+ html.theme-green .app{color:#1f2937}
+ html.theme-green .side-nav{background:#ffffff;border-color:#d1fae5;box-shadow:0 10px 30px rgba(15,23,42,.1)}
+ html.theme-green .side-nav-body{color:#1f2937}
+ html.theme-green .snav-row,html.theme-green .snav-main,html.theme-green .snav-row.snav-leaf{color:#1f2937}
+ html.theme-green .snav-row:hover{background:#eef9f3}
+ html.theme-green .snav-children{border-left-color:#d1fae5}
+ html.theme-green .snav-caret,html.theme-green .snav-caret-btn{color:#475569}
+ html.theme-green .snav-main:hover{color:#2e9d5b}
+ html.theme-green .topbar{border-bottom-color:#d1fae5}
+ html.theme-green .brand h1{color:#1f4e79;text-shadow:none}
+ html.theme-green .brand .sub{color:#475569}
+ html.theme-green .clock-card{background:#ffffff;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .clock-card .muted{color:#475569}
+ html.theme-green .user-pill{background:#ffffff;border-color:#d1fae5}
+ html.theme-green .user-pill small{color:#475569}
+ html.theme-green .role-icon{background:linear-gradient(180deg,#ddf2e8,#c9ebd9);border-color:#b8e6cd}
+ /* Màn đăng nhập — theme sáng được lưu qua localStorage nên có thể hiện lại ở đây (trước khi vào app), phải đồng bộ luôn */
+ html.theme-green .hero,html.theme-green .login-card{background:#ffffff;border-color:#d1fae5;box-shadow:0 20px 60px rgba(15,23,42,.1)}
+ html.theme-green .hero h1{color:#1f4e79;text-shadow:none}
+ html.theme-green .hero .sub,html.theme-green .login-card p{color:#475569}
+ html.theme-green .login-card h2{color:#1f2937}
+ html.theme-green .hero-tile{background:#f4faf6;border-color:#d1fae5}
+ html.theme-green .hero-tile b{color:#1f2937}
+ html.theme-green .hero-tile span{color:#475569}
+ html.theme-green .acct-combo-trigger{background:#ffffff;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .acct-combo-panel{background:#ffffff;border-color:#d1fae5;box-shadow:0 14px 34px rgba(15,23,42,.15)}
+ html.theme-green .acct-search{background:#f7fdf9;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .acct-main,html.theme-green .acct-leaf{color:#1f2937}
+ html.theme-green .acct-main:hover,html.theme-green .acct-leaf:hover{background:#eef9f3}
+ html.theme-green .acct-leaf.active{background:#ddf2e8;color:#2e9d5b}
+ html.theme-green .ghost{background:#ffffff;border-color:#c8e6d5;color:#334155}
+ html.theme-green .ghost:hover{background:#eef9f3}
+ html.theme-green .primary{background:linear-gradient(180deg,#34b06e,#227a4a);border-color:#227a4a;color:#fff;box-shadow:0 8px 18px rgba(46,157,91,.25)}
+ html.theme-green .primary:hover{background:linear-gradient(180deg,#2e9d5b,#1c6b40)}
+ html.theme-green .danger-btn{background:#FEF2F2;border-color:#DC2626;color:#DC2626}
+ html.theme-green .logout{background:#eafaf1;border-color:#FCA5A5;color:#DC2626}
+ html.theme-green .view-as-banner{background:linear-gradient(180deg,#fef3e3,#fdf7ea);border-color:#f0d68a;color:#8a6a12}
+ /* Header các block theo đúng mẫu bảng "Lịch công tác tuần" anh gửi: nền xanh lá nhạt (accent-soft) + chữ xanh đậm, không phải thanh màu đặc + chữ trắng như 2 theme kia. */
+ html.theme-green .top-overview-head,html.theme-green .widget-head,html.theme-green .modal-head,html.theme-green .indicator-table-head,html.theme-green .task-scenario-heading,html.theme-green .side-nav-head{background:#bfead6;color:#1c7a49;border-bottom:2px solid #92dcb8}
+ html.theme-green .top-overview-title,html.theme-green .widget-title,html.theme-green .side-nav-head span{color:#1c7a49}
+ html.theme-green .mini-btn{color:#1c7a49}
+ html.theme-green .card-head .mini-btn{background:#eef9f3;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .detail-card h4,html.theme-green .pie-card h3,html.theme-green .scenario-card h4{color:#1E293B;font-weight:600}
+ html.theme-green .modal-head h3,html.theme-green .modal-head .muted{color:#1c7a49!important}
+ html.theme-green .widget-title,html.theme-green .top-overview-title{color:#1c7a49!important}
+ html.theme-green .drawer .drawer-head h3{color:#1E293B}
+ html.theme-green .drawer .drawer-head p,html.theme-green .drawer .drawer-head .muted{color:#475569}
+ html.theme-green .muted,html.theme-green .kv b,html.theme-green .pie-note,html.theme-green .scenario-meta-note,html.theme-green .subtask-meta-note{color:#475569}
+ html.theme-green .kv span{color:#1f2937}
+ html.theme-green .field label{color:#475569}
+ html.theme-green .field-opt-row:hover,html.theme-green .unit-check-row:hover{background:#eef9f3}
+ html.theme-green input,html.theme-green select,html.theme-green textarea{background:#f4faf6!important;color:#1f2937!important;border-color:#d1fae5!important}
+html.theme-green select{color-scheme:light}
+html.theme-green select option{background:#fff;color:#1f2937}
+html.theme-green #ouaScreen select{color-scheme:dark}
+html.theme-green input[type=date]{color-scheme:light}
+ html.theme-green input::placeholder,html.theme-green textarea::placeholder{color:#475569!important}
+ html.theme-green input:focus,html.theme-green select:focus,html.theme-green textarea:focus{border-color:#2e9d5b!important;box-shadow:0 0 0 3px rgba(46,157,91,.12)!important}
+ html.theme-green input[type=checkbox]{background:#f4faf6!important;border-color:#d1fae5!important}
+ html.theme-green input[type=checkbox]:checked{background:#2e9d5b!important;border-color:#2e9d5b!important}
+ html.theme-green .ms-dropdown{background:#ffffff!important;border-color:#d1fae5!important;box-shadow:0 14px 30px rgba(15,23,42,.12)}
+ html.theme-green .badge{background:#eef9f3;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .unit-chip{background:#eafaf1;border-color:#a7e8c4;color:#1f2937}
+ html.theme-green .unit-chip-x{background:rgba(15,23,42,.08);color:#1f2937}
+ html.theme-green .unit-chip-x:hover{background:rgba(220,38,38,.16);color:#b91c1c}
+ html.theme-green .badge.gold{border-color:#FCD34D;color:#B45309;background:#FFFBEB}
+ html.theme-green .badge.ok{border-color:#6EE7B7;color:#047857;background:#ECFDF5}
+ html.theme-green .badge.blue{border-color:#93C5FD;color:#1D4ED8;background:#EFF6FF}
+ html.theme-green .badge.orange{border-color:#FDBA74;color:#C2410C;background:#FFF7ED}
+ html.theme-green .badge.warn{border-color:#f0c96a;color:#8a6a12;background:#fef3e3}
+ html.theme-green .badge.red{border-color:#FCA5A5;color:#DC2626;background:#FEF2F2}
+ html.theme-green .tabs button{background:#ffffff;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .tabs button.active{border-color:#2e9d5b;color:#2e9d5b;background:#ddf2e8}
+ html.theme-green table thead th,html.theme-green .compact-table thead th,html.theme-green .subtask-table-wrap thead th,html.theme-green .scenario-table-wrap thead th,html.theme-green .doc-picker-table thead th,html.theme-green .iip-table thead th,html.theme-green .indicator-table-head{background:#F1F5F9;color:#334155;font-weight:600;border-color:#d1fae5}
+ html.theme-green .record-row,html.theme-green .indicator-row{background:#ffffff;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .record-row:hover{background:#eafaf1;border-color:#2e9d5b}
+ html.theme-green tbody tr,html.theme-green .compact-table tbody tr,html.theme-green .doc-picker-table tbody tr{border-color:#dff5e7;color:#1f2937}
+ html.theme-green .compact-table th{color:#475569}
+ html.theme-green .compact-table td{background:#ffffff!important;border-color:#c9e8d6!important;color:#1f2937}
+ html.theme-green .compact-table tr:hover td{background:#eafaf1!important}
+ html.theme-green .iip-table tbody td{color:#1f2937}
+ html.theme-green .iip-table tbody tr:hover td{background:#eafaf1}
+ html.theme-green .record-row small,html.theme-green .indicator-row small{color:#475569}
+ html.theme-green .record-row:hover td,html.theme-green .indicator-row:hover,html.theme-green tbody tr:hover td{background:#eafaf1}
+ html.theme-green .scenario-card{background:#ffffff;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .scenario-card p,html.theme-green .scenario-objective{color:#475569}
+ html.theme-green .scenario-severity,html.theme-green .scenario-sla-tags{color:#1f2937}
+ html.theme-green .toast{background:#ffffff;border-color:#d1fae5;color:#1f2937;box-shadow:0 15px 40px rgba(15,23,42,.18)}
+ html.theme-green .subtask-name-col,html.theme-green .indicator-id b,html.theme-green .title{color:#1f2937}
+ html.theme-green .subtask-content-col,html.theme-green td.mono,html.theme-green .indicator-source b{color:#475569}
+ html.theme-green .overlay.show{background:rgba(30,41,59,.45)}
+ html.theme-green .filters input,html.theme-green .filters select{background:#f4faf6;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .vef-item select,html.theme-green .vef-item input{background:#f4faf6;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .list-summary .badge{background:#eef9f3;color:#1f2937;border-color:#d1fae5}
+ html.theme-green .notify-list,html.theme-green .source-list,html.theme-green .cad-toolbar{color:#1f2937}
+ html.theme-green .scenario-create-help,html.theme-green .indicator-scenario-head p{color:#475569;background:#eef9f3;border-color:#d1fae5}
+ html.theme-green .mini-kpi{background:#ffffff;border-color:#d1fae5}
+ html.theme-green .mini-kpi b{color:#1f2937}
+ html.theme-green .mini-kpi span{color:#475569}
+ html.theme-green .pie-legend button{background:#f4faf6;color:#1f2937;border-color:#d1fae5}
+ html.theme-green .pie-legend button:hover{background:#eef9f3}
+ html.theme-green .pie-legend button.active{border-color:#2e9d5b;background:#ddf2e8}
+ html.theme-green .pie-legend b{color:#1f2937}
+ html.theme-green .legend{color:#334155}
+ html.theme-green .secretary-row{background:#f4faf6;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .seg-dashboard{background:#f4faf6;border-color:#d1fae5}
+ html.theme-green .seg-kpi{background:#ffffff;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .axis-action-card{background:#ffffff;border-color:#d1fae5}
+ html.theme-green .axis-action-card h4{color:#1f2937}
+ html.theme-green .source-quality span{background:#eef9f3;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .sync-job{background:#f4faf6;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .cir-stat-tile,html.theme-green .cat-donut-wrap,html.theme-green .cat-chart-box{background:#ffffff;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .cir-stat-tile b{color:#1f2937}
+ /* .cat-item-row — thẻ lĩnh vực kiểu khác (thanh cir-bar phân đoạn), hoàn toàn chưa được phủ trước đó */
+ html.theme-green .cat-item-row{background:#ffffff;border-color:#d1fae5;box-shadow:0 2px 8px rgba(15,23,42,.05)}
+ html.theme-green .cat-item-row h4{color:#1E293B}
+ html.theme-green .cat-item-row .cir-bar{background:#e6f7ee}
+ html.theme-green .cat-item-row .cir-legend-item b{color:#1f2937}
+ html.theme-green .source-update-line{color:#475569!important}
+ html.theme-green .source-update-line .time{color:#1f2937}
+ html.theme-green .scenario-fullpage h4{color:#2e9d5b}
+ html.theme-green .mini-pct-chip,html.theme-green .mini-stat-chip{background:#eef9f3;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .rank-track,html.theme-green .mini-rank-track,html.theme-green .cir-bar,html.theme-green .freq-track{background:#e6f7ee}
+ html.theme-green .source-update-line .rel{color:#059669}
+ html.theme-green .source-update-line.late .rel{color:#D97706}
+ html.theme-green .source-update-line.stale .rel{color:#DC2626}
+ /* Chữ số nhỏ vốn dùng màu nhạt (thiết kế cho nền tối) — trên nền trắng gần như vô hình, ép về đậm/tối để đọc được */
+ html.theme-green .cdl-cnt,html.theme-green .rank-value,html.theme-green .cat-chart-box .freq-cnt{color:#1f2937!important;font-weight:800}
+ html.theme-green .rank-label{color:#1f2937}
+ html.theme-green .phanto-radial-item span{color:#1f2937}
+ html.theme-green .cdl-name{color:#1f2937}
+ html.theme-green .mini-pct-chip b,html.theme-green .mini-stat-chip b,html.theme-green .mini-rank-row b{color:#1f2937!important;font-weight:800}
+ html.theme-green .cpi-legend i{box-shadow:0 0 0 1px rgba(15,23,42,.15)}
+ html.theme-green .task-subtask-mini-row{background:#f4faf6;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .task-subtask-mini-name{color:#1f2937}
+ html.theme-green .task-subtask-mini-row:hover{background:#eafaf1}
+ html.theme-green .scenario-mini-card{background:#ffffff;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .indicator-scenario-panel{background:#ffffff;border-color:#f0d68a}
+ html.theme-green .indicator-scenario-head h4{color:#2e9d5b}
+ html.theme-green .indicator-scenario-head p{color:#475569}
+ html.theme-green .subtask-summary{background:#ffffff;border-color:#d1fae5}
+ html.theme-green .subtask-head h4{color:#1f2937}
+ html.theme-green .scenario-task{background:#f4faf6;border-color:#d1fae5}
+ html.theme-green .scenario-task b{color:#1f2937}
+ html.theme-green .scenario-card{background:#ffffff;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .scenario-card p{color:#475569}
+ html.theme-green .scenario-card ul{color:#475569}
+ html.theme-green [style*="background:#061528"]{background:#f4faf6!important;color:#1f2937!important;border-color:#d1fae5!important}
+ html.theme-green [style*="color:#8ab0c8"]{color:#475569!important}
+ html.theme-green [style*="background:rgba(7,31,56,"]{background:#ffffff!important;border-color:#d1fae5!important}
+ html.theme-green .scenario-route span{background:#f4faf6;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .doc-picker-table thead th{background:#eef9f3}
+ html.theme-green .cad-toolbar{background:transparent;border-bottom-color:#d1fae5}
+ html.theme-green .indicator-kpi-row,html.theme-green .field-category-toolbar{color:#1f2937}
+ html.theme-green [style*="color:#dceeff"],html.theme-green [style*="color:#e8f4ff"],html.theme-green [style*="color:#d0e8f8"],html.theme-green [style*="color:#a9c7dd"],html.theme-green [style*="color:#cfeaff"],html.theme-green [style*="color:#cdeaff"],html.theme-green [style*="color:#c8dcec"],html.theme-green [style*="color:#b7d4ee"],html.theme-green [style*="color:#eaf6ff"],html.theme-green [style*="color:#eaf8ff"],html.theme-green [style*="color:#e9f8ff"],html.theme-green [style*="color:#c8ddec"],html.theme-green [style*="color:#eaf6ff"],html.theme-green [style*="color:#c8ddec"],html.theme-green [style*="color: #fff"]{color:#1f2937!important}
+ /* Lưới an toàn cho toàn bộ box tự dựng bằng inline style (Ban Đảng, Lịch công tác, Tài chính, Giáo dục...) —
+ rất nhiều khu vực trong app được viết cứng theo nền tối ngay từ đầu, không qua class CSS, nên bắt theo mẫu
+ rgba nền tối + màu chữ sáng lặp lại xuyên suốt thay vì sửa từng dòng riêng lẻ. */
+ html.theme-green [style*="background:rgba(4,16,30,"],html.theme-green [style*="background:rgba(5,25,46,"],html.theme-green [style*="background:rgba(5,26,47,"],html.theme-green [style*="background:rgba(6,28,52,"],html.theme-green [style*="background:rgba(7,27,48,"],html.theme-green [style*="background:rgba(7,31,56,"],html.theme-green [style*="background:rgba(8,34,61,"],html.theme-green [style*="background:rgba(8,35,62,"],html.theme-green [style*="background:rgba(8,37,67,"]{background:#f4faf6!important;border-color:#d1fae5!important}
+ html.theme-green [style*="background:rgba(44,125,210,"]{background:#eaf1fd!important;border-color:#d1fae5!important}
+ html.theme-green [style*="background:#071f38"],html.theme-green [style*="background:#061a2f"],html.theme-green [style*="background:#06223f"],html.theme-green [style*="background:#0a2338"]{background:#f4faf6!important;color:#1f2937!important;border-color:#d1fae5!important}
+ html.theme-green [style*="background:rgba(87,178,255,.16)"]{background:#eaf1fd!important}
+ html.theme-green [style*="color:#fff"]{color:#1f2937!important}
+ html.theme-green .widget-head [style*="color:#fff"],html.theme-green .top-overview-head [style*="color:#fff"],html.theme-green .modal-head [style*="color:#fff"]{color:#1c7a49!important}
+ html.theme-green .primary [style*="color:#fff"]{color:#fff!important}
+ html.theme-green .source-item,html.theme-green .notify,html.theme-green .action-log-row,html.theme-green .freshness-kpi,html.theme-green .data-health div{background:#ffffff;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .source-item small,html.theme-green .freshness-kpi small,html.theme-green .data-health span{color:#475569}
+ html.theme-green .freshness-kpi span{color:#475569}
+ html.theme-green .data-health b,html.theme-green .action-log-row .alr-title{color:#1f2937}
+ html.theme-green .action-log-row .alr-sub{color:#475569}
+ html.theme-green .action-log-row .alr-time{color:#475569}
+ html.theme-green .action-log-row .alr-actor{background:#eaf1fd;color:#2c7dd2;border-color:#cfe0fa}
+ html.theme-green .dot{background:#eef9f3;border-color:#d1fae5}
+ html.theme-green .field-category-card{background:#ffffff;border-color:#d1fae5}
+ html.theme-green .field-category-card h4{color:#1f2937}
+ html.theme-green .cat-preview-item{background:#f4faf6;border-color:#d1fae5}
+ html.theme-green .cat-preview-item .cpi-label{color:#1f2937}
+ html.theme-green .cat-preview-item .cpi-legend{color:#475569}
+html.theme-green .cat-list-desc,html.theme-green .cat-list-empty{color:#475569}
+html.theme-green .cat-list-row{background:#f4faf6;border-color:#d1fae5}
+html.theme-green .cat-list-chip{background:#eef9f3;border-color:#d1fae5;color:#334155}
+html.theme-green .cat-list-chip b{color:#1f2937}
+html.theme-green .cat-list{scrollbar-color:#a7e3c2 transparent}
+html.theme-green .cat-list::-webkit-scrollbar-thumb{background:#a7e3c2}
+ html.theme-green .field-category-tabs button,html.theme-green .unit-lookup-tabs button,html.theme-green .category-view-back,html.theme-green .field-category-more-btn,html.theme-green .field-category-more-menu{background:#ffffff;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .field-category-tabs button.active,html.theme-green .unit-lookup-tabs button.active,html.theme-green .field-category-more-btn.active,html.theme-green .field-category-more-menu button.active{background:#ddf2e8;border-color:#2e9d5b;color:#2e9d5b}
+ html.theme-green .field-category-more-menu button:hover{background:#f3fbf7}
+ html.theme-green .manual-note{background:#eaf6fb;border-color:#bfe4f0;color:#1a5f78}
+ html.theme-green .record-update-note{background:#eaf6fb;border-color:#bfe4f0;color:#1a5f78}
+ html.theme-green .record-update-note b{color:#1e8a52}
+ html.theme-green .subtask-empty{background:#fef3e3;border-color:#f0d68a;color:#8a6a12}
+ html.theme-green .progress{background:#e6f7ee}
+ html.theme-green .scenario-history-badge,html.theme-green .scenario-applied{background:#eaf6fb;border-color:#bfe4f0;color:#1a5f78}
+ html.theme-green .scenario-template-toolbar,html.theme-green .indicator-scenario-head{color:#1f2937}
+ html.theme-green .gd-dash table,html.theme-green .unit-lookup-table td{color:#1f2937}
+ html.theme-green .unit-lookup-title{color:#1E293B}
+ html.theme-green .gd-dash select,html.theme-green .gd-dash input[type="text"],html.theme-green .unit-lookup-search,html.theme-green .field-category-search input{background:#f4faf6;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .mode-tabs button{background:#ffffff;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .mode-tabs button.active{border-color:#2e9d5b;color:#2e9d5b;background:#ddf2e8}
+ html.theme-green .action-log-row:hover{background:#eafaf1}
+ html.theme-green .category-detail-head{background:#ffffff;border-color:#d1fae5}
+ html.theme-green .category-detail-head p{color:#475569}
+ html.theme-green .unit-lookup{background:#ffffff;border-color:#d1fae5}
+ html.theme-green .iip-wrap{background:#f4faf6;border-color:#d1fae5}
+ html.theme-green .indicator-row:hover{background:#eafaf1}
+ html.theme-green .drawer-pie-box,html.theme-green .drawer-pie-side{background:#ffffff;border-color:#d1fae5}
+ html.theme-green .task-inline-summary{background:#f4faf6;border-color:#d1fae5}
+ html.theme-green .scenario-sla div,html.theme-green .scenario-fullpage-sec{background:#ffffff;border-color:#d1fae5}
+ html.theme-green .scenario-sla b{color:#1f2937}
+ html.theme-green .scenario-fullpage-sec b{color:#2e9d5b}
+ html.theme-green .scenario-fullpage-sec p,html.theme-green .scenario-fullpage-sec ul,html.theme-green .scenario-fullpage-sec ol,html.theme-green .scenario-fullpage-sec ol li b{color:#1f2937}
+ html.theme-green .indicator-kpi-tile{background:#ffffff;border-color:#d1fae5}
+ html.theme-green .ikt-label{color:#475569}
+ html.theme-green .ikt-value{color:#2e9d5b}
+ html.theme-green .pie-card{background:#ffffff;border-color:#d1fae5}
+ /* Đổ bóng nhẹ thay cho viền đậm ở các card nội dung — giữ cảm giác "tách lớp" mà không bị rối mắt kiểu ô kẻ */
+ html.theme-green .pie-card,html.theme-green .scenario-card,html.theme-green .field-category-card,html.theme-green .record-row,html.theme-green .indicator-row,html.theme-green .mini-kpi,html.theme-green .indicator-kpi-tile,html.theme-green .cat-chart-box,html.theme-green .account-pick,html.theme-green .hero-tile,html.theme-green .scenario-mini-card,html.theme-green .axis-action-card,html.theme-green .seg-kpi,html.theme-green .cir-stat-tile,html.theme-green .cat-donut-wrap{border-color:#e3f5ea;box-shadow:0 2px 8px rgba(15,23,42,.05)}
+ html.theme-green .badge,html.theme-green .mini-pct-chip,html.theme-green .mini-stat-chip{border-color:#dbf3e5}
+ html.theme-green .close{background:#eef9f3;border-color:#d1fae5;color:#475569}
+ html.theme-green .close:hover{background:#ddf2e8;color:#2e9d5b}
+ html.theme-green .access-lock{color:#475569;background:#fef3e3;border-color:#f0d68a}
+ /* Thanh cuộn — Firefox (scrollbar-color) + Chrome/Edge (::-webkit-scrollbar) */
+ html.theme-green .widget-body,html.theme-green .cat-donut-legend,html.theme-green .gis-layer-sidebar,html.theme-green .drawer-body,html.theme-green .modal-body,html.theme-green .acct-combo-tree,html.theme-green .side-nav-body{scrollbar-color:rgba(46,157,91,.45) #e6f7ee}
+ html.theme-green .widget-body::-webkit-scrollbar-track,html.theme-green .cat-donut-legend::-webkit-scrollbar-track,html.theme-green .gis-layer-sidebar::-webkit-scrollbar-track,html.theme-green .drawer-body::-webkit-scrollbar-track,html.theme-green .modal-body::-webkit-scrollbar-track,html.theme-green .acct-combo-tree::-webkit-scrollbar-track,html.theme-green .side-nav-body::-webkit-scrollbar-track{background:#e6f7ee}
+ html.theme-green .widget-body::-webkit-scrollbar-thumb,html.theme-green .cat-donut-legend::-webkit-scrollbar-thumb,html.theme-green .gis-layer-sidebar::-webkit-scrollbar-thumb,html.theme-green .drawer-body::-webkit-scrollbar-thumb,html.theme-green .modal-body::-webkit-scrollbar-thumb,html.theme-green .acct-combo-tree::-webkit-scrollbar-thumb,html.theme-green .side-nav-body::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#4cc98a,#2e9d5b);border:2px solid #e6f7ee;background-clip:padding-box}
+ html.theme-green .modal-body::-webkit-scrollbar-track{background:#e6f7ee!important}
+ html.theme-green .modal-body::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#4cc98a,#2e9d5b)!important;border-color:#e6f7ee!important}
+ html.theme-green,html.theme-green body{scrollbar-color:rgba(46,157,91,.45) #e6f7ee}
+ html.theme-green::-webkit-scrollbar-track,html.theme-green body::-webkit-scrollbar-track{background:#e6f7ee}
+ html.theme-green::-webkit-scrollbar-thumb,html.theme-green body::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#4cc98a,#2e9d5b);border-color:#e6f7ee}
+ /* Nền của các khối/card lớn (chưa phủ ở đợt trước) — .widget/.top-overview là khung ngoài cùng của mọi widget dashboard, .modal/.drawer là khung popup, .detail-card/.record-row là khối nội dung bên trong popup */
+ html.theme-green .widget,html.theme-green .top-overview{background:#ffffff;border-color:#d1fae5;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+ html.theme-green .modal,html.theme-green .drawer{background:#ffffff;border-color:#d1fae5;box-shadow:0 20px 60px rgba(15,23,42,.18)}
+ html.theme-green .modal-head,html.theme-green .drawer .drawer-head{border-bottom-color:#d1fae5}
+ html.theme-green .detail-card{background:#f4faf6;border-color:#d1fae5;color:#1f2937}
+ html.theme-green .detail-card h4{color:#2e9d5b}
+ html.theme-green .kv b{color:#475569}
+ html.theme-green .kv span{color:#1f2937}
+ html.theme-green .record-row{background:#ffffff;border-color:#d1fae5}
+ html.theme-green .record-row:hover{background:#eafaf1}
+ html.theme-green .record-row .title{color:#1f2937}
+ html.theme-green .progress{background:#e6f7ee}
+ html.theme-green .vptu-table tbody tr{background:#ffffff;border-color:#d1fae5}
+ html.theme-green .vptu-table tbody tr:hover{background:#eafaf1}
+ html.theme-green .vptu-table tbody td{border-color:#d1fae5}
+ html.theme-green .vptu-table tbody td:first-child{border-left-color:#d1fae5}
+ html.theme-green .vptu-table tbody td:last-child{border-right-color:#d1fae5}
+ html.theme-green .vptu-table tbody .title{color:#1f2937}
+ html.theme-green .audit-item{border-left-color:#2e9d5b}
+ html.theme-green .card-head h4{color:#1f2937}
+ html.theme-green .indicator-table-head,html.theme-green .indicator-status-tabs button{color:#1c7a49}
+ /* filter:brightness() được thiết kế cho nền tối (sáng lên -> vẫn còn tối, đọc được chữ sáng) —
+ sang theme sáng, nền đã trắng/sáng sẵn nên brightness() làm chữ + nền bị "cháy sáng", mất tương phản.
+ Tắt hết các hiệu ứng brightness() hover ở theme sáng, thay bằng hiệu ứng viền/đổ bóng phù hợp nền sáng. */
+ html.theme-green .acct-main:hover,html.theme-green .acct-leaf:hover,html.theme-green .seg-kpi:hover,html.theme-green .source-item:hover,
+ html.theme-green .cat-two-col .cat-chart-box:not(.gen-unit-box):hover,html.theme-green .category-view-back:hover,
+ html.theme-green .cat-item-row:hover,html.theme-green .field-category-card:hover,html.theme-green .cat-axis-label:hover,
+ html.theme-green .iip-chip:hover,html.theme-green .task-subtask-mini-row:hover,html.theme-green .snav-main:hover,
+ html.theme-green .field input[type=checkbox]:hover{filter:none!important}
+ html.theme-green .seg-kpi:hover,html.theme-green .source-item:hover{box-shadow:0 4px 12px rgba(15,23,42,.08)}
+ html.theme-green .cat-two-col .cat-chart-box:not(.gen-unit-box):hover{box-shadow:0 4px 14px rgba(15,23,42,.1);transform:translateY(-1px)}
+ html.theme-green .category-view-back:hover{background:#eef9f3}
+ html.theme-green .cat-item-row:hover{background:#eafaf1;border-color:#2e9d5b}
+ html.theme-green .field-category-card:hover{border-color:#2e9d5b;box-shadow:0 4px 14px rgba(46,157,91,.12);transform:translateY(-1px)}
+ html.theme-green .cat-axis-label:hover{color:#2e9d5b}
+ /* Ô "hôm nay" trong lịch tháng (Lịch công tác/kỳ họp) — vốn hard-code viền/nền vàng bất kể theme, đổi riêng cho theme này theo đúng màu --today đã cho. */
+ html.theme-green [style*="background:rgba(88,71,11,"]{background:#f0fdf4!important;box-shadow:inset 0 0 0 2px #2e9d5b!important}
+ /* ===== Bản đồ GIS: toàn bộ control (thanh trên, dock dưới, sidebar lớp, ô tọa độ, gợi ý tìm kiếm) đang tô màu
+ kính tối (rgba(4,20,39,...)) cứng qua inline style — không đổi HTML/JS, chỉ ép !important theo đúng inline gốc
+ để khớp giao diện tươi mát, giữ NGUYÊN màu nền bản đồ (đổi riêng qua gisSetTheme/CARTO Sáng, không thuộc phần này). */
+ html.theme-green .gis-map-topline,html.theme-green #gisMapSearch,html.theme-green #gisBaseSelect,
+ html.theme-green #gisDrawBtn,html.theme-green #gisClearBtn,html.theme-green #gisReportBtn,
+ html.theme-green #gisSearchSuggest,html.theme-green #gisCoordinate{background:rgba(255,255,255,.92)!important;color:#1f2937!important;border-color:#d1fae5!important}
+ html.theme-green .gis-map-topline span,html.theme-green .gis-map-topline i:not([style*="background"]){color:#475569}
+ html.theme-green #gisLiveLabel{color:#0891B2}
+ html.theme-green #gisFinishBtn{background:#ECFDF5!important;color:#059669!important;border-color:#6EE7B7!important}
+ html.theme-green #gisCoordinate{color:#475569!important}
+ html.theme-green .gis-layer-sidebar{background:#ffffff!important;border-color:#d1fae5!important}
+ html.theme-green .gis-layer-head{color:#64748B!important;border-color:#d1fae5!important}
+ html.theme-green .gis-map-pill{background:rgba(255,255,255,.92)!important;color:#1f2937!important;border-color:#d1fae5!important}
+ html.theme-green .gis-map-pill:hover,html.theme-green .gis-map-pill.active{background:#eafaf1!important;border-color:#2e9d5b!important;color:#2e9d5b!important}
+ html.theme-green .gis-map-pill small{background:#eef9f3!important;color:#475569!important}
+ html.theme-green #gisDrawHint,html.theme-green #gisReportHint{background:#ffffff!important;color:#1f2937!important}
+ /* Chip lớp (.gis-kpi-chip trong sidebar "LỚP KHÁC") và tab/danh sách "BÁO CÁO NGƯỜI DÙNG" — cùng lỗi nền kính tối
+    cứng như các control GIS ở trên nhưng bị bỏ sót đợt trước (chỉ mới xử lý .gis-layer-sidebar/.gis-map-pill). */
+ html.theme-green .gis-kpi-chip{background:rgba(255,255,255,.92)!important}
+ html.theme-green .gis-report-tab{background:#eef9f3!important;color:#475569!important;border-color:#d1fae5!important}
+ html.theme-green .gis-report-tab.active{background:#eafaf1!important;border-color:#2e9d5b!important;color:#2e9d5b!important}
+ html.theme-green .gis-report-item{border-bottom-color:#d1fae5!important}
+ html.theme-green .gis-report-item span,html.theme-green #gisReportList{color:#475569!important}
+ html.theme-green #gisMapStatus{color:#475569!important}
+ /* Combobox tự dựng (customSelectHtml/simpleSelectHtml + các trigger riêng như #assTargetTrigger) dùng cho MỌI
+    form lọc/giao nhiệm vụ (bộ lọc danh sách, "Giao nhiệm vụ", "Kịch bản xử lý"...) — cùng kiểu lỗi với GIS ở trên:
+    nền/màu chữ cứng cho theme tối trên 1 <div> không có class riêng để bắt (<select>/<input> thật đã tự động qua
+    rule chung ở trên, nhưng div giả-select này thì không), nên phải bắt qua thuộc tính style. */
+ html.theme-green [style*="background:#061528"],html.theme-green [style*="background:#05172b"]{background:#ffffff!important;border-color:#d1fae5!important}
+ html.theme-green [style*="color:#8ab0c8"]{color:#94A3B8!important}
+ html.theme-green [style*="color:#d0e8f8"]{color:#1f2937!important}
+

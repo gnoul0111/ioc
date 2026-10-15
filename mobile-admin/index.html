@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#061626">
+<title>Quản trị IOC mobile</title>
+<!-- Thêm vào màn hình chính: mở như ứng dụng, không còn thanh trình duyệt (cần chạy qua http/https) -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Quản trị IOC">
+<!-- Bật chế độ mobile web trước khi vẽ trang để không bị nháy khung điện thoại -->
+<script>document.documentElement.classList.toggle('web', matchMedia('(max-width:520px), (pointer:coarse)').matches);</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="mobile-admin.css?v=20261014">
+</head>
+<body>
+<div class="stage">
+  <!-- Ghi chú thiết kế — chỉ hiện trên màn hình rộng để người duyệt đọc kèm demo -->
+  <aside class="notes">
+    <h1>Quản trị IOC — UI mobile mới</h1>
+    <p class="lead">Bản demo dựng mới hoàn toàn, chạy trên dữ liệu thật 3.612 đơn vị, 12.577 tài khoản. Mọi thao tác chỉ lưu trong phiên, chưa ghi về máy chủ.</p>
+
+    <h2>Đánh giá bản hiện tại</h2>
+    <ol>
+      <li><b>Tổ chức theo bảng, không theo đối tượng.</b> 7 màn là 7 bảng độc lập. Muốn chỉnh 1 đơn vị (nhóm, trục, lĩnh vực, chỉ tiêu) phải đi qua 4 màn khác nhau và tự tìm lại đơn vị đó ở mỗi màn.</li>
+      <li><b>Thu nhỏ màn máy tính.</b> Bảng 6–8 cột được ép thành thẻ, mỗi thẻ vẫn mang đủ cột nên dài, nhiều chữ, khó lướt.</li>
+      <li><b>Menu ẩn trong nút ☰.</b> Chuyển màn phải mở menu, không thấy mình đang ở đâu.</li>
+      <li><b>Ma trận quyền 12 phân hệ × vai trò</b> dùng ô chọn trong bảng, rất khó dùng bằng ngón tay, không biết thay đổi nào chưa lưu.</li>
+      <li><b>Lộ mã kỹ thuật</b> trên giao diện: mã phạm vi, mã liên kết chỉ tiêu, cấp trong cơ sở dữ liệu…</li>
+      <li><b>Không có điểm bắt đầu.</b> Vào là danh sách, không cho biết việc gì cần xử lý.</li>
+      <li><b>Kéo-thả cây</b> không hợp màn cảm ứng; bản vá "chạm 2 lần" khó đoán.</li>
+    </ol>
+
+    <h2>Hướng mới</h2>
+    <ol>
+      <li><b>4 tab dưới đáy</b>: Tổng quan · Người dùng · Đơn vị · Cấu hình. Ngón cái với tới, luôn biết mình đang ở đâu.</li>
+      <li><b>Mỗi đơn vị, mỗi người là 1 trang hồ sơ</b>, gom mọi cấu hình liên quan. Từ người → đơn vị → người khác chỉ 1 chạm. Phân nhóm, trục/địa bàn, lĩnh vực, chỉ tiêu nằm ngay trong hồ sơ đơn vị.</li>
+      <li><b>Tổng quan có mục "Cần xử lý"</b>: tài khoản khóa, chưa đăng nhập, đơn vị chưa có người… bấm là ra đúng danh sách đã lọc.</li>
+      <li><b>Danh sách gọn 2 dòng</b>, lọc nhanh bằng chip, lọc sâu trong bảng trượt, cuộn đến đâu tải đến đó.</li>
+      <li><b>Chọn nhiều + thao tác hàng loạt</b> có đếm số đã chọn, chọn toàn bộ kết quả lọc, và hoàn tác.</li>
+      <li><b>Phân quyền từng phân hệ</b> bằng bảng chọn vai trò có giải thích. Thay đổi được giữ nháp, có thanh "chưa lưu", xem trước quyền hiệu lực bằng lời trước khi lưu.</li>
+      <li><b>Cây thư mục kiểu trình quản lý tệp</b>: đi vào từng cấp, "Di chuyển đến…" thay kéo-thả.</li>
+      <li><b>Tìm kiếm toàn cục</b> người dùng, đơn vị và mục cấu hình trong 1 ô.</li>
+      <li><b>Màu sắc theo màn quản trị hiện tại</b>: nền xanh IOC, nút xanh chuyển sắc, nhãn trạng thái viền mảnh, 4 màu trục giữ nguyên. Có thêm bản nền sáng cùng tông.</li>
+      <li>Cỡ chữ ≥ 13px, vùng bấm ≥ 44px, không hiện mã kỹ thuật.</li>
+    </ol>
+
+    <h2>Tham khảo</h2>
+    <ul>
+      <li>Google Admin, Microsoft 365 Admin: hồ sơ người dùng + thao tác nhanh</li>
+      <li>Danh sách nhóm kiểu Cài đặt iOS, bảng trượt chọn của Material 3</li>
+      <li>Thao tác hàng loạt: đếm số chọn, chọn hết kết quả lọc, hoàn tác</li>
+    </ul>
+
+    <h2>Đi nhanh tới màn</h2>
+    <div class="jump" id="jump"></div>
+  </aside>
+
+  <div class="device"><div id="app"><div class="splash"><i></i>Đang tải dữ liệu…</div></div></div>
+</div>
+
+<script src="../js/core/account-data.js"></script>
+<script src="../js/core/login-log-data.js?v=20261014"></script>
+<script src="mobile-admin.js?v=20261014"></script>
+</body>
+</html>

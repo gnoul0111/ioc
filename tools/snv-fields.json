@@ -1,0 +1,192 @@
+[
+ {
+  "eform": "Danh sách bảo hiểm xã hội, bảo hiểm y tế, bảo hiểm thất nghiệp",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Mã chỉ tiêu QĐ4795",
+    "ma_chi_tieu_qd4795",
+    "Danh mục"
+   ],
+   [
+    "Tên chỉ tiêu",
+    "ten_chi_tieu",
+    "Chữ"
+   ],
+   [
+    "Đối tượng/Nội dung",
+    "doi_tuong_noi_dung",
+    "Chữ"
+   ],
+   [
+    "Tổng số đối tượng",
+    "tong_so_doi_tuong",
+    "Số"
+   ],
+   [
+    "Số đối tượng đạt",
+    "so_doi_tuong_dat",
+    "Số"
+   ],
+   [
+    "Tỷ lệ (%)",
+    "ty_le_phan_tram",
+    "Số"
+   ],
+   [
+    "Đơn vị tính",
+    "don_vi_tinh",
+    "Chữ"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ]
+  ]
+ },
+ {
+  "eform": "Lao động Công chức viên chức",
+  "fields": [
+   [
+    "Tổng lực lượng lao động trên địa bàn",
+    "tong_luc_luong_lao_dong",
+    "Số"
+   ],
+   [
+    "Số lao động đạt trên địa bàn",
+    "so_lao_dong_dat",
+    "Số"
+   ],
+   [
+    "Đơn vị có công chức, viên chức chuyên trách về CĐS",
+    "don_vi_co_cbccvc_chuyen_trach_cds",
+    "Số"
+   ],
+   [
+    "Đơn vị có công chức, viên chức chuyên trách về ANTT mạng",
+    "don_vi_co_cbccvc_chuyen_trach_antt_mang",
+    "Số"
+   ],
+   [
+    "Tổng công chức, viên chức được bồi dưỡng, tập huấn về kỹ năng số cơ bản",
+    "tong_cbccvc_boi_duong_ky_nang_so",
+    "Số"
+   ],
+   [
+    "Số công chức, viên chức được bồi dưỡng, tập huấn về kỹ năng số cơ bản đạt",
+    "so_cbccvc_boi_duong_ky_nang_so_dat",
+    "Số"
+   ],
+   [
+    "Tổng CBCCVC được cấp chữ ký số chuyên dùng công vụ",
+    "tong_cbccvc_cap_chu_ky_so",
+    "Số"
+   ],
+   [
+    "Số CBCCVC được cấp chữ ký số chuyên dùng công vụ đạt",
+    "so_cbccvc_cap_chu_ky_so_dat",
+    "Số"
+   ],
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Lao động Việt Nam đi làm việc ở nước ngoài",
+    "lao_dong_viet_nam_di_nuoc_ngoai",
+    "Số"
+   ],
+   [
+    "Lao động nước ngoài làm việc tại địa phương",
+    "lao_dong_nuoc_ngoai",
+    "Số"
+   ],
+   [
+    "Biên chế hưởng lương",
+    "bien_che_huong_luong",
+    "Số"
+   ],
+   [
+    "Biên chế được giao",
+    "bien_che_duoc_giao",
+    "Số"
+   ],
+   [
+    "Biên chế thực hiện",
+    "bien_che_thuc_hien",
+    "Số"
+   ],
+   [
+    "Số tuyển mới",
+    "so_tuyen_moi",
+    "Số"
+   ],
+   [
+    "Số nghỉ hưu",
+    "so_nghi_huu",
+    "Số"
+   ],
+   [
+    "Thôi việc",
+    "thoi_viec",
+    "Số"
+   ],
+   [
+    "Chuyển công tác",
+    "chuyen_cong_tac",
+    "Số"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ]
+  ]
+ }
+]

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_type": "response_baseline_schema_v1",
+  "source": "stc_hanoi",
+  "endpoint": "khach_du_lich",
+  "table_name": "iceberg.bronze.stc_hanoi__khach_du_lich",
+  "version": 1,
+  "allow_additive": true,
+  "fields": {
+    "chiTieu": "string",
+    "giaTri": "double",
+    "loai": "string",
+    "quy": "string"
+  },
+  "required_fields": [
+    "chiTieu",
+    "giaTri"
+  ],
+  "defaults": {
+    "chiTieu": null,
+    "giaTri": null,
+    "loai": null,
+    "quy": null
+  }
+}

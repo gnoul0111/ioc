@@ -1,0 +1,26 @@
+{
+	"folders": [
+		{
+			"path": "../../src/assets/images/icons"
+		},
+		{
+			"path": "../../src/assets/images"
+		},
+		{
+			"path": "../../src/assets/images/tutorial"
+		},
+		{
+			"path": "../../src/assets/images/usertutorial"
+		},
+		{
+			"path": "../../src/assets/images/screenshots"
+		},
+		{
+			"path": "../../src/assets/images/viz_thumbnails"
+		}
+	],
+	"settings": {
+		"liveServer.settings.port": 5503,
+		"git.ignoreLimitWarning": true
+	}
+}

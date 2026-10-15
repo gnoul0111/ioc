@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_type": "response_baseline_schema_v1",
+  "source": "sgddt",
+  "endpoint": "thongke_lophoc_c2",
+  "table_name": "iceberg.bronze.sgddt__thongke_lophoc_c2",
+  "version": 1,
+  "allow_additive": true,
+  "fields": {
+    "MA_SO_GD": "string",
+    "MA_PHONG_GD": "string",
+    "MA_CAP_HOC": "string",
+    "MA_TRUONG": "string",
+    "MA_NAM_HOC": "int64",
+    "MA_GIAI_DOAN": "string",
+    "SO_LOP": "int64",
+    "LOP_6": "int64",
+    "LOP_7": "int64",
+    "LOP_8": "int64",
+    "LOP_9": "int64"
+  },
+  "required_fields": [
+    "MA_SO_GD",
+    "MA_PHONG_GD",
+    "MA_TRUONG",
+    "MA_NAM_HOC",
+    "SO_LOP"
+  ],
+  "defaults": {
+    "MA_SO_GD": null,
+    "MA_PHONG_GD": null,
+    "MA_CAP_HOC": null,
+    "MA_TRUONG": null,
+    "MA_NAM_HOC": null,
+    "MA_GIAI_DOAN": null,
+    "SO_LOP": null,
+    "LOP_6": null,
+    "LOP_7": null,
+    "LOP_8": null,
+    "LOP_9": null
+  }
+}

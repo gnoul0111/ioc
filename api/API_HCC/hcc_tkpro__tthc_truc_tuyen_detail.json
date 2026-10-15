@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_type": "response_baseline_schema_v1",
+  "source": "hcc_tkpro",
+  "endpoint": "tthc_truc_tuyen_detail",
+  "table_name": "iceberg.bronze.hcc_tkpro__tthc_truc_tuyen_detail",
+  "version": 1,
+  "allow_additive": true,
+  "fields": {
+    "formalitiesId": "int64",
+    "formalitiesCode": "string",
+    "formalitiesName": "string",
+    "unit_id": "int64"
+  },
+  "required_fields": [
+    "formalitiesId"
+  ],
+  "defaults": {
+    "formalitiesId": null,
+    "formalitiesCode": null,
+    "formalitiesName": null,
+    "unit_id": null
+  }
+}

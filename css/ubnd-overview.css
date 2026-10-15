@@ -1,0 +1,90 @@
+/* ============================== TỔNG QUAN CHỈ TIÊU — TÀI KHOẢN UBND THÀNH PHỐ ==============================
+   Màn ngoài ở mục "Nhóm chỉ tiêu theo lĩnh vực" (js/features/ubnd-overview.js). Nằm trong .stc-root nên dùng chung biến
+   màu, mũi tên tăng/giảm, ô KPI và thẻ nhóm của stc.css / sgd.css; ở đây chỉ thêm bố cục riêng, tiền tố uo-. */
+.stc-root.uo-root{grid-column:1/-1;background:transparent;overflow:visible;display:flex;flex-direction:column;gap:6px}
+.uo-root h2{font-size:19px;font-weight:700;line-height:1.3;margin:3px 0 0}
+.uo-band{border:1px solid var(--line);border-radius:16px;padding:16px 16px 14px;background:linear-gradient(180deg,rgba(57,135,229,.07),rgba(57,135,229,0))}
+.uo-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.uo-hint{font-size:12px;color:var(--mute);max-width:520px}
+
+/* 8 ô số then chốt — luôn 1 hàng, khung hẹp thì cuộn ngang */
+.uo-kscroll{overflow-x:auto;padding-bottom:2px}
+.uo-kpis{display:grid;grid-template-columns:repeat(8,minmax(118px,1fr));gap:8px}
+.stc-root button.uo-kpi{padding:11px 11px 10px;border-radius:12px;gap:0}
+.uo-kpi .stc-lb{font-size:11px;min-height:30px;line-height:1.35}
+/* Số + đơn vị luôn trên MỘT hàng: cỡ chữ co theo bề rộng ô (đơn vị cqi của ô), ô rộng thì giữ 20px. */
+.stc-root button.uo-kpi{container-type:inline-size}
+.uo-kpi .stc-v{font-size:clamp(14px,15cqi,20px);margin-top:4px;white-space:nowrap;display:flex;flex-wrap:nowrap;align-items:baseline;column-gap:4px;overflow:hidden}
+.uo-kpi .stc-v small{font-size:clamp(9.5px,9cqi,11.5px);font-weight:500;color:var(--mute);letter-spacing:0}
+.uo-kpi .stc-v small.uo-pct{font-size:inherit;font-weight:700;color:inherit;margin-left:-4px;letter-spacing:-.015em}
+.uo-kpi .stc-u{font-size:11px}
+.uo-kd{margin-top:7px;min-height:17px;line-height:1.35}
+.uo-kd .stc-dl{display:inline;white-space:normal;font-size:11.5px;margin-top:0}
+.uo-kd .stc-dl::before{display:inline-block;vertical-align:1px;margin-right:5px}
+.uo-kd .stc-dl.na::before{display:none}
+.uo-ksrc{margin-top:auto;padding-top:7px;border-top:1px solid var(--line);font-size:10.5px;color:var(--mute);line-height:1.35}
+.uo-kd+.uo-ksrc{margin-top:8px}
+
+.uo-secrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0 10px}
+.uo-secrow .stc-sec{margin:0}
+.uo-gridhead{margin:14px 2px 4px}
+.uo-all{height:30px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.uo-all:hover{border-color:var(--accent)}
+.uo-all.on{background:var(--accent);border-color:transparent;color:#fff}
+.uo-legend{display:flex;gap:14px;flex-wrap:wrap}
+.uo-legend .stc-dl{font-size:11.5px}
+
+/* Thẻ nhóm lĩnh vực — bấm để lọc */
+.uo-groups{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.stc-root button.uo-gcard{padding:14px 15px 12px;border-radius:14px}
+.stc-root button.uo-gcard.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.uo-gcard .stc-gh h3{font-size:14.5px}
+.uo-gcard .stc-gh span{font-size:11px}
+.uo-gcard .stc-gmore{margin-top:auto;padding-top:8px}
+
+/* Dòng nhãn – số – tăng/giảm (dùng cho thẻ nhóm và thẻ sở) */
+.uo-gl{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:baseline;padding:6px 0 5px;border-top:1px solid var(--line);font-size:12px;line-height:1.35}
+.uo-gl .uo-l{color:var(--ink2);min-width:0}
+.uo-gl .uo-v{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--ink)}
+.uo-gl .uo-v small{font-weight:500;color:var(--mute);font-size:10.5px;margin-left:3px}
+.uo-gl .uo-d{justify-self:end;text-align:right;min-width:0}
+.uo-gl .uo-d .stc-dl{font-size:11.5px}
+.uo-gl .uo-d .stc-ref{font-size:10.5px}
+/* Không so sánh (UBND_OV_SHOW_COMPARE=false): 3 cột cố định tên | số (căn phải) | đơn vị — mọi dòng, mọi thẻ thẳng cột */
+.uo-gl.uo-col{grid-template-columns:minmax(0,1fr) 78px 72px;column-gap:0;align-items:baseline;padding:7px 0 6px}
+.uo-gl.uo-col .uo-l{padding-right:10px}
+.uo-gl.uo-col .uo-v{text-align:right}
+.uo-gl.uo-col .uo-u{padding-left:6px;font-size:10.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Thẻ nhóm hẹp: số căn phải ở hàng trên, đơn vị ngay dưới số (ngang dòng chữ nhỏ bên trái) — số vẫn thẳng mép phải */
+.uo-gl.uo-grow.uo-col{grid-template-columns:minmax(0,1fr) auto;align-items:start;row-gap:1px}
+.uo-gl.uo-grow.uo-col .uo-l{grid-column:1;grid-row:1/span 2}
+.uo-gl.uo-grow.uo-col .uo-v{grid-column:2;grid-row:1;line-height:17px}
+.uo-gl.uo-grow.uo-col .uo-u{grid-column:2;grid-row:2;padding-left:0;text-align:right;font-size:10.5px;line-height:14px}
+/* Dòng sở trong thẻ nhóm: tên sở bên trái, số + tăng/giảm xếp chồng bên phải để tên sở không bị ép */
+.uo-gl.uo-grow{grid-template-columns:minmax(0,1fr) auto;align-items:start}
+.uo-grow .uo-r{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}
+.uo-grow .uo-d:empty{display:none}
+.uo-grow .uo-l b{display:block;font-weight:600;color:var(--ink)}
+.uo-grow .uo-l em{display:block;font-style:normal;font-size:11px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stc-root .stc-dl.na.uo-bad{color:var(--bad);font-weight:600}
+.stc-root .stc-dl.na.uo-good{color:var(--good);font-weight:600}
+.stc-root .uo-gl .stc-dl.na{font-weight:500}
+.stc-root .uo-gl .stc-dl.na.uo-bad,.stc-root .uo-gl .stc-dl.na.uo-good{font-weight:600}
+
+/* Thẻ từng sở */
+.uo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px}
+.stc-root button.uo-card{display:flex;flex-direction:column;width:100%;min-width:0;text-align:left;font:inherit;color:inherit;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px 11px;transition:border-color .12s}
+.stc-root button.uo-card:hover{border-color:var(--accent)}
+.uo-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.uo-meta span{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+.uo-meta .uo-ax{border:1px solid rgba(79,214,156,.55);color:var(--good);font-weight:700}
+.uo-meta .uo-n{border:1px solid var(--line);color:var(--ink2)}
+.uo-meta .uo-grp{border-radius:6px;background:var(--chip);color:var(--accent);font-size:10.5px}
+.uo-card h4{margin:0 0 6px;font-size:14.5px;font-weight:700;line-height:1.3;color:var(--ink)}
+.uo-lines{display:flex;flex-direction:column}
+.uo-empty{margin-top:4px;border:1px dashed rgba(242,182,54,.45);border-radius:10px;padding:12px;color:var(--warn);font-size:12px;line-height:1.45}
+.uo-foot{margin-top:auto;padding-top:9px;display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--mute)}
+.uo-foot b{color:var(--warn);font-size:10.5px;letter-spacing:.03em;white-space:nowrap}
+
+@media(max-width:1300px){.uo-groups{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.uo-groups{grid-template-columns:minmax(0,1fr)}.uo-grid{grid-template-columns:minmax(0,1fr)}}

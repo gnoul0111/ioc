@@ -1,0 +1,420 @@
+<title>Bản mẫu chỉ tiêu IOC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/*__CSS__*/
+
+/* ============================== KHUNG BẢN MẪU (chỉ có ở trang duyệt, không lên IOC) ============================== */
+.mk-page{padding-inline:16px}
+.mk-nav{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:0 0 16px}
+.mk-tab{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:9px 12px;border-radius:12px;border:1px solid rgba(87,178,255,.3);background:rgba(255,255,255,.04);text-align:left;min-width:0}
+.mk-tab b{font-size:13px;font-weight:700;line-height:1.3}
+.mk-tab small{font-size:11.5px;color:#a8c3d8}
+.mk-tab.on{background:#1f63b8;border-color:transparent;color:#fff}
+.mk-tab.on small{color:#dbeaff}
+html.theme-light .mk-tab{border-color:#D5DAE3;background:#fff}
+html.theme-light .mk-tab small{color:#5b6a80}
+html.theme-light .mk-tab.on{background:#9d151c;color:#fff}
+html.theme-light .mk-tab.on small{color:#fde7e8}
+html.theme-green .mk-tab{border-color:#d1fae5;background:#fff}
+html.theme-green .mk-tab small{color:#566a5e}
+html.theme-green .mk-tab.on{background:#2e9d5b;color:#fff}
+html.theme-green .mk-tab.on small{color:#e3f7ec}
+.mk-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:#a8c3d8;margin:-6px 0 14px}
+html.theme-light .mk-legend,html.theme-green .mk-legend{color:#5b6a80}
+.mk-r{display:inline-block;width:7px;height:7px;border-radius:50%;background:#4fd69c;margin-left:5px;vertical-align:2px;flex:0 0 auto}
+html.theme-light .mk-r,html.theme-green .mk-r{background:#0a8a3a}
+.mk-legend .mk-r{margin:0 6px 0 0}
+
+.mk-widget{border:1px solid rgba(87,178,255,.26);border-radius:16px;padding:14px;background:rgba(4,18,34,.55)}
+html.theme-light .mk-widget{background:#fff;border-color:#D5DAE3}
+html.theme-green .mk-widget{background:#fff;border-color:#d1fae5}
+.mk-wh{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.mk-wh h3{font-size:15px;font-weight:700}
+.mk-wh span{font-size:12px;color:#a8c3d8}
+html.theme-light .mk-wh span,html.theme-green .mk-wh span{color:#5b6a80}
+
+.mk-modal{border:1px solid rgba(87,178,255,.45);border-radius:18px;background:linear-gradient(180deg,#08213b,#031120);box-shadow:0 30px 90px rgba(0,0,0,.45)}
+html.theme-light .mk-modal{background:#F9FAFB;border-color:#D5DAE3;box-shadow:0 20px 60px rgba(15,23,42,.12)}
+html.theme-green .mk-modal{background:#fff;border-color:#d1fae5;box-shadow:0 20px 60px rgba(15,23,42,.12)}
+.mk-body{padding:16px}
+.mk-body .stc-root{background:transparent;overflow:visible}
+.mk-x{opacity:.5;cursor:default}
+.mk-scroll{overflow-x:auto}
+.mk-scroll .stc-tbl{min-width:520px}
+.stc-root .mk-gl4{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:12.5px}
+.stc-root .mk-gl4 b{font-variant-numeric:tabular-nums}
+.stc-root .mk-rank{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;background:var(--chip);color:var(--accent);font-size:11.5px;font-weight:700;white-space:nowrap}
+.stc-root .sgd-xt-row.mk-xr{grid-template-columns:44px minmax(0,1fr) 78px 92px 78px}
+.stc-root .mk-pk{display:inline-block;font-style:normal;font-size:10px;font-weight:700;line-height:16px;padding:0 5px;margin-right:6px;border-radius:4px;vertical-align:1px}
+.stc-root .mk-pk.p{background:rgba(57,135,229,.16);color:var(--s1)}
+.stc-root .mk-pk.x{background:rgba(25,158,112,.16);color:var(--s3)}
+.stc-root .mk-tools{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 10px}
+.uo-groups.mk-g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:1000px){.uo-groups.mk-g3{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:1100px){.mk-nav{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){
+.mk-nav{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stc-root.hcc-root .stc-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stc-root .stc-cmp{grid-template-columns:96px minmax(0,1fr)}
+.stc-root .stc-cmp .stc-dl{grid-column:1/-1;justify-self:start}
+.stc-root .sgd-xt-row.mk-xr{grid-template-columns:34px minmax(0,1fr) 70px 70px}
+.stc-root .sgd-xt-row.mk-xr > :nth-child(3){display:none}
+.mk-body{padding:12px}
+}
+</style>
+<script>
+/* Giao diện: theo lựa chọn của người xem (data-theme) hoặc của hệ điều hành; nút Tối / Sáng / Xanh lá ghi đè. */
+(function(){
+  var forced=null;
+  function sysTheme(){var t=document.documentElement.getAttribute('data-theme');if(t==='light'||t==='dark')return t;try{return matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'}catch(e){return 'dark'}}
+  window.mkApplyTheme=function(t){
+    if(t) forced=t;
+    var v=forced||sysTheme(), h=document.documentElement;
+    h.classList.remove('theme-light','theme-green');
+    if(v==='light'||v==='green') h.classList.add('theme-'+v);
+    document.querySelectorAll('.stc-theme-sw button').forEach(function(b){b.classList.toggle('on',b.dataset.theme===v)});
+  };
+  mkApplyTheme();
+  try{matchMedia('(prefers-color-scheme: light)').addEventListener('change',function(){mkApplyTheme()})}catch(e){}
+  try{new MutationObserver(function(){if(!forced)mkApplyTheme()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']})}catch(e){}
+})();
+</script>
+
+<div class="stc-page mk-page">
+  <div class="stc-page-head">
+    <div>
+      <h1>Bản mẫu chỉ tiêu theo giao diện mới</h1>
+      <p>MTTQ Thành phố và phường Việt Hưng · cả màn ngoài lẫn phần chi tiết · dựng bằng đúng bộ giao diện của Sở GD&amp;ĐT và Trung tâm Phục vụ hành chính công</p>
+    </div>
+    <div class="stc-theme-sw" role="group" aria-label="Chọn giao diện">
+      <button type="button" data-theme="dark" onclick="mkApplyTheme('dark')">Tối</button>
+      <button type="button" data-theme="light" onclick="mkApplyTheme('light')">Sáng</button>
+      <button type="button" data-theme="green" onclick="mkApplyTheme('green')">Xanh lá</button>
+    </div>
+  </div>
+  <div class="mk-legend"><span><i class="mk-r"></i>Số công bố công khai (báo chí, nghị quyết)</span><span>Số không có dấu: ước tính theo quy mô dân số, diện tích thật của từng xã, phường</span><span>Dấu chấm xanh chỉ có ở bản mẫu, không lên IOC</span></div>
+  <nav class="mk-nav" id="mkNav" aria-label="Chọn màn hình"></nav>
+  <div id="mkScreen"></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/*__DATA__*/
+
+/* ============================== TIỆN ÍCH ============================== */
+function E(s){return String(s==null?'':s).replace(/[&<>"']/g,function(m){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]})}
+function F(n,d){if(n==null||!isFinite(n))return '—';d=d||0;var p=Math.abs(n).toFixed(d).split('.');return (n<0&&Number(Math.abs(n).toFixed(d))!==0?'−':'')+p[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.')+(p[1]?','+p[1]:'')}
+function R(){return '<i class="mk-r" title="Số công bố công khai"></i>'}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(window.__t);window.__t=setTimeout(function(){t.classList.remove('show')},2600)}
+function mkSoon(){toast('Bản mẫu chỉ dựng sẵn vài màn tiêu biểu. Bản chạy thật sẽ có đủ các nhóm.')}
+/* Mũi tên tăng/giảm, cùng quy ước với form Sở GD&ĐT, Trung tâm HCC: o.inv = giảm là tốt; o.neutral = màu trung tính; o.rate = chênh điểm %. */
+function DL(now,prev,o){
+  o=o||{};
+  if(now==null||prev==null||(!o.rate&&!prev)) return '<span class="stc-dl na">'+E(o.na||'Chưa có kỳ so sánh')+'</span>';
+  var v=o.rate?now-prev:(now/prev-1)*100, r=Math.round(v*10)/10;
+  var c=r>0?'up':r<0?'down':'flat';
+  if(c!=='flat'){if(o.inv)c+=r>0?' bad':' good';else if(o.neutral)c+=' n';}
+  var t=c==='flat'?'Không đổi':F(Math.abs(v),1)+(o.rate?' điểm %':'%');
+  return '<span class="stc-dl '+c+'" title="'+E((o.ref?'So '+o.ref+': ':'')+F(prev,o.d||0)+' → '+F(now,o.d||0))+'">'+t+(o.ref?' <span class="stc-ref">'+E(o.ref)+'</span>':'')+'</span>';
+}
+function LNK(t,a){return '<button type="button" class="stc-lnk" onclick="'+a+'">'+E(t)+'</button>'}
+function NOTE(h){return '<div class="stc-note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><div>'+h+'</div></div>'}
+function DD(label,val){return '<div class="stc-dd"><button type="button" class="stc-ddb" onclick="mkSoon()"><small>'+E(label)+'</small><b>'+E(val)+'</b><span class="stc-ddc"></span></button></div>'}
+var ICON_DL='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>';
+function TOOLBAR(back,label,val){return '<div class="stc-toolbar"><div class="stc-tl">'+back+'</div><div class="stc-ctrls">'+DD(label,val)+'<button type="button" class="stc-btn primary" onclick="mkSoon()">'+ICON_DL+'Xuất Excel</button></div></div>'}
+function KPI(k){return '<button type="button" class="stc-kpi" onclick="'+(k.go||'mkSoon()')+'"><div class="stc-lb">'+E(k.l)+'</div><div class="stc-v">'+k.v+(k.real?R():'')+'</div><div class="stc-u">'+E(k.u)+'</div><div style="margin-top:10px;min-height:18px">'+(k.dl||'')+'</div></button>'}
+function GL(l,v,u,dl,real){return '<div class="stc-gl"><span>'+E(l)+'</span><span class="stc-v">'+v+(u?'<small>'+E(u)+'</small>':'')+(real?R():'')+'</span><span>'+(dl||'')+'</span></div>'}
+function GCARD(t,lines,more,go,alt){return '<button type="button" class="stc-gcard'+(alt?' sgd-alt':'')+'" onclick="'+(go||'mkSoon()')+'"><div class="stc-gh"><h3>'+E(t)+'</h3><span>'+lines.length+' chỉ tiêu</span></div>'+lines.join('')+'<div class="stc-gmore">'+E(more)+' ›</div></button>'}
+function CARD(o){var title=o.xa?'<button type="button" class="sgd-ctl" onclick="go(\'xa\')">'+E(o.t)+'</button>':'<h3 class="stc-ct">'+E(o.t)+'</h3>';return '<div class="stc-card"><div class="stc-ch"><div>'+title+'<div class="stc-cs">'+E(o.s||'')+'</div></div>'+(o.r||'')+'</div>'+o.b+'</div>'}
+function BIG(v,u,dl,real){return '<div class="stc-bigrow"><div class="stc-big">'+v+(u?'<small>'+E(u)+'</small>':'')+(real?R():'')+'</div>'+(dl||'')+'</div>'}
+function LEG(a,b){return '<div class="stc-lg"><span><i style="background:var(--s1)"></i>'+E(a)+'</span><span><i style="background:var(--prev)"></i>'+E(b)+'</span></div>'}
+function CMP(l,now,prev,mx,d,dl,first){
+  var w=function(v){return Math.max(1,v/mx*100).toFixed(1)};
+  return '<div class="stc-cmp"'+(first?' style="border-top:0"':'')+'><div class="stc-nm">'+E(l)+'</div><div class="stc-bars"><div class="stc-br"><div class="stc-tr"><div class="stc-b" style="width:'+w(now)+'%"></div></div><span class="stc-val">'+F(now,d)+'</span></div><div class="stc-br"><div class="stc-tr"><div class="stc-b p" style="width:'+w(prev)+'%"></div></div><span class="stc-val p">'+F(prev,d)+'</span></div></div>'+dl+'</div>';
+}
+function PG(l,small,pct,color,val){return '<div class="stc-pg"><div class="stc-row"><span class="stc-nm">'+E(l)+(small?'<small>'+E(small)+'</small>':'')+'</span><span class="stc-pv">'+(val!=null?val:F(pct,1)+'%')+'</span></div><div class="stc-trk"><div class="stc-fill" style="width:'+Math.max(1,Math.min(100,pct)).toFixed(1)+'%;background:'+(color||'var(--s1)')+'"></div></div></div>'}
+function MCHIP(k,v,h){return '<div class="stc-mchip"><div class="stc-k">'+E(k)+'</div><div class="stc-v">'+v+'</div>'+(h?'<div class="stc-hint">'+h+'</div>':'')+'</div>'}
+function MODAL(title,sub,inner){return '<div class="mk-modal"><div class="modal-head"><div><h3>'+E(title)+'</h3><div class="muted">'+E(sub)+'</div></div><button type="button" class="close mk-x" aria-label="Đóng (bản mẫu)" title="Bản mẫu: popup đang mở sẵn">×</button></div><div class="mk-body"><div class="stc-root sgd-root hcc-root">'+inner+'</div></div></div>'}
+function WIDGET(title,sub,inner){return '<div class="mk-widget"><div class="mk-wh"><h3>'+E(title)+'</h3><span>'+E(sub)+'</span></div>'+inner+'</div>'}
+
+/* ============================== 126 XÃ, PHƯỜNG: SỐ NỀN THẬT + SỐ SUY RA ==============================
+   Dân số, diện tích: số thật theo phương án sắp xếp đơn vị hành chính cấp xã năm 2025 (XA, nhúng khi dựng trang).
+   Số chỉ tiêu chia từ tổng Thành phố theo quy mô dân số, khác nhau giữa phường và xã; hạt giống ngẫu nhiên cố định theo tên
+   nên mỗi lần mở trang đều ra cùng một số. */
+function rng(seed){var h=2166136261;for(var i=0;i<seed.length;i++){h^=seed.charCodeAt(i);h=Math.imul(h,16777619)}return function(){h+=0x6D2B79F5;var t=h;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function share(total,w){var s=w.reduce(function(a,b){return a+b},0)||1;return w.map(function(x){return x/s*total})}
+function shareInt(total,w){var v=share(total,w),r=v.map(Math.round),d=total-r.reduce(function(a,b){return a+b},0);if(d){var i=v.indexOf(Math.max.apply(null,v));r[i]+=d}return r}
+var U=XA.map(function(x){var r=rng(x[1]);return {k:x[0],short:x[1],n:(x[0]==='P'?'Phường ':'Xã ')+x[1],dt:x[2],ds:x[3],ho:Math.round(x[3]/3.05),den:x[3]/x[2],r1:r(),r2:r(),r3:r(),r4:r()}});
+var POP=U.reduce(function(s,u){return s+u.ds},0), HO=U.reduce(function(s,u){return s+u.ho},0);
+/* Quỹ "Vì người nghèo" vận động tại cấp xã năm 2025: 92,8 tỷ đồng (triệu đồng) */
+share(92800,U.map(function(u){return u.ds*(u.k==='P'?1.35:0.85)*(0.75+0.5*u.r1)})).forEach(function(v,i){U[i].q=v});
+/* 9.570 hộ cận nghèo; 43 đơn vị không còn hộ cận nghèo (số công bố) = 43 đơn vị mật độ dân số cao nhất */
+var ZERO={};U.slice().sort(function(a,b){return b.den-a.den}).slice(0,43).forEach(function(u){ZERO[u.n]=1});
+shareInt(9570,U.map(function(u){return ZERO[u.n]?0:u.ho*(u.k==='X'?1:0.35)*(0.4+1.2*u.r2)/Math.sqrt(u.den/1000)})).forEach(function(v,i){U[i].cn=v});
+/* 880 nhà Đại đoàn kết xây mới, sửa chữa năm 2025 */
+shareInt(880,U.map(function(u){return u.cn+(u.ds/20000)*(0.5+u.r3)})).forEach(function(v,i){U[i].nha=v});
+/* Đảng viên sinh hoạt tại đảng bộ xã, phường (dùng cho màn Việt Hưng): ~3,5% dân số, phường cao hơn xã một chút */
+U.forEach(function(u){u.q=u.q;u.qpc=u.q*1000/u.ds;u.cnR=u.cn/u.ho*100;u.dv=Math.round(u.ds*(u.k==='P'?0.0354:0.0318)*(0.9+0.2*u.r4))});
+var VH=U.find(function(u){return u.short==='Việt Hưng'});
+
+var XI=[
+  {id:'q',l:'Quỹ “Vì người nghèo” vận động',u:'tỷ đồng',v:function(u){return u.q/1000},d:2,better:'high',tot:true},
+  {id:'qpc',l:'Vận động bình quân đầu người',u:'nghìn đồng/người',v:function(u){return u.qpc},d:1,better:'high'},
+  {id:'cn',l:'Hộ cận nghèo',u:'hộ',v:function(u){return u.cn},d:0,better:'low',tot:true},
+  {id:'cnR',l:'Tỷ lệ hộ cận nghèo',u:'%',v:function(u){return u.cnR},d:2,better:'low'},
+  {id:'nha',l:'Nhà Đại đoàn kết xây mới, sửa chữa',u:'căn',v:function(u){return u.nha},d:0,better:'high',tot:true}
+];
+function xiTP(I){if(I.id==='qpc')return 92800*1000/POP;if(I.id==='cnR')return 9570/HO*100;return U.reduce(function(s,u){return s+I.v(u)},0)}
+function xiRank(I,u){var v=I.v(u),b=0;U.forEach(function(x){var w=I.v(x);if(I.better==='high'?w>v+1e-9:w<v-1e-9)b++});return b+1}
+
+/* ============================== MÀN 1: MTTQ THÀNH PHỐ — MÀN NGOÀI ============================== */
+var MT_UNITS=[
+  {id:'nv',g:'cs',name:'MTTQ · Theo dõi nhiệm vụ',n:1,ky:'Quý 2/2026',lines:[['Nhiệm vụ đang theo dõi',412,'nhiệm vụ'],['Hoàn thành đúng hạn',F(87.6,1),'%'],['Quá hạn chưa hoàn thành',9,'nhiệm vụ']]},
+  {id:'tgxh',g:'ban',name:'Ban Tuyên giáo và Công tác Xã hội',n:8,ky:'Năm 2025',go:"go('tgxh')",lines:[['Quỹ “Vì người nghèo” vận động các cấp',F(214.6,1),'tỷ đồng'],['Nhà Đại đoàn kết xây mới, sửa chữa',880,'căn'],['Hộ cận nghèo còn lại',F(9570),'hộ',1],['Suất quà Tết Bính Ngọ từ Quỹ Thành phố',F(5580),'suất',1]]},
+  {id:'dc',g:'ban',name:'Ban Dân chủ, Giám sát và Phản biện xã hội',n:4,ky:'Quý 2/2026',lines:[['Đơn thư tiếp nhận',F(2836),'đơn'],['Đã xử lý, chuyển cơ quan có thẩm quyền',F(2714),'đơn'],['Cuộc giám sát',38,'cuộc'],['Hội nghị phản biện xã hội',12,'cuộc']]},
+  {id:'dt',g:'ban',name:'Ban Công tác Dân tộc, Tôn giáo và Hội quần chúng',n:3,ky:'Quý 2/2026',lines:[['Phản ánh đã xử lý trên iHanoi',F(18420),'phản ánh'],['Được người dân đánh giá',F(41.3,1),'%'],['Rất hài lòng, hài lòng',F(82.6,1),'%']]},
+  {id:'pn',g:'ban',name:'Ban Công tác Phụ nữ',n:5,ky:'Quý 2/2026',lines:[['Hoạt động “Phụ nữ Thủ đô ứng xử đẹp”',F(1264),'cuộc'],['Lượt tham gia',F(186400),'lượt'],['Dư nợ vốn ủy thác',F(4218),'tỷ đồng']]},
+  {id:'cd',g:'ban',name:'Ban Công tác Công đoàn',n:4,ky:'Năm 2025',lines:[['Lượt đoàn viên, người lao động được hỗ trợ',F(64800),'lượt'],['Kinh phí hỗ trợ',F(58.6,1),'tỷ đồng'],['Vụ tai nạn lao động',38,'vụ']]},
+  {id:'ccb',g:'ban',name:'Ban Công tác Cựu chiến binh',n:4,ky:'Quý 2/2026',lines:[['Hội viên Cựu chiến binh',F(231600),'hội viên'],['Chi hội',F(3120),'chi hội'],['Buổi sinh hoạt thời sự, chính trị',F(1840),'buổi']]},
+  {id:'dtn',g:'ban',name:'Ban Công tác Đoàn và Thanh thiếu nhi',n:2,ky:'Quý 2/2026',lines:[['Hoạt động tình nguyện, phong trào',F(1126),'hoạt động'],['Lượt đoàn viên, thanh thiếu nhi tham gia',F(214600),'lượt']]},
+  {id:'nd',g:'ban',name:'Ban Công tác Nông dân',n:2,ky:'Năm 2025',lines:[['Hộ sản xuất, kinh doanh giỏi các cấp',F(68400),'hộ'],['Vốn Quỹ Hỗ trợ nông dân',F(286),'tỷ đồng']]},
+  {id:'tt',g:'ban',name:'Ban Thường trực',n:2,ky:'Năm 2025',lines:[['Hội nghị Ủy ban, Ban Thường trực',14,'hội nghị'],['Nội dung chương trình phối hợp hoàn thành',34,'/ 43']]},
+  {id:'tckt',g:'ban',name:'Ban Tổ chức, kiểm tra',n:2,ky:'Quý 2/2026',lines:[['Cán bộ, công chức cơ quan Ủy ban MTTQ Thành phố',228,'người'],['Cuộc kiểm tra, giám sát nội bộ',23,'cuộc']]},
+  {id:'lhpn',g:'ctxh',name:'Hội Liên hiệp phụ nữ thành phố',n:2,ky:'Năm 2025',lines:[['Hội viên phụ nữ',F(1.03,2),'triệu hội viên'],['Gia đình văn hóa tiêu biểu được biểu dương',F(1240),'gia đình']]},
+  {id:'hnd',g:'ctxh',name:'Hội Nông dân thành phố',n:2,ky:'Năm 2025',lines:[['Hội viên nông dân',F(386200),'hội viên'],['Tổ hợp tác, hợp tác xã do Hội hỗ trợ',250,'đơn vị']]},
+  {id:'ldld',g:'ctxh',name:'Liên đoàn lao động thành phố',n:2,ky:'Năm 2025',lines:[['Đoàn viên công đoàn',F(580000),'đoàn viên',1],['Công đoàn cơ sở',F(8940),'đơn vị'],['Kinh phí chăm lo Tháng Công nhân',F(41),'tỷ đồng']]},
+  {id:'td',g:'ctxh',name:'Thành Đoàn Hà Nội',n:2,ky:'Năm 2025',lines:[['Đoàn viên thanh niên',F(312400),'đoàn viên'],['Công trình thanh niên tình nguyện hè',186,'công trình']]},
+  {id:'xp',g:'cs',name:'MTTQ Xã, Phường',n:2,ky:'Năm 2025',go:"go('xa')",lines:[['Ủy ban MTTQ xã, phường',126,'đơn vị',1],['Quỹ “Vì người nghèo” vận động tại cơ sở',F(92.8,1),'tỷ đồng'],['Xã, phường không còn hộ cận nghèo',43,'/ 126',1]]},
+  {id:'vp',g:'cs',name:'Văn phòng Cơ quan',n:2,ky:'Quý 2/2026',lines:[['Văn bản đến',F(3864),'văn bản'],['Văn bản đi',F(2912),'văn bản']]}
+];
+var MT_GROUPS=[
+  {id:'ban',label:'Các Ban chuyên trách'},
+  {id:'ctxh',label:'Tổ chức chính trị – xã hội'},
+  {id:'cs',label:'Cơ sở và văn phòng'}
+];
+var MT_KPIS=[
+  {l:'Quỹ “Vì người nghèo” vận động các cấp',v:F(214.6,1),u:'tỷ đồng',src:'Ban Tuyên giáo và CTXH · Năm 2025',go:"go('tgxh')"},
+  {l:'Nhà Đại đoàn kết xây mới, sửa chữa',v:'880',u:'căn',src:'Ban Tuyên giáo và CTXH · Năm 2025',go:"go('tgxh')"},
+  {l:'Hộ cận nghèo còn lại',v:F(9570),u:'hộ',src:'Ban Tuyên giáo và CTXH · Năm 2025',real:1,go:"go('xa')"},
+  {l:'Xã, phường không còn hộ cận nghèo',v:'43',u:'/ 126',src:'MTTQ Xã, Phường · Năm 2025',real:1,go:"go('xa')"},
+  {l:'Suất quà Tết Bính Ngọ từ Quỹ Thành phố',v:F(5580),u:'suất',src:'Ban Tuyên giáo và CTXH · Tết 2026',real:1,go:"go('tgxh')"},
+  {l:'Đơn thư tiếp nhận',v:F(2836),u:'đơn',src:'Ban Dân chủ, Giám sát · Quý 2/2026'},
+  {l:'Đoàn viên công đoàn',v:F(580000),u:'',src:'Liên đoàn lao động · Năm 2025',real:1},
+  {l:'Hài lòng với xử lý phản ánh',v:F(82.6,1),u:'%',src:'Ban Dân tộc, Tôn giáo · Quý 2/2026'}
+];
+var MT_GRP='all';
+function uoKpi(k){var val=k.v+(k.u==='%'?'<small class="uo-pct">%</small>':k.u?'<small>'+E(k.u)+'</small>':'')+(k.real?R():'');return '<button type="button" class="stc-kpi uo-kpi" onclick="'+(k.go||'mkSoon()')+'"><div class="stc-lb">'+E(k.l)+'</div><div class="stc-v">'+val+'</div><div class="uo-ksrc">'+E(k.src)+'</div></button>'}
+function uoLine(x){return '<div class="uo-gl uo-col"><span class="uo-l">'+E(x[0])+'</span><span class="uo-v">'+x[1]+(x[3]?R():'')+'</span><span class="uo-u">'+E(x[2])+'</span></div>'}
+function uoGroup(g,units,cur,pick,unitLabel){
+  var list=units.filter(function(u){return u.g===g.id}), on=cur===g.id;
+  var n=list.reduce(function(s,u){return s+u.lines.length},0);
+  var rows=list.slice(0,6).map(function(u){var x=u.lines[0];return '<div class="uo-gl uo-grow uo-col"><span class="uo-l"><b>'+E(u.short||u.name)+'</b><em>'+E(x[0])+'</em></span><span class="uo-v">'+x[1]+(x[3]?R():'')+'</span><span class="uo-u">'+E(x[2])+'</span></div>'}).join('');
+  var more=list.length>6?'<div class="uo-gl"><span class="uo-l">và '+(list.length-6)+' '+unitLabel+' khác</span><span></span><span></span></div>':'';
+  return '<button type="button" class="stc-gcard uo-gcard'+(on?' on':'')+'" aria-pressed="'+on+'" onclick="'+pick+'(\''+g.id+'\')"><div class="stc-gh"><h3>'+E(g.label)+'</h3><span>'+list.length+' '+unitLabel+' · '+n+' chỉ tiêu</span></div>'+rows+more+'<div class="stc-gmore">'+(on?'Đang lọc · bấm lần nữa để bỏ lọc':'Lọc '+list.length+' '+unitLabel+' ›')+'</div></button>';
+}
+function uoCard(u,ax,grp){
+  return '<button type="button" class="uo-card" onclick="'+(u.go||'mkSoon()')+'"><div class="uo-meta"><span class="uo-ax">'+E(ax)+'</span><span class="uo-n">'+u.n+' chỉ tiêu</span><span class="uo-grp">'+E(grp)+'</span></div><h4>'+E(u.name)+'</h4><div class="uo-lines">'+u.lines.map(uoLine).join('')+'</div><div class="uo-foot"><span>'+E(u.ky)+'</span></div></button>';
+}
+function mtPick(id){MT_GRP=(MT_GRP===id||id==='all')?'all':id;render()}
+function screenMttq(){
+  var g=MT_GROUPS.find(function(x){return x.id===MT_GRP}), shown=g?MT_UNITS.filter(function(u){return u.g===g.id}):MT_UNITS;
+  var h='<div class="stc-root uo-root"><section class="uo-band"><div class="uo-head"><div><div class="stc-eyebrow">Tổng quan · Ủy ban MTTQ Việt Nam Thành phố</div><h2>Số liệu then chốt của '+MT_UNITS.length+' ban, đơn vị</h2></div><p class="uo-hint">Mỗi ô ghi rõ đơn vị cung cấp và kỳ số liệu · bấm ô để mở chi tiết của đơn vị</p></div>';
+  h+='<div class="uo-kscroll"><div class="uo-kpis">'+MT_KPIS.map(uoKpi).join('')+'</div></div>';
+  h+='<div class="uo-secrow"><div class="stc-sec">Ba nhóm đơn vị · bấm một nhóm để lọc danh sách bên dưới</div><button type="button" class="uo-all'+(g?'':' on')+'" onclick="mtPick(\'all\')">Tất cả '+MT_UNITS.length+' đơn vị</button></div>';
+  h+='<div class="uo-groups mk-g3">'+MT_GROUPS.map(function(x){return uoGroup(x,MT_UNITS,MT_GRP,'mtPick','đơn vị')}).join('')+'</div></section>';
+  h+='<div class="uo-secrow uo-gridhead"><div class="stc-sec">'+(g?E(g.label)+' · ':'')+shown.length+' đơn vị · bấm thẻ để xem chi tiết (bản mẫu dựng sẵn Ban Tuyên giáo và CTXH, MTTQ Xã, Phường)</div></div>';
+  h+='<div class="uo-grid">'+shown.map(function(u){return uoCard(u,'MTTQ TP',MT_GROUPS.find(function(x){return x.id===u.g}).label)}).join('')+'</div></div>';
+  return WIDGET('Nhóm chỉ tiêu theo lĩnh vực được phép xem','Tài khoản MTTQ Thành phố · tab MTTQ của tài khoản Thành ủy',h);
+}
+
+/* ============================== MÀN 2: BAN TUYÊN GIÁO VÀ CTXH — TỔNG QUAN CHI TIẾT ============================== */
+var TG={y:{thu:214.6,chi:203.3,ton:58.4,tonDau:47.1,xm:612,sc:268,cn:9570,bd:52.7,tp:121.8,xa:92.8},p:{thu:198.2,chi:188.6,ton:47.1,xm:548,sc:262,cn:9928,bd:47.9,tp:112.4,xa:85.8}};
+var TG_GROUPS=[
+  {id:'quy',label:'Quỹ “Vì người nghèo”'},{id:'nha',label:'Nhà Đại đoàn kết'},{id:'tet',label:'Chăm lo Tết'},{id:'bd',label:'Quỹ “Vì biển, đảo Việt Nam”'}
+];
+function tgLines(id){
+  var y=TG.y,p=TG.p,o={ref:''};
+  if(id==='quy') return [GL('Vận động các cấp',F(y.thu,1),'tỷ đồng',DL(y.thu,p.thu)),GL('Chi hỗ trợ',F(y.chi,1),'tỷ đồng',DL(y.chi,p.chi,{neutral:true})),GL('Tồn quỹ cuối năm',F(y.ton,1),'tỷ đồng',DL(y.ton,p.ton,{neutral:true})),GL('Tiếp nhận tại Chương trình 03/11/2025','93','tỷ đồng','',1)];
+  if(id==='nha') return [GL('Xây mới',F(y.xm),'căn',DL(y.xm,p.xm)),GL('Sửa chữa',F(y.sc),'căn',DL(y.sc,p.sc)),GL('Xây mới, sửa chữa 2024 – 9/2025',F(1510),'căn','',1),GL('Kinh phí 2024 – 9/2025',F(69.8,1),'tỷ đồng','',1)];
+  if(id==='tet') return [GL('Suất quà hộ cận nghèo, hộ khó khăn','5.280','suất','',1),GL('Suất quà người cao tuổi','300','suất','',1),GL('Kinh phí từ Quỹ Thành phố',F(5.43,2),'tỷ đồng','',1)];
+  return [GL('Tiếp nhận năm 2025',F(y.bd,1),'tỷ đồng',DL(y.bd,p.bd)),GL('Riêng lễ phát động 2025','40','tỷ đồng','',1),GL('Lễ phát động 2026 (14/4/2026)','28','tỷ đồng','',1),GL('Tập thể, cá nhân ủng hộ tại lễ 2026','115','đơn vị','',1)];
+}
+function screenTgxh(){
+  var y=TG.y,p=TG.p;
+  var K=[
+    {l:'Quỹ “Vì người nghèo” vận động các cấp',v:F(y.thu,1),u:'tỷ đồng trong năm',dl:DL(y.thu,p.thu,{ref:'năm trước'}),go:"go('quy')"},
+    {l:'Chi hỗ trợ từ Quỹ',v:F(y.chi,1),u:F(y.chi/y.thu*100,1)+'% số vận động',dl:DL(y.chi,p.chi,{neutral:true}),go:"go('quy')"},
+    {l:'Tồn quỹ cuối năm',v:F(y.ton,1),u:'tỷ đồng chuyển sang năm 2026',dl:DL(y.ton,p.ton,{neutral:true}),go:"go('quy')"},
+    {l:'Nhà Đại đoàn kết xây mới',v:F(y.xm),u:'căn',dl:DL(y.xm,p.xm)},
+    {l:'Nhà Đại đoàn kết sửa chữa',v:F(y.sc),u:'căn',dl:DL(y.sc,p.sc)},
+    {l:'Hộ cận nghèo còn lại',v:F(y.cn),u:F(y.cn/HO*100,2)+'% số hộ toàn Thành phố',dl:DL(y.cn,p.cn,{inv:true}),real:1,go:"go('xa')"},
+    {l:'Xã, phường không còn hộ cận nghèo',v:'43',u:'trên 126 xã, phường',dl:'<span class="stc-dl na">126/126 không còn hộ nghèo</span>',real:1,go:"go('xa')"},
+    {l:'Suất quà Tết Bính Ngọ 2026',v:F(5580),u:'suất từ Quỹ Thành phố',dl:'<span class="stc-dl na">Tết đầu tiên sau sắp xếp</span>',real:1}
+  ];
+  var h=TOOLBAR(LNK('← MTTQ Thành phố',"go('mttq')"),'Kỳ báo cáo','Năm 2025');
+  h+='<div class="stc-kpis">'+K.map(KPI).join('')+'</div>';
+  h+='<div class="stc-secrow"><div class="stc-sec">Bốn nhóm chỉ tiêu · mỗi nhóm một màn hình</div><div style="display:flex;gap:18px;flex-wrap:wrap">'+LNK('Theo 126 xã, phường ›',"go('xa')")+'</div></div>';
+  var xaRows=['Bảng 126 xã, phường: quỹ vận động, hộ cận nghèo, nhà Đại đoàn kết','Hạng, tốt nhất / kém nhất, số đơn vị kém hơn mức Thành phố','Hồ sơ từng xã, phường: dân số, diện tích, các chỉ tiêu và hạng','Lọc phường / xã, tìm theo tên'].map(function(t){return '<div class="stc-gl"><span>'+t+'</span><span></span><span></span></div>'});
+  h+='<div class="sgd-g3">'+TG_GROUPS.map(function(g){return GCARD(g.label,tgLines(g.id),'Xem nhóm '+g.label,g.id==='quy'?"go('quy')":'mkSoon()')}).join('')+GCARD('Theo xã, phường',xaRows,'Xem theo xã, phường',"go('xa')",true)+'</div>';
+  h+='<div class="stc-mt">'+NOTE('<b>Cách đọc:</b> kỳ báo cáo là năm, so với năm liền trước. Số của Thành phố gồm Quỹ cấp Thành phố và Quỹ của 126 xã, phường. Hộ cận nghèo giảm hiển thị màu xanh; số chi và tồn quỹ tăng hay giảm để màu trung tính. Bấm tên một thẻ chỉ tiêu (có dấu ›) để xem theo từng xã, phường.')+'</div>';
+  h+='<div class="stc-foot"><span>Kỳ báo cáo năm, so với năm 2024.</span><span>Năm 2025</span></div>';
+  return MODAL('Ban Tuyên giáo và Công tác Xã hội','Ủy ban MTTQ Việt Nam Thành phố Hà Nội · 8 chỉ tiêu',h);
+}
+
+/* ============================== MÀN 3: NHÓM QUỸ “VÌ NGƯỜI NGHÈO” ============================== */
+var TG_YEARS=[{y:2021,thu:168.4,chi:152.0},{y:2022,thu:176.9,chi:171.3},{y:2023,thu:189.5,chi:180.2},{y:2024,thu:198.2,chi:188.6},{y:2025,thu:214.6,chi:203.3}];
+var TG_CHI=[['Tặng quà, thăm hỏi dịp Tết',78.9,72.4],['An sinh xã hội khác',43.2,41.2],['Xây mới nhà Đại đoàn kết',33.7,30.1],['Hỗ trợ sinh kế, vốn sản xuất',18.4,17.2],['Hỗ trợ học tập',12.8,12.0],['Hỗ trợ khám, chữa bệnh',9.6,9.1],['Sửa chữa nhà Đại đoàn kết',6.7,6.6]];
+function screenQuy(){
+  var y=TG.y,p=TG.p,mx=Math.max(y.thu,p.thu);
+  var a=BIG(F(y.thu,1),'tỷ đồng vận động',DL(y.thu,p.thu,{ref:'năm trước ('+F(p.thu,1)+')'}))+'<div class="stc-hint">Tồn đầu năm + vận động − chi = tồn cuối năm: '+F(y.tonDau,1)+' + '+F(y.thu,1)+' − '+F(y.chi,1)+' = '+F(y.ton,1)+' tỷ đồng (khớp).</div>'+LEG('Năm 2025','Năm 2024')+
+    CMP('Vận động',y.thu,p.thu,mx,1,DL(y.thu,p.thu),true)+CMP('Chi hỗ trợ',y.chi,p.chi,mx,1,DL(y.chi,p.chi,{neutral:true}))+CMP('Tồn cuối năm',y.ton,p.ton,mx,1,DL(y.ton,p.ton,{neutral:true}));
+  var top=Math.max.apply(null,TG_YEARS.map(function(r){return r.thu}));
+  var cols='<div class="sgd-cc">'+TG_YEARS.map(function(r){return '<div class="sgd-col"><span class="sgd-cv">'+F(r.thu,0)+'</span><div class="sgd-pair"><div class="sgd-b1 hcc-cb" style="height:'+(r.thu/top*150).toFixed(0)+'px;'+(r.y===2025?'':'opacity:.55')+'"></div><div class="sgd-b0" style="height:'+(r.chi/top*150).toFixed(0)+'px"></div></div></div>'}).join('')+'</div><div class="sgd-ccl">'+TG_YEARS.map(function(r){return '<span>'+r.y+'</span>'}).join('')+'</div>';
+  var b=cols+'<div class="stc-lg"><span><i style="background:var(--s1)"></i>Vận động (số trên cột, tỷ đồng)</span><span><i style="background:var(--prev)"></i>Chi hỗ trợ</span></div><div class="stc-hint">Cột đậm là năm đang xem. Vận động tăng đều 4–8% mỗi năm.</div>';
+  var c='<div class="mk-scroll"><table class="stc-tbl"><thead><tr><th>Nội dung chi</th><th>Năm 2025</th><th>Tỷ trọng</th><th>Năm 2024</th><th>So năm trước</th></tr></thead><tbody>'+TG_CHI.map(function(r){return '<tr><td>'+E(r[0])+'</td><td>'+F(r[1],1)+'</td><td>'+F(r[1]/y.chi*100,1)+'%</td><td>'+F(r[2],1)+'</td><td>'+DL(r[1],r[2],{neutral:true})+'</td></tr>'}).join('')+'<tr class="tot"><td>Tổng chi</td><td>'+F(y.chi,1)+'</td><td>100%</td><td>'+F(p.chi,1)+'</td><td>'+DL(y.chi,p.chi,{neutral:true})+'</td></tr></tbody></table></div><div class="stc-hint" style="margin-top:10px">Tỷ đồng. Mức hỗ trợ xây mới từ Quỹ cấp Thành phố là 50 triệu đồng một nhà'+R()+'; xã, phường và nhà hảo tâm hỗ trợ thêm.</div>';
+  var d=BIG(F(y.thu,1),'tỷ đồng')+'<div style="margin-top:6px">'+PG('Quỹ cấp Thành phố',F(y.tp,1)+' tỷ đồng',y.tp/y.thu*100,'var(--s1)')+PG('Quỹ của 126 xã, phường',F(y.xa,1)+' tỷ đồng',y.xa/y.thu*100,'var(--s3)')+'</div><div class="stc-hint" style="margin-top:8px">Riêng Chương trình “Chung tay vì người nghèo và an sinh xã hội” tối 03/11/2025 tiếp nhận hơn 93 tỷ đồng'+R()+'. '+LNK('Xem quỹ của từng xã, phường ›',"go('xa')")+'</div>';
+  var h=TOOLBAR(LNK('← Tổng quan',"go('tgxh')"),'Kỳ báo cáo','Năm 2025');
+  h+='<div style="margin:-4px 0 14px" class="stc-hint">Vận động, chi hỗ trợ và tồn Quỹ các cấp</div>';
+  h+='<div class="stc-g2">'+CARD({t:'Thu, chi, tồn Quỹ',s:'Năm 2025 so với năm 2024 · tỷ đồng',b:a})+CARD({t:'Quỹ qua 5 năm',s:'Toàn Thành phố · 2021 – 2025',b:b})+'</div>';
+  h+='<div class="stc-g21 stc-mt">'+CARD({t:'Chi hỗ trợ theo nội dung',s:TG_CHI.length+' nội dung · Năm 2025',b:c})+CARD({t:'Nguồn vận động theo cấp',s:'Năm 2025',xa:1,b:d})+'</div>';
+  h+='<div class="stc-pn"><span>'+LNK('‹ Quỹ “Vì biển, đảo Việt Nam”','mkSoon()')+'</span>'+LNK('Tổng quan',"go('tgxh')")+'<span>'+LNK('Nhà Đại đoàn kết ›','mkSoon()')+'</span></div>';
+  h+='<div class="stc-foot"><span>Kỳ báo cáo năm, so với năm 2024.</span><span>Năm 2025</span></div>';
+  return MODAL('Ban Tuyên giáo và Công tác Xã hội','Quỹ “Vì người nghèo” · 4 chỉ tiêu',h);
+}
+
+/* ============================== MÀN 4: THEO 126 XÃ, PHƯỜNG ============================== */
+var XS={ind:'q',f:'all',q:'',sel:null};
+function xsInd(id){XS.ind=id;render()}
+function xsF(f){XS.f=f;render()}
+function xsQ(v){XS.q=v;render();var el=document.getElementById('xsQ');if(el){el.focus();el.setSelectionRange(v.length,v.length)}}
+function xsSel(n){XS.sel=n;render()}
+function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d')}
+function screenXa(){
+  var I=XI.find(function(x){return x.id===XS.ind}), tp=xiTP(I);
+  var sorted=U.slice().sort(function(a,b){return I.better==='high'?I.v(b)-I.v(a):I.v(a)-I.v(b)});
+  var best=sorted[0], worst=sorted[sorted.length-1];
+  var worse=I.tot?U.filter(function(u){return I.v(u)===0}).length:U.filter(function(u){return I.better==='high'?I.v(u)<tp:I.v(u)>tp}).length;
+  var nav='<div class="stc-card sgd-nav hcc-nav" style="padding:12px 8px"><div class="stc-nvh">Chỉ tiêu</div>'+XI.map(function(x){return '<button type="button" class="stc-nvi'+(x.id===I.id?' on':'')+'" onclick="xsInd(\''+x.id+'\')">'+E(x.l)+'</button>'}).join('')+'</div>';
+  var chips='<div class="stc-mchips">'+MCHIP(I.tot?'Tổng 126 xã, phường':'Mức chung Thành phố',F(tp,I.d)+(I.u==='%'?'%':''),E(I.u==='%'?'':I.u))+MCHIP(I.better==='high'?'Cao nhất':'Thấp nhất',F(I.v(best),I.d),E(best.n))+MCHIP(I.better==='high'?'Thấp nhất':'Cao nhất',F(I.v(worst),I.d),E(worst.n))+(I.id==='cn'?MCHIP('Không còn hộ cận nghèo',F(worse)+R(),'trên 126 xã, phường'):I.tot?MCHIP('Phường Việt Hưng',F(I.v(VH),I.d),'Hạng '+xiRank(I,VH)+'/126'):MCHIP('Kém hơn mức Thành phố',F(worse),'trên 126 xã, phường'))+'</div>';
+  var q=norm(XS.q);
+  var rows=sorted.filter(function(u){return (XS.f==='all'||u.k===XS.f)&&(!q||norm(u.n).indexOf(q)>=0)});
+  var colLast=I.tot?'Tỷ trọng':'So mức TP';
+  var head='<div class="sgd-xt-row sgd-xt-head mk-xr"><span>Hạng</span><span>Xã, phường</span><span class="sgd-num">Dân số</span><span class="sgd-num">'+E(I.u==='%'?'Tỷ lệ':'Giá trị')+'</span><span class="sgd-num">'+colLast+'</span></div>';
+  var body=rows.map(function(u){var v=I.v(u),last=I.tot?(tp?F(v/tp*100,1)+'%':'—'):DL(v,tp,{rate:I.u==='%',inv:I.better==='low',d:I.d});return '<div class="sgd-xt-row mk-xr'+(u===VH?' on':'')+'"><span class="sgd-no">'+xiRank(I,u)+'</span><button type="button" class="sgd-xbtn" onclick="xsSel(\''+E(u.n)+'\')"><i class="mk-pk '+(u.k==='P'?'p':'x')+'">'+(u.k==='P'?'P':'X')+'</i>'+E(u.short)+'</button><span class="sgd-num sgd-mute">'+F(u.ds)+R().replace('mk-r','mk-r" style="margin-left:4px')+'</span><span class="sgd-num sgd-strong">'+F(v,I.d)+'</span><span class="sgd-num">'+last+'</span></div>'}).join('')||'<div class="sgd-xt-row"><span class="sgd-mute">Không có xã, phường phù hợp bộ lọc.</span></div>';
+  var tools='<div class="mk-tools"><div class="sgd-pills">'+[['all','Tất cả 126'],['P','51 phường'],['X','75 xã']].map(function(p){return '<button type="button" class="sgd-pill'+(XS.f===p[0]?' on':'')+'" onclick="xsF(\''+p[0]+'\')">'+p[1]+'</button>'}).join('')+'</div><label class="sgd-search"><small>Tìm</small><input id="xsQ" value="'+E(XS.q)+'" placeholder="Tên xã, phường" oninput="xsQ(this.value)"></label></div>';
+  var right='<div style="min-width:0">'+chips+'<div class="stc-card" style="padding:14px 14px 12px"><div class="stc-ch" style="margin-bottom:0"><div><h3 class="stc-ct">'+E(I.l)+'</h3><div class="stc-cs">'+E(I.u)+' · Năm 2025 · dòng đánh dấu là phường Việt Hưng · bấm tên để xem hồ sơ</div></div></div>'+tools+'<div class="sgd-xt-box">'+head+body+'</div></div></div>';
+  var h=TOOLBAR(LNK('← Tổng quan',"go('tgxh')"),'Kỳ báo cáo','Năm 2025');
+  h+='<div class="stc-explore">'+nav+right+'</div>';
+  h+='<div class="stc-mt">'+NOTE('<b>Số nền thật:</b> tên, loại (phường hay xã), dân số và diện tích của 126 đơn vị lấy theo phương án sắp xếp đơn vị hành chính cấp xã năm 2025. Tổng Thành phố (quỹ cấp xã 92,8 tỷ đồng, 9.570 hộ cận nghèo, 880 nhà) được chia theo quy mô dân số; 43 đơn vị không còn hộ cận nghèo khớp số công bố.')+'</div>';
+  h+=XS.sel?drawer(XS.sel):'';
+  return MODAL('Ban Tuyên giáo và Công tác Xã hội','Theo 126 xã, phường · '+XI.length+' chỉ tiêu',h);
+}
+function drawer(name){
+  var u=U.find(function(x){return x.n===name}); if(!u) return '';
+  var chips=XI.map(function(I){return MCHIP(I.l,F(I.v(u),I.d)+(I.u==='%'?'%':''),'Hạng '+xiRank(I,u)+'/126'+(I.u!=='%'?' · '+E(I.u):''))}).join('')+MCHIP('Hộ gia đình (ước tính)',F(u.ho),'dân số ÷ 3,05');
+  return '<div class="sgd-dw-bg sgd-dw-anim" onclick="xsSel(null)"></div><aside class="sgd-dw sgd-dw-anim" aria-label="Hồ sơ '+E(u.n)+'"><div class="sgd-dw-top"><b style="font-size:15px">'+E(u.n)+'</b><button type="button" class="sgd-dw-x" onclick="xsSel(null)" aria-label="Đóng">×</button></div><div class="sgd-dw-body"><div class="stc-hint" style="margin-bottom:12px">Diện tích '+F(u.dt,2)+' km²'+R()+' · dân số '+F(u.ds)+' người'+R()+' · mật độ '+F(u.den)+' người/km²</div><div class="stc-mchips">'+chips+'</div>'+NOTE('Bản chạy thật: thêm danh sách hộ cận nghèo theo thôn, tổ dân phố, nhà Đại đoàn kết đã bàn giao và đang xây.')+'</div></aside>';
+}
+
+/* ============================== MÀN 5: PHƯỜNG VIỆT HƯNG — MÀN NGOÀI 4 TRỤC ============================== */
+var VH_HS=Math.round(VH.ds/1000*95.4), VH_KCB=Math.round(VH.ds*0.082);
+var VH_UNITS=[
+  {g:'DANG',name:'Văn phòng Đảng ủy phường',n:1,ky:'Quý 2/2026',lines:[['Nhiệm vụ đang theo dõi',64,'nhiệm vụ'],['Quá hạn chưa hoàn thành',2,'nhiệm vụ']]},
+  {g:'DANG',name:'Công tác tổ chức xây dựng Đảng',n:8,ky:'Quý 2/2026',go:"go('dang')",lines:[['Đảng viên',F(VH.dv),'người'],['Chi bộ trực thuộc',78,'chi bộ'],['Kết nạp đảng viên mới trong quý',11,'người']]},
+  {g:'DANG',name:'Công tác kiểm tra, giám sát',n:2,ky:'Quý 2/2026',lines:[['Cuộc kiểm tra, giám sát',9,'cuộc'],['Trường hợp thi hành kỷ luật',1,'trường hợp']]},
+  {g:'DANG',name:'Tuyên giáo và Dân vận phường',n:2,ky:'Quý 2/2026',lines:[['Buổi học tập, quán triệt nghị quyết',6,'buổi'],['Mô hình “Dân vận khéo” đăng ký',14,'mô hình']]},
+  {g:'HDND',name:'HĐND phường · Theo dõi nhiệm vụ',n:1,ky:'Quý 2/2026',lines:[['Nhiệm vụ đang theo dõi',18,'nhiệm vụ']]},
+  {g:'HDND',name:'Tiếp xúc cử tri',n:1,ky:'Quý 2/2026',lines:[['Ý kiến, kiến nghị cử tri',46,'kiến nghị'],['Đã trả lời',38,'kiến nghị']]},
+  {g:'HDND',name:'Giám sát chuyên đề',n:1,ky:'Quý 2/2026',lines:[['Cuộc giám sát chuyên đề',3,'cuộc']]},
+  {g:'HDND',name:'Thẩm tra ngân sách phường',n:1,ky:'Năm 2026',lines:[['Dự toán chi ngân sách phường',F(186.4,1),'tỷ đồng']]},
+  {g:'UBND',name:'Văn phòng UBND phường',n:1,ky:'Quý 2/2026',lines:[['Nhiệm vụ đang theo dõi',96,'nhiệm vụ'],['Hoàn thành đúng hạn',F(91.7,1),'%']]},
+  {g:'UBND',name:'Bộ phận Một cửa · Thủ tục hành chính',n:1,ky:'Quý 2/2026',lines:[['Hồ sơ tiếp nhận',F(VH_HS),'hồ sơ'],['Giải quyết đúng hạn',F(99.2,1),'%'],['Nộp trực tuyến',F(82.4,1),'%']]},
+  {g:'UBND',name:'Địa chính · Xây dựng · Đô thị · Môi trường',n:3,ky:'Quý 2/2026',lines:[['Hồ sơ cấp giấy chứng nhận quyền sử dụng đất',64,'hồ sơ'],['Vụ vi phạm trật tự xây dựng',11,'vụ'],['Phản ánh đô thị, môi trường, úng ngập',214,'phản ánh']]},
+  {g:'UBND',name:'Tư pháp · Hộ tịch',n:3,ky:'Quý 2/2026',lines:[['Đăng ký khai sinh',F(Math.round(VH.ds*0.0131/4)),'hồ sơ'],['Đăng ký kết hôn',142,'hồ sơ'],['Chứng thực bản sao, chữ ký',F(3860),'hồ sơ']]},
+  {g:'UBND',name:'Văn hóa · Xã hội',n:2,ky:'Năm 2025',lines:[['Hộ cận nghèo',F(VH.cn),'hộ'],['Người có công, thân nhân đang hưởng trợ cấp',F(1248),'người']]},
+  {g:'UBND',name:'Trạm Y tế phường',n:2,ky:'Quý 2/2026',lines:[['Lượt khám, chữa bệnh',F(VH_KCB),'lượt'],['Trẻ tiêm chủng đầy đủ',F(98.6,1),'%']]},
+  {g:'UBND',name:'Công an phường · An ninh trật tự',n:2,ky:'Quý 2/2026',lines:[['Vụ việc an ninh trật tự',23,'vụ'],['Vụ cháy',1,'vụ']]},
+  {g:'MTTQ',name:'MTTQ phường · Theo dõi nhiệm vụ',n:1,ky:'Quý 2/2026',lines:[['Nhiệm vụ đang theo dõi',12,'nhiệm vụ']]},
+  {g:'MTTQ',name:'Vận động Quỹ “Vì người nghèo”',n:2,ky:'Năm 2025',go:"go('xa')",lines:[['Số tiền vận động',F(VH.q/1000,2),'tỷ đồng'],['Nhà Đại đoàn kết xây mới, sửa chữa',VH.nha,'căn']]},
+  {g:'MTTQ',name:'Giám sát · Phản biện xã hội',n:1,ky:'Quý 2/2026',lines:[['Cuộc giám sát, phản biện',4,'cuộc']]},
+  {g:'MTTQ',name:'Đoàn thể chính trị – xã hội phường',n:1,ky:'Quý 2/2026',lines:[['Hoạt động, phong trào của đoàn thể',38,'hoạt động']]}
+];
+var VH_GROUPS=[{id:'DANG',label:'Đảng ủy phường',ax:'Đảng ủy'},{id:'HDND',label:'HĐND phường',ax:'HĐND'},{id:'UBND',label:'UBND phường',ax:'UBND'},{id:'MTTQ',label:'Ủy ban MTTQ phường',ax:'MTTQ'}];
+var VH_GRP='all';
+function vhPick(id){VH_GRP=(VH_GRP===id||id==='all')?'all':id;render()}
+function screenVh(){
+  var K=[
+    {l:'Đảng viên',v:F(VH.dv),u:'',src:'Đảng ủy phường · Quý 2/2026',go:"go('dang')"},
+    {l:'Hồ sơ thủ tục hành chính tiếp nhận',v:F(VH_HS),u:'',src:'UBND · Một cửa · Quý 2/2026'},
+    {l:'Giải quyết đúng hạn',v:F(99.2,1),u:'%',src:'UBND · Một cửa · Quý 2/2026'},
+    {l:'Phản ánh đô thị, môi trường',v:'214',u:'phản ánh',src:'UBND · Địa chính · Quý 2/2026'},
+    {l:'Lượt khám, chữa bệnh',v:F(VH_KCB),u:'lượt',src:'UBND · Trạm Y tế · Quý 2/2026'},
+    {l:'Kiến nghị cử tri',v:'46',u:'kiến nghị',src:'HĐND phường · Quý 2/2026'},
+    {l:'Quỹ “Vì người nghèo” vận động',v:F(VH.q/1000,2),u:'tỷ đồng',src:'MTTQ phường · Năm 2025',go:"go('xa')"},
+    {l:'Vụ việc an ninh trật tự',v:'23',u:'vụ',src:'Công an phường · Quý 2/2026'}
+  ];
+  var g=VH_GROUPS.find(function(x){return x.id===VH_GRP}), shown=g?VH_UNITS.filter(function(u){return u.g===g.id}):VH_UNITS;
+  var h='<div class="stc-root uo-root"><section class="uo-band"><div class="uo-head"><div><div class="stc-eyebrow">Tổng quan · Phường Việt Hưng</div><h2>Số liệu then chốt của 4 trục, '+VH_UNITS.length+' đơn vị</h2></div><p class="uo-hint">Diện tích '+F(VH.dt,2)+' km²'+R()+' · dân số '+F(VH.ds)+' người'+R()+' · mật độ '+F(VH.den)+' người/km² · bấm ô để mở chi tiết</p></div>';
+  h+='<div class="uo-kscroll"><div class="uo-kpis">'+K.map(uoKpi).join('')+'</div></div>';
+  h+='<div class="uo-secrow"><div class="stc-sec">Bốn trục của phường · bấm một trục để lọc danh sách bên dưới</div><button type="button" class="uo-all'+(g?'':' on')+'" onclick="vhPick(\'all\')">Tất cả '+VH_UNITS.length+' đơn vị</button></div>';
+  h+='<div class="uo-groups">'+VH_GROUPS.map(function(x){return uoGroup(x,VH_UNITS,VH_GRP,'vhPick','đơn vị')}).join('')+'</div></section>';
+  h+='<div class="uo-secrow uo-gridhead"><div class="stc-sec">'+(g?E(g.label)+' · ':'')+shown.length+' đơn vị · bấm thẻ để xem chi tiết (bản mẫu dựng sẵn Công tác tổ chức xây dựng Đảng)</div></div>';
+  h+='<div class="uo-grid">'+shown.map(function(u){var G=VH_GROUPS.find(function(x){return x.id===u.g});return uoCard(u,G.ax,G.label)}).join('')+'</div></div>';
+  return WIDGET('Nhóm chỉ tiêu theo lĩnh vực được phép xem','Tài khoản phường Việt Hưng · đủ 4 trục của phường',h);
+}
+
+/* ============================== MÀN 6: CÔNG TÁC XÂY DỰNG ĐẢNG · ĐẢNG ỦY PHƯỜNG VIỆT HƯNG ============================== */
+function screenDang(){
+  var dv=VH.dv, dvP=dv-15, dvR=dv-72;
+  var K=[
+    {l:'Tổng số đảng viên',v:F(dv),u:'người, cuối quý',dl:DL(dv,dvP,{ref:'quý trước'})},
+    {l:'Đảng viên chính thức',v:F(dvR),u:'72 đảng viên dự bị',dl:DL(dvR,dvR-9)},
+    {l:'Chi bộ trực thuộc',v:'78',u:'52 chi bộ khu dân cư',dl:DL(78,78)},
+    {l:'Kết nạp đảng viên mới',v:'11',u:'người trong quý',dl:DL(11,8)},
+    {l:'Biến động thuần trong quý',v:'+15',u:'đến 23 · đi 17 · từ trần 2',dl:'<span class="stc-dl na">Kết nạp + đến − đi − từ trần</span>'},
+    {l:'Đảng viên dưới 35 tuổi',v:F(7.4,1)+'%',u:F(Math.round(dv*0.074))+' người',dl:DL(7.4,7.1,{rate:true})},
+    {l:'Hoàn thành tốt nhiệm vụ trở lên',v:F(91.6,1)+'%',u:'đánh giá năm 2025',dl:DL(91.6,90.2,{rate:true,ref:'năm 2024'})},
+    {l:'Huy hiệu Đảng trao trong quý',v:'64',u:'đảng viên',dl:DL(64,58,{neutral:true})}
+  ];
+  var lv=function(t,a,b){return a.map(function(x){return GL(x[0],x[1],x[2],x[3])})};
+  var groups=[
+    GCARD('Đảng viên',lv('',[['Tổng số đảng viên',F(dv),'người',DL(dv,dvP)],['Đảng viên nữ',F(43.8,1),'%',DL(43.8,43.6,{rate:true})],['Trình độ đại học trở lên',F(71.2,1),'%',DL(71.2,70.8,{rate:true})],['Đảng viên trên 60 tuổi',F(48.5,1),'%',DL(48.5,48.9,{rate:true,neutral:true})]]),'Xem nhóm Đảng viên'),
+    GCARD('Tổ chức cơ sở đảng',lv('',[['Chi bộ trực thuộc','78','chi bộ',DL(78,78)],['Chi bộ khu dân cư','52','chi bộ',''],['Chi bộ trường học','14','chi bộ',''],['Chi bộ cơ quan, doanh nghiệp','12','chi bộ','']]),'Xem nhóm Tổ chức cơ sở đảng'),
+    GCARD('Kết nạp và biến động',lv('',[['Kết nạp mới','11','người',DL(11,8)],['Chuyển sinh hoạt đến','23','người',DL(23,19,{neutral:true})],['Chuyển sinh hoạt đi','17','người',DL(17,21,{neutral:true})],['Từ trần, xóa tên','2','người','']]),'Xem nhóm Kết nạp và biến động'),
+    GCARD('Đánh giá chất lượng',lv('',[['Hoàn thành xuất sắc nhiệm vụ',F(18.4,1),'%',DL(18.4,17.6,{rate:true})],['Hoàn thành tốt nhiệm vụ',F(73.2,1),'%',DL(73.2,72.6,{rate:true})],['Không hoàn thành nhiệm vụ',F(0.3,1),'%',DL(0.3,0.5,{rate:true,inv:true})],['Chi bộ “trong sạch, vững mạnh”',F(84.6,1),'%',DL(84.6,82.1,{rate:true})]]),'Xem nhóm Đánh giá chất lượng'),
+    GCARD('So với 126 xã, phường',[ '<div class="stc-gl"><span>Đảng viên trên 1.000 dân</span><span class="stc-v">'+F(dv/VH.ds*1000,1)+'</span><span><span class="mk-rank">Hạng '+(1+U.filter(function(x){return x.dv/x.ds>VH.dv/VH.ds}).length)+'/126</span></span></div>','<div class="stc-gl"><span>Tổng số đảng viên</span><span class="stc-v">'+F(dv)+'</span><span><span class="mk-rank">Hạng '+(1+U.filter(function(x){return x.dv>VH.dv}).length)+'/126</span></span></div>','<div class="stc-gl"><span>Bảng 126 đảng bộ xã, phường, lọc phường / xã, tìm theo tên</span><span></span><span></span></div>'],'Xem theo xã, phường','mkSoon()',true)
+  ];
+  var cb=[['Chi bộ Khu dân cư số 1',78],['Chi bộ Khu dân cư số 2',71],['Chi bộ Khu dân cư số 3',66],['Chi bộ Khu dân cư số 4',63],['Chi bộ Khu dân cư số 5',59],['Chi bộ Trường THCS',22],['Chi bộ Trường Tiểu học',19],['Chi bộ Trạm Y tế',9]];
+  var cbMax=cb[0][1];
+  var tbl='<div class="mk-scroll"><table class="stc-tbl"><thead><tr><th>Chi bộ</th><th>Đảng viên</th><th>Trên 60 tuổi</th><th>Kết nạp trong quý</th></tr></thead><tbody>'+cb.map(function(r,i){return '<tr><td>'+E(r[0])+'</td><td>'+r[1]+'</td><td>'+(i<5?Math.round(r[1]*0.58):Math.round(r[1]*0.12))+'</td><td>'+(i%3===0?1:0)+'</td></tr>'}).join('')+'</tbody></table></div><div class="stc-hint" style="margin-top:8px">8 / 78 chi bộ · tên chi bộ minh họa, bản chạy thật lấy đúng danh sách của Đảng ủy phường.</div>';
+  var age=[['Dưới 35 tuổi',7.4,'var(--s1)'],['35 – 45 tuổi',13.9,'var(--s3)'],['46 – 60 tuổi',30.2,'var(--s4)'],['Trên 60 tuổi',48.5,'var(--s2)']];
+  var ageH='<div class="stc-stack">'+age.map(function(a){return '<i style="flex:'+a[1]+';background:'+a[2]+'" title="'+E(a[0])+'"></i>'}).join('')+'</div>'+age.map(function(a){return PG(a[0],F(Math.round(dv*a[1]/100))+' người',a[1],a[2])}).join('');
+  var h=TOOLBAR(LNK('← Phường Việt Hưng',"go('vh')"),'Kỳ báo cáo','Quý 2/2026');
+  h+='<div class="stc-kpis">'+K.map(KPI).join('')+'</div>';
+  h+='<div class="stc-secrow"><div class="stc-sec">Bốn nhóm chỉ tiêu · mỗi nhóm một màn hình</div><div style="display:flex;gap:18px;flex-wrap:wrap">'+LNK('Theo chi bộ ›','mkSoon()')+LNK('So với 126 xã, phường ›','mkSoon()')+'</div></div>';
+  h+='<div class="sgd-g3">'+groups.join('')+'</div>';
+  h+='<div class="stc-secrow"><div class="stc-sec">Ví dụ nội dung một nhóm (Đảng viên)</div></div>';
+  h+='<div class="stc-g2">'+CARD({t:'Cơ cấu đảng viên theo độ tuổi',s:'Quý 2/2026 · '+F(dv)+' đảng viên',b:ageH})+CARD({t:'Đảng viên theo chi bộ',s:'Quý 2/2026 · xếp theo số đảng viên',b:tbl})+'</div>';
+  h+='<div class="stc-mt">'+NOTE('<b>Cách đọc:</b> kỳ báo cáo là quý, so với quý liền trước; đánh giá chất lượng là kỳ năm. Số đảng viên ước tính khoảng 3,5% dân số phường (dân số thật '+F(VH.ds)+' người); chờ Đảng ủy phường cung cấp số chính thức.')+'</div>';
+  h+='<div class="stc-foot"><span>Kỳ báo cáo quý, so với Quý 1/2026.</span><span>Quý 2/2026</span></div>';
+  return MODAL('Công tác tổ chức xây dựng Đảng','Đảng ủy phường Việt Hưng · 8 chỉ tiêu',h);
+}
+
+/* ============================== ĐIỀU HƯỚNG ============================== */
+var SCREENS=[
+  {id:'mttq',t:'MTTQ Thành phố',s:'Màn ngoài · 17 đơn vị',f:screenMttq},
+  {id:'tgxh',t:'Ban Tuyên giáo và CTXH',s:'Chi tiết · Tổng quan',f:screenTgxh},
+  {id:'quy',t:'Quỹ “Vì người nghèo”',s:'Chi tiết · một nhóm',f:screenQuy},
+  {id:'xa',t:'Theo 126 xã, phường',s:'Chi tiết · xếp hạng',f:screenXa},
+  {id:'vh',t:'Phường Việt Hưng',s:'Màn ngoài · 4 trục',f:screenVh},
+  {id:'dang',t:'Xây dựng Đảng · Việt Hưng',s:'Chi tiết · Tổng quan',f:screenDang}
+];
+var CUR='mttq';
+try{var h0=(location.hash||'').slice(1);if(SCREENS.some(function(s){return s.id===h0}))CUR=h0}catch(e){}
+function go(id){CUR=id;XS.sel=null;try{history.replaceState(null,'','#'+id)}catch(e){}render();window.scrollTo(0,0)}
+function render(){
+  document.getElementById('mkNav').innerHTML=SCREENS.map(function(s){return '<button type="button" class="mk-tab'+(s.id===CUR?' on':'')+'" aria-pressed="'+(s.id===CUR)+'" onclick="go(\''+s.id+'\')"><b>'+E(s.t)+'</b><small>'+E(s.s)+'</small></button>'}).join('');
+  document.getElementById('mkScreen').innerHTML=SCREENS.find(function(s){return s.id===CUR}).f();
+}
+render();
+</script>

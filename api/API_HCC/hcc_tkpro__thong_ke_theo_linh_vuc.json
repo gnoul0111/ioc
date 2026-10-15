@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_type": "response_baseline_schema_v1",
+  "source": "hcc_tkpro",
+  "endpoint": "thong_ke_theo_linh_vuc",
+  "table_name": "iceberg.bronze.hcc_tkpro__thong_ke_theo_linh_vuc",
+  "version": 1,
+  "allow_additive": true,
+  "fields": {
+    "id": "int64",
+    "name": "string",
+    "total": "int64",
+    "totalTrucTuyen": "int64",
+    "totalTrucTiep": "int64",
+    "totalBCCI": "int64",
+    "totalKyTruoc": "int64",
+    "totalHT": "int64"
+  },
+  "required_fields": [
+    "id"
+  ],
+  "defaults": {
+    "id": null,
+    "name": null,
+    "total": null,
+    "totalTrucTuyen": null,
+    "totalTrucTiep": null,
+    "totalBCCI": null,
+    "totalKyTruoc": null,
+    "totalHT": null
+  }
+}

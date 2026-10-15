@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_type": "response_baseline_schema_v1",
+  "source": "hcc_tkpro",
+  "endpoint": "thong_ke_tai_khoan",
+  "table_name": "iceberg.bronze.hcc_tkpro__thong_ke_tai_khoan",
+  "version": 1,
+  "allow_additive": true,
+  "fields": {
+    "congDan": "int64",
+    "doanhNghiep": "int64"
+  },
+  "required_fields": [
+    "congDan",
+    "doanhNghiep"
+  ],
+  "defaults": {
+    "congDan": null,
+    "doanhNghiep": null
+  }
+}

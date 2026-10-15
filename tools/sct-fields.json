@@ -1,0 +1,342 @@
+[
+ {
+  "eform": "Eform Xuất khẩu Nhập khẩu",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Tên doanh nghiệp/đơn vị XNK",
+    "ten_doanh_nghiep",
+    "Chữ"
+   ],
+   [
+    "Loại hình doanh nghiệp",
+    "loai_hinh_doanh_nghiep",
+    "Chữ"
+   ],
+   [
+    "Ngành hàng/Mặt hàng",
+    "nganh_hang_mat_hang",
+    "Chữ"
+   ],
+   [
+    "Loại hình hoạt động",
+    "loai_hinh_hoat_dong",
+    "Danh mục"
+   ],
+   [
+    "Thị trường chính",
+    "thi_truong_chinh",
+    "Chữ"
+   ],
+   [
+    "Kim ngạch xuất khẩu (USD)",
+    "kim_ngach_xuat_khau_usd",
+    "Số"
+   ],
+   [
+    "Kim ngạch nhập khẩu (USD)",
+    "kim_ngach_nhap_khau_usd",
+    "Số"
+   ],
+   [
+    "Tổng kim ngạch XNK (USD)",
+    "tong_kim_ngach_xnk_usd",
+    "Số"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Bán lẻ hàng hóa và Doanh thu dịch vụ tiêu dùng",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Tên cơ sở/doanh nghiệp kinh doanh",
+    "ten_co_so_doanh_nghiep",
+    "Chữ"
+   ],
+   [
+    "Loại hình kinh doanh",
+    "loai_hinh_kinh_doanh",
+    "Chữ"
+   ],
+   [
+    "Ngành hàng/Lĩnh vực dịch vụ chính",
+    "nganh_hang_linh_vuc_dich_vu_chinh",
+    "Chữ"
+   ],
+   [
+    "Doanh thu bán lẻ hàng hóa (đồng)",
+    "doanh_thu_ban_le_hang_hoa_dong",
+    "Số"
+   ],
+   [
+    "Doanh thu dịch vụ (đồng)",
+    "doanh_thu_dich_vu_dong",
+    "Số"
+   ],
+   [
+    "Tổng mức bán lẻ & DV tiêu dùng (đồng)",
+    "tong_muc_ban_le_dv_tieu_dung_dong",
+    "Số"
+   ],
+   [
+    "Doanh thu kỳ trước liền kề (đồng)",
+    "doanh_thu_ky_truoc_lien_ke_dong",
+    "Số"
+   ],
+   [
+    "Tốc độ tăng so với kỳ trước (%)",
+    "toc_do_tang_ky_truoc_phan_tram",
+    "Số"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Thương mại điện tử",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Mã chỉ tiêu con (CĐS)",
+    "ma_chi_tieu_con_cds",
+    "Danh mục"
+   ],
+   [
+    "Đối tượng thống kê",
+    "doi_tuong_thong_ke",
+    "Danh mục"
+   ],
+   [
+    "Tổng số đối tượng",
+    "tong_so_doi_tuong",
+    "Số"
+   ],
+   [
+    "Số đối tượng đạt",
+    "so_doi_tuong_dat",
+    "Số"
+   ],
+   [
+    "Tỷ lệ đạt (%)",
+    "ty_le_dat_phan_tram",
+    "Số"
+   ],
+   [
+    "Nền tảng số/Hình thức áp dụng",
+    "nen_tang_so_hinh_thuc_ap_dung",
+    "Chữ"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Điện năng, Xăng dầu, Than",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Mã chỉ tiêu QĐ4795",
+    "ma_chi_tieu_qd4795",
+    "Danh mục"
+   ],
+   [
+    "Loại mặt hàng",
+    "loai_mat_hang",
+    "Danh mục"
+   ],
+   [
+    "Tên đơn vị cung ứng/kinh doanh",
+    "ten_don_vi_cung_ung",
+    "Chữ"
+   ],
+   [
+    "Loại hình đơn vị",
+    "loai_hinh_don_vi",
+    "Danh mục"
+   ],
+   [
+    "Sản lượng trong kỳ",
+    "san_luong_trong_ky",
+    "Số"
+   ],
+   [
+    "Đơn vị tính",
+    "don_vi_tinh",
+    "Danh mục"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Chỉ số sản xuất công nghiệp (IIP)",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Tên doanh nghiệp/cơ sở sản xuất",
+    "ten_doanh_nghiep_co_so",
+    "Chữ"
+   ],
+   [
+    "Ngành công nghiệp (VSIC)",
+    "nganh_cong_nghiep_vsic",
+    "Danh mục"
+   ],
+   [
+    "Giá trị sản xuất công nghiệp kỳ này (đồng)",
+    "gia_tri_sx_ky_nay_dong",
+    "Số"
+   ],
+   [
+    "Giá trị sản xuất công nghiệp kỳ trước (đồng)",
+    "gia_tri_sx_ky_truoc_dong",
+    "Số"
+   ],
+   [
+    "Chỉ số IIP so với kỳ trước",
+    "chi_so_iip_ky_truoc_phan_tram",
+    "Số"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ }
+]

@@ -1,0 +1,4335 @@
+ /* ============================== CHẾ ĐỘ SÁNG (theme-light) — chỉ đổi màu, không đổi bố cục/HTML ============================== */
+ html.theme-light {
+    --muted: #475569;
+    --text: #111827;
+    --line-soft: rgba(157, 21, 28, .18);
+    --panel: #F9FAFB;
+    --panel2: #F3F4F6;
+    --surface-1: #ffffff;
+    --surface-2: #f8fafc
+ }
+
+ html.theme-light body {
+    background: #EEF1F4
+ }
+
+ html.theme-light .login {
+    background: #F5F6F8
+ }
+
+ /* ===== Bộ màu TRẠNG THÁI chuẩn hóa theo Design Token ===== Cả 2 hệ trạng thái (statusDefs = nhiệm vụ giao/nhận,
+ CAT_ST = chỉ tiêu đạt/không đạt mục tiêu) đều tô màu qua inline style (background/color lấy trực tiếp từ dữ liệu
+ JS, không qua class CSS) nên phải bắt theo đúng mã hex gốc từng trạng thái, không sửa được bằng cách đổi 1 class
+ chung. Mỗi trạng thái có 2 rule: 1 set màu chữ, 1 set nền pastel + viền cho badge/pill. */
+ html.theme-light [style*="color:#58b7ff"] {
+    color: #2563EB !important
+ }
+
+ html.theme-light [style*="background:#58b7ff"]:not(i):not(.seg):not(.rank-fill) {
+    background: #EFF6FF !important;
+    border-color: #93C5FD !important
+ }
+
+ html.theme-light [style*="color:#2c7dd2"] {
+    color: #0891B2 !important
+ }
+
+ html.theme-light [style*="background:#2c7dd2"]:not(i):not(.seg):not(.rank-fill) {
+    background: #ECFEFF !important;
+    border-color: #67E8F9 !important
+ }
+
+ html.theme-light [style*="color:#d8a50c"] {
+    color: #D97706 !important
+ }
+
+ html.theme-light [style*="background:#d8a50c"]:not(i):not(.seg):not(.rank-fill) {
+    background: #FFFBEB !important;
+    border-color: #FCD34D !important
+ }
+
+ html.theme-light [style*="color:#8b5cf6"] {
+    color: #7C3AED !important
+ }
+
+ html.theme-light [style*="background:#8b5cf6"]:not(i):not(.seg):not(.rank-fill) {
+    background: #F5F3FF !important;
+    border-color: #C4B5FD !important
+ }
+
+ html.theme-light [style*="color:#2fb174"] {
+    color: #059669 !important
+ }
+
+ html.theme-light [style*="background:#2fb174"]:not(i):not(.seg):not(.rank-fill) {
+    background: #ECFDF5 !important;
+    border-color: #6EE7B7 !important
+ }
+
+ html.theme-light [style*="color:#6f93b3"] {
+    color: #64748B !important
+ }
+
+ html.theme-light [style*="background:#6f93b3"]:not(i):not(.seg):not(.rank-fill) {
+    background: #F1F5F9 !important;
+    border-color: #CBD5E1 !important
+ }
+
+ html.theme-light [style*="color:#d33a44"] {
+    color: #DC2626 !important
+ }
+
+ html.theme-light [style*="background:#d33a44"]:not(i):not(.seg):not(.rank-fill) {
+    background: #FEF2F2 !important;
+    border-color: #FCA5A5 !important
+ }
+
+ html.theme-light [style*="color:#39d5ff"] {
+    color: #2563EB !important
+ }
+
+ html.theme-light [style*="background:#39d5ff"]:not(i):not(.seg):not(.rank-fill) {
+    background: #EFF6FF !important;
+    border-color: #93C5FD !important
+ }
+
+ html.theme-light [style*="color:#d25a19"] {
+    color: #64748B !important
+ }
+
+ html.theme-light [style*="background:#d25a19"]:not(i):not(.seg):not(.rank-fill) {
+    background: #F1F5F9 !important;
+    border-color: #CBD5E1 !important
+ }
+
+ html.theme-light [style*="color:#ef4444"] {
+    color: #DC2626 !important
+ }
+
+ html.theme-light [style*="background:#ef4444"]:not(i):not(.seg):not(.rank-fill) {
+    background: #FEF2F2 !important;
+    border-color: #FCA5A5 !important
+ }
+
+ /* Bộ màu trạng thái chuẩn hóa theo Design Token — dùng cho số/nhãn tô màu theo ngữ nghĩa (.ok/.warn/.blue là utility class dùng lại ở rất nhiều KPI, số liệu) */
+ html.theme-light .ok {
+    color: #059669
+ }
+
+ html.theme-light .warn {
+    color: #D97706
+ }
+
+ html.theme-light .blue {
+    color: #2563EB
+ }
+
+ html.theme-light button:not(:disabled):hover {
+    filter: brightness(1.06)
+ }
+
+ html.theme-light .app-bg-grid:before,
+ html.theme-light .app-bg-grid:after {
+    opacity: .15
+ }
+
+ html.theme-light .app {
+    color: #111827;
+    background: #F9FAFB;
+
+ }
+
+ html.theme-light .side-nav {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, .1)
+ }
+
+ html.theme-light .side-nav-body {
+    color: #111827
+ }
+
+ html.theme-light .snav-row,
+ html.theme-light .snav-main,
+ html.theme-light .snav-row.snav-leaf {
+    color: #111827
+ }
+
+ html.theme-light .snav-row:hover {
+    background: #f4f2fb
+ }
+
+ html.theme-light .snav-children {
+    border-left-color: #D5DAE3
+ }
+
+ html.theme-light .snav-caret,
+ html.theme-light .snav-caret-btn {
+    color: #475569
+ }
+
+ html.theme-light .snav-main:hover {
+    color: #9d151c
+ }
+
+ html.theme-light .topbar {
+    border-bottom-color: #D5DAE3
+ }
+
+ html.theme-light .top-header-overview,
+ body[data-cms-theme="light"] .top-header-overview {
+    border-radius: 14px;
+ }
+
+ html.theme-light .brand h1 {
+    color: #9d151c;
+    text-shadow: none
+ }
+
+ html.theme-light .brand .sub,
+ body[data-cms-theme="light"] .brand .sub {
+    color: #000 !important
+ }
+
+ html.theme-light .clock-card {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .clock-card .muted {
+    color: #475569
+ }
+
+ html.theme-light .user-pill {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .user-menu {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    box-shadow: 0 15px 50px rgba(15, 23, 42, .12)
+ }
+
+ html.theme-light .user-menu-item {
+    color: #111827
+ }
+
+ html.theme-light .user-menu-item:hover {
+    background: #fdeceb;
+    color: #9d151c
+ }
+
+ html.theme-light #currentRoleName,
+ body[data-cms-theme="light"] #currentRoleName {
+    color: #000 !important
+ }
+
+ html.theme-light .user-pill small {
+    color: #475569
+ }
+
+ html.theme-light .role-icon {
+    background: linear-gradient(180deg, #fdeceb, #f8dcda);
+    border-color: #f3c8c6
+ }
+
+ /* Màn đăng nhập — theme sáng được lưu qua localStorage nên có thể hiện lại ở đây (trước khi vào app), phải đồng bộ luôn */
+ html.theme-light .hero,
+ html.theme-light .login-card {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, .1)
+ }
+
+ html.theme-light .hero h1 {
+    color: #9d151c;
+    text-shadow: none
+ }
+
+ html.theme-light .hero .sub,
+ html.theme-light .login-card p {
+    color: #475569
+ }
+
+ html.theme-light .login-card h2 {
+    color: #111827
+ }
+
+ html.theme-light .hero-tile {
+    background: #f8f9fb;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .hero-tile b {
+    color: #111827
+ }
+
+ html.theme-light .hero-tile span {
+    color: #475569
+ }
+
+ html.theme-light .acct-combo-trigger {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .acct-combo-panel {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, .15)
+ }
+
+ html.theme-light .acct-search {
+    background: #fff;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .acct-main,
+ html.theme-light .acct-leaf {
+    color: #111827
+ }
+
+ html.theme-light .acct-main:hover,
+ html.theme-light .acct-leaf:hover {
+    background: #f4f2fb
+ }
+
+ html.theme-light .acct-leaf.active {
+    background: #fdeceb;
+    color: #9d151c
+ }
+
+ html.theme-light .ghost {
+    background: #F9FAFB;
+    border-color: #CBD5E1;
+    color: #334155
+ }
+
+ html.theme-light .ghost:hover {
+    background: #f7f5fb
+ }
+
+ html.theme-light .primary {
+    background: linear-gradient(180deg, #B91C1C, #7F1D1D);
+    border-color: #7F1D1D;
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(153, 27, 27, .25)
+ }
+
+ html.theme-light .primary:hover {
+    background: linear-gradient(180deg, #991B1B, #7F1D1D)
+ }
+
+ html.theme-light .danger-btn {
+    background: #FEF2F2;
+    border-color: #DC2626;
+    color: #DC2626
+ }
+
+ html.theme-light .logout {
+    background: #fdeceb;
+    border-color: #f3b0b3;
+    color: #9d151c
+ }
+
+ html.theme-light .view-as-banner {
+    background: linear-gradient(180deg, #fef3e3, #fdf7ea);
+    border-color: #f0d68a;
+    color: #8a6a12
+ }
+
+ html.theme-light .top-overview-head,
+ html.theme-light .widget-head,
+ html.theme-light .modal-head,
+ html.theme-light .indicator-table-head,
+ html.theme-light .task-scenario-heading,
+ html.theme-light .side-nav-head {
+    background: linear-gradient(135deg, #991B1B, #C62828);
+    color: #fff;
+    border-bottom-color: transparent
+ }
+
+ html.theme-light .top-overview-title,
+ html.theme-light .widget-title,
+ html.theme-light .side-nav-head span {
+    color: #fff
+ }
+
+ html.theme-light .mini-btn {
+    color: #fff
+ }
+
+ html.theme-light .card-head .mini-btn {
+    background: #f2f4f8;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .detail-card h4,
+ html.theme-light .pie-card h3,
+ html.theme-light .scenario-card h4 {
+    color: #1E293B;
+    font-weight: 600
+ }
+
+ html.theme-light .modal-head h3 {
+   color: #fff !important
+ }
+ html.theme-light .modal-head .muted {
+color: #fff !important
+ }
+
+ html.theme-light .widget-title,
+ html.theme-light .top-overview-title {
+    color: #fff !important
+ }
+
+ /* .drawer-head luôn có nền gradient đỏ thương hiệu (xem rule background bên dưới) bất kể
+    theme, nên chữ bên trong phải luôn sáng màu — không dùng màu chữ tối như .modal-head. */
+ html.theme-light .drawer .drawer-head h3 {
+    color: #fff
+ }
+
+ html.theme-light .drawer .drawer-head p,
+ html.theme-light .drawer .drawer-head .muted {
+    color: rgba(255, 255, 255, .82)
+ }
+
+ html.theme-light .muted,
+ html.theme-light .kv b,
+ html.theme-light .pie-note,
+ html.theme-light .scenario-meta-note,
+ html.theme-light .subtask-meta-note {
+    color: #475569
+ }
+
+ html.theme-light .kv span {
+    color: #111827
+ }
+
+ html.theme-light .field label {
+    color: #475569
+ }
+
+ html.theme-light .field-opt-row:hover,
+ html.theme-light .unit-check-row:hover {
+    background: #f4f2fb
+ }
+
+ html.theme-light input,
+ html.theme-light select,
+ html.theme-light textarea {
+    background: #f8f9fb !important;
+    color: #111827 !important;
+    border-color: #D5DAE3 !important
+ }
+
+ html.theme-light select {
+    color-scheme: light
+ }
+
+ html.theme-light select option {
+    background: #fff;
+    color: #111827
+ }
+
+ html.theme-light #ouaScreen select {
+    color-scheme: dark
+ }
+
+ html.theme-light input[type=date] {
+    color-scheme: light
+ }
+
+ html.theme-light input::placeholder,
+ html.theme-light textarea::placeholder {
+    color: #475569 !important
+ }
+
+ html.theme-light input:focus,
+ html.theme-light select:focus,
+ html.theme-light textarea:focus {
+    border-color: #9d151c !important;
+    box-shadow: 0 0 0 3px rgba(157, 21, 28, .12) !important
+ }
+
+ html.theme-light input[type=checkbox] {
+    background: #f8f9fb !important;
+    border-color: #D5DAE3 !important
+ }
+
+ html.theme-light input[type=checkbox]:checked {
+    background: #9d151c !important;
+    border-color: #9d151c !important
+ }
+
+ html.theme-light input[type=file]::file-selector-button,
+ html.theme-light input[type=file]::-webkit-file-upload-button {
+    background: #eef1f6 !important;
+    color: #111827 !important;
+    border-color: #D5DAE3 !important
+ }
+
+ html.theme-light input[type=file]::file-selector-button:hover,
+ html.theme-light input[type=file]::-webkit-file-upload-button:hover {
+    background: #e2e6ee !important
+ }
+
+ html.theme-light .ms-dropdown,
+ body[data-cms-theme="light"] .ms-dropdown {
+    background: #F9FAFB !important;
+    border-color: #D5DAE3 !important;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, .12)
+ }
+
+ /* Ô trigger (khung đóng) của .ms-wrap dùng màu nền tối cố định (#061528) trong
+    style.css gốc, không theo biến theme -> phải ép sáng lại ở đây, nếu không ô
+    chọn đơn vị/lĩnh vực/mức độ... vẫn hiện thành khối tối giữa form sáng. */
+ html.theme-light .ms-trigger,
+ body[data-cms-theme="light"] .ms-trigger,
+ html.theme-light .ms-control,
+ body[data-cms-theme="light"] .ms-control {
+    background: #F9FAFB !important;
+    border-color: #D5DAE3 !important;
+    color: #111827 !important;
+ }
+
+ html.theme-light .ms-control:hover,
+ body[data-cms-theme="light"] .ms-control:hover {
+    border-color: #9d151c !important;
+ }
+
+ html.theme-light .ms-panel,
+ body[data-cms-theme="light"] .ms-panel {
+    background: #ffffff !important;
+    border-color: #D5DAE3 !important;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, .12) !important;
+ }
+
+ html.theme-light .ms-search,
+ body[data-cms-theme="light"] .ms-search {
+    border-bottom-color: #E2E8F0 !important;
+ }
+
+ html.theme-light .ms-search input,
+ body[data-cms-theme="light"] .ms-search input {
+    background: #F9FAFB !important;
+    border-color: #D5DAE3 !important;
+    color: #111827 !important;
+ }
+
+ html.theme-light .ms-option,
+ body[data-cms-theme="light"] .ms-option {
+    color: #111827 !important;
+ }
+
+ html.theme-light .ms-option:hover,
+ body[data-cms-theme="light"] .ms-option:hover {
+    background: rgba(157, 21, 28, .08) !important;
+ }
+
+ html.theme-light .ms-tag,
+ body[data-cms-theme="light"] .ms-tag {
+    background: rgba(157, 21, 28, .08) !important;
+    border-color: rgba(157, 21, 28, .25) !important;
+    color: #9d151c !important;
+ }
+
+ /* .msf-* = multi-select "Lĩnh vực áp dụng" của form Thêm mới kịch bản (noti/script.js
+    msFieldHtml) — cùng pattern .ms-control/.ms-panel/.ms-tag ở trên nhưng đổi prefix để
+    không đụng .ms-wrap/.ms-trigger; cùng lý do phải ép sáng lại ở đây. */
+ html.theme-light .msf-control,
+ body[data-cms-theme="light"] .msf-control {
+    background: #F9FAFB !important;
+    border-color: #D5DAE3 !important;
+    color: #111827 !important;
+ }
+
+ html.theme-light .msf-control:hover,
+ body[data-cms-theme="light"] .msf-control:hover {
+    border-color: #9d151c !important;
+ }
+
+ html.theme-light .msf-panel,
+ body[data-cms-theme="light"] .msf-panel {
+    background: #ffffff !important;
+    border-color: #D5DAE3 !important;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, .12) !important;
+ }
+
+ html.theme-light .msf-search,
+ body[data-cms-theme="light"] .msf-search {
+    border-bottom-color: #E2E8F0 !important;
+ }
+
+ html.theme-light .msf-search input,
+ body[data-cms-theme="light"] .msf-search input {
+    background: #F9FAFB !important;
+    border-color: #D5DAE3 !important;
+    color: #111827 !important;
+ }
+
+ html.theme-light .msf-option,
+ body[data-cms-theme="light"] .msf-option {
+    color: #111827 !important;
+ }
+
+ html.theme-light .msf-option:hover,
+ body[data-cms-theme="light"] .msf-option:hover {
+    background: rgba(157, 21, 28, .08) !important;
+ }
+
+ html.theme-light .msf-tag,
+ body[data-cms-theme="light"] .msf-tag {
+    background: rgba(157, 21, 28, .08) !important;
+    border-color: rgba(157, 21, 28, .25) !important;
+    color: #9d151c !important;
+ }
+
+ html.theme-light .msf-placeholder,
+ body[data-cms-theme="light"] .msf-placeholder {
+    color: #64748B !important
+ }
+
+ /* .qlnv-box (ô tick trong cây "Chọn đơn vị/người phối hợp" khi giao nhiệm vụ) cũng dùng
+    màu nền tối cố định (rgba(6,21,40,.6)) trong style.css gốc như .ms-trigger ở trên ->
+    cùng lý do phải ép sáng lại ở đây, nếu không ô tick vẫn hiện thành khối đen giữa modal sáng. */
+ html.theme-light .qlnv-box,
+ body[data-cms-theme="light"] .qlnv-box {
+    background: #F9FAFB !important;
+    border-color: #D5DAE3 !important
+ }
+
+ html.theme-light .ms-placeholder,
+ body[data-cms-theme="light"] .ms-placeholder {
+    color: #64748B !important
+ }
+
+ /* .ms-dropdown-title/.ms-dropdown-sub dùng màu chữ sáng cố định (#eaf6ff/#90a7bd) trong
+    style.css gốc cho nền tối -> trên nền sáng của .ms-dropdown vừa ép ở trên, chữ gần như
+    biến mất (trắng trên trắng). Ép lại màu tối tương tự .badge/.ms-placeholder ở trên. */
+ html.theme-light .ms-dropdown-title,
+ body[data-cms-theme="light"] .ms-dropdown-title {
+    color: #111827 !important
+ }
+
+ html.theme-light .ms-dropdown-sub,
+ body[data-cms-theme="light"] .ms-dropdown-sub {
+    color: #64748B !important
+ }
+
+ html.theme-light .badge {
+    background: #f2f4f8;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .unit-chip {
+    background: #eef2ff;
+    border-color: #c7d2e8;
+    color: #1f2937
+ }
+
+ html.theme-light .unit-chip-x {
+    background: rgba(15, 23, 42, .08);
+    color: #1f2937
+ }
+
+ html.theme-light .unit-chip-x:hover {
+    background: rgba(220, 38, 38, .16);
+    color: #b91c1c
+ }
+
+ html.theme-light .badge.gold {
+    border-color: #FCD34D;
+    color: #B45309;
+    background: #FFFBEB
+ }
+
+ html.theme-light .badge.ok {
+    border-color: #6EE7B7;
+    color: #047857;
+    background: #ECFDF5
+ }
+
+ html.theme-light .badge.blue {
+    border-color: #93C5FD;
+    color: #1D4ED8;
+    background: #EFF6FF
+ }
+
+ html.theme-light .badge.warn {
+    border-color: #f0c96a;
+    color: #8a6a12;
+    background: #fef3e3
+ }
+
+ html.theme-light .badge.red {
+    border-color: #FCA5A5;
+    color: #991B1B;
+    background: #FEF2F2
+ }
+
+ html.theme-light .tabs button {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .tabs button.active {
+    border-color: #9d151c;
+    color: #9d151c;
+    background: #fdeceb
+ }
+
+ html.theme-light table thead th,
+ html.theme-light .compact-table thead th,
+ html.theme-light .subtask-table-wrap thead th,
+ html.theme-light .scenario-table-wrap thead th,
+ html.theme-light .doc-picker-table thead th,
+ html.theme-light .iip-table thead th,
+ html.theme-light .indicator-table-head {
+    background: #F1F5F9;
+    color: #334155;
+    font-weight: 600;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .record-row,
+ html.theme-light .indicator-row {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .record-row:hover {
+    background: #FEF2F2;
+    border-color: #9d151c
+ }
+
+ html.theme-light tbody tr,
+ html.theme-light .compact-table tbody tr,
+ html.theme-light .doc-picker-table tbody tr {
+    border-color: #E2E8F0;
+    color: #111827
+ }
+
+ html.theme-light .compact-table th {
+    color: #475569
+ }
+
+ html.theme-light .compact-table td {
+    background: #F9FAFB !important;
+    border-color: #c7cfdb !important;
+    color: #111827
+ }
+
+ html.theme-light .compact-table tr:hover td {
+    background: #FEF2F2 !important
+ }
+
+ html.theme-light .iip-table tbody td {
+    color: #111827
+ }
+
+ html.theme-light .iip-table tbody tr:hover td {
+    background: #FEF2F2
+ }
+
+ html.theme-light .record-row small,
+ html.theme-light .indicator-row small {
+    color: #475569
+ }
+
+ html.theme-light .record-row:hover td,
+ html.theme-light .indicator-row:hover,
+ html.theme-light tbody tr:hover td {
+    background: #FEF2F2
+ }
+
+ html.theme-light .scenario-card {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .scenario-card p,
+ html.theme-light .scenario-objective {
+    color: #475569
+ }
+
+ html.theme-light .scenario-severity,
+ html.theme-light .scenario-sla-tags {
+    color: #111827
+ }
+
+ html.theme-light .toast {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827;
+    box-shadow: 0 15px 40px rgba(15, 23, 42, .18)
+ }
+
+ html.theme-light .subtask-name-col,
+ html.theme-light .indicator-id b,
+ html.theme-light .title {
+    color: #111827
+ }
+
+ html.theme-light .subtask-content-col,
+ html.theme-light td.mono,
+ html.theme-light .indicator-source b {
+    color: #475569
+ }
+
+ html.theme-light .overlay.show {
+    background: rgba(30, 41, 59, .45)
+ }
+
+ html.theme-light .filters input,
+ html.theme-light .filters select {
+    background: #f8f9fb;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .vef-item select,
+ html.theme-light .vef-item input {
+    background: #f8f9fb;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .list-summary .badge {
+    background: #f2f4f8;
+    color: #111827;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .notify-list,
+ html.theme-light .source-list,
+ html.theme-light .cad-toolbar {
+    color: #111827
+ }
+
+ html.theme-light .scenario-create-help,
+ html.theme-light .indicator-scenario-head p {
+    color: #475569;
+    background: #f8f6fb;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .mini-kpi {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .mini-kpi b {
+    color: #111827
+ }
+
+ html.theme-light .mini-kpi span {
+    color: #475569
+ }
+
+ html.theme-light .pie-legend button {
+    background: #f8f9fb;
+    color: #111827;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .pie-legend button:hover {
+    background: #f4f2fb
+ }
+
+ html.theme-light .pie-legend button.active {
+    border-color: #9d151c;
+    background: #fdeceb
+ }
+
+ html.theme-light .pie-legend b {
+    color: #111827
+ }
+
+ html.theme-light .legend {
+    color: #334155
+ }
+
+ html.theme-light .secretary-row {
+    background: #f8f9fb;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .seg-dashboard {
+    background: #f8f9fb;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .seg-kpi {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .axis-action-card {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .axis-action-card h4 {
+    color: #111827
+ }
+
+ html.theme-light .source-quality span {
+    background: #f2f4f8;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .sync-job {
+    background: #f8f9fb;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .cir-stat-tile,
+ html.theme-light .cat-donut-wrap,
+ html.theme-light .cat-chart-box {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .cir-stat-tile b {
+    color: #111827
+ }
+
+ /* .cat-item-row — thẻ lĩnh vực kiểu khác (thanh cir-bar phân đoạn), hoàn toàn chưa được phủ trước đó */
+ html.theme-light .cat-item-row {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .05)
+ }
+
+ html.theme-light .cat-item-row h4 {
+    color: #1E293B
+ }
+
+ html.theme-light .cat-item-row .cir-bar {
+    background: #eef0f5
+ }
+
+ html.theme-light .cat-item-row .cir-legend-item b {
+    color: #111827
+ }
+
+ html.theme-light .source-update-line {
+    color: #475569 !important
+ }
+
+ html.theme-light .source-update-line .time {
+    color: #111827
+ }
+
+ html.theme-light .scenario-fullpage h4 {
+    color: #991B1B
+ }
+
+ html.theme-light .mini-pct-chip,
+ html.theme-light .mini-stat-chip {
+    background: #f2f4f8;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .rank-track,
+ html.theme-light .mini-rank-track,
+ html.theme-light .cir-bar,
+ html.theme-light .freq-track {
+    background: #eef0f5
+ }
+
+ html.theme-light .source-update-line .rel {
+    color: #059669
+ }
+
+ html.theme-light .source-update-line.late .rel {
+    color: #D97706
+ }
+
+ html.theme-light .source-update-line.stale .rel {
+    color: #DC2626
+ }
+
+ /* Chữ số nhỏ vốn dùng màu nhạt (thiết kế cho nền tối) — trên nền trắng gần như vô hình, ép về đậm/tối để đọc được */
+ html.theme-light .cdl-cnt,
+ html.theme-light .rank-value,
+ html.theme-light .cat-chart-box .freq-cnt {
+    color: #111827 !important;
+    font-weight: 800
+ }
+
+ html.theme-light .rank-label {
+    color: #111827
+ }
+
+ html.theme-light .phanto-radial-item span {
+    color: #111827
+ }
+
+ html.theme-light .cdl-name {
+    color: #111827
+ }
+
+ html.theme-light .mini-pct-chip b,
+ html.theme-light .mini-stat-chip b,
+ html.theme-light .mini-rank-row b {
+    color: #111827 !important;
+    font-weight: 800
+ }
+
+ html.theme-light .cpi-legend i {
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, .15)
+ }
+
+ html.theme-light .task-subtask-mini-row {
+    background: #f8f9fb;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .task-subtask-mini-name {
+    color: #111827
+ }
+
+ html.theme-light .task-subtask-mini-row:hover {
+    background: #FEF2F2
+ }
+
+ html.theme-light .scenario-mini-card {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .indicator-scenario-panel {
+    background: #F9FAFB;
+    border-color: #f0d68a
+ }
+
+ html.theme-light .indicator-scenario-head h4 {
+    color: #9d151c
+ }
+
+ html.theme-light .indicator-scenario-head p {
+    color: #475569
+ }
+
+ html.theme-light .subtask-summary {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .subtask-head h4 {
+    color: #111827
+ }
+
+ html.theme-light .scenario-task {
+    background: #f8f9fb;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .scenario-task b {
+    color: #111827
+ }
+
+ html.theme-light .scenario-card {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .scenario-card p {
+    color: #475569
+ }
+
+ html.theme-light .scenario-card ul {
+    color: #475569
+ }
+
+ html.theme-light [style*="background:#061528"] {
+    background: #f8f9fb !important;
+    color: #111827 !important;
+    border-color: #D5DAE3 !important
+ }
+
+ html.theme-light [style*="color:#8ab0c8"] {
+    color: #475569 !important
+ }
+
+ /* Nhãn ô trigger sau khi đã CHỌN giá trị được JS đổi sang màu sáng #d0e8f8 (đọc
+    được trên nền tối #061528 gốc) — nền đã bị ép sáng lại ở trên nên chữ cũng phải
+    ép theo, nếu không sẽ bị trắng-trên-trắng (VD: ô "Đơn vị nhận nhiệm vụ" sau chọn). */
+ html.theme-light [style*="color:#d0e8f8"] {
+    color: #111827 !important
+ }
+
+ html.theme-light [style*="background:rgba(7,31,56,"] {
+    background: #F9FAFB !important;
+    border-color: #D5DAE3 !important
+ }
+
+ html.theme-light .scenario-route span {
+    background: #f8f9fb;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .doc-picker-table thead th {
+    background: #f8f6fb
+ }
+
+ html.theme-light .cad-toolbar {
+    background: transparent;
+    border-bottom-color: #D5DAE3
+ }
+
+ html.theme-light .indicator-kpi-row,
+ html.theme-light .field-category-toolbar {
+    color: #111827
+ }
+
+ html.theme-light [style*="color:#dceeff"],
+ html.theme-light [style*="color:#e8f4ff"],
+ html.theme-light [style*="color:#d0e8f8"],
+ html.theme-light [style*="color:#a9c7dd"],
+ html.theme-light [style*="color:#cfeaff"],
+ html.theme-light [style*="color:#cdeaff"],
+ html.theme-light [style*="color:#c8dcec"],
+ html.theme-light [style*="color:#b7d4ee"],
+ html.theme-light [style*="color:#eaf6ff"],
+ html.theme-light [style*="color:#eaf8ff"],
+ html.theme-light [style*="color:#e9f8ff"],
+ html.theme-light [style*="color:#c8ddec"],
+ html.theme-light [style*="color:#eaf6ff"],
+ html.theme-light [style*="color:#c8ddec"],
+ html.theme-light [style*="color: #fff"] {
+    color: #111827 !important
+ }
+
+ /* Lưới an toàn cho toàn bộ box tự dựng bằng inline style (Ban Đảng, Lịch công tác, Tài chính, Giáo dục...) —
+ rất nhiều khu vực trong app được viết cứng theo nền tối ngay từ đầu, không qua class CSS, nên bắt theo mẫu
+ rgba nền tối + màu chữ sáng lặp lại xuyên suốt thay vì sửa từng dòng riêng lẻ. */
+ html.theme-light [style*="background:rgba(2,11,22,"],
+ html.theme-light [style*="background:rgba(3,18,34,"],
+ html.theme-light [style*="background:rgba(4,16,30,"],
+ html.theme-light [style*="background:rgba(4,20,39,"],
+ html.theme-light [style*="background:rgba(4,30,58,"],
+ html.theme-light [style*="background:rgba(5,25,46,"],
+ html.theme-light [style*="background:rgba(5,26,47,"],
+ html.theme-light [style*="background:rgba(6,28,52,"],
+ html.theme-light [style*="background:rgba(7,27,48,"],
+ html.theme-light [style*="background:rgba(7,31,56,"],
+ html.theme-light [style*="background:rgba(8,34,61,"],
+ html.theme-light [style*="background:rgba(8,35,62,"],
+ html.theme-light [style*="background:rgba(8,37,67,"] {
+    background: #f8f9fb !important;
+    border-color: #D5DAE3 !important
+ }
+
+ /* Toolbar bản đồ GIS (chọn nền, khoanh vùng, xóa vùng, báo cáo mới) — nền tối rgba(4,20,39,.92) đã bắt ở khối trên,
+ nhưng mỗi nút có màu chữ/viền riêng theo ngữ nghĩa (info/success/danger/warning) nên phải nêu lại theo từng nút,
+ nếu không chữ sẽ đổi tối theo luật [style*="color:#d0e8f8"] chung mà nền vẫn tối -> chữ tối trên nền tối, mất chữ. */
+ html.theme-light #gisDrawBtn,
+ html.theme-light #gisBaseSelect,
+ html.theme-light #gisMapSearch {
+    border-color: #93C5FD !important;
+    color: #1D4ED8 !important
+ }
+
+ html.theme-light #gisFinishBtn {
+    background: #ECFDF5 !important;
+    border-color: #6EE7B7 !important;
+    color: #047857 !important
+ }
+
+ html.theme-light #gisClearBtn {
+    border-color: #FCA5A5 !important;
+    color: #DC2626 !important
+ }
+
+ html.theme-light #gisReportBtn {
+    border-color: #FCD34D !important;
+    color: #B45309 !important
+ }
+
+ html.theme-light [style*="background:rgba(44,125,210,"] {
+    background: #eaf1fd !important;
+    border-color: #D5DAE3 !important
+ }
+
+ html.theme-light [style*="background:#071f38"],
+ html.theme-light [style*="background:#061a2f"],
+ html.theme-light [style*="background:#06223f"],
+ html.theme-light [style*="background:#0a2338"] {
+    background: #f8f9fb !important;
+    color: #111827 !important;
+    border-color: #D5DAE3 !important
+ }
+
+ html.theme-light [style*="background:rgba(87,178,255,.16)"] {
+    background: #eaf1fd !important
+ }
+
+ html.theme-light [style*="color:#fff"] {
+    color: #111827 !important
+ }
+
+ html.theme-light .widget-head [style*="color:#fff"],
+ html.theme-light .top-overview-head [style*="color:#fff"],
+ html.theme-light .modal-head [style*="color:#fff"],
+ html.theme-light .primary [style*="color:#fff"] {
+    color: #fff !important
+ }
+
+ html.theme-light .source-item,
+ html.theme-light .notify,
+ html.theme-light .action-log-row,
+ html.theme-light .freshness-kpi,
+ html.theme-light .data-health div {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .notify b,
+ body[data-cms-theme="light"] .notify b {
+    color: #000 !important
+ }
+
+ html.theme-light .source-item small,
+ html.theme-light .freshness-kpi small,
+ html.theme-light .data-health span {
+    color: #475569
+ }
+
+ html.theme-light .freshness-kpi span {
+    color: #475569
+ }
+
+ html.theme-light .data-health b,
+ html.theme-light .action-log-row .alr-title {
+    color: #111827
+ }
+
+ html.theme-light .action-log-row .alr-sub {
+    color: #475569
+ }
+
+ html.theme-light .action-log-row .alr-time {
+    color: #475569
+ }
+
+ html.theme-light .action-log-row .alr-actor {
+    background: #eaf1fd;
+    color: #2c7dd2;
+    border-color: #cfe0fa
+ }
+
+ html.theme-light .dot {
+    background: #f2f4f8;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .field-category-card {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .field-category-card h4 {
+    color: #111827
+ }
+
+ html.theme-light .cat-preview-item {
+    background: #f8f9fb;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .cat-preview-item .cpi-label {
+    color: #111827
+ }
+
+ html.theme-light .cat-preview-item .cpi-legend {
+    color: #475569
+ }
+
+ html.theme-light .field-category-tabs button,
+ html.theme-light .unit-lookup-tabs button,
+ html.theme-light .category-view-back,
+ html.theme-light .field-category-more-btn,
+ html.theme-light .field-category-more-menu {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .field-category-tabs button.active,
+ html.theme-light .unit-lookup-tabs button.active,
+ html.theme-light .field-category-more-btn.active,
+ html.theme-light .field-category-more-menu button.active {
+    background: #fdeceb;
+    border-color: #9d151c;
+    color: #9d151c
+ }
+
+ html.theme-light .field-category-more-btn,
+ html.theme-light .field-category-more-menu {
+    background: #F9FAFB !important;
+    border-color: #D5DAE3 !important;
+    color: #111827 !important
+ }
+
+ html.theme-light .field-category-more-menu .field-category-more-item {
+    background: transparent !important;
+    color: #111827 !important
+ }
+
+ html.theme-light .field-category-more-menu .field-category-more-item:hover,
+ html.theme-light .field-category-more-menu .field-category-more-item.active {
+    background: #fdeceb !important;
+    color: #9d151c !important
+ }
+
+ html.theme-light .manual-note {
+    background: #eaf6fb;
+    border-color: #bfe4f0;
+    color: #1a5f78
+ }
+
+ html.theme-light .record-update-note {
+    background: #eaf6fb;
+    border-color: #bfe4f0;
+    color: #1a5f78
+ }
+
+ html.theme-light .record-update-note b {
+    color: #1e8a52
+ }
+
+ html.theme-light .subtask-empty {
+    background: #fef3e3;
+    border-color: #f0d68a;
+    color: #8a6a12
+ }
+
+ html.theme-light .progress {
+    background: #eef0f5
+ }
+
+ html.theme-light .scenario-history-badge,
+ html.theme-light .scenario-applied {
+    background: #eaf6fb;
+    border-color: #bfe4f0;
+    color: #1a5f78
+ }
+
+ html.theme-light .scenario-template-toolbar,
+ html.theme-light .indicator-scenario-head {
+    color: #111827
+ }
+
+ html.theme-light .gd-dash table,
+ html.theme-light .unit-lookup-table td {
+    color: #111827
+ }
+
+ html.theme-light .unit-lookup-title {
+    color: #1E293B
+ }
+
+ html.theme-light .gd-dash select,
+ html.theme-light .gd-dash input[type="text"],
+ html.theme-light .unit-lookup-search,
+ html.theme-light .field-category-search input {
+    background: #f8f9fb;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .mode-tabs button {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .mode-tabs button.active {
+    border-color: #9d151c;
+    color: #9d151c;
+    background: #fdeceb
+ }
+
+ html.theme-light .action-log-row:hover {
+    background: #FEF2F2
+ }
+
+ html.theme-light .category-detail-head {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .category-detail-head p {
+    color: #475569
+ }
+
+ html.theme-light .unit-lookup {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .iip-wrap {
+    background: #f8f9fb;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .indicator-row:hover {
+    background: #FEF2F2
+ }
+
+ html.theme-light .drawer-pie-box,
+ html.theme-light .drawer-pie-side {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .task-inline-summary {
+    background: #f8f9fb;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .scenario-sla div,
+ html.theme-light .scenario-fullpage-sec {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .scenario-sla b {
+    color: #111827
+ }
+
+ html.theme-light .scenario-fullpage-sec b {
+    color: #9d151c
+ }
+
+ html.theme-light .scenario-fullpage-sec p,
+ html.theme-light .scenario-fullpage-sec ul,
+ html.theme-light .scenario-fullpage-sec ol,
+ html.theme-light .scenario-fullpage-sec ol li b {
+    color: #111827
+ }
+
+ html.theme-light .indicator-kpi-tile {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .ikt-label {
+    color: #475569
+ }
+
+ html.theme-light .ikt-value {
+    color: #991B1B
+ }
+
+ html.theme-light .pie-card {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ /* Đổ bóng nhẹ thay cho viền đậm ở các card nội dung — giữ cảm giác "tách lớp" mà không bị rối mắt kiểu ô kẻ */
+ html.theme-light .pie-card,
+ html.theme-light .scenario-card,
+ html.theme-light .field-category-card,
+ html.theme-light .record-row,
+ html.theme-light .indicator-row,
+ html.theme-light .mini-kpi,
+ html.theme-light .indicator-kpi-tile,
+ html.theme-light .cat-chart-box,
+ html.theme-light .account-pick,
+ html.theme-light .hero-tile,
+ html.theme-light .scenario-mini-card,
+ html.theme-light .axis-action-card,
+ html.theme-light .seg-kpi,
+ html.theme-light .cir-stat-tile,
+ html.theme-light .cat-donut-wrap {
+    border-color: #eaecf0;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .05)
+ }
+
+ html.theme-light .badge,
+ html.theme-light .mini-pct-chip,
+ html.theme-light .mini-stat-chip {
+    border-color: #e2e5ea
+ }
+
+ html.theme-light .close,
+ body[data-cms-theme="light"] .close {
+    background: #f2f4f8;
+    border-color: #D5DAE3;
+    /* !important: một số block (vd tongquan/style.css) ép màu icon × bằng !important
+       để tránh chìm vào nền tối ở theme mặc định -> phải !important ở đây để thắng,
+       nếu không dấu × biến mất trên nền sáng của theme-light. */
+    color: #475569 !important
+ }
+
+ html.theme-light .close:hover,
+ body[data-cms-theme="light"] .close:hover {
+    background: #fdeceb;
+    color: #9d151c !important
+ }
+
+ html.theme-light .access-lock {
+    color: #475569;
+    background: #fef3e3;
+    border-color: #f0d68a
+ }
+
+ /* Thanh cuộn mặc định (theme tối, chưa chọn theme-light/theme-green) — trước đây chỉ có
+    override cho theme-light/theme-green nên ở theme tối mặc định, thanh cuộn rơi về màu xám
+    trung tính của trình duyệt thay vì theo tông xanh của theme. Đặc hiệu (html.theme-light/
+    html.theme-green) của 2 khối override bên dưới vẫn luôn thắng khối này khi có theme được chọn. */
+ html,
+ html .widget-body,
+ html .cat-donut-legend,
+ html .gis-layer-sidebar,
+ html .drawer-body,
+ html .modal-body,
+ html .acct-combo-tree {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(73, 188, 255, .5) rgba(4, 20, 39, .35)
+ }
+
+ html::-webkit-scrollbar-track,
+ html .widget-body::-webkit-scrollbar-track,
+ html .cat-donut-legend::-webkit-scrollbar-track,
+ html .gis-layer-sidebar::-webkit-scrollbar-track,
+ html .drawer-body::-webkit-scrollbar-track,
+ html .modal-body::-webkit-scrollbar-track,
+ html .acct-combo-tree::-webkit-scrollbar-track {
+    background: rgba(4, 20, 39, .35)
+ }
+
+ html::-webkit-scrollbar-thumb,
+ html .widget-body::-webkit-scrollbar-thumb,
+ html .cat-donut-legend::-webkit-scrollbar-thumb,
+ html .gis-layer-sidebar::-webkit-scrollbar-thumb,
+ html .drawer-body::-webkit-scrollbar-thumb,
+ html .modal-body::-webkit-scrollbar-thumb,
+ html .acct-combo-tree::-webkit-scrollbar-thumb {
+    background: rgba(73, 188, 255, .5);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: padding-box
+ }
+
+ /* Thanh cuộn — Firefox (scrollbar-color) + Chrome/Edge (::-webkit-scrollbar) */
+ html.theme-light,
+ html.theme-light .widget-body,
+ html.theme-light .cat-donut-legend,
+ html.theme-light .gis-layer-sidebar,
+ html.theme-light .drawer-body,
+ html.theme-light .modal-body,
+ html.theme-light .acct-combo-tree {
+    scrollbar-color: rgba(157, 21, 28, .45) #eef0f5
+ }
+
+ html.theme-light::-webkit-scrollbar-track,
+ html.theme-light .widget-body::-webkit-scrollbar-track,
+ html.theme-light .cat-donut-legend::-webkit-scrollbar-track,
+ html.theme-light .gis-layer-sidebar::-webkit-scrollbar-track,
+ html.theme-light .drawer-body::-webkit-scrollbar-track,
+ html.theme-light .modal-body::-webkit-scrollbar-track,
+ html.theme-light .acct-combo-tree::-webkit-scrollbar-track {
+    background: #eef0f5
+ }
+
+ html.theme-light::-webkit-scrollbar-thumb,
+ html.theme-light .widget-body::-webkit-scrollbar-thumb,
+ html.theme-light .cat-donut-legend::-webkit-scrollbar-thumb,
+ html.theme-light .gis-layer-sidebar::-webkit-scrollbar-thumb,
+ html.theme-light .drawer-body::-webkit-scrollbar-thumb,
+ html.theme-light .modal-body::-webkit-scrollbar-thumb,
+ html.theme-light .acct-combo-tree::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #cf3434, #9d151c);
+    border: 2px solid #eef0f5;
+    background-clip: padding-box
+ }
+
+ html.theme-light .modal-body::-webkit-scrollbar-track {
+    background: #eef0f5 !important
+ }
+
+ html.theme-light .modal-body::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #cf3434, #9d151c) !important;
+    border-color: #eef0f5 !important
+ }
+
+ /* Nền của các khối/card lớn (chưa phủ ở đợt trước) — .widget/.top-overview là khung ngoài cùng của mọi widget dashboard, .modal/.drawer là khung popup, .detail-card/.record-row là khối nội dung bên trong popup */
+ html.theme-light .widget,
+ html.theme-light .top-overview {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .06)
+ }
+
+ html.theme-light .modal,
+ html.theme-light .drawer {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, .18)
+ }
+
+ html.theme-light .modal-head {
+    border-bottom-color: #D5DAE3
+ }
+
+ html.theme-light .drawer .drawer-head {
+    border-bottom-color: #D5DAE3;
+    background: linear-gradient(135deg, #991B1B, #C62828)
+ }
+
+ html.theme-light .detail-card {
+    background: #f8f9fb;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .detail-card h4 {
+    color: #9d151c
+ }
+
+ html.theme-light .kv b {
+    color: #475569
+ }
+
+ html.theme-light .kv span {
+    color: #111827
+ }
+
+ html.theme-light .record-row {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .record-row:hover {
+    background: #FEF2F2
+ }
+
+ html.theme-light .record-row .title {
+    color: #111827
+ }
+
+ html.theme-light .progress {
+    background: #eef0f5
+ }
+
+ html.theme-light .vptu-table tbody tr {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .vptu-table tbody tr:hover {
+    background: #FEF2F2
+ }
+
+ html.theme-light .vptu-table tbody td {
+    border-color: #D5DAE3
+ }
+
+ html.theme-light .vptu-table tbody td:first-child {
+    border-left-color: #D5DAE3
+ }
+
+ html.theme-light .vptu-table tbody td:last-child {
+    border-right-color: #D5DAE3
+ }
+
+ html.theme-light .vptu-table tbody .title {
+    color: #111827
+ }
+
+ html.theme-light .audit-item {
+    border-left-color: #9d151c
+ }
+
+ html.theme-light .card-head h4 {
+    color: #111827
+ }
+
+ html.theme-light .indicator-table-head,
+ html.theme-light .indicator-status-tabs button {
+    color: #fff
+ }
+
+ /* filter:brightness() được thiết kế cho nền tối (sáng lên -> vẫn còn tối, đọc được chữ sáng) —
+ sang theme sáng, nền đã trắng/sáng sẵn nên brightness() làm chữ + nền bị "cháy sáng", mất tương phản.
+ Tắt hết các hiệu ứng brightness() hover ở theme sáng, thay bằng hiệu ứng viền/đổ bóng phù hợp nền sáng. */
+ html.theme-light .acct-main:hover,
+ html.theme-light .acct-leaf:hover,
+ html.theme-light .seg-kpi:hover,
+ html.theme-light .source-item:hover,
+ html.theme-light .cat-two-col .cat-chart-box:not(.gen-unit-box):hover,
+ html.theme-light .category-view-back:hover,
+ html.theme-light .cat-item-row:hover,
+ html.theme-light .field-category-card:hover,
+ html.theme-light .cat-axis-label:hover,
+ html.theme-light .iip-chip:hover,
+ html.theme-light .task-subtask-mini-row:hover,
+ html.theme-light .snav-main:hover,
+ html.theme-light .field input[type=checkbox]:hover {
+    filter: none !important
+ }
+
+ html.theme-light .seg-kpi:hover,
+ html.theme-light .source-item:hover {
+    box-shadow: 0 4px 12px rgba(15, 23, 42, .08)
+ }
+
+ html.theme-light .cat-two-col .cat-chart-box:not(.gen-unit-box):hover {
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .1);
+    transform: translateY(-1px)
+ }
+
+ html.theme-light .category-view-back:hover {
+    background: #f7f5fb
+ }
+
+ html.theme-light .cat-item-row:hover {
+    background: #FEF2F2;
+    border-color: #9d151c
+ }
+
+ html.theme-light .field-category-card:hover {
+    border-color: #9d151c;
+    box-shadow: 0 4px 14px rgba(157, 21, 28, .12);
+    transform: translateY(-1px)
+ }
+
+ html.theme-light .cat-axis-label:hover {
+    color: #9d151c
+ }
+
+ /* ============================== THEME MỚI (theme-green) — tông xanh lá tươi + header navy theo yêu cầu, chỉ đổi màu, không đổi bố cục/HTML, không đụng theme-light/theme-dark ============================== */
+ html.theme-green {
+    --muted: #475569;
+    --text: #1f2937;
+    --line-soft: rgba(46, 157, 91, .18);
+    --panel: #ffffff;
+    --panel2: #eef9f3
+ }
+
+ html.theme-green body {
+    background: #f6f8f6
+ }
+
+ html.theme-green .login {
+    background: #f6f8f6
+ }
+
+ /* ===== Bộ màu TRẠNG THÁI chuẩn hóa theo Design Token ===== Cả 2 hệ trạng thái (statusDefs = nhiệm vụ giao/nhận,
+ CAT_ST = chỉ tiêu đạt/không đạt mục tiêu) đều tô màu qua inline style (background/color lấy trực tiếp từ dữ liệu
+ JS, không qua class CSS) nên phải bắt theo đúng mã hex gốc từng trạng thái, không sửa được bằng cách đổi 1 class
+ chung. Mỗi trạng thái có 2 rule: 1 set màu chữ, 1 set nền pastel + viền cho badge/pill. */
+ html.theme-green [style*="color:#58b7ff"] {
+    color: #2563EB !important
+ }
+
+ html.theme-green [style*="background:#58b7ff"]:not(i):not(.seg):not(.rank-fill) {
+    background: #EFF6FF !important;
+    border-color: #93C5FD !important
+ }
+
+ html.theme-green [style*="color:#2c7dd2"] {
+    color: #0891B2 !important
+ }
+
+ html.theme-green [style*="background:#2c7dd2"]:not(i):not(.seg):not(.rank-fill) {
+    background: #ECFEFF !important;
+    border-color: #67E8F9 !important
+ }
+
+ html.theme-green [style*="color:#d8a50c"] {
+    color: #D97706 !important
+ }
+
+ html.theme-green [style*="background:#d8a50c"]:not(i):not(.seg):not(.rank-fill) {
+    background: #FFFBEB !important;
+    border-color: #FCD34D !important
+ }
+
+ html.theme-green [style*="color:#8b5cf6"] {
+    color: #7C3AED !important
+ }
+
+ html.theme-green [style*="background:#8b5cf6"]:not(i):not(.seg):not(.rank-fill) {
+    background: #F5F3FF !important;
+    border-color: #C4B5FD !important
+ }
+
+ html.theme-green [style*="color:#2fb174"] {
+    color: #059669 !important
+ }
+
+ html.theme-green [style*="background:#2fb174"]:not(i):not(.seg):not(.rank-fill) {
+    background: #ECFDF5 !important;
+    border-color: #6EE7B7 !important
+ }
+
+ html.theme-green [style*="color:#6f93b3"] {
+    color: #64748B !important
+ }
+
+ html.theme-green [style*="background:#6f93b3"]:not(i):not(.seg):not(.rank-fill) {
+    background: #F1F5F9 !important;
+    border-color: #c8e6d5 !important
+ }
+
+ html.theme-green [style*="color:#d33a44"] {
+    color: #DC2626 !important
+ }
+
+ html.theme-green [style*="background:#d33a44"]:not(i):not(.seg):not(.rank-fill) {
+    background: #FEF2F2 !important;
+    border-color: #FCA5A5 !important
+ }
+
+ html.theme-green [style*="color:#39d5ff"] {
+    color: #2563EB !important
+ }
+
+ html.theme-green [style*="background:#39d5ff"]:not(i):not(.seg):not(.rank-fill) {
+    background: #EFF6FF !important;
+    border-color: #93C5FD !important
+ }
+
+ html.theme-green [style*="color:#d25a19"] {
+    color: #64748B !important
+ }
+
+ html.theme-green [style*="background:#d25a19"]:not(i):not(.seg):not(.rank-fill) {
+    background: #F1F5F9 !important;
+    border-color: #c8e6d5 !important
+ }
+
+ html.theme-green [style*="color:#ef4444"] {
+    color: #DC2626 !important
+ }
+
+ html.theme-green [style*="background:#ef4444"]:not(i):not(.seg):not(.rank-fill) {
+    background: #FEF2F2 !important;
+    border-color: #FCA5A5 !important
+ }
+
+ /* Bộ màu trạng thái chuẩn hóa theo Design Token — dùng cho số/nhãn tô màu theo ngữ nghĩa (.ok/.warn/.blue là utility class dùng lại ở rất nhiều KPI, số liệu) */
+ html.theme-green .ok {
+    color: #059669
+ }
+
+ html.theme-green .warn {
+    color: #D97706
+ }
+
+ html.theme-green .blue {
+    color: #2563EB
+ }
+
+ html.theme-green button:not(:disabled):hover {
+    filter: brightness(1.06)
+ }
+
+ html.theme-green .app-bg-grid:before,
+ html.theme-green .app-bg-grid:after {
+    opacity: .15
+ }
+
+ html.theme-green .app {
+    color: #1f2937
+ }
+
+ html.theme-green .side-nav {
+    background: #ffffff;
+    border-color: #d1fae5;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, .1)
+ }
+
+ html.theme-green .side-nav-body {
+    color: #1f2937
+ }
+
+ html.theme-green .snav-row,
+ html.theme-green .snav-main,
+ html.theme-green .snav-row.snav-leaf {
+    color: #1f2937
+ }
+
+ html.theme-green .snav-row:hover {
+    background: #eef9f3
+ }
+
+ html.theme-green .snav-children {
+    border-left-color: #d1fae5
+ }
+
+ html.theme-green .snav-caret,
+ html.theme-green .snav-caret-btn {
+    color: #475569
+ }
+
+ html.theme-green .snav-main:hover {
+    color: #2e9d5b
+ }
+
+ html.theme-green .topbar {
+    border-bottom-color: #d1fae5
+ }
+
+ html.theme-green .top-header-overview,
+ body[data-cms-theme="green"] .top-header-overview {
+    border-radius: 14px;
+ }
+
+ html.theme-green .brand h1 {
+    color: #1f4e79;
+    text-shadow: none
+ }
+
+ html.theme-green .brand .sub,
+ body[data-cms-theme="green"] .brand .sub {
+    color: #000 !important
+ }
+
+ html.theme-green .clock-card {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .clock-card .muted {
+    color: #475569
+ }
+
+ html.theme-green .user-pill {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .user-menu {
+    background: #ffffff;
+    border-color: #d1fae5;
+    box-shadow: 0 15px 50px rgba(15, 23, 42, .12)
+ }
+
+ html.theme-green .user-menu-item {
+    color: #1f2937
+ }
+
+ html.theme-green .user-menu-item:hover {
+    background: #ddf2e8;
+    color: #2e9d5b
+ }
+
+ html.theme-green #currentRoleName,
+ body[data-cms-theme="green"] #currentRoleName {
+    color: #000 !important
+ }
+
+ html.theme-green .user-pill small {
+    color: #475569
+ }
+
+ html.theme-green .role-icon {
+    background: linear-gradient(180deg, #ddf2e8, #c9ebd9);
+    border-color: #b8e6cd
+ }
+
+ /* Màn đăng nhập — theme sáng được lưu qua localStorage nên có thể hiện lại ở đây (trước khi vào app), phải đồng bộ luôn */
+ html.theme-green .hero,
+ html.theme-green .login-card {
+    background: #ffffff;
+    border-color: #d1fae5;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, .1)
+ }
+
+ html.theme-green .hero h1 {
+    color: #1f4e79;
+    text-shadow: none
+ }
+
+ html.theme-green .hero .sub,
+ html.theme-green .login-card p {
+    color: #475569
+ }
+
+ html.theme-green .login-card h2 {
+    color: #1f2937
+ }
+
+ html.theme-green .hero-tile {
+    background: #f4faf6;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .hero-tile b {
+    color: #1f2937
+ }
+
+ html.theme-green .hero-tile span {
+    color: #475569
+ }
+
+ html.theme-green .acct-combo-trigger {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .acct-combo-panel {
+    background: #ffffff;
+    border-color: #d1fae5;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, .15)
+ }
+
+ html.theme-green .acct-search {
+    background: #f7fdf9;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .acct-main,
+ html.theme-green .acct-leaf {
+    color: #1f2937
+ }
+
+ html.theme-green .acct-main:hover,
+ html.theme-green .acct-leaf:hover {
+    background: #eef9f3
+ }
+
+ html.theme-green .acct-leaf.active {
+    background: #ddf2e8;
+    color: #2e9d5b
+ }
+
+ html.theme-green .ghost {
+    background: #ffffff;
+    border-color: #c8e6d5;
+    color: #334155
+ }
+
+ html.theme-green .ghost:hover {
+    background: #eef9f3
+ }
+
+ html.theme-green .primary {
+    background: linear-gradient(180deg, #34b06e, #227a4a);
+    border-color: #227a4a;
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(46, 157, 91, .25)
+ }
+
+ html.theme-green .primary:hover {
+    background: linear-gradient(180deg, #2e9d5b, #1c6b40)
+ }
+
+ html.theme-green .danger-btn {
+    background: #FEF2F2;
+    border-color: #DC2626;
+    color: #DC2626
+ }
+
+ html.theme-green .logout {
+    background: #eafaf1;
+    border-color: #FCA5A5;
+    color: #DC2626
+ }
+
+ html.theme-green .view-as-banner {
+    background: linear-gradient(180deg, #fef3e3, #fdf7ea);
+    border-color: #f0d68a;
+    color: #8a6a12
+ }
+
+ /* Header các block theo đúng mẫu bảng "Lịch công tác tuần" anh gửi: nền xanh lá nhạt (accent-soft) + chữ xanh đậm, không phải thanh màu đặc + chữ trắng như 2 theme kia. */
+ html.theme-green .top-overview-head,
+ html.theme-green .widget-head,
+ html.theme-green .modal-head,
+ html.theme-green .indicator-table-head,
+ html.theme-green .task-scenario-heading,
+ html.theme-green .side-nav-head {
+    background: #bfead6;
+    color: #1c7a49;
+    border-bottom: 2px solid #92dcb8
+ }
+
+ html.theme-green .top-overview-title,
+ html.theme-green .widget-title,
+ html.theme-green .side-nav-head span {
+    color: #1c7a49
+ }
+
+ html.theme-green .mini-btn {
+    color: #1c7a49
+ }
+
+ html.theme-green .card-head .mini-btn {
+    background: #eef9f3;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .detail-card h4,
+ html.theme-green .pie-card h3,
+ html.theme-green .scenario-card h4 {
+    color: #1E293B;
+    font-weight: 600
+ }
+
+ html.theme-green .modal-head h3,
+ html.theme-green .modal-head .muted {
+    color: #1c7a49 !important
+ }
+
+ html.theme-green .widget-title,
+ html.theme-green .top-overview-title {
+    color: #1c7a49 !important
+ }
+
+ html.theme-green .drawer .drawer-head h3 {
+    color: #fff
+ }
+
+ html.theme-green .drawer .drawer-head p,
+ html.theme-green .drawer .drawer-head .muted {
+    color: rgba(255, 255, 255, .82)
+ }
+
+ html.theme-green .muted,
+ html.theme-green .kv b,
+ html.theme-green .pie-note,
+ html.theme-green .scenario-meta-note,
+ html.theme-green .subtask-meta-note {
+    color: #475569
+ }
+
+ html.theme-green .kv span {
+    color: #1f2937
+ }
+
+ html.theme-green .field label {
+    color: #475569
+ }
+
+ html.theme-green .field-opt-row:hover,
+ html.theme-green .unit-check-row:hover {
+    background: #eef9f3
+ }
+
+ html.theme-green input,
+ html.theme-green select,
+ html.theme-green textarea {
+    background: #f4faf6 !important;
+    color: #1f2937 !important;
+    border-color: #d1fae5 !important
+ }
+
+ html.theme-green select {
+    color-scheme: light
+ }
+
+ html.theme-green select option {
+    background: #fff;
+    color: #1f2937
+ }
+
+ html.theme-green #ouaScreen select {
+    color-scheme: dark
+ }
+
+ html.theme-green input[type=date] {
+    color-scheme: light
+ }
+
+ html.theme-green input::placeholder,
+ html.theme-green textarea::placeholder {
+    color: #475569 !important
+ }
+
+ html.theme-green input:focus,
+ html.theme-green select:focus,
+ html.theme-green textarea:focus {
+    border-color: #2e9d5b !important;
+    box-shadow: 0 0 0 3px rgba(46, 157, 91, .12) !important
+ }
+
+ html.theme-green input[type=checkbox] {
+    background: #f4faf6 !important;
+    border-color: #d1fae5 !important
+ }
+
+ html.theme-green input[type=checkbox]:checked {
+    background: #2e9d5b !important;
+    border-color: #2e9d5b !important
+ }
+
+ html.theme-green input[type=file]::file-selector-button,
+ html.theme-green input[type=file]::-webkit-file-upload-button {
+    background: #e7f5ec !important;
+    color: #1f2937 !important;
+    border-color: #d1fae5 !important
+ }
+
+ html.theme-green input[type=file]::file-selector-button:hover,
+ html.theme-green input[type=file]::-webkit-file-upload-button:hover {
+    background: #d7ecdf !important
+ }
+
+ html.theme-green .ms-dropdown,
+ body[data-cms-theme="green"] .ms-dropdown {
+    background: #ffffff !important;
+    border-color: #d1fae5 !important;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, .12)
+ }
+
+ html.theme-green .ms-trigger,
+ body[data-cms-theme="green"] .ms-trigger,
+ html.theme-green .ms-control,
+ body[data-cms-theme="green"] .ms-control {
+    background: #eef9f3 !important;
+    border-color: #b7e4c7 !important;
+    color: #0f3822 !important;
+ }
+
+ html.theme-green .ms-control:hover,
+ body[data-cms-theme="green"] .ms-control:hover {
+    border-color: #1b8e4e !important;
+ }
+
+ html.theme-green .ms-panel,
+ body[data-cms-theme="green"] .ms-panel {
+    background: #ffffff !important;
+    border-color: #b7e4c7 !important;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, .12) !important;
+ }
+
+ html.theme-green .ms-search,
+ body[data-cms-theme="green"] .ms-search {
+    border-bottom-color: #d1fae5 !important;
+ }
+
+ html.theme-green .ms-search input,
+ body[data-cms-theme="green"] .ms-search input {
+    background: #eef9f3 !important;
+    border-color: #b7e4c7 !important;
+    color: #0f3822 !important;
+ }
+
+ html.theme-green .ms-option,
+ body[data-cms-theme="green"] .ms-option {
+    color: #0f3822 !important;
+ }
+
+ html.theme-green .ms-option:hover,
+ body[data-cms-theme="green"] .ms-option:hover {
+    background: rgba(27, 142, 78, .08) !important;
+ }
+
+ html.theme-green .ms-tag,
+ body[data-cms-theme="green"] .ms-tag {
+    background: rgba(27, 142, 78, .08) !important;
+    border-color: rgba(27, 142, 78, .25) !important;
+    color: #1b8e4e !important;
+ }
+
+ /* Xem chú thích ở html.theme-light .msf-* phía trên — cùng lý do, đổi tông xanh. */
+ html.theme-green .msf-control,
+ body[data-cms-theme="green"] .msf-control {
+    background: #eef9f3 !important;
+    border-color: #b7e4c7 !important;
+    color: #0f3822 !important;
+ }
+
+ html.theme-green .msf-control:hover,
+ body[data-cms-theme="green"] .msf-control:hover {
+    border-color: #1b8e4e !important;
+ }
+
+ html.theme-green .msf-panel,
+ body[data-cms-theme="green"] .msf-panel {
+    background: #ffffff !important;
+    border-color: #b7e4c7 !important;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, .12) !important;
+ }
+
+ html.theme-green .msf-search,
+ body[data-cms-theme="green"] .msf-search {
+    border-bottom-color: #d1fae5 !important;
+ }
+
+ html.theme-green .msf-search input,
+ body[data-cms-theme="green"] .msf-search input {
+    background: #eef9f3 !important;
+    border-color: #b7e4c7 !important;
+    color: #0f3822 !important;
+ }
+
+ html.theme-green .msf-option,
+ body[data-cms-theme="green"] .msf-option {
+    color: #0f3822 !important;
+ }
+
+ html.theme-green .msf-option:hover,
+ body[data-cms-theme="green"] .msf-option:hover {
+    background: rgba(27, 142, 78, .08) !important;
+ }
+
+ html.theme-green .msf-tag,
+ body[data-cms-theme="green"] .msf-tag {
+    background: rgba(27, 142, 78, .08) !important;
+    border-color: rgba(27, 142, 78, .25) !important;
+    color: #1b8e4e !important;
+ }
+
+ html.theme-green .msf-placeholder,
+ body[data-cms-theme="green"] .msf-placeholder {
+    color: #4a7c59 !important
+ }
+
+ /* Xem chú thích ở html.theme-light .qlnv-box phía trên — cùng lý do. */
+ html.theme-green .qlnv-box,
+ body[data-cms-theme="green"] .qlnv-box {
+    background: #ffffff !important;
+    border-color: #d1fae5 !important
+ }
+
+ html.theme-green .ms-placeholder,
+ body[data-cms-theme="green"] .ms-placeholder {
+    color: #4a7c59 !important
+ }
+
+ html.theme-green .ms-dropdown-title,
+ body[data-cms-theme="green"] .ms-dropdown-title {
+    color: #111827 !important
+ }
+
+ html.theme-green .ms-dropdown-sub,
+ body[data-cms-theme="green"] .ms-dropdown-sub {
+    color: #64748B !important
+ }
+
+ html.theme-green .badge {
+    background: #eef9f3;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .unit-chip {
+    background: #eafaf1;
+    border-color: #a7e8c4;
+    color: #1f2937
+ }
+
+ html.theme-green .unit-chip-x {
+    background: rgba(15, 23, 42, .08);
+    color: #1f2937
+ }
+
+ html.theme-green .unit-chip-x:hover {
+    background: rgba(220, 38, 38, .16);
+    color: #b91c1c
+ }
+
+ html.theme-green .badge.gold {
+    border-color: #FCD34D;
+    color: #B45309;
+    background: #FFFBEB
+ }
+
+ html.theme-green .badge.ok {
+    border-color: #6EE7B7;
+    color: #047857;
+    background: #ECFDF5
+ }
+
+ html.theme-green .badge.blue {
+    border-color: #93C5FD;
+    color: #1D4ED8;
+    background: #EFF6FF
+ }
+
+ html.theme-green .badge.warn {
+    border-color: #f0c96a;
+    color: #8a6a12;
+    background: #fef3e3
+ }
+
+ html.theme-green .badge.red {
+    border-color: #FCA5A5;
+    color: #DC2626;
+    background: #FEF2F2
+ }
+
+ html.theme-green .tabs button {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .tabs button.active {
+    border-color: #2e9d5b;
+    color: #2e9d5b;
+    background: #ddf2e8
+ }
+
+ html.theme-green table thead th,
+ html.theme-green .compact-table thead th,
+ html.theme-green .subtask-table-wrap thead th,
+ html.theme-green .scenario-table-wrap thead th,
+ html.theme-green .doc-picker-table thead th,
+ html.theme-green .iip-table thead th,
+ html.theme-green .indicator-table-head {
+    background: #F1F5F9;
+    color: #334155;
+    font-weight: 600;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .record-row,
+ html.theme-green .indicator-row {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .record-row:hover {
+    background: #eafaf1;
+    border-color: #2e9d5b
+ }
+
+ html.theme-green tbody tr,
+ html.theme-green .compact-table tbody tr,
+ html.theme-green .doc-picker-table tbody tr {
+    border-color: #dff5e7;
+    color: #1f2937
+ }
+
+ html.theme-green .compact-table th {
+    color: #475569
+ }
+
+ html.theme-green .compact-table td {
+    background: #ffffff !important;
+    border-color: #c9e8d6 !important;
+    color: #1f2937
+ }
+
+ html.theme-green .compact-table tr:hover td {
+    background: #eafaf1 !important
+ }
+
+ html.theme-green .iip-table tbody td {
+    color: #1f2937
+ }
+
+ html.theme-green .iip-table tbody tr:hover td {
+    background: #eafaf1
+ }
+
+ html.theme-green .record-row small,
+ html.theme-green .indicator-row small {
+    color: #475569
+ }
+
+ html.theme-green .record-row:hover td,
+ html.theme-green .indicator-row:hover,
+ html.theme-green tbody tr:hover td {
+    background: #eafaf1
+ }
+
+ html.theme-green .scenario-card {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .scenario-card p,
+ html.theme-green .scenario-objective {
+    color: #475569
+ }
+
+ html.theme-green .scenario-severity,
+ html.theme-green .scenario-sla-tags {
+    color: #1f2937
+ }
+
+ html.theme-green .toast {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937;
+    box-shadow: 0 15px 40px rgba(15, 23, 42, .18)
+ }
+
+ html.theme-green .subtask-name-col,
+ html.theme-green .indicator-id b,
+ html.theme-green .title {
+    color: #1f2937
+ }
+
+ html.theme-green .subtask-content-col,
+ html.theme-green td.mono,
+ html.theme-green .indicator-source b {
+    color: #475569
+ }
+
+ html.theme-green .overlay.show {
+    background: rgba(30, 41, 59, .45)
+ }
+
+ html.theme-green .filters input,
+ html.theme-green .filters select {
+    background: #f4faf6;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .vef-item select,
+ html.theme-green .vef-item input {
+    background: #f4faf6;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .list-summary .badge {
+    background: #eef9f3;
+    color: #1f2937;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .notify-list,
+ html.theme-green .source-list,
+ html.theme-green .cad-toolbar {
+    color: #1f2937
+ }
+
+ html.theme-green .scenario-create-help,
+ html.theme-green .indicator-scenario-head p {
+    color: #475569;
+    background: #eef9f3;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .mini-kpi {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .mini-kpi b {
+    color: #1f2937
+ }
+
+ html.theme-green .mini-kpi span {
+    color: #475569
+ }
+
+ html.theme-green .pie-legend button {
+    background: #f4faf6;
+    color: #1f2937;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .pie-legend button:hover {
+    background: #eef9f3
+ }
+
+ html.theme-green .pie-legend button.active {
+    border-color: #2e9d5b;
+    background: #ddf2e8
+ }
+
+ html.theme-green .pie-legend b {
+    color: #1f2937
+ }
+
+ html.theme-green .legend {
+    color: #334155
+ }
+
+ html.theme-green .secretary-row {
+    background: #f4faf6;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .seg-dashboard {
+    background: #f4faf6;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .seg-kpi {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .axis-action-card {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .axis-action-card h4 {
+    color: #1f2937
+ }
+
+ html.theme-green .source-quality span {
+    background: #eef9f3;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .sync-job {
+    background: #f4faf6;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .cir-stat-tile,
+ html.theme-green .cat-donut-wrap,
+ html.theme-green .cat-chart-box {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .cir-stat-tile b {
+    color: #1f2937
+ }
+
+ /* .cat-item-row — thẻ lĩnh vực kiểu khác (thanh cir-bar phân đoạn), hoàn toàn chưa được phủ trước đó */
+ html.theme-green .cat-item-row {
+    background: #ffffff;
+    border-color: #d1fae5;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .05)
+ }
+
+ html.theme-green .cat-item-row h4 {
+    color: #1E293B
+ }
+
+ html.theme-green .cat-item-row .cir-bar {
+    background: #e6f7ee
+ }
+
+ html.theme-green .cat-item-row .cir-legend-item b {
+    color: #1f2937
+ }
+
+ html.theme-green .source-update-line {
+    color: #475569 !important
+ }
+
+ html.theme-green .source-update-line .time {
+    color: #1f2937
+ }
+
+ html.theme-green .scenario-fullpage h4 {
+    color: #2e9d5b
+ }
+
+ html.theme-green .mini-pct-chip,
+ html.theme-green .mini-stat-chip {
+    background: #eef9f3;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .rank-track,
+ html.theme-green .mini-rank-track,
+ html.theme-green .cir-bar,
+ html.theme-green .freq-track {
+    background: #e6f7ee
+ }
+
+ html.theme-green .source-update-line .rel {
+    color: #059669
+ }
+
+ html.theme-green .source-update-line.late .rel {
+    color: #D97706
+ }
+
+ html.theme-green .source-update-line.stale .rel {
+    color: #DC2626
+ }
+
+ /* Chữ số nhỏ vốn dùng màu nhạt (thiết kế cho nền tối) — trên nền trắng gần như vô hình, ép về đậm/tối để đọc được */
+ html.theme-green .cdl-cnt,
+ html.theme-green .rank-value,
+ html.theme-green .cat-chart-box .freq-cnt {
+    color: #1f2937 !important;
+    font-weight: 800
+ }
+
+ html.theme-green .rank-label {
+    color: #1f2937
+ }
+
+ html.theme-green .phanto-radial-item span {
+    color: #1f2937
+ }
+
+ html.theme-green .cdl-name {
+    color: #1f2937
+ }
+
+ html.theme-green .mini-pct-chip b,
+ html.theme-green .mini-stat-chip b,
+ html.theme-green .mini-rank-row b {
+    color: #1f2937 !important;
+    font-weight: 800
+ }
+
+ html.theme-green .cpi-legend i {
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, .15)
+ }
+
+ html.theme-green .task-subtask-mini-row {
+    background: #f4faf6;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .task-subtask-mini-name {
+    color: #1f2937
+ }
+
+ html.theme-green .task-subtask-mini-row:hover {
+    background: #eafaf1
+ }
+
+ html.theme-green .scenario-mini-card {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .indicator-scenario-panel {
+    background: #ffffff;
+    border-color: #f0d68a
+ }
+
+ html.theme-green .indicator-scenario-head h4 {
+    color: #2e9d5b
+ }
+
+ html.theme-green .indicator-scenario-head p {
+    color: #475569
+ }
+
+ html.theme-green .subtask-summary {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .subtask-head h4 {
+    color: #1f2937
+ }
+
+ html.theme-green .scenario-task {
+    background: #f4faf6;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .scenario-task b {
+    color: #1f2937
+ }
+
+ html.theme-green .scenario-card {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .scenario-card p {
+    color: #475569
+ }
+
+ html.theme-green .scenario-card ul {
+    color: #475569
+ }
+
+ html.theme-green [style*="background:#061528"] {
+    background: #f4faf6 !important;
+    color: #1f2937 !important;
+    border-color: #d1fae5 !important
+ }
+
+ html.theme-green [style*="color:#8ab0c8"] {
+    color: #475569 !important
+ }
+
+ /* Xem giải thích ở khối theme-light tương ứng: chữ trigger sau khi chọn giá trị
+    bị JS set màu sáng #d0e8f8, cần ép lại theo theme-green để không bị chìm vào nền. */
+ html.theme-green [style*="color:#d0e8f8"] {
+    color: #1f2937 !important
+ }
+
+ html.theme-green [style*="background:rgba(7,31,56,"] {
+    background: #ffffff !important;
+    border-color: #d1fae5 !important
+ }
+
+ html.theme-green .scenario-route span {
+    background: #f4faf6;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .doc-picker-table thead th {
+    background: #eef9f3
+ }
+
+ html.theme-green .cad-toolbar {
+    background: transparent;
+    border-bottom-color: #d1fae5
+ }
+
+ html.theme-green .indicator-kpi-row,
+ html.theme-green .field-category-toolbar {
+    color: #1f2937
+ }
+
+ html.theme-green [style*="color:#dceeff"],
+ html.theme-green [style*="color:#e8f4ff"],
+ html.theme-green [style*="color:#d0e8f8"],
+ html.theme-green [style*="color:#a9c7dd"],
+ html.theme-green [style*="color:#cfeaff"],
+ html.theme-green [style*="color:#cdeaff"],
+ html.theme-green [style*="color:#c8dcec"],
+ html.theme-green [style*="color:#b7d4ee"],
+ html.theme-green [style*="color:#eaf6ff"],
+ html.theme-green [style*="color:#eaf8ff"],
+ html.theme-green [style*="color:#e9f8ff"],
+ html.theme-green [style*="color:#c8ddec"],
+ html.theme-green [style*="color:#eaf6ff"],
+ html.theme-green [style*="color:#c8ddec"],
+ html.theme-green [style*="color: #fff"] {
+    color: #1f2937 !important
+ }
+
+ /* Lưới an toàn cho toàn bộ box tự dựng bằng inline style (Ban Đảng, Lịch công tác, Tài chính, Giáo dục...) —
+ rất nhiều khu vực trong app được viết cứng theo nền tối ngay từ đầu, không qua class CSS, nên bắt theo mẫu
+ rgba nền tối + màu chữ sáng lặp lại xuyên suốt thay vì sửa từng dòng riêng lẻ. */
+ html.theme-green [style*="background:rgba(2,11,22,"],
+ html.theme-green [style*="background:rgba(3,18,34,"],
+ html.theme-green [style*="background:rgba(4,16,30,"],
+ html.theme-green [style*="background:rgba(4,20,39,"],
+ html.theme-green [style*="background:rgba(4,30,58,"],
+ html.theme-green [style*="background:rgba(5,25,46,"],
+ html.theme-green [style*="background:rgba(5,26,47,"],
+ html.theme-green [style*="background:rgba(6,28,52,"],
+ html.theme-green [style*="background:rgba(7,27,48,"],
+ html.theme-green [style*="background:rgba(7,31,56,"],
+ html.theme-green [style*="background:rgba(8,34,61,"],
+ html.theme-green [style*="background:rgba(8,35,62,"],
+ html.theme-green [style*="background:rgba(8,37,67,"] {
+    background: #f4faf6 !important;
+    border-color: #d1fae5 !important
+ }
+
+ /* Toolbar bản đồ GIS — xem chú thích tương ứng ở khối theme-light phía trên */
+ html.theme-green #gisDrawBtn,
+ html.theme-green #gisBaseSelect,
+ html.theme-green #gisMapSearch {
+    border-color: #93C5FD !important;
+    color: #1D4ED8 !important
+ }
+
+ html.theme-green #gisFinishBtn {
+    background: #ECFDF5 !important;
+    border-color: #6EE7B7 !important;
+    color: #047857 !important
+ }
+
+ html.theme-green #gisClearBtn {
+    border-color: #FCA5A5 !important;
+    color: #DC2626 !important
+ }
+
+ html.theme-green #gisReportBtn {
+    border-color: #FCD34D !important;
+    color: #B45309 !important
+ }
+
+ html.theme-green [style*="background:rgba(44,125,210,"] {
+    background: #eaf1fd !important;
+    border-color: #d1fae5 !important
+ }
+
+ html.theme-green [style*="background:#071f38"],
+ html.theme-green [style*="background:#061a2f"],
+ html.theme-green [style*="background:#06223f"],
+ html.theme-green [style*="background:#0a2338"] {
+    background: #f4faf6 !important;
+    color: #1f2937 !important;
+    border-color: #d1fae5 !important
+ }
+
+ html.theme-green [style*="background:rgba(87,178,255,.16)"] {
+    background: #eaf1fd !important
+ }
+
+ html.theme-green [style*="color:#fff"] {
+    color: #1f2937 !important
+ }
+
+ html.theme-green .widget-head [style*="color:#fff"],
+ html.theme-green .top-overview-head [style*="color:#fff"],
+ html.theme-green .modal-head [style*="color:#fff"] {
+    color: #1c7a49 !important
+ }
+
+ html.theme-green .primary [style*="color:#fff"] {
+    color: #fff !important
+ }
+
+ html.theme-green .source-item,
+ html.theme-green .notify,
+ html.theme-green .action-log-row,
+ html.theme-green .freshness-kpi,
+ html.theme-green .data-health div {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .notify b,
+ body[data-cms-theme="green"] .notify b {
+    color: #000 !important
+ }
+
+ html.theme-green .source-item small,
+ html.theme-green .freshness-kpi small,
+ html.theme-green .data-health span {
+    color: #475569
+ }
+
+ html.theme-green .freshness-kpi span {
+    color: #475569
+ }
+
+ html.theme-green .data-health b,
+ html.theme-green .action-log-row .alr-title {
+    color: #1f2937
+ }
+
+ html.theme-green .action-log-row .alr-sub {
+    color: #475569
+ }
+
+ html.theme-green .action-log-row .alr-time {
+    color: #475569
+ }
+
+ html.theme-green .action-log-row .alr-actor {
+    background: #eaf1fd;
+    color: #2c7dd2;
+    border-color: #cfe0fa
+ }
+
+ html.theme-green .dot {
+    background: #eef9f3;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .field-category-card {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .field-category-card h4 {
+    color: #1f2937
+ }
+
+ html.theme-green .cat-preview-item {
+    background: #f4faf6;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .cat-preview-item .cpi-label {
+    color: #1f2937
+ }
+
+ html.theme-green .cat-preview-item .cpi-legend {
+    color: #475569
+ }
+
+ html.theme-green .field-category-tabs button,
+ html.theme-green .unit-lookup-tabs button,
+ html.theme-green .category-view-back,
+ html.theme-green .field-category-more-btn,
+ html.theme-green .field-category-more-menu {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .field-category-tabs button.active,
+ html.theme-green .unit-lookup-tabs button.active,
+ html.theme-green .field-category-more-btn.active,
+ html.theme-green .field-category-more-menu button.active {
+    background: #ddf2e8;
+    border-color: #2e9d5b;
+    color: #2e9d5b
+ }
+
+ html.theme-green .field-category-more-btn,
+ html.theme-green .field-category-more-menu {
+    background: #ffffff !important;
+    border-color: #d1fae5 !important;
+    color: #1f2937 !important
+ }
+
+ html.theme-green .field-category-more-menu .field-category-more-item {
+    background: transparent !important;
+    color: #1f2937 !important
+ }
+
+ html.theme-green .field-category-more-menu .field-category-more-item:hover,
+ html.theme-green .field-category-more-menu .field-category-more-item.active {
+    background: #ddf2e8 !important;
+    color: #2e9d5b !important
+ }
+
+ html.theme-green .manual-note {
+    background: #eaf6fb;
+    border-color: #bfe4f0;
+    color: #1a5f78
+ }
+
+ html.theme-green .record-update-note {
+    background: #eaf6fb;
+    border-color: #bfe4f0;
+    color: #1a5f78
+ }
+
+ html.theme-green .record-update-note b {
+    color: #1e8a52
+ }
+
+ html.theme-green .subtask-empty {
+    background: #fef3e3;
+    border-color: #f0d68a;
+    color: #8a6a12
+ }
+
+ html.theme-green .progress {
+    background: #e6f7ee
+ }
+
+ html.theme-green .scenario-history-badge,
+ html.theme-green .scenario-applied {
+    background: #eaf6fb;
+    border-color: #bfe4f0;
+    color: #1a5f78
+ }
+
+ html.theme-green .scenario-template-toolbar,
+ html.theme-green .indicator-scenario-head {
+    color: #1f2937
+ }
+
+ html.theme-green .gd-dash table,
+ html.theme-green .unit-lookup-table td {
+    color: #1f2937
+ }
+
+ html.theme-green .unit-lookup-title {
+    color: #1E293B
+ }
+
+ html.theme-green .gd-dash select,
+ html.theme-green .gd-dash input[type="text"],
+ html.theme-green .unit-lookup-search,
+ html.theme-green .field-category-search input {
+    background: #f4faf6;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .mode-tabs button {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .mode-tabs button.active {
+    border-color: #2e9d5b;
+    color: #2e9d5b;
+    background: #ddf2e8
+ }
+
+ html.theme-green .action-log-row:hover {
+    background: #eafaf1
+ }
+
+ html.theme-green .category-detail-head {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .category-detail-head p {
+    color: #475569
+ }
+
+ html.theme-green .unit-lookup {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .iip-wrap {
+    background: #f4faf6;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .indicator-row:hover {
+    background: #eafaf1
+ }
+
+ html.theme-green .drawer-pie-box,
+ html.theme-green .drawer-pie-side {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .task-inline-summary {
+    background: #f4faf6;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .scenario-sla div,
+ html.theme-green .scenario-fullpage-sec {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .scenario-sla b {
+    color: #1f2937
+ }
+
+ html.theme-green .scenario-fullpage-sec b {
+    color: #2e9d5b
+ }
+
+ html.theme-green .scenario-fullpage-sec p,
+ html.theme-green .scenario-fullpage-sec ul,
+ html.theme-green .scenario-fullpage-sec ol,
+ html.theme-green .scenario-fullpage-sec ol li b {
+    color: #1f2937
+ }
+
+ html.theme-green .indicator-kpi-tile {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .ikt-label {
+    color: #475569
+ }
+
+ html.theme-green .ikt-value {
+    color: #2e9d5b
+ }
+
+ html.theme-green .pie-card {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ /* Đổ bóng nhẹ thay cho viền đậm ở các card nội dung — giữ cảm giác "tách lớp" mà không bị rối mắt kiểu ô kẻ */
+ html.theme-green .pie-card,
+ html.theme-green .scenario-card,
+ html.theme-green .field-category-card,
+ html.theme-green .record-row,
+ html.theme-green .indicator-row,
+ html.theme-green .mini-kpi,
+ html.theme-green .indicator-kpi-tile,
+ html.theme-green .cat-chart-box,
+ html.theme-green .account-pick,
+ html.theme-green .hero-tile,
+ html.theme-green .scenario-mini-card,
+ html.theme-green .axis-action-card,
+ html.theme-green .seg-kpi,
+ html.theme-green .cir-stat-tile,
+ html.theme-green .cat-donut-wrap {
+    border-color: #e3f5ea;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .05)
+ }
+
+ html.theme-green .badge,
+ html.theme-green .mini-pct-chip,
+ html.theme-green .mini-stat-chip {
+    border-color: #dbf3e5
+ }
+
+ html.theme-green .close,
+ body[data-cms-theme="green"] .close {
+    background: #eef9f3;
+    border-color: #d1fae5;
+    /* !important: xem chú thích ở html.theme-light .close phía trên — cùng lý do. */
+    color: #475569 !important
+ }
+
+ html.theme-green .close:hover,
+ body[data-cms-theme="green"] .close:hover {
+    background: #ddf2e8;
+    color: #2e9d5b !important
+ }
+
+ html.theme-green .access-lock {
+    color: #475569;
+    background: #fef3e3;
+    border-color: #f0d68a
+ }
+
+ /* Thanh cuộn — Firefox (scrollbar-color) + Chrome/Edge (::-webkit-scrollbar) */
+ html.theme-green,
+ html.theme-green .widget-body,
+ html.theme-green .cat-donut-legend,
+ html.theme-green .gis-layer-sidebar,
+ html.theme-green .drawer-body,
+ html.theme-green .modal-body,
+ html.theme-green .acct-combo-tree {
+    scrollbar-color: rgba(46, 157, 91, .45) #e6f7ee
+ }
+
+ html.theme-green::-webkit-scrollbar-track,
+ html.theme-green .widget-body::-webkit-scrollbar-track,
+ html.theme-green .cat-donut-legend::-webkit-scrollbar-track,
+ html.theme-green .gis-layer-sidebar::-webkit-scrollbar-track,
+ html.theme-green .drawer-body::-webkit-scrollbar-track,
+ html.theme-green .modal-body::-webkit-scrollbar-track,
+ html.theme-green .acct-combo-tree::-webkit-scrollbar-track {
+    background: #e6f7ee
+ }
+
+ html.theme-green::-webkit-scrollbar-thumb,
+ html.theme-green .widget-body::-webkit-scrollbar-thumb,
+ html.theme-green .cat-donut-legend::-webkit-scrollbar-thumb,
+ html.theme-green .gis-layer-sidebar::-webkit-scrollbar-thumb,
+ html.theme-green .drawer-body::-webkit-scrollbar-thumb,
+ html.theme-green .modal-body::-webkit-scrollbar-thumb,
+ html.theme-green .acct-combo-tree::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #4cc98a, #2e9d5b);
+    border: 2px solid #e6f7ee;
+    background-clip: padding-box
+ }
+
+ html.theme-green .modal-body::-webkit-scrollbar-track {
+    background: #e6f7ee !important
+ }
+
+ html.theme-green .modal-body::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #4cc98a, #2e9d5b) !important;
+    border-color: #e6f7ee !important
+ }
+
+ /* Nền của các khối/card lớn (chưa phủ ở đợt trước) — .widget/.top-overview là khung ngoài cùng của mọi widget dashboard, .modal/.drawer là khung popup, .detail-card/.record-row là khối nội dung bên trong popup */
+ html.theme-green .widget,
+ html.theme-green .top-overview {
+    background: #ffffff;
+    border-color: #d1fae5;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .06)
+ }
+
+ html.theme-green .modal,
+ html.theme-green .drawer {
+    background: #ffffff;
+    border-color: #d1fae5;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, .18)
+ }
+
+ html.theme-green .modal-head {
+    border-bottom-color: #d1fae5
+ }
+
+ html.theme-green .drawer .drawer-head {
+    border-bottom-color: #d1fae5;
+    background: linear-gradient(135deg, #991B1B, #C62828)
+ }
+
+ html.theme-green .detail-card {
+    background: #f4faf6;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .detail-card h4 {
+    color: #2e9d5b
+ }
+
+ html.theme-green .kv b {
+    color: #475569
+ }
+
+ html.theme-green .kv span {
+    color: #1f2937
+ }
+
+ html.theme-green .record-row {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .record-row:hover {
+    background: #eafaf1
+ }
+
+ html.theme-green .record-row .title {
+    color: #1f2937
+ }
+
+ html.theme-green .progress {
+    background: #e6f7ee
+ }
+
+ html.theme-green .vptu-table tbody tr {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ html.theme-green .vptu-table tbody tr:hover {
+    background: #eafaf1
+ }
+
+ html.theme-green .vptu-table tbody td {
+    border-color: #d1fae5
+ }
+
+ html.theme-green .vptu-table tbody td:first-child {
+    border-left-color: #d1fae5
+ }
+
+ html.theme-green .vptu-table tbody td:last-child {
+    border-right-color: #d1fae5
+ }
+
+ html.theme-green .vptu-table tbody .title {
+    color: #1f2937
+ }
+
+ html.theme-green .audit-item {
+    border-left-color: #2e9d5b
+ }
+
+ html.theme-green .card-head h4 {
+    color: #1f2937
+ }
+
+ html.theme-green .indicator-table-head,
+ html.theme-green .indicator-status-tabs button {
+    color: #1c7a49
+ }
+
+ /* filter:brightness() được thiết kế cho nền tối (sáng lên -> vẫn còn tối, đọc được chữ sáng) —
+ sang theme sáng, nền đã trắng/sáng sẵn nên brightness() làm chữ + nền bị "cháy sáng", mất tương phản.
+ Tắt hết các hiệu ứng brightness() hover ở theme sáng, thay bằng hiệu ứng viền/đổ bóng phù hợp nền sáng. */
+ html.theme-green .acct-main:hover,
+ html.theme-green .acct-leaf:hover,
+ html.theme-green .seg-kpi:hover,
+ html.theme-green .source-item:hover,
+ html.theme-green .cat-two-col .cat-chart-box:not(.gen-unit-box):hover,
+ html.theme-green .category-view-back:hover,
+ html.theme-green .cat-item-row:hover,
+ html.theme-green .field-category-card:hover,
+ html.theme-green .cat-axis-label:hover,
+ html.theme-green .iip-chip:hover,
+ html.theme-green .task-subtask-mini-row:hover,
+ html.theme-green .snav-main:hover,
+ html.theme-green .field input[type=checkbox]:hover {
+    filter: none !important
+ }
+
+ html.theme-green .seg-kpi:hover,
+ html.theme-green .source-item:hover {
+    box-shadow: 0 4px 12px rgba(15, 23, 42, .08)
+ }
+
+ html.theme-green .cat-two-col .cat-chart-box:not(.gen-unit-box):hover {
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .1);
+    transform: translateY(-1px)
+ }
+
+ html.theme-green .category-view-back:hover {
+    background: #eef9f3
+ }
+
+ html.theme-green .cat-item-row:hover {
+    background: #eafaf1;
+    border-color: #2e9d5b
+ }
+
+ html.theme-green .field-category-card:hover {
+    border-color: #2e9d5b;
+    box-shadow: 0 4px 14px rgba(46, 157, 91, .12);
+    transform: translateY(-1px)
+ }
+
+ html.theme-green .cat-axis-label:hover {
+    color: #2e9d5b
+ }
+
+ /* Ô "hôm nay" trong lịch tháng (Lịch công tác/kỳ họp) — vốn hard-code viền/nền vàng bất kể theme, đổi riêng cho theme này theo đúng màu --today đã cho. */
+ html.theme-green [style*="background:rgba(88,71,11,"] {
+    background: #f0fdf4 !important;
+    box-shadow: inset 0 0 0 2px #2e9d5b !important
+ }
+
+ /* ===================== BỔ SUNG: class block riêng của widget module (page-html) =====================
+    Các widget (tongquan/noti/data/chitieu) có style.css riêng với class nền tối hard-code không nằm
+    trong demo_ioc.html nên theme.css (copy từ demo) không phủ được. Phủ chúng theo đúng bảng màu chuẩn:
+    theme-light: nền #F9FAFB / viền #D5DAE3 / chữ #111827; theme-green: nền #fff / viền #d1fae5 / chữ #1f2937. */
+ html.theme-light .kpi,
+ html.theme-light .role-card,
+ html.theme-light .scope-note,
+ html.theme-light .indicator-card,
+ html.theme-light .portrait-panel,
+ html.theme-light .portrait-card,
+ html.theme-light .donut-box,
+ html.theme-light .pie-side,
+ html.theme-light .notify-source,
+ html.theme-light .field-category-card-ct,
+ html.theme-light .iip-search,
+ html.theme-light .iip-table-wrap,
+ html.theme-light .iip-close-btn,
+ html.theme-light .data-issue-banner,
+ html.theme-light .add-chi-tieu,
+ html.theme-light .close-ct,
+ html.theme-light .field-category-toolbar-childs,
+ html.theme-light .cfg-page,
+ html.theme-light .config-card {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .kpi small,
+ html.theme-light .indicator-card h4,
+ html.theme-light .notify-source h4,
+ html.theme-light .field-category-card-ct h4,
+ html.theme-light .iip-head-title,
+ html.theme-light .axis-label,
+ html.theme-light .axis-total,
+ html.theme-light .cat-axis-total,
+ html.theme-light .scope-note b,
+ html.theme-light .scope-note span,
+ html.theme-light .iip-chip-cnt,
+ html.theme-light .notify-source p,
+ html.theme-light .indicator-card .metric {
+    color: #111827
+ }
+
+ html.theme-light .bar,
+ html.theme-light .mini-progress {
+    background: #E5E7EB
+ }
+
+ html.theme-light .mini-progress i,
+ html.theme-light .iip-pct-fill {
+    background: #2563EB
+ }
+
+ html.theme-light .iip-td-id,
+ html.theme-light .iip-rec-count,
+ html.theme-light .iip-chip-lbl {
+    color: #475569
+ }
+
+ html.theme-light .iip-empty {
+    color: #64748B
+ }
+
+ html.theme-light .cdl-item:hover {
+    background: #f4f2fb
+ }
+
+ html.theme-light .cdl-item.cdl-item-active {
+    background: #fdeceb;
+    box-shadow: inset 0 0 0 1px #9d151c
+ }
+
+ html.theme-light .field-category-card-ct:hover,
+ html.theme-light .kpi:hover,
+ html.theme-light .indicator-card:hover,
+ html.theme-light .portrait-card:hover {
+    border-color: #9d151c;
+    box-shadow: 0 4px 14px rgba(157, 21, 28, .1)
+ }
+
+ html.theme-green .kpi,
+ html.theme-green .role-card,
+ html.theme-green .scope-note,
+ html.theme-green .indicator-card,
+ html.theme-green .portrait-panel,
+ html.theme-green .portrait-card,
+ html.theme-green .donut-box,
+ html.theme-green .pie-side,
+ html.theme-green,
+ html.theme-green .notify-source,
+ html.theme-green .field-category-card-ct,
+ html.theme-green .iip-search,
+ html.theme-green .iip-table-wrap,
+ html.theme-green .iip-close-btn,
+ html.theme-green .data-issue-banner,
+ html.theme-green .add-chi-tieu,
+ html.theme-green .close-ct,
+ html.theme-green .field-category-toolbar-childs,
+ html.theme-green .cfg-page,
+ html.theme-green .config-card {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .kpi small,
+ html.theme-green .indicator-card h4,
+ html.theme-green .notify-source h4,
+ html.theme-green .field-category-card-ct h4,
+ html.theme-green .iip-head-title,
+ html.theme-green .axis-label,
+ html.theme-green .axis-total,
+ html.theme-green .cat-axis-total,
+ html.theme-green .scope-note b,
+ html.theme-green .scope-note span,
+ html.theme-green .iip-chip-cnt,
+ html.theme-green .notify-source p,
+ html.theme-green .indicator-card .metric {
+    color: #1f2937
+ }
+
+ html.theme-green .bar,
+ html.theme-green .mini-progress {
+    background: #e5f5ec
+ }
+
+ html.theme-green .mini-progress i,
+ html.theme-green .iip-pct-fill {
+    background: #2e9d5b
+ }
+
+ html.theme-green .iip-td-id,
+ html.theme-green .iip-rec-count,
+ html.theme-green .iip-chip-lbl {
+    color: #475569
+ }
+
+ html.theme-green .iip-empty {
+    color: #64748B
+ }
+
+ html.theme-green .cdl-item:hover {
+    background: #eef9f3
+ }
+
+ html.theme-green .cdl-item.cdl-item-active {
+    background: #d1fae5;
+    box-shadow: inset 0 0 0 1px #2e9d5b
+ }
+
+ html.theme-green .field-category-card-ct:hover,
+ html.theme-green .kpi:hover,
+ html.theme-green .indicator-card:hover,
+ html.theme-green .portrait-card:hover {
+    border-color: #2e9d5b;
+    box-shadow: 0 4px 14px rgba(46, 157, 91, .12)
+ }
+
+ /* ===================== BỔ SUNG #2: block "Tổng quan" (tongquan) + "Bản đồ GIS" (gis) ===================== */
+ /* ---------- TỔNG QUAN ---------- */
+ html.theme-light .summary-pie-card,
+ html.theme-light .top-overview-body.overview-pie-body.v10-pie-body,
+ html.theme-light .summary-pie-card.v10-card,
+ html.theme-light .freshness-chip,
+ html.theme-light .v11-notify-source,
+ html.theme-light .v11-source-pill,
+ html.theme-light .subtask-summary-v11,
+ html.theme-light .category-item-card,
+ html.theme-light .secretary-mini,
+ html.theme-light .evidence-tile,
+ html.theme-light .widget-customizer,
+ html.theme-light .custom-list label,
+ html.theme-light .calendar-board,
+ html.theme-light .event-chip,
+ html.theme-light .agenda-row,
+ html.theme-light .participant,
+ html.theme-light .status-bar-track,
+ html.theme-light .sop-step,
+ html.theme-light .sop-step i,
+ html.theme-light .step-num-badge,
+ html.theme-light .nav {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .summary-pie-card h3,
+ html.theme-light .v11-notify-source h4,
+ html.theme-light .category-item-card h4,
+ html.theme-light .secretary-mini b,
+ html.theme-light .event-chip,
+ html.theme-light .agenda-row b,
+ html.theme-light .subtask-summary-v11 b,
+ html.theme-light .freshness-chip b,
+ html.theme-light .nav button {
+    color: #111827
+ }
+
+ html.theme-light .subtask-summary-v11 {
+    background: #F9FAFB !important;
+    border-color: #D5DAE3 !important
+ }
+
+ html.theme-light .subtask-head-v11 h4 {
+    color: #111827 !important
+ }
+
+ html.theme-light .drawer {
+    background: #F9FAFB !important;
+    border-color: #D5DAE3 !important;
+    box-shadow: 0 30px 90px rgba(15, 23, 42, .25) !important
+ }
+
+ html.theme-light .subtask-table-wrap {
+    background: rgba(249, 250, 251, .6) !important;
+    border-color: #D5DAE3 !important
+ }
+
+ html.theme-light .subtask-table-wrap thead th {
+    background: #F1F5F9 !important;
+    color: #334155 !important;
+    border-bottom-color: #D5DAE3 !important
+ }
+
+ html.theme-light .summary-pie-card .summary-note,
+ html.theme-light .v11-notify-source p,
+ html.theme-light .category-item-card small,
+ html.theme-light .subtask-summary-v11 small,
+ html.theme-light .freshness-chip small,
+ html.theme-light .calendar-toolbar input,
+ html.theme-light .calendar-toolbar select {
+    color: #475569 !important
+ }
+
+ html.theme-light .overview-legend button,
+ html.theme-light .drawer-pie-legend button {
+    background: #f2f4f8;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .overview-legend button:hover,
+ html.theme-light .drawer-pie-legend button:hover {
+    background: #f4f2fb
+ }
+
+ /* Donut Tổng quan — theme sáng. SVG dùng màu trực tiếp trong markup, nên
+    cần !important để đồng bộ tâm, chữ và các lát với palette theme. */
+ html.theme-light .overview-donut circle[r="42"] {
+    fill: #fff !important;
+    /* Bỏ viền: circle này chỉ để che lỗ trống ở tâm donut, không cần border —
+       viền xám trước đây nổi rõ trên nền sáng, nhìn như "thừa đường viền tròn". */
+    stroke: none !important
+ }
+
+ html.theme-light .overview-donut circle[r="62"] {
+    fill: none !important;
+    stroke: #E2E8F0 !important
+ }
+
+ html.theme-light .overview-donut:not(:has(.overview-seg)) circle[r="62"] {
+    stroke: #DCFCE7 !important
+ }
+
+ html.theme-light .overview-donut .overview-center,
+ html.theme-light .overview-donut .overview-sub {
+    fill: #000 !important
+ }
+
+ html.theme-light .overview-legend span,
+ html.theme-light .overview-legend b {
+    color: #000 !important
+ }
+
+ html.theme-light .overview-donut .overview-seg[stroke="#58b7ff"] {
+    stroke: #2563EB !important
+ }
+
+ html.theme-light .overview-donut .overview-seg[stroke="#2c7dd2"] {
+    stroke: #2563EB !important
+ }
+
+ html.theme-light .overview-donut .overview-seg[stroke="#d8a50c"] {
+    stroke: #D97706 !important
+ }
+
+ html.theme-light .overview-donut .overview-seg[stroke="#8b5cf6"] {
+    stroke: #7C3AED !important
+ }
+
+ html.theme-light .overview-donut .overview-seg[stroke="#2fb174"] {
+    stroke: #059669 !important
+ }
+
+ html.theme-light .overview-donut .overview-seg[stroke="#6f93b3"] {
+    stroke: #64748B !important
+ }
+
+ html.theme-light .overview-donut .overview-seg[stroke="#d33a44"] {
+    stroke: #DC2626 !important
+ }
+
+ html.theme-light .overview-donut .overview-seg[stroke="#39d5ff"] {
+    stroke: #2563EB !important
+ }
+
+ html.theme-light .overview-donut .overview-seg[stroke="#d25a19"] {
+    stroke: #64748B !important
+ }
+
+ html.theme-light .overview-donut .overview-seg[stroke="#ef4444"] {
+    stroke: #DC2626 !important
+ }
+
+ html.theme-light .status-bar-track,
+ html.theme-light .calendar-head-cell {
+    background: #E5E7EB
+ }
+
+ html.theme-light .day-cell {
+    background: #f2f4f8
+ }
+
+ html.theme-light .day-cell.today {
+    background: #FFFBEB
+ }
+
+ html.theme-light .calendar-report .report-card {
+    background: #F9FAFB;
+    border-color: #D5DAE3
+ }
+
+ html.theme-green .summary-pie-card,
+ html.theme-green .top-overview-body.overview-pie-body.v10-pie-body,
+ html.theme-green .summary-pie-card.v10-card,
+ html.theme-green .freshness-chip,
+ html.theme-green .v11-notify-source,
+ html.theme-green .v11-source-pill,
+ html.theme-green .subtask-summary-v11,
+ html.theme-green .category-item-card,
+ html.theme-green .secretary-mini,
+ html.theme-green .evidence-tile,
+ html.theme-green .widget-customizer,
+ html.theme-green .custom-list label,
+ html.theme-green .calendar-board,
+ html.theme-green .event-chip,
+ html.theme-green .agenda-row,
+ html.theme-green .participant,
+ html.theme-green .status-bar-track,
+ html.theme-green .sop-step,
+ html.theme-green .sop-step i,
+ html.theme-green .step-num-badge,
+ html.theme-green .nav {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .summary-pie-card h3,
+ html.theme-green .v11-notify-source h4,
+ html.theme-green .category-item-card h4,
+ html.theme-green .secretary-mini b,
+ html.theme-green .event-chip,
+ html.theme-green .agenda-row b,
+ html.theme-green .subtask-summary-v11 b,
+ html.theme-green .freshness-chip b,
+ html.theme-green .nav button {
+    color: #1f2937
+ }
+
+ html.theme-green .subtask-summary-v11 {
+    background: #ffffff !important;
+    border-color: #d1fae5 !important
+ }
+
+ html.theme-green .drawer {
+    background: #ffffff !important;
+    border-color: #d1fae5 !important;
+    box-shadow: 0 30px 90px rgba(15, 23, 42, .15) !important
+ }
+
+ html.theme-green .subtask-table-wrap {
+    background: rgba(255, 255, 255, .6) !important;
+    border-color: #d1fae5 !important
+ }
+
+ html.theme-green .subtask-table-wrap thead th {
+    background: #e6f7ee !important;
+    color: #1c7a49 !important;
+    border-bottom-color: #d1fae5 !important
+ }
+
+ html.theme-green .summary-pie-card .summary-note,
+ html.theme-green .v11-notify-source p,
+ html.theme-green .category-item-card small,
+ html.theme-green .subtask-summary-v11 small,
+ html.theme-green .freshness-chip small,
+ html.theme-green .calendar-toolbar input,
+ html.theme-green .calendar-toolbar select {
+    color: #475569 !important
+ }
+
+ html.theme-green .overview-legend button,
+ html.theme-green .drawer-pie-legend button {
+    background: #eef9f3;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .overview-legend button:hover,
+ html.theme-green .drawer-pie-legend button:hover {
+    background: #e6f7ee
+ }
+
+ /* Donut Tổng quan — theme Tươi mát. Các thuộc tính SVG được khai báo trực tiếp trong HTML,
+    vì vậy cần !important để theme thắng presentation attributes của circle/path/text. */
+ html.theme-green .overview-donut circle[r="42"] {
+    fill: #fff !important;
+    /* Xem chú thích ở html.theme-light .overview-donut circle[r="42"] phía trên. */
+    stroke: none !important
+ }
+
+ html.theme-green .overview-donut circle[r="62"] {
+    fill: none !important;
+    stroke: #e5f5ec !important
+ }
+
+ html.theme-green .overview-donut:not(:has(.overview-seg)) circle[r="62"] {
+    stroke: #fff !important
+ }
+
+ html.theme-green .overview-donut .overview-center {
+    fill: #000 !important
+ }
+
+ html.theme-green .overview-donut .overview-sub {
+    fill: #000 !important
+ }
+
+ html.theme-green .overview-legend span,
+ html.theme-green .overview-legend b {
+    color: #000 !important
+ }
+
+ /* Đồng bộ màu lát donut với bộ màu trạng thái của theme Tươi mát. */
+ html.theme-green .overview-donut .overview-seg[stroke="#58b7ff"] {
+    stroke: #2563EB !important
+ }
+
+ html.theme-green .overview-donut .overview-seg[stroke="#2c7dd2"] {
+    stroke: #0891B2 !important
+ }
+
+ html.theme-green .overview-donut .overview-seg[stroke="#d8a50c"] {
+    stroke: #D97706 !important
+ }
+
+ html.theme-green .overview-donut .overview-seg[stroke="#8b5cf6"] {
+    stroke: #7C3AED !important
+ }
+
+ html.theme-green .overview-donut .overview-seg[stroke="#2fb174"] {
+    stroke: #059669 !important
+ }
+
+ html.theme-green .overview-donut .overview-seg[stroke="#6f93b3"] {
+    stroke: #64748B !important
+ }
+
+ html.theme-green .overview-donut .overview-seg[stroke="#d33a44"] {
+    stroke: #DC2626 !important
+ }
+
+ html.theme-green .overview-donut .overview-seg[stroke="#39d5ff"] {
+    stroke: #2563EB !important
+ }
+
+ html.theme-green .overview-donut .overview-seg[stroke="#d25a19"] {
+    stroke: #64748B !important
+ }
+
+ html.theme-green .overview-donut .overview-seg[stroke="#ef4444"] {
+    stroke: #DC2626 !important
+ }
+
+ html.theme-green .status-bar-track,
+ html.theme-green .calendar-head-cell {
+    background: #e5f5ec
+ }
+
+ html.theme-green .day-cell {
+    background: #f6fdf8
+ }
+
+ html.theme-green .day-cell.today {
+    background: #f0fdf4
+ }
+
+ html.theme-green .calendar-report .report-card {
+    background: #ffffff;
+    border-color: #d1fae5
+ }
+
+ /* ---------- BẢN ĐỒ GIS ---------- */
+ html.theme-light .gis-map-body,
+ html.theme-light .leaflet-container {
+    background: #eef1f4
+ }
+
+ html.theme-light .gis-map-topline {
+    background: rgba(249, 250, 251, .9)
+ }
+
+ html.theme-light .gis-kpi-strip {
+    background: linear-gradient(180deg, rgba(249, 250, 251, .92) 60%, transparent)
+ }
+
+ html.theme-light .gis-kpi-chip,
+ html.theme-light .gis-report-tab,
+ html.theme-light .gis-map-pill {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-light .gis-kpi-chip b,
+ html.theme-light .gis-report-tab,
+ html.theme-light .gis-map-pill {
+    color: #111827
+ }
+
+ html.theme-light .gis-map-pill small {
+    background: #eef1f5;
+    color: #475569
+ }
+
+ html.theme-light .gis-layer-head {
+    color: #475569;
+    border-bottom-color: rgba(15, 23, 42, .12)
+ }
+
+ html.theme-light .gis-status-legend span {
+    color: #334155
+ }
+
+ html.theme-light .gis-map-topline label {
+    color: #475569
+ }
+
+ html.theme-light .leaflet-popup-content-wrapper,
+ html.theme-light .leaflet-popup-tip {
+    background: #F9FAFB !important;
+    color: #111827 !important
+ }
+
+ html.theme-light .leaflet-popup-content-wrapper h4,
+ html.theme-light .leaflet-popup-content-wrapper b {
+    color: #111827
+ }
+
+ html.theme-light .leaflet-control-zoom a {
+    background: #F9FAFB !important;
+    color: #111827 !important
+ }
+
+ html.theme-light .leaflet-control-zoom a:hover {
+    background: #f2f4f8 !important
+ }
+
+ html.theme-light .leaflet-control-attribution {
+    background: rgba(249, 250, 251, .85) !important;
+    color: #475569 !important
+ }
+
+ html.theme-light .gis-zone-tooltip {
+    background: rgba(249, 250, 251, .92) !important;
+    color: #111827 !important;
+    border-color: #D5DAE3 !important
+ }
+
+ html.theme-green .gis-map-body,
+ html.theme-green .leaflet-container {
+    background: #f0fdf4
+ }
+
+ html.theme-green .gis-map-topline {
+    background: rgba(255, 255, 255, .9)
+ }
+
+ html.theme-green .gis-kpi-strip {
+    background: linear-gradient(180deg, rgba(255, 255, 255, .92) 60%, transparent)
+ }
+
+ html.theme-green .gis-kpi-chip,
+ html.theme-green .gis-report-tab,
+ html.theme-green .gis-map-pill {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ html.theme-green .gis-kpi-chip b,
+ html.theme-green .gis-report-tab,
+ html.theme-green .gis-map-pill {
+    color: #1f2937
+ }
+
+ html.theme-green .gis-map-pill small {
+    background: #e6f7ee;
+    color: #475569
+ }
+
+ html.theme-green .gis-layer-head {
+    color: #2e9d5b;
+    border-bottom-color: rgba(46, 157, 91, .2)
+ }
+
+ html.theme-green .gis-status-legend span {
+    color: #1f2937
+ }
+
+ html.theme-green .gis-map-topline label {
+    color: #475569
+ }
+
+ html.theme-green .leaflet-popup-content-wrapper,
+ html.theme-green .leaflet-popup-tip {
+    background: #ffffff !important;
+    color: #1f2937 !important
+ }
+
+ html.theme-green .leaflet-popup-content-wrapper h4,
+ html.theme-green .leaflet-popup-content-wrapper b {
+    color: #1f2937
+ }
+
+ html.theme-green .leaflet-control-zoom a {
+    background: #ffffff !important;
+    color: #1f2937 !important
+ }
+
+ html.theme-green .leaflet-control-zoom a:hover {
+    background: #eef9f3 !important
+ }
+
+ html.theme-green .leaflet-control-attribution {
+    background: rgba(255, 255, 255, .85) !important;
+    color: #475569 !important
+ }
+
+ html.theme-green .gis-zone-tooltip {
+    background: rgba(255, 255, 255, .92) !important;
+    color: #1f2937 !important;
+    border-color: #d1fae5 !important
+ }
+
+ /* ---------- GIS: nội dung popup & report (bổ sung #3) ---------- */
+ html.theme-light .leaflet-popup-content h4 {
+    color: #9d151c
+ }
+
+ html.theme-light .leaflet-popup-content p,
+ html.theme-light .leaflet-popup-content small,
+ html.theme-light .gis-report-item span,
+ html.theme-light .gis-report-related {
+    color: #475569
+ }
+
+ html.theme-light .gis-popup-content {
+    color: #111827 !important
+ }
+
+ html.theme-light .gis-popup-content b {
+    color: #111827
+ }
+
+ html.theme-light .gis-report-item.clickable:hover {
+    background: rgba(157, 21, 28, .08)
+ }
+
+ html.theme-green .leaflet-popup-content h4 {
+    color: #1c7a49
+ }
+
+ html.theme-green .leaflet-popup-content p,
+ html.theme-green .leaflet-popup-content small,
+ html.theme-green .gis-report-item span,
+ html.theme-green .gis-report-related {
+    color: #475569
+ }
+
+ html.theme-green .gis-popup-content {
+    color: #1f2937 !important
+ }
+
+ html.theme-green .gis-popup-content b {
+    color: #1f2937
+ }
+
+ html.theme-green .gis-report-item.clickable:hover {
+    background: rgba(46, 157, 91, .1)
+ }
+
+ /* ---------- GIS: sidebar lớp & khung widget (bổ sung #4) ---------- */
+ html.theme-light .gis-layer-sidebar {
+    background: #F9FAFB !important;
+    border-color: #D5DAE3 !important;
+    color: #111827
+ }
+
+ html.theme-light .widget {
+    background: #F9FAFB;
+    border-color: #D5DAE3;
+    color: #111827
+ }
+
+ html.theme-green .gis-layer-sidebar {
+    background: #ffffff !important;
+    border-color: #d1fae5 !important;
+    color: #1f2937
+ }
+
+ html.theme-green .widget {
+    background: #ffffff;
+    border-color: #d1fae5;
+    color: #1f2937
+ }
+
+ /* ===================== BỔ SUNG #5: widget "Kiểm đếm nhiệm vụ" (task-tally) =====================
+    Toàn bộ màu của widget này (nền/viền/chữ/trạng thái/biểu đồ) đều đi qua biến CSS riêng
+    (--bg/--card/--ink/--done/--ontime/.../--cap-1..5, xem task-tally/styles.css), nên chỉ cần
+    ghi đè đúng bộ biến này theo từng theme — không cần thêm rule theo class như các widget cũ
+    còn hard-code màu trực tiếp trong style/HTML. Giá trị trạng thái/màu vòng cấp trình lấy lại
+    đúng bảng màu chuẩn đã dùng ở các khối BỔ SUNG khác (done/ontime/late/routine, cap-*).
+    QUAN TRỌNG: phải khoanh vùng theo .tt-page (class riêng trên <body> của task-tally/index.html)
+    — --bg/--line/--line-soft/--muted trùng tên với biến gốc của tongquan/chitieu/noti/gis, nếu
+    ghi đè thẳng ở html.theme-light/html.theme-green (không class) sẽ đè luôn màu của các trang đó
+    vì theme.css dùng chung cho mọi iframe. */
+ html.theme-light .tt-page {
+    --bg: #EEF1F4;
+    --card: #F9FAFB;
+    --ink: #111827;
+    --ink-2: #475569;
+    --muted: #64748B;
+    --line: #D5DAE3;
+    --line-soft: rgba(17, 24, 39, .10);
+    --done: #059669;
+    --ontime: #0891B2;
+    --late: #DC2626;
+    --routine: #D97706;
+    --done-bg: #ECFDF5;
+    --ontime-bg: #ECFEFF;
+    --late-bg: #FEF2F2;
+    --routine-bg: #FFFBEB;
+    --brand: #B91C1C;
+    --brand-dk: #7F1D1D;
+    --brand-border: #7F1D1D;
+    --head-bg1: #991B1B;
+    --head-bg2: #C62828;
+    --input-bg: #F3F4F6;
+    --btn-bg: #F3F4F6;
+    --btn-bg-hover: #E5E7EB;
+    --widget-bg: #ffffff;
+    --cap-1: #2563EB;
+    --cap-2: #059669;
+    --cap-3: #7C3AED;
+    --cap-4: #D97706;
+    --cap-5: #64748B
+ }
+
+ html.theme-green .tt-page {
+    --bg: #f6f8f6;
+    --card: #ffffff;
+    --ink: #1f2937;
+    --ink-2: #475569;
+    --muted: #64748B;
+    --line: #d1fae5;
+    --line-soft: rgba(31, 41, 55, .10);
+    --done: #059669;
+    --ontime: #0891B2;
+    --late: #DC2626;
+    --routine: #D97706;
+    --done-bg: #ECFDF5;
+    --ontime-bg: #ECFEFF;
+    --late-bg: #FEF2F2;
+    --routine-bg: #FFFBEB;
+    --brand: #34b06e;
+    --brand-dk: #227a4a;
+    --brand-border: #227a4a;
+    --head-bg1: #bfead6;
+    --head-bg2: #bfead6;
+    --input-bg: #eef9f3;
+    --btn-bg: #eef9f3;
+    --btn-bg-hover: #d1fae5;
+    --widget-bg: #ffffff;
+    --cap-1: #2563EB;
+    --cap-2: #059669;
+    --cap-3: #7C3AED;
+    --cap-4: #D97706;
+    --cap-5: #64748B
+ }
+
+ html.theme-light #dashboardWidget .bt-widget-head {
+    background: linear-gradient(135deg, #991B1B, #C62828);
+    border-bottom-color: transparent
+ }
+
+ html.theme-green #dashboardWidget .bt-widget-head {
+    background: #bfead6;
+    color: #1c7a49;
+    border-bottom: 2px solid #92dcb8
+ }
+
+ /* .bt-widget-title/.bt-mini-btn có màu chữ hard-code riêng (#eaf6ff) trong task-tally/styles.css,
+    ăn đè lên color kế thừa từ .bt-widget-head phía trên — phải khai báo trực tiếp mới thắng được. */
+ html.theme-green #dashboardWidget .bt-widget-title,
+ html.theme-green #dashboardWidget .bt-mini-btn {
+    color: #1c7a49
+ }
+
+ /* Header popup (.dlg-h) dùng --head-bg1/2 nên tự đổi nền theo theme, nhưng color/.dlg-x vẫn
+    hard-code trắng trong task-tally/styles.css — nền xanh mint (theme-green) cần chữ/nút đóng
+    tối màu mới đọc được, không thể chỉ đổi qua biến nền như theme-light (nền đỏ, chữ trắng vẫn ổn). */
+ html.theme-green .tt-page .dlg-h {
+    color: #1c7a49
+ }
+
+ html.theme-green .tt-page .dlg-x {
+    color: #1c7a49;
+    border-color: #1c7a49
+ }
+
+ .theme-light .kpi.total {
+   background: linear-gradient(135deg, #0a2a4b 0%, #126ad0 100%);
+    border-color: rgba(117, 190, 255, .4);
+ }
+
+ /* .kpi.total (ô "Tổng cộng" của task-tally) hard-code chữ trắng trong task-tally/styles.css
+    để đọc được trên nền gradient xanh navy mặc định — rule html.theme-green .kpi phía trên
+    (dùng chung cho mọi widget có class .kpi) đè nền ô này thành trắng, khiến chữ trắng biến
+    mất trên nền trắng. Khôi phục lại đúng nền gradient gốc, giống theme-light ở trên. */
+  .theme-green .kpi.total {
+   background: linear-gradient(135deg, #0a2a4b 0%, #126ad0 100%);
+    border-color: rgba(117, 190, 255, .4);
+ }
+
+ /* Đồng bộ màu nút Lọc / Xóa lọc trong Drawer Chi tiêu (theme Sáng / Đỏ-Trắng và theme Xanh-Trắng) */
+ html.theme-light .ct-filter-select {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #1e293b !important;
+ }
+ html.theme-light .ct-filter-btn {
+    border: 1px solid #cbd5e1 !important;
+    background: #ffffff !important;
+    color: var(--muted, #475569) !important;
+ }
+ html.theme-light .ct-filter-btn:hover {
+    background: #f8fafc !important;
+    color: var(--text, #111827) !important;
+    border-color: #94a3b8 !important;
+ }
+ html.theme-light .ct-filter-btn-clear {
+    border: 1px solid #cbd5e1 !important;
+    color: var(--muted, #475569) !important;
+    background: #ffffff !important;
+ }
+ html.theme-light .ct-filter-btn-clear:hover {
+    background: #f8fafc !important;
+    color: var(--text, #111827) !important;
+    border-color: #94a3b8 !important;
+ }
+
+ html.theme-green .ct-filter-select {
+    background: #ffffff !important;
+    border-color: #c8e6d5 !important;
+    color: #1e293b !important;
+ }
+ html.theme-green .ct-filter-btn {
+    border: 1px solid #c8e6d5 !important;
+    background: #ffffff !important;
+    color: var(--muted, #475569) !important;
+ }
+ html.theme-green .ct-filter-btn:hover {
+    background: #f4faf6 !important;
+    color: var(--text, #111827) !important;
+    border-color: #a7dfbe !important;
+ }
+ html.theme-green .ct-filter-btn-clear {
+    border: 1px solid #c8e6d5 !important;
+    color: var(--muted, #475569) !important;
+    background: #ffffff !important;
+ }
+ html.theme-green .ct-filter-btn-clear:hover {
+    background: #f4faf6 !important;
+    color: var(--text, #111827) !important;
+    border-color: #a7dfbe !important;
+ }
+html.theme-green .qlnv-tree-name.on {
+   color: #1c7a49;
+   background-color: transparent;
+}
+
+html.theme-green .qlnv-tree-name {
+   color: #1f2937;
+   background-color: transparent;
+}
+
+html.theme-green button:not(:disabled):hover {
+   filter: brightness(1.06);
+}
+
+html.theme-green .qlnv-tree-row:hover {
+   background: #eef9f3;
+}
+
+html.theme-light .qlnv-tree-name.on {
+   color: #ffd54b;
+   background-color: transparent;
+}
+
+html.theme-light .qlnv-tree-name {
+   color: #1f2937;
+   background-color: transparent;
+}
+
+html.theme-light .qlnv-tree-row:hover {
+   background: #f4f2fb;
+}
+
+html.theme-light .qlnv-tree-arrow,
+html.theme-green .qlnv-tree-arrow {
+   color: #475569;
+   background-color: transparent;
+}

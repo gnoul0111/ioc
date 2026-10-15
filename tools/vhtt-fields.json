@@ -1,0 +1,792 @@
+[
+ {
+  "eform": "Báo cáo tiến độ triển khai Chương trình hành động số 08-CT",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Chỉ tiêu / Nhiệm vụ",
+    "chi_tieu_nhiem_vu",
+    "Chữ"
+   ],
+   [
+    "Đơn vị chủ trì",
+    "don_vi_chu_tri",
+    "Chữ"
+   ],
+   [
+    "Sản phẩm",
+    "san_pham",
+    "Chữ"
+   ],
+   [
+    "Thời gian hoàn thành theo Kế hoạch",
+    "thoi_gian_hoan_thanh_theo_ke_hoach",
+    "Chữ"
+   ],
+   [
+    "Tiến độ thực hiện",
+    "tien_do_thuc_hien",
+    "Chữ"
+   ],
+   [
+    "Ngày cập nhật tiến độ",
+    "ngay_cap_nhat_tien_do",
+    "Ngày tháng"
+   ],
+   [
+    "Công việc/Thời gian dự kiến",
+    "cong_viec_thơi_gian_du_kien",
+    "Chữ"
+   ],
+   [
+    "Đánh giá mức độ hoàn thành theo kế hoạch hoặc đề xuất khác",
+    "danh_gia_muc_do_hoan_thanh_theo_ke_hoach_hoac_de_xuat_khac",
+    "Chữ"
+   ],
+   [
+    "So sánh với kỳ báo cáo trước",
+    "so_sanh_voi_ky_bao_cao_truoc",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Cơ cấu dự án Thành phố đầu tư, hỗ trợ đầu tư giai đoạn 2026-2030",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Tên công trình",
+    "ten_cong_trinh",
+    "Chữ"
+   ],
+   [
+    "Số dự án theo NQ 80",
+    "so_du_an_theo_nq_80",
+    "Số"
+   ],
+   [
+    "Số dự án Thành phố đã bố trí vốn KH 2026-2030",
+    "so_du_an_thanh_pho_da_bo_tri_von_kh_2026_2030",
+    "Số"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Quy mô",
+    "quy_mo",
+    "Chữ"
+   ],
+   [
+    "Tổng giai đoạn 2026-2030 theo NQ 80",
+    "tong_giai_doan_2026_2030_theo_nq_80",
+    "Số"
+   ],
+   [
+    "KH ĐTC trung hạn 2026-2030 Thành phố đã bố trí",
+    "kh_dtc_trung_han_2026_2030_thanh_pho_da_bo_tri",
+    "Số"
+   ],
+   [
+    "Thời gian thực hiện",
+    "thoi_gian_thuc_hien",
+    "Chữ"
+   ],
+   [
+    "Tiến độ thực hiện",
+    "tien_do_thuc_hien",
+    "Chữ"
+   ],
+   [
+    "Thuyết minh đầu tư",
+    "thuyet_minh_dau_tu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Quy mô, số lượng người tham gia hoạt động nghệ thuật Thành phố quản lý",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Mã bản ghi",
+    "ma_ban_ghi",
+    "Chữ"
+   ],
+   [
+    "Đơn vị tổ chức",
+    "don_vi_to_chuc",
+    "Chữ"
+   ],
+   [
+    "Mã đơn vị/đầu mối",
+    "ma_don_vi_dau_moi",
+    "Chữ"
+   ],
+   [
+    "Hoạt động/ Nghệ thuật",
+    "hoat_dong_nghe_thuat",
+    "Danh mục"
+   ],
+   [
+    "Tên hoạt động/chương trình",
+    "ten_hoat_dong_chuong_trinh",
+    "Chữ"
+   ],
+   [
+    "Mã hoạt động liên quan",
+    "ma_hoat_dong_lien_quan",
+    "Chữ"
+   ],
+   [
+    "Loại hoạt động",
+    "loai_hoat_dong",
+    "Danh mục"
+   ],
+   [
+    "Quy mô IOC",
+    "quy_mo_ioc",
+    "Danh mục"
+   ],
+   [
+    "Cấp tổ chức thực tế",
+    "cap_to_chuc_thuc_te",
+    "Danh mục"
+   ],
+   [
+    "Địa điểm tổ chức",
+    "dia_diem_to_chuc",
+    "Chữ"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Cụm/TDP",
+    "cum_tdp",
+    "Chữ"
+   ],
+   [
+    "Ngày bắt đầu",
+    "ngay_bat_dau",
+    "Ngày tháng"
+   ],
+   [
+    "Ngày kết thúc",
+    "ngay_ket_thuc",
+    "Ngày tháng"
+   ],
+   [
+    "Số buổi/đêm diễn",
+    "so_buoi_dem_dien",
+    "Số"
+   ],
+   [
+    "Số người tham gia",
+    "so_nguoi_tham_gia",
+    "Số"
+   ],
+   [
+    "Đối tượng tham gia",
+    "doi_tuong_tham_gia",
+    "Chữ"
+   ],
+   [
+    "Đơn vị phối hợp",
+    "don_vi_phoi_hop",
+    "Chữ"
+   ],
+   [
+    "Số chứng từ/HĐ/biên bản",
+    "so_chung_tu_hd_bien_ban",
+    "Chữ"
+   ],
+   [
+    "Người nhập",
+    "nguoi_nhap",
+    "Chữ"
+   ],
+   [
+    "Người xác nhận",
+    "nguoi_xac_nhan",
+    "Chữ"
+   ],
+   [
+    "Trạng thái đối soát",
+    "trang_thai_doi_soat",
+    "Danh mục"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Doanh thu của các đơn vị nghệ thuật Thành phố quản lý",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Mã bản ghi",
+    "ma_ban_ghi",
+    "Chữ"
+   ],
+   [
+    "Đơn vị nghệ thuật TP quản lý",
+    "don_vi_nghe_thuat_tp_quan_ly",
+    "Chữ"
+   ],
+   [
+    "Mã đơn vị/đầu mối",
+    "ma_don_vi_dau_moi",
+    "Chữ"
+   ],
+   [
+    "Tên hoạt động/chương trình",
+    "ten_hoat_dong_chuong_trinh",
+    "Chữ"
+   ],
+   [
+    "Mã hoạt động liên quan",
+    "ma_hoat_dong_lien_quan",
+    "Chữ"
+   ],
+   [
+    "Loại hoạt động",
+    "loai_hoat_dong",
+    "Chữ"
+   ],
+   [
+    "Tính chất",
+    "tinh_chat",
+    "Danh mục"
+   ],
+   [
+    "Quy mô IOC",
+    "quy_mo_ioc",
+    "Danh mục"
+   ],
+   [
+    "Cấp tổ chức thực tế",
+    "cap_to_chuc_thuc_te",
+    "Danh mục"
+   ],
+   [
+    "Địa điểm tổ chức",
+    "dia_diem_to_chuc",
+    "Chữ"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Ngày bắt đầu",
+    "ngay_bat_dau",
+    "Ngày tháng"
+   ],
+   [
+    "Ngày kết thúc",
+    "ngay_ket_thuc",
+    "Ngày tháng"
+   ],
+   [
+    "Số buổi/đêm diễn",
+    "so_buoi_dem_dien",
+    "Số"
+   ],
+   [
+    "Số vé bán",
+    "so_ve_ban",
+    "Số"
+   ],
+   [
+    "Giá vé bình quân (đồng)",
+    "gia_ve_binh_quan_dong",
+    "Số"
+   ],
+   [
+    "Doanh thu bán vé (triệu đồng)",
+    "doanh_thu_ban_ve_trieu_dong",
+    "Số"
+   ],
+   [
+    "Doanh thu hợp đồng/đặt hàng (triệu đồng)",
+    "doanh_thu_hop_dong_dat_hang_trieu_dong",
+    "Số"
+   ],
+   [
+    "Doanh thu tài trợ/quảng cáo (triệu đồng)",
+    "doanh_thu_tai_tro_quang_cao_trieu_dong",
+    "Số"
+   ],
+   [
+    "Doanh thu dịch vụ khác (triệu đồng)",
+    "doanh_thu_dich_vu_khac_trieu_dong",
+    "Số"
+   ],
+   [
+    "Tổng doanh thu (triệu đồng)",
+    "tong_doanh_thu_trieu_dong",
+    "Số"
+   ],
+   [
+    "Tổng doanh thu (tỷ đồng)",
+    "tong_doanh_thu_ty_dong",
+    "Số"
+   ],
+   [
+    "Lượt khán giả",
+    "luot_khan_gia",
+    "Số"
+   ],
+   [
+    "Kinh phí NSNN hỗ trợ (triệu đồng)",
+    "kinh_phi_nsnn_ho_tro_trieu_dong",
+    "Số"
+   ],
+   [
+    "Chi phí trực tiếp (triệu đồng)",
+    "chi_phi_truc_tiep_trieu_dong",
+    "Số"
+   ],
+   [
+    "Chênh lệch thu-chi (triệu đồng)",
+    "chenh_lech_thu_chi_trieu_dong",
+    "Số"
+   ],
+   [
+    "Trạng thái hạch toán",
+    "trang_thai_hach_toan",
+    "Danh mục"
+   ],
+   [
+    "Số chứng từ/HĐ/biên bản",
+    "so_chung_tu_hd_bien_ban",
+    "Chữ"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Số hoạt động nghệ thuật chuyên nghiệp",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Đơn vị báo cáo",
+    "don_vi_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Mã hoạt động",
+    "ma_hoat_dong",
+    "Chữ"
+   ],
+   [
+    "Tên hoạt động nghệ thuật",
+    "ten_hoat_dong_nghe_thuat",
+    "Chữ"
+   ],
+   [
+    "Ngày bắt đầu",
+    "ngay_bat_dau",
+    "Ngày tháng"
+   ],
+   [
+    "Ngày kết thúc",
+    "ngay_ket_thuc",
+    "Ngày tháng"
+   ],
+   [
+    "Địa chỉ chi tiết",
+    "dia_chi_chi_tiet",
+    "Chữ"
+   ],
+   [
+    "Loại hình theo",
+    "loai_hinh_theo",
+    "Danh mục"
+   ],
+   [
+    "Tính chất theo",
+    "tinh_chat_theo",
+    "Danh mục"
+   ],
+   [
+    "Quy mô theo",
+    "quy_mo_theo",
+    "Danh mục"
+   ],
+   [
+    "Cấp tổ chức thực tế",
+    "cap_to_chuc_thuc_te",
+    "Danh mục"
+   ],
+   [
+    "Đơn vị chủ trì/tổ chức",
+    "don_vi_chu_tri_to_chuc",
+    "Chữ"
+   ],
+   [
+    "Đơn vị phối hợp",
+    "don_vi_phoi_hop",
+    "Chữ"
+   ],
+   [
+    "Loại hình nghệ thuật",
+    "loai_hinh_nghe_thuat",
+    "Danh mục"
+   ],
+   [
+    "Hình thức tổ chức",
+    "hinh_thuc_to_chuc",
+    "Danh mục"
+   ],
+   [
+    "Số buổi/đêm diễn",
+    "so_buoi_dem_dien",
+    "Số"
+   ],
+   [
+    "Số lượt nghệ sĩ/diễn viên",
+    "so_luot_nghe_si_dien_vien",
+    "Số"
+   ],
+   [
+    "Số lượt khán giả",
+    "so_luot_khan_gia",
+    "Số"
+   ],
+   [
+    "Số vé/khách mời phát hành",
+    "so_ve_khach_moi_phat_hanh",
+    "Số"
+   ],
+   [
+    "Doanh thu vé/dịch vụ (đồng)",
+    "doanh_thu_ve_dich_vu_dong",
+    "Số"
+   ],
+   [
+    "Kinh phí NSNN hỗ trợ (đồng)",
+    "kinh_phi_nsnn_ho_tro_dong",
+    "Số"
+   ],
+   [
+    "Nguồn kinh phí khác (đồng)",
+    "nguon_kinh_phi_khac_dong",
+    "Số"
+   ],
+   [
+    "Trạng thái hoạt động",
+    "trang_thai_hoat_dong",
+    "Danh mục"
+   ],
+   [
+    "Căn cứ/Kế hoạch/Văn bản",
+    "can_cu_ke_hoach_van_ban",
+    "Chữ"
+   ],
+   [
+    "Số giấy phép/thông báo",
+    "so_giay_phep_thong_bao",
+    "Chữ"
+   ],
+   [
+    "Ghi chú/vướng mắc",
+    "ghi_chu_vuong_mac",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Điểm thông tin báo chí, trang tin, mạng xã hội về Thành phố Hà Nội",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Mã bản ghi",
+    "ma_ban_ghi",
+    "Chữ"
+   ],
+   [
+    "Ngày đăng",
+    "ngay_dang",
+    "Ngày tháng"
+   ],
+   [
+    "Thời gian cập nhật",
+    "thoi_gian_cap_nhat",
+    "Ngày tháng"
+   ],
+   [
+    "Tiêu đề tin/bài",
+    "tieu_de_tin_bai",
+    "Chữ"
+   ],
+   [
+    "Link bài viết",
+    "link_bai_viet",
+    "Chữ"
+   ],
+   [
+    "Loại nguồn",
+    "loai_nguon",
+    "Danh mục"
+   ],
+   [
+    "Tên báo/trang tin/mạng xã hội",
+    "ten_bao_trang_tin_mang_xa_hoi",
+    "Chữ"
+   ],
+   [
+    "Tác giả",
+    "tac_gia",
+    "Chữ"
+   ],
+   [
+    "Lĩnh vực",
+    "linh_vuc",
+    "Chữ"
+   ],
+   [
+    "Chủ đề",
+    "chu_de",
+    "Chữ"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Cơ quan/đơn vị được nhắc đến",
+    "co_quan_don_vi_duoc_nhac_den",
+    "Chữ"
+   ],
+   [
+    "Từ khóa",
+    "tu_khoa",
+    "Chữ"
+   ],
+   [
+    "Nội dung tóm tắt",
+    "noi_dung_tom_tat",
+    "Chữ"
+   ],
+   [
+    "Mức độ cảm xúc",
+    "muc_do_cam_xuc",
+    "Danh mục"
+   ],
+   [
+    "Mức độ lan tỏa",
+    "muc_do_lan_toa",
+    "Danh mục"
+   ],
+   [
+    "Mức độ quan tâm",
+    "muc_do_quan_tam",
+    "Danh mục"
+   ],
+   [
+    "Lượt xem",
+    "luot_xem",
+    "Số"
+   ],
+   [
+    "Lượt chia sẻ",
+    "luot_chia_se",
+    "Số"
+   ],
+   [
+    "Lượt bình luận",
+    "luot_binh_luan",
+    "Số"
+   ],
+   [
+    "Lượt thích",
+    "luot_thich",
+    "Số"
+   ],
+   [
+    "Lượt tiếp cận (Reach)",
+    "luot_tiep_can_reach",
+    "Số"
+   ],
+   [
+    "Điểm tương tác (Engagement)",
+    "diem_tuong_tac_engagement",
+    "Số"
+   ],
+   [
+    "Xu hướng",
+    "xu_huong",
+    "Danh mục"
+   ],
+   [
+    "Mức độ ưu tiên xử lý",
+    "muc_do_uu_tien_xu_ly",
+    "Danh mục"
+   ],
+   [
+    "Đơn vị theo dõi",
+    "don_vi_theo_doi",
+    "Chữ"
+   ],
+   [
+    "Người nhập",
+    "nguoi_nhap",
+    "Chữ"
+   ],
+   [
+    "Người xác nhận",
+    "nguoi_xac_nhan",
+    "Chữ"
+   ],
+   [
+    "Trạng thái đối soát",
+    "trang_thai_doi_soat",
+    "Danh mục"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ }
+]

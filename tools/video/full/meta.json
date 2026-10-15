@@ -1,0 +1,852 @@
+{
+ "duration": 186.805,
+ "voices": {
+  "c2": {
+   "start": 9.3,
+   "dur": 7.163
+  },
+  "c3": {
+   "start": 19.913000000000004,
+   "dur": 7.974
+  },
+  "c4": {
+   "start": 28.387000000000004,
+   "dur": 9.469
+  },
+  "c5": {
+   "start": 41.205999999999996,
+   "dur": 7.687
+  },
+  "c6": {
+   "start": 49.592999999999996,
+   "dur": 6.562
+  },
+  "c7": {
+   "start": 56.754999999999995,
+   "dur": 4.679
+  },
+  "c8": {
+   "start": 61.983999999999995,
+   "dur": 9.513
+  },
+  "c9": {
+   "start": 72.097,
+   "dur": 14.448
+  },
+  "c10": {
+   "start": 87.14499999999998,
+   "dur": 9.001
+  },
+  "c11": {
+   "start": 102.69599999999998,
+   "dur": 7.032
+  },
+  "c12": {
+   "start": 110.47799999999998,
+   "dur": 7.024
+  },
+  "c13": {
+   "start": 119.80199999999999,
+   "dur": 8.862
+  },
+  "c14": {
+   "start": 130.164,
+   "dur": 9.617
+  },
+  "c15": {
+   "start": 141.081,
+   "dur": 6.103
+  },
+  "c16": {
+   "start": 148.83399999999997,
+   "dur": 8.103
+  },
+  "c17": {
+   "start": 160.637,
+   "dur": 10.806
+  },
+  "c18": {
+   "start": 172.34300000000002,
+   "dur": 9.962
+  }
+ },
+ "events": [
+  {
+   "t": 3.283,
+   "type": "beat",
+   "speed": 0.5333333333333332
+  },
+  {
+   "t": 3.817,
+   "type": "beat",
+   "speed": 0.5333333333333332
+  },
+  {
+   "t": 4.35,
+   "type": "beat",
+   "speed": 0.5333333333333332
+  },
+  {
+   "t": 4.883,
+   "type": "beat",
+   "speed": 0.5333333333333332
+  },
+  {
+   "t": 5.417,
+   "type": "beat",
+   "speed": 0.5333333333333332
+  },
+  {
+   "t": 2.75,
+   "type": "flash"
+  },
+  {
+   "t": 5.95,
+   "type": "reveal"
+  },
+  {
+   "t": 8.05,
+   "type": "impact"
+  },
+  {
+   "t": 9.3,
+   "type": "voice",
+   "id": "c2"
+  },
+  {
+   "t": 16.913,
+   "type": "dissolve"
+  },
+  {
+   "t": 17.263,
+   "type": "whoosh",
+   "dur": 1.2
+  },
+  {
+   "t": 18.233,
+   "type": "hit"
+  },
+  {
+   "t": 19.563,
+   "type": "whoosh2"
+  },
+  {
+   "t": 19.913,
+   "type": "voice",
+   "id": "c3"
+  },
+  {
+   "t": 20.122,
+   "type": "pop"
+  },
+  {
+   "t": 20.842,
+   "type": "pop"
+  },
+  {
+   "t": 21.342,
+   "type": "pop"
+  },
+  {
+   "t": 28.387,
+   "type": "voice",
+   "id": "c4"
+  },
+  {
+   "t": 26.302,
+   "type": "lock"
+  },
+  {
+   "t": 29.315,
+   "type": "pop"
+  },
+  {
+   "t": 31.915,
+   "type": "pop"
+  },
+  {
+   "t": 32.955,
+   "type": "pop"
+  },
+  {
+   "t": 37.355,
+   "type": "hit"
+  },
+  {
+   "t": 38.406,
+   "type": "whoosh",
+   "dur": 1.2
+  },
+  {
+   "t": 39.376,
+   "type": "hit"
+  },
+  {
+   "t": 40.706,
+   "type": "whoosh2"
+  },
+  {
+   "t": 41.206,
+   "type": "voice",
+   "id": "c5"
+  },
+  {
+   "t": 43.831,
+   "type": "swoosh"
+  },
+  {
+   "t": 44.431,
+   "type": "pop"
+  },
+  {
+   "t": 44.531,
+   "type": "swoosh"
+  },
+  {
+   "t": 45.131,
+   "type": "pop"
+  },
+  {
+   "t": 45.551,
+   "type": "swoosh"
+  },
+  {
+   "t": 46.151,
+   "type": "pop"
+  },
+  {
+   "t": 46.711,
+   "type": "swoosh"
+  },
+  {
+   "t": 47.311,
+   "type": "pop"
+  },
+  {
+   "t": 49.593,
+   "type": "voice",
+   "id": "c6"
+  },
+  {
+   "t": 55.09,
+   "type": "ding",
+   "i": 1
+  },
+  {
+   "t": 56.755,
+   "type": "voice",
+   "id": "c7"
+  },
+  {
+   "t": 61.984,
+   "type": "voice",
+   "id": "c8"
+  },
+  {
+   "t": 65.051,
+   "type": "tick"
+  },
+  {
+   "t": 65.791,
+   "type": "tick"
+  },
+  {
+   "t": 66.451,
+   "type": "tick"
+  },
+  {
+   "t": 67.151,
+   "type": "tick"
+  },
+  {
+   "t": 67.711,
+   "type": "tick"
+  },
+  {
+   "t": 69.721,
+   "type": "lock"
+  },
+  {
+   "t": 70.761,
+   "type": "lock"
+  },
+  {
+   "t": 72.097,
+   "type": "voice",
+   "id": "c9"
+  },
+  {
+   "t": 75.632,
+   "type": "pop"
+  },
+  {
+   "t": 73.532,
+   "type": "pop"
+  },
+  {
+   "t": 74.472,
+   "type": "pop"
+  },
+  {
+   "t": 78.032,
+   "type": "ding",
+   "i": 0
+  },
+  {
+   "t": 78.502,
+   "type": "ding",
+   "i": 1
+  },
+  {
+   "t": 79.182,
+   "type": "ding",
+   "i": 2
+  },
+  {
+   "t": 79.632,
+   "type": "ding",
+   "i": 3
+  },
+  {
+   "t": 87.145,
+   "type": "voice",
+   "id": "c10"
+  },
+  {
+   "t": 89.66,
+   "type": "pop"
+  },
+  {
+   "t": 91.64,
+   "type": "pop"
+  },
+  {
+   "t": 93.44,
+   "type": "pop"
+  },
+  {
+   "t": 95.946,
+   "type": "pop"
+  },
+  {
+   "t": 96.196,
+   "type": "pop"
+  },
+  {
+   "t": 98.996,
+   "type": "whoosh2"
+  },
+  {
+   "t": 99.896,
+   "type": "hit"
+  },
+  {
+   "t": 99.946,
+   "type": "whoosh",
+   "dur": 1.2
+  },
+  {
+   "t": 100.916,
+   "type": "hit"
+  },
+  {
+   "t": 102.246,
+   "type": "whoosh2"
+  },
+  {
+   "t": 102.696,
+   "type": "voice",
+   "id": "c11"
+  },
+  {
+   "t": 103.196,
+   "type": "tick"
+  },
+  {
+   "t": 103.746,
+   "type": "tick"
+  },
+  {
+   "t": 104.296,
+   "type": "tick"
+  },
+  {
+   "t": 104.846,
+   "type": "tick"
+  },
+  {
+   "t": 105.396,
+   "type": "tick"
+  },
+  {
+   "t": 110.478,
+   "type": "voice",
+   "id": "c12"
+  },
+  {
+   "t": 110.423,
+   "type": "swoosh"
+  },
+  {
+   "t": 111.843,
+   "type": "swoosh"
+  },
+  {
+   "t": 112.483,
+   "type": "swoosh"
+  },
+  {
+   "t": 115.133,
+   "type": "click"
+  },
+  {
+   "t": 119.802,
+   "type": "voice",
+   "id": "c13"
+  },
+  {
+   "t": 123.126,
+   "type": "swoosh"
+  },
+  {
+   "t": 124.346,
+   "type": "swoosh"
+  },
+  {
+   "t": 125.266,
+   "type": "swoosh"
+  },
+  {
+   "t": 126.506,
+   "type": "swoosh"
+  },
+  {
+   "t": 130.164,
+   "type": "voice",
+   "id": "c14"
+  },
+  {
+   "t": 131.97,
+   "type": "alert"
+  },
+  {
+   "t": 132.91,
+   "type": "alert"
+  },
+  {
+   "t": 133.83,
+   "type": "alert"
+  },
+  {
+   "t": 136.75,
+   "type": "click"
+  },
+  {
+   "t": 135.72,
+   "type": "swoosh"
+  },
+  {
+   "t": 137.63,
+   "type": "click"
+  },
+  {
+   "t": 136.9,
+   "type": "swoosh"
+  },
+  {
+   "t": 137.78,
+   "type": "swoosh"
+  },
+  {
+   "t": 138.66,
+   "type": "lock"
+  },
+  {
+   "t": 141.081,
+   "type": "voice",
+   "id": "c15"
+  },
+  {
+   "t": 145.493,
+   "type": "ding",
+   "i": 1
+  },
+  {
+   "t": 146.593,
+   "type": "ding",
+   "i": 2
+  },
+  {
+   "t": 148.834,
+   "type": "voice",
+   "id": "c16"
+  },
+  {
+   "t": 150.032,
+   "type": "pop"
+  },
+  {
+   "t": 150.572,
+   "type": "lock"
+  },
+  {
+   "t": 157.937,
+   "type": "whoosh",
+   "dur": 1.2
+  },
+  {
+   "t": 158.907,
+   "type": "hit"
+  },
+  {
+   "t": 160.237,
+   "type": "whoosh2"
+  },
+  {
+   "t": 160.637,
+   "type": "voice",
+   "id": "c17"
+  },
+  {
+   "t": 168.878,
+   "type": "hit"
+  },
+  {
+   "t": 172.343,
+   "type": "voice",
+   "id": "c18"
+  },
+  {
+   "t": 172.743,
+   "type": "impact"
+  },
+  {
+   "t": 178.88,
+   "type": "pop"
+  },
+  {
+   "t": 179.66,
+   "type": "pop"
+  },
+  {
+   "t": 180.22,
+   "type": "pop"
+  },
+  {
+   "t": 183.905,
+   "type": "end"
+  }
+ ],
+ "cues": [
+  {
+   "a": 9.180000000000001,
+   "b": 12.240000000000002,
+   "text": "Trung tâm điều hành thông minh, gọi tắt là IOC"
+  },
+  {
+   "a": 12.240000000000002,
+   "b": 14.460000000000003,
+   "text": "được xây dựng nhằm phục vụ công tác quản lý"
+  },
+  {
+   "a": 14.460000000000003,
+   "b": 16.750000000000004,
+   "text": "chỉ đạo và điều hành của thành phố Hà Nội."
+  },
+  {
+   "a": 19.942000000000004,
+   "b": 20.822000000000003,
+   "text": "Việc kết nối"
+  },
+  {
+   "a": 20.822000000000003,
+   "b": 25.922,
+   "text": "tổng hợp và khai thác dữ liệu từ các hệ thống thông tin là yêu cầu thiết yếu nhằm bảo đảm thông tin thống nhất"
+  },
+  {
+   "a": 25.922,
+   "b": 28.072000000000003,
+   "text": "kịp thời, phục vụ công tác điều hành."
+  },
+  {
+   "a": 28.535000000000004,
+   "b": 30.415000000000003,
+   "text": "IOC cung cấp thông tin tổng hợp"
+  },
+  {
+   "a": 30.415000000000003,
+   "b": 32.65500000000001,
+   "text": "hỗ trợ nhận diện vấn đề thông qua cảnh báo"
+  },
+  {
+   "a": 32.65500000000001,
+   "b": 35.19500000000001,
+   "text": "tổ chức giao nhiệm vụ và theo dõi kết quả thực hiện"
+  },
+  {
+   "a": 35.19500000000001,
+   "b": 38.705000000000005,
+   "text": "từng bước nâng cao hiệu quả điều hành trên cơ sở dữ liệu."
+  },
+  {
+   "a": 41.031,
+   "b": 43.751,
+   "text": "Hệ thống được xây dựng theo mô hình liên thông bốn trục"
+  },
+  {
+   "a": 43.751,
+   "b": 45.631,
+   "text": "gồm Thành ủy, Hội đồng nhân dân"
+  },
+  {
+   "a": 45.631,
+   "b": 49.60099999999999,
+   "text": "Ủy ban nhân dân và Ủy ban Mặt trận Tổ quốc Việt Nam thành phố Hà Nội."
+  },
+  {
+   "a": 49.61,
+   "b": 54.51,
+   "text": "Việc truy cập được thực hiện thông qua ứng dụng điều hành số thống nhất trên nền tảng web và thiết bị di động"
+  },
+  {
+   "a": 54.51,
+   "b": 56.49999999999999,
+   "text": "sử dụng một định danh số duy nhất."
+  },
+  {
+   "a": 56.766,
+   "b": 59.686,
+   "text": "Mỗi trục được bố trí không gian làm việc phù hợp với chức năng"
+  },
+  {
+   "a": 59.686,
+   "b": 62.236,
+   "text": "nhiệm vụ và phạm vi phân quyền."
+  },
+  {
+   "a": 61.741,
+   "b": 65.72099999999999,
+   "text": "Nền tảng điều hành và tác nghiệp dùng chung tích hợp các chức năng quản lý chỉ đạo"
+  },
+  {
+   "a": 65.72099999999999,
+   "b": 68.44099999999999,
+   "text": "văn bản, nhiệm vụ, báo cáo và cảnh báo"
+  },
+  {
+   "a": 68.44099999999999,
+   "b": 71.731,
+   "text": "đồng thời áp dụng cơ chế đăng nhập một lần và phân quyền thống nhất."
+  },
+  {
+   "a": 72.16199999999999,
+   "b": 74.502,
+   "text": "Dữ liệu từ các hệ thống nguồn của mười bốn sở"
+  },
+  {
+   "a": 74.502,
+   "b": 77.16199999999999,
+   "text": "ba đơn vị ngang sở và một trăm hai mươi sáu xã"
+  },
+  {
+   "a": 77.16199999999999,
+   "b": 77.88199999999999,
+   "text": "phường được tiếp nhận"
+  },
+  {
+   "a": 77.88199999999999,
+   "b": 80.76199999999999,
+   "text": "chuẩn hóa và tổng hợp vào kho dữ liệu điều hành."
+  },
+  {
+   "a": 80.76199999999999,
+   "b": 81.84199999999998,
+   "text": "Trên cơ sở đó"
+  },
+  {
+   "a": 81.84199999999998,
+   "b": 84.76199999999999,
+   "text": "hệ thống cung cấp các bảng thông tin tổng hợp theo từng trục"
+  },
+  {
+   "a": 84.76199999999999,
+   "b": 86.912,
+   "text": "bản đồ số và cảnh báo thông minh."
+  },
+  {
+   "a": 87.19999999999997,
+   "b": 88.01999999999998,
+   "text": "Việc quản lý"
+  },
+  {
+   "a": 88.01999999999998,
+   "b": 90.55999999999997,
+   "text": "khai thác dữ liệu tuân thủ nguyên tắc nhập một lần"
+  },
+  {
+   "a": 90.55999999999997,
+   "b": 92.73999999999998,
+   "text": "sử dụng nhiều lần, hạn chế trùng lặp"
+  },
+  {
+   "a": 92.73999999999998,
+   "b": 94.57999999999998,
+   "text": "bảo đảm dữ liệu đúng, đủ"
+  },
+  {
+   "a": 94.57999999999998,
+   "b": 96.38999999999999,
+   "text": "sạch và được cập nhật thường xuyên."
+  },
+  {
+   "a": 102.72199999999998,
+   "b": 107.06199999999998,
+   "text": "Màn hình tổng quan cung cấp thông tin khái quát về tình hình hoạt động và các nội dung trọng tâm"
+  },
+  {
+   "a": 107.06199999999998,
+   "b": 110.252,
+   "text": "phục vụ công tác theo dõi, đánh giá và điều hành."
+  },
+  {
+   "a": 110.55299999999997,
+   "b": 114.19299999999997,
+   "text": "Văn bản chỉ đạo cùng các nhiệm vụ được giao và tiếp nhận được quản lý thống nhất"
+  },
+  {
+   "a": 114.19299999999997,
+   "b": 115.61299999999997,
+   "text": "gắn với thời hạn xử lý"
+  },
+  {
+   "a": 115.61299999999997,
+   "b": 117.66299999999998,
+   "text": "tiến độ thực hiện và kết quả hoàn thành."
+  },
+  {
+   "a": 119.52599999999998,
+   "b": 121.08599999999998,
+   "text": "Các chỉ tiêu của sở"
+  },
+  {
+   "a": 121.08599999999998,
+   "b": 123.06599999999999,
+   "text": "ngành được trình bày theo cấu trúc thống nhất"
+  },
+  {
+   "a": 123.06599999999999,
+   "b": 124.42599999999999,
+   "text": "gồm thông tin chỉ số"
+  },
+  {
+   "a": 124.42599999999999,
+   "b": 126.58599999999998,
+   "text": "mức độ hoàn thành và biểu đồ diễn biến"
+  },
+  {
+   "a": 126.58599999999998,
+   "b": 129.496,
+   "text": "kèm theo nguồn dữ liệu và thời điểm cập nhật."
+  },
+  {
+   "a": 130.17999999999998,
+   "b": 132.93999999999997,
+   "text": "Hệ thống tự động cảnh báo đối với nhiệm vụ sắp đến hạn"
+  },
+  {
+   "a": 132.93999999999997,
+   "b": 134.93999999999997,
+   "text": "quá hạn và chỉ số vượt ngưỡng thiết lập"
+  },
+  {
+   "a": 134.93999999999997,
+   "b": 137.95999999999998,
+   "text": "đồng thời hỗ trợ tra cứu thông tin chi tiết theo từng đơn vị"
+  },
+  {
+   "a": 137.95999999999998,
+   "b": 140.57,
+   "text": "địa bàn trong phạm vi được phân quyền."
+  },
+  {
+   "a": 141.11299999999997,
+   "b": 143.85299999999998,
+   "text": "Bản đồ số hỗ trợ hiển thị phạm vi ba mươi tư tỉnh"
+  },
+  {
+   "a": 143.85299999999998,
+   "b": 144.67299999999997,
+   "text": "thành phố"
+  },
+  {
+   "a": 144.67299999999997,
+   "b": 147.32299999999998,
+   "text": "bao gồm quần đảo Hoàng Sa và quần đảo Trường Sa."
+  },
+  {
+   "a": 148.57199999999997,
+   "b": 150.01199999999997,
+   "text": "Thông tin về tổ chức"
+  },
+  {
+   "a": 150.01199999999997,
+   "b": 152.71199999999996,
+   "text": "tài khoản và quyền truy cập được quản trị tập trung."
+  },
+  {
+   "a": 152.71199999999996,
+   "b": 154.95199999999997,
+   "text": "Các thao tác trên hệ thống được ghi nhật ký"
+  },
+  {
+   "a": 154.95199999999997,
+   "b": 157.26199999999997,
+   "text": "phục vụ công tác kiểm tra và giám sát."
+  },
+  {
+   "a": 160.618,
+   "b": 162.218,
+   "text": "Với dữ liệu được tập trung"
+  },
+  {
+   "a": 162.218,
+   "b": 164.378,
+   "text": "xác định rõ nguồn và cập nhật kịp thời"
+  },
+  {
+   "a": 164.378,
+   "b": 167.75799999999998,
+   "text": "IOC hỗ trợ công tác phân tích, đánh giá và ra quyết định"
+  },
+  {
+   "a": 167.75799999999998,
+   "b": 169.158,
+   "text": "giảm trùng lặp trong nhập liệu"
+  },
+  {
+   "a": 169.158,
+   "b": 172.428,
+   "text": "tăng cường phối hợp và liên thông trong toàn hệ thống."
+  },
+  {
+   "a": 172.18,
+   "b": 176.20000000000002,
+   "text": "Trung tâm điều hành thông minh IOC góp phần nâng cao hiệu quả quản lý"
+  },
+  {
+   "a": 176.20000000000002,
+   "b": 178.3,
+   "text": "chỉ đạo và điều hành trên cơ sở dữ liệu"
+  },
+  {
+   "a": 178.3,
+   "b": 181.10000000000002,
+   "text": "hướng tới sự kịp thời, chính xác và minh bạch."
+  },
+  {
+   "a": 181.10000000000002,
+   "b": 182.43000000000004,
+   "text": "Xin trân trọng cảm ơn."
+  }
+ ]
+}

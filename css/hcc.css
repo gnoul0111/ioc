@@ -1,0 +1,30 @@
+/* ============================== TRUNG TÂM PHỤC VỤ HCC — BỔ SUNG GIAO DIỆN FORM CHỈ TIÊU ==============================
+   Form dùng chung bộ lớp stc- (css/stc.css) và các thành phần sgd- (css/sgd.css: bảng đơn vị, khung trượt, biểu đồ cột...);
+   file này chỉ thêm vài thành phần riêng, tiền tố hcc-, luôn nằm trong .stc-root.hcc-root. */
+
+/* Nhãn "Sở" đứng trước tên đơn vị khối sở/ngành trong bảng đơn vị */
+.stc-root .hcc-tag{display:inline-block;font-style:normal;font-size:10px;font-weight:700;line-height:16px;padding:0 5px;margin-right:6px;border-radius:4px;background:var(--chip);color:var(--accent);vertical-align:1px}
+
+/* Mức cung cấp trực tuyến của một thủ tục */
+.stc-root .hcc-mu{display:inline-block;font-style:normal;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.stc-root .hcc-mu.ok{color:var(--good)}
+.stc-root .hcc-mu.mid{color:var(--warn)}
+.stc-root .hcc-mu.no{color:var(--bad)}
+
+/* Màn "Theo đơn vị": cột Chỉ tiêu bên trái ngắn hơn phần bên phải (thẻ tổng hợp + bảng 140 đơn vị) nên từng để hở một
+   khoảng trống dưới cột (anh góp ý 2026-09-29, 2 lần). Cách sửa: khung cột kéo dài bằng cả chiều cao bên phải (nền thẻ
+   phủ kín, không còn lỗ). Danh sách chỉ tiêu CỐ ĐỊNH ở đầu cột, không đi theo khi cuộn (anh yêu cầu 2026-09-29, lần 3). */
+.stc-root.hcc-root .stc-explore{align-items:stretch}
+.stc-root.hcc-root .hcc-nav{display:flex;flex-direction:column}
+
+/* Khung hồ sơ đơn vị: 6 ô số xếp đều 3 cột × 2 hàng (stc-mchips mặc định là flex nên ô thứ 6 rơi xuống một mình) */
+.stc-root.hcc-root .sgd-dw-body .stc-mchips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+
+/* 8 ô số chính (thêm "Hồ sơ đang xử lý trễ hạn" 02/10/2026): lưới stc mặc định 7 cột làm ô thứ 8 rơi xuống một mình.
+   Màn rộng: 8 cột một hàng; màn hẹp: 4 cột × 2 hàng. */
+.stc-root.hcc-root .stc-kpis{grid-template-columns:repeat(8,minmax(0,1fr))}
+@media(max-width:1000px){.stc-root.hcc-root .stc-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Biểu đồ cột 6 quý: cột rộng hơn biểu đồ khối lớp của Sở GD&ĐT */
+.stc-root .sgd-cc .hcc-cb{width:34px}
+@media(max-width:700px){.stc-root .sgd-cc .hcc-cb{width:18px}}

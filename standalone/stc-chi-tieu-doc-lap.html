@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bộ chỉ tiêu Sở Tài chính — IOC Hà Nội</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- ExcelJS: dùng cho nút "Xuất Excel" trong popup (stcExport() ở dashboard-stc.js) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<style>
+/* ============================== KHUNG TỐI THIỂU (tự viết, không phải file gốc của IOC) ==============================
+   Bản rút gọn của style.css + theme-light.css/theme-green.css: chỉ giữ đúng phần khung popup (#overlay/#modal/#toast)
+   và lưới thẻ (.field-category-*) mà bộ chỉ tiêu Sở Tài chính cần, để trang này đứng độc lập không cần index.html
+   gốc. Màu lấy nguyên từ 3 giao diện hiện có của IOC (tối mặc định, sáng, xanh lá). */
+:root{--font:'Be Vietnam Pro',Inter,Segoe UI,Roboto,Arial,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:var(--font);background:radial-gradient(circle at 50% -20%,#093b6c 0,#06162a 40%,#020813 100%);color:#ecf7ff;font-size:14px}
+html.theme-light,html.theme-light body{background:#f3f5f9;color:#0b1220}
+html.theme-green,html.theme-green body{background:#eef9f3;color:#1f2937}
+h1,h2,h3,h4,h5,h6{margin:0;font-weight:800}
+button{cursor:pointer;border:0;background:none;outline:none;font:inherit;color:inherit;transition:filter .15s}
+button:not(:disabled):hover{filter:brightness(1.35)}
+html.theme-light button:not(:disabled):hover,html.theme-green button:not(:disabled):hover{filter:brightness(1)}
+
+.stc-page{max-width:1400px;margin:0 auto;padding:28px 20px 60px}
+.stc-page-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.stc-page-head h1{font-size:19px;letter-spacing:-.01em}
+.stc-page-head p{margin:4px 0 0;font-size:12.5px;color:#a8c3d8}
+html.theme-light .stc-page-head p,html.theme-green .stc-page-head p{color:#5b6a80}
+.stc-theme-sw{display:flex;gap:6px}
+.stc-theme-sw button{height:32px;padding:0 12px;border-radius:8px;border:1px solid rgba(87,178,255,.3);background:rgba(255,255,255,.06);font-size:12.5px;font-weight:600}
+.stc-theme-sw button.on{background:#1f63b8;border-color:transparent;color:#fff}
+html.theme-light .stc-theme-sw button{border-color:#D5DAE3;background:#fff;color:#111827}
+html.theme-green .stc-theme-sw button{border-color:#d1fae5;background:#fff;color:#1f2937}
+html.theme-light .stc-theme-sw button.on{background:#9d151c;color:#fff;border-color:transparent}
+html.theme-green .stc-theme-sw button.on{background:#2e9d5b;color:#fff;border-color:transparent}
+
+.field-category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:900px){.field-category-grid{grid-template-columns:1fr}}
+.field-category-card{border:1px solid rgba(87,178,255,.26);background:linear-gradient(180deg,rgba(9,39,70,.88),rgba(4,18,34,.95));border-radius:14px;padding:12px;text-align:left;height:210px;display:grid;grid-template-rows:auto auto 1fr;gap:6px;overflow:hidden;transition:.16s}
+.field-category-card:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.field-category-card.so-item-card{height:auto;min-height:110px;grid-template-rows:auto auto auto;align-content:start;overflow:visible}
+.field-category-card h4{margin:0;font-size:14px;line-height:1.28;color:#f2fbff}
+html.theme-light .field-category-card{background:#fff;border-color:#D5DAE3}
+html.theme-light .field-category-card h4{color:#111827}
+html.theme-light .field-category-card:hover{border-color:#9d151c;box-shadow:0 4px 14px rgba(157,21,28,.12);transform:translateY(-1px)}
+html.theme-green .field-category-card{background:#fff;border-color:#d1fae5}
+html.theme-green .field-category-card h4{color:#1f2937}
+html.theme-green .field-category-card:hover{border-color:#2e9d5b;box-shadow:0 4px 14px rgba(46,157,91,.12);transform:translateY(-1px)}
+.access-lock{border:1px dashed rgba(255,213,75,.45);background:rgba(255,213,75,.08);border-radius:12px;padding:10px;color:#ffe6a6;line-height:1.45}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.56);z-index:90;opacity:0;pointer-events:none;transition:.18s}
+.overlay.show{opacity:1;pointer-events:auto}
+html.theme-light .overlay.show,html.theme-green .overlay.show{background:rgba(30,41,59,.45)}
+.modal{position:fixed;inset:2vh 50%;width:min(1680px,98vw);transform:translateX(-50%) scale(.96);background:linear-gradient(180deg,#08213b,#031120);border:1px solid rgba(87,178,255,.45);border-radius:18px;box-shadow:0 30px 90px rgba(0,0,0,.55);z-index:110;opacity:0;pointer-events:none;transition:.18s;display:flex;flex-direction:column;max-height:96vh;overflow-y:auto;overflow-x:hidden}
+.modal.open{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1)}
+html.theme-light .modal{background:#F9FAFB;border-color:#D5DAE3;box-shadow:0 20px 60px rgba(15,23,42,.18)}
+html.theme-green .modal{background:#ffffff;border-color:#d1fae5;box-shadow:0 20px 60px rgba(15,23,42,.18)}
+.modal-head{padding:16px;border-bottom:1px solid rgba(87,178,255,.22);display:grid;grid-template-columns:1fr auto;gap:10px}
+.modal-head h3{margin:0;line-height:1.28;font-size:16px}
+.modal-head .muted{color:#a8c3d8;font-size:12.5px;margin-top:2px}
+html.theme-light .modal-head{border-bottom-color:#D5DAE3}
+html.theme-light .modal-head .muted{color:#5b6a80}
+html.theme-green .modal-head{border-bottom-color:#d1fae5}
+html.theme-green .modal-head .muted{color:#566a5e}
+.modal-body{padding:14px;overflow-y:scroll;overflow-x:hidden;display:grid;align-content:start;gap:12px;flex:1;min-height:0}
+.close{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);font-size:21px;color:inherit}
+html.theme-light .close{background:#f2f4f8;border-color:#D5DAE3;color:#475569}
+html.theme-light .close:hover{background:#fdeceb;color:#9d151c}
+html.theme-green .close{background:#eef9f3;border-color:#d1fae5;color:#475569}
+html.theme-green .close:hover{background:#ddf2e8;color:#2e9d5b}
+.toast{position:fixed;right:18px;bottom:18px;z-index:200;background:#06223f;border:1px solid rgba(87,178,255,.45);border-radius:12px;padding:12px 14px;box-shadow:0 15px 50px rgba(0,0,0,.4);transform:translateY(20px);opacity:0;pointer-events:none;transition:.2s;max-width:420px;overflow-wrap:anywhere;font-size:13px}
+.toast.show{transform:translateY(0);opacity:1}
+html.theme-light .toast{background:#F9FAFB;border-color:#D5DAE3;color:#111827}
+html.theme-green .toast{background:#ffffff;border-color:#d1fae5;color:#1f2937}
+
+/* ============================== SỞ TÀI CHÍNH — GIAO DIỆN FORM CHỈ TIÊU MỚI ==============================
+   Mọi lớp đều có tiền tố stc- và nằm trong .stc-root để không đụng CSS chung của IOC. 3 giao diện: tối (mặc định),
+   html.theme-light, html.theme-green. Sinh từ bản dựng thiết kế đã duyệt. */
+/* Chỉ tiêu Sở Tài chính - bản dựng minh họa. Dùng chung cho mọi artboard.
+   Màu theo vai trò (biến CSS) để đổi giao diện tối/sáng ở một chỗ. */
+.stc-root{box-sizing:border-box;font-family:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:13px;line-height:1.45;color:var(--ink);background:var(--page);-webkit-font-smoothing:antialiased;overflow:hidden}
+.stc-root *,.stc-root *::before,.stc-root *::after{box-sizing:border-box}
+.stc-root h1,.stc-root h2,.stc-root h3,.stc-root p{margin:0}
+
+.stc-root{--page:#061a2e;--card:#0b2540;--card2:#0e2c4a;--line:rgba(140,190,255,.16);--ink:#eaf4ff;--ink2:#b9cee2;--mute:#8ba7c2;--s1:#3987e5;--s2:#d95926;--s3:#199e70;--s4:#c98500;--s5:#d55181;--prev:#4f6f8f;--track:#123a60;--good:#4fd69c;--bad:#ff8a8a;--dn:#e66767;--warn:#f2b636;--accent:#3987e5;--btn:#1f63b8;--chip:rgba(57,135,229,.14)}
+html.theme-light .stc-root{--page:#f3f5f9;--card:#ffffff;--card2:#f5f7fb;--line:rgba(15,23,42,.13);--ink:#0b1220;--ink2:#3f4c63;--mute:#5b6a80;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--prev:#b3bfd0;--track:#e6ecf5;--good:#006300;--bad:#b3261e;--dn:#e34948;--warn:#8a5a00;--accent:#2a78d6;--btn:#1f63b8;--chip:rgba(42,120,214,.09)}
+
+.stc-pad{padding:28px 28px 32px}
+
+/* Đầu form */
+.stc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:16px}
+.stc-eyebrow{font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mute)}
+.stc-root h1{font-size:24px;line-height:1.25;font-weight:700;margin:3px 0 4px;letter-spacing:-.01em}
+.stc-sub{color:var(--ink2);font-size:13px}
+.stc-ctrls{display:flex;gap:10px;align-items:center;flex:0 0 auto}
+.stc-sel{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 6px 0 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:13px;font-weight:500;color:var(--ink)}
+.stc-sel small{color:var(--mute);font-size:11.5px;font-weight:500}
+.stc-sel select{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:var(--ink);font:inherit;font-weight:600;padding:0 22px 0 0;height:34px;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,var(--mute) 50%),linear-gradient(135deg,var(--mute) 50%,transparent 50%);background-position:calc(100% - 9px) 15px,calc(100% - 5px) 15px;background-size:4px 4px,4px 4px;background-repeat:no-repeat}
+.stc-sel select option{color:#111;background:#fff}
+.stc-btn{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.stc-btn.primary{background:var(--btn);border-color:transparent;color:#fff}
+.stc-btn svg{flex:0 0 auto}
+
+.stc-status{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.stc-chip{display:inline-flex;align-items:center;gap:7px;height:26px;padding:0 11px;border-radius:999px;font-size:11.5px;font-weight:600;background:var(--chip);color:var(--ink2);border:1px solid var(--line)}
+.stc-chip i{width:7px;height:7px;border-radius:50%;background:var(--good);flex:0 0 auto}
+.stc-chip.demo{background:rgba(242,182,54,.13);color:var(--warn);border-color:rgba(242,182,54,.42)}
+.stc-chip.demo i{background:var(--warn)}
+
+/* Thẻ KPI */
+.stc-kpis{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin-bottom:22px}
+.stc-kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 14px 13px;min-width:0}
+.stc-kpi .stc-lb{font-size:11.5px;font-weight:500;color:var(--ink2);min-height:33px;line-height:1.4}
+.stc-kpi .stc-v{font-size:26px;font-weight:700;line-height:1.1;margin-top:6px;letter-spacing:-.015em}
+.stc-kpi .stc-u{font-size:11.5px;color:var(--mute);margin-top:3px}
+.stc-kpi .stc-dl{margin-top:10px}
+
+/* Tăng / giảm */
+.stc-dl{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stc-dl::before{content:"";width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;flex:0 0 auto}
+.stc-dl.up{color:var(--good)}
+.stc-dl.up::before{border-bottom:6px solid currentColor}
+.stc-dl.down{color:var(--bad)}
+.stc-dl.down::before{border-top:6px solid currentColor}
+.stc-dl.n{color:var(--ink2)}
+.stc-dl.flat{color:var(--mute)}
+.stc-dl.flat::before{width:8px;height:2px;border:0;background:currentColor}
+.stc-dl .stc-ref{font-weight:500;color:var(--mute);font-size:11.5px}
+.stc-dl[title]{cursor:help}
+.stc-dl.na{color:var(--mute)}
+.stc-dl.na::before{display:none}
+/* Cặp mũi tên: so kỳ trước (trên) + so cùng kỳ (dưới) */
+.stc-dlp{display:inline-flex;flex-direction:column;align-items:flex-end;gap:3px}
+.stc-dlp .stc-dl{margin-top:0}
+.stc-kpi .stc-dlp,.stc-oc-root .stc-dlp,.stc-oc-card .stc-dlp{align-items:flex-start}
+.stc-cmp .stc-dlp,.stc-root .stc-gl .stc-dlp{justify-self:end}
+/* Tab */
+.stc-tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.stc-tab{padding:10px 16px 11px;font:inherit;font-weight:600;font-size:13.5px;color:var(--ink2);background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.stc-tab.on{color:var(--ink);border-bottom-color:var(--accent)}
+.stc-tab .stc-cnt{font-size:11px;font-weight:600;color:var(--mute);background:var(--chip);border-radius:999px;padding:1px 8px}
+
+/* Thẻ nội dung */
+.stc-g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.stc-g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.stc-g21{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
+.stc-mt{margin-top:16px}
+.stc-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px 20px;min-width:0}
+.stc-ch{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+.stc-ct{font-size:15px;font-weight:600;line-height:1.35}
+.stc-cs{font-size:12px;color:var(--mute);margin-top:2px}
+.stc-bd{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:6px;font-size:11px;font-weight:600;border:1px solid var(--line);color:var(--mute);white-space:nowrap;flex:0 0 auto}
+.stc-bd.real{color:var(--good);border-color:currentColor}
+.stc-bd.real::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.stc-bd.warn{color:var(--warn);border-color:currentColor}
+
+.stc-big{font-size:30px;font-weight:700;line-height:1.1;letter-spacing:-.015em}
+.stc-big small{font-size:13px;font-weight:500;color:var(--mute);margin-left:6px;letter-spacing:0}
+.stc-bigrow{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:4px}
+.stc-hint{font-size:12px;color:var(--mute)}
+
+.stc-lg{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:12px 0 4px}
+.stc-lg i,.stc-sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:7px;vertical-align:-1px}
+
+/* Hàng so sánh Kỳ này / Kỳ trước */
+.stc-cmp{display:grid;grid-template-columns:132px minmax(0,1fr) 150px;gap:14px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.stc-cmp .stc-nm{font-size:13px;font-weight:500;line-height:1.35}
+.stc-cmp .stc-dl{justify-self:end}
+.stc-bars{display:grid;gap:5px}
+.stc-br{display:grid;grid-template-columns:minmax(0,1fr) 64px;gap:10px;align-items:center;height:14px}
+.stc-br .stc-tr{position:relative;height:10px}
+.stc-br .stc-b{position:absolute;left:0;top:0;height:10px;border-radius:0 4px 4px 0;background:var(--s1);min-width:2px}
+.stc-br .stc-b.p{background:var(--prev)}
+.stc-br .stc-val{font-size:12px;font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+.stc-br .stc-val.p{color:var(--mute);font-weight:500}
+
+/* Bảng số liệu */
+.stc-tbl{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.stc-tbl th{font-weight:600;color:var(--mute);font-size:11.5px;text-align:right;padding:7px 8px;border-bottom:1px solid var(--line);line-height:1.3}
+.stc-tbl th:first-child,.stc-tbl td:first-child{text-align:left;padding-left:0}
+.stc-tbl td{padding:9px 8px;border-top:1px solid var(--line);text-align:right;vertical-align:middle}
+.stc-tbl tr:first-child td{border-top:0}
+.stc-tbl td:first-child{font-weight:500;line-height:1.35}
+.stc-tbl tr.tot td{font-weight:700}
+.stc-tbl .stc-dl{justify-content:flex-end}
+
+/* Cơ cấu */
+.stc-stack{display:flex;gap:2px;height:14px;margin:12px 0 4px}
+.stc-stack i{display:block;height:100%;border-radius:3px}
+.stc-dn{display:grid;grid-template-columns:168px minmax(0,1fr);gap:18px;align-items:center}
+.stc-dn svg{display:block;width:168px;height:168px}
+.stc-dn .stc-tv{fill:var(--ink);font-family:'Be Vietnam Pro',system-ui,sans-serif;font-weight:700;font-size:21px;letter-spacing:-.01em}
+.stc-dn .stc-tu{fill:var(--mute);font-family:'Be Vietnam Pro',system-ui,sans-serif;font-weight:500;font-size:10.5px}
+.stc-dn .stc-trk{fill:none;stroke:var(--track);stroke-width:22}
+.stc-dn .stc-seg{fill:none;stroke-width:22}
+
+/* Tiến độ */
+.stc-pg{padding:12px 0;border-top:1px solid var(--line)}
+.stc-pg:first-of-type{border-top:0}
+.stc-pg .stc-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}
+.stc-pg .stc-nm{font-size:13px;font-weight:500;line-height:1.35}
+.stc-pg .stc-pv{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.stc-pg .stc-trk{height:10px;background:var(--track);border-radius:5px;overflow:hidden}
+.stc-pg .stc-fill{height:100%;background:var(--s1);border-radius:5px}
+
+/* Chỉ số so cùng kỳ (mốc 100) */
+.stc-iip{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.4fr) 150px;gap:14px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.stc-iip .stc-nm{font-size:12.5px;font-weight:500;line-height:1.35}
+.stc-iip .stc-rt{text-align:right}
+.stc-iip .stc-rt b{display:block;font-size:14px;font-variant-numeric:tabular-nums}
+.stc-axis{position:relative;height:14px;background:var(--track);border-radius:4px}
+.stc-axis .stc-bar{position:absolute;top:2px;height:10px}
+.stc-axis .stc-bar.up{background:var(--s1);border-radius:0 4px 4px 0}
+.stc-axis .stc-bar.dn{background:var(--dn);border-radius:4px 0 0 4px}
+.stc-axis .stc-zero{position:absolute;top:-3px;bottom:-3px;width:1px;background:var(--ink2)}
+.stc-axcap{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);margin:0 0 2px}
+
+/* Thẻ chỉ số giá */
+.stc-scale{position:relative;height:6px;border-radius:3px;background:var(--track);margin:14px 0 6px}
+.stc-scale .stc-tick{position:absolute;top:-4px;height:14px;width:1px;background:var(--ink2)}
+.stc-scale .stc-dot{position:absolute;top:-4px;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:var(--s1);border:2px solid var(--card)}
+.stc-scale-cap{display:flex;justify-content:space-between;font-size:11px;color:var(--mute)}
+
+/* Ghi chú, trạng thái */
+.stc-note{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--card2);border:1px solid var(--line);color:var(--ink2);font-size:12.5px;line-height:1.5}
+.stc-note svg{flex:0 0 auto;margin-top:2px;color:var(--mute)}
+.stc-note b{color:var(--ink)}
+.stc-foot{display:flex;justify-content:space-between;gap:20px;margin-top:18px;font-size:11.5px;color:var(--mute)}
+.stc-skel{background:linear-gradient(90deg,var(--track),var(--card2) 50%,var(--track));border-radius:6px}
+.stc-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;min-height:150px;padding:16px;border:1px dashed var(--line);border-radius:12px;color:var(--ink2)}
+.stc-empty b{color:var(--ink);font-size:13.5px}
+.stc-empty svg{color:var(--mute)}
+.stc-sec{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:26px 0 12px}
+/* Màn hình chi tiết và phân cấp - bổ sung cho stc.css */
+.stc-root a.stc-lnk{color:var(--accent);font-weight:600;font-size:12.5px;text-decoration:none;white-space:nowrap}
+.stc-root a.stc-lnk:hover{text-decoration:underline}
+.stc-root .stc-crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12.5px;color:var(--mute);margin-bottom:12px}
+.stc-root .stc-crumbs b{color:var(--ink);font-weight:600}
+.stc-root .stc-crumbs .stc-sp{width:5px;height:5px;border-top:1.5px solid var(--mute);border-right:1.5px solid var(--mute);transform:rotate(45deg);margin:0 2px}
+
+.stc-root .stc-split{display:grid;grid-template-columns:340px minmax(0,1fr);gap:16px;align-items:start}
+.stc-root .stc-split2{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;align-items:start}
+
+/* Cây phân cấp bên trái (màn hình chi tiết) */
+.stc-root .stc-anc{font-size:12px;color:var(--mute);padding:5px 12px;line-height:1.3}
+.stc-root .stc-anc b{color:var(--ink2);font-weight:600}
+.stc-root .stc-trow{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:10px;row-gap:6px;width:100%;text-align:left;padding:10px 12px;border-radius:10px;border:1px solid transparent;background:none;color:var(--ink);font:inherit;cursor:pointer;margin-top:2px}
+.stc-root .stc-trow:hover{background:var(--card2)}
+.stc-root .stc-trow.on{background:var(--chip);border-color:var(--accent)}
+.stc-root .stc-trow .stc-tl{font-size:13px;font-weight:500;line-height:1.35;display:flex;align-items:baseline}
+.stc-root .stc-trow .stc-tl .stc-sw{flex:0 0 auto;transform:translateY(0)}
+.stc-root .stc-trow .stc-tv2{font-variant-numeric:tabular-nums;font-weight:600;font-size:13px}
+.stc-root .stc-trow .stc-tb{grid-column:1 / -1;height:4px;border-radius:2px;background:var(--track);overflow:hidden}
+.stc-root .stc-trow .stc-tb i{display:block;height:100%;border-radius:2px}
+.stc-root .stc-kids{margin-left:14px;padding-left:8px;border-left:1px solid var(--line)}
+
+/* Thẻ chỉ số nhỏ */
+.stc-root .stc-mchips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.stc-root .stc-mchip{padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card2);min-width:120px;flex:1 1 120px}
+.stc-root .stc-mchip .stc-k{font-size:11.5px;color:var(--mute);line-height:1.3}
+.stc-root .stc-mchip .stc-v{font-size:18px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+
+/* Hàng có thể bấm */
+.stc-root .stc-clk{display:grid;grid-template-columns:minmax(0,1fr) 84px 84px 84px;gap:10px;align-items:center;width:100%;text-align:left;padding:10px 6px;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:12.5px;cursor:pointer;font-variant-numeric:tabular-nums}
+.stc-root .stc-clk:hover{background:var(--card2)}
+.stc-root .stc-clk .stc-n{font-weight:500;font-size:13px;line-height:1.35}
+.stc-root .stc-clk .stc-r{text-align:right}
+.stc-root .stc-clkh{display:grid;grid-template-columns:minmax(0,1fr) 84px 84px 84px;gap:10px;padding:6px 6px;font-size:11.5px;font-weight:600;color:var(--mute)}
+.stc-root .stc-clkh span:not(:first-child){text-align:right}
+.stc-root .stc-cmp.hl{background:var(--chip);border-radius:10px;padding-left:10px;padding-right:10px;border-top-color:transparent}
+
+/* Dòng dữ liệu gốc từ API */
+.stc-root .stc-rawh,.stc-root .stc-rawrow{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1.5fr) minmax(80px,.5fr) 84px;gap:10px;padding:9px 6px;font-size:12.5px;font-variant-numeric:tabular-nums}
+.stc-root .stc-rawh{font-size:11.5px;font-weight:600;color:var(--mute);border-bottom:1px solid var(--line);font-family:ui-monospace,Consolas,monospace}
+.stc-root .stc-rawrow{border-top:1px solid var(--line)}
+.stc-root .stc-rawrow span:not(:first-child),.stc-root .stc-rawh span:not(:first-child){text-align:right}
+
+/* Bảng cây (màn hình phân cấp) */
+.stc-root .stc-thd{display:grid;grid-template-columns:minmax(0,1fr) 92px 70px 84px;gap:10px;padding:8px 10px;font-size:11.5px;font-weight:600;color:var(--mute);border-bottom:1px solid var(--line)}
+.stc-root .stc-thd span:not(:first-child){text-align:right}
+.stc-root .stc-treebox{max-height:600px;overflow:auto}
+.stc-root .stc-trw{display:grid;grid-template-columns:minmax(0,1fr) 92px 70px 84px;gap:10px;align-items:center;width:100%;text-align:left;padding:9px 10px;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:inherit;font-size:12.5px;cursor:pointer;font-variant-numeric:tabular-nums}
+.stc-root .stc-trw:hover{background:var(--card2)}
+.stc-root .stc-trw.on{background:var(--chip)}
+.stc-root .stc-trw .stc-lb2{display:flex;align-items:center;gap:8px;min-width:0}
+.stc-root .stc-trw .stc-lb2 span{min-width:0;line-height:1.35}
+.stc-root .stc-trw .stc-lb2 small{color:var(--mute);font-size:11px;margin-left:4px;font-weight:500}
+.stc-root .stc-trw .stc-r{text-align:right}
+.stc-root .stc-trw.stc-l0 .stc-lb2{font-weight:700;font-size:13px}
+.stc-root .stc-trw.stc-l1 .stc-lb2{font-weight:600}
+.stc-root .stc-chev{flex:0 0 auto;width:0;height:0;border-left:6px solid var(--mute);border-top:4px solid transparent;border-bottom:4px solid transparent;transition:transform .12s}
+.stc-root .stc-chev.stc-open{transform:rotate(90deg)}
+.stc-root .stc-chev.none{border-left-color:transparent}
+.stc-root .stc-miniact{display:flex;gap:8px;margin-bottom:12px}
+
+/* Treemap */
+.stc-root .stc-tm{display:flex;gap:3px;height:330px}
+.stc-root .stc-tm .stc-blk{display:flex;flex-direction:column;gap:3px;min-width:2px;min-height:0}
+.stc-root .stc-tm .stc-bh{font-size:11.5px;font-weight:600;color:var(--ink2);line-height:1.3;padding:0 2px 1px}
+.stc-root .stc-tm .stc-krow{display:flex;gap:3px;flex:1;min-height:0}
+.stc-root .stc-tm .stc-cell{flex:1;min-width:2px;border-radius:8px;padding:8px 10px;overflow:hidden;color:#061a2e;font-size:12px;line-height:1.3;display:flex;flex-direction:column;justify-content:flex-start;gap:2px}
+.stc-root .stc-tm .stc-cell b{font-size:13px;font-variant-numeric:tabular-nums}
+.stc-root .stc-tm .stc-cell.sel{box-shadow:0 0 0 2px var(--ink) inset}
+
+/* Trang chủ: thẻ KPI và thẻ nhóm bấm được */
+.stc-root a.stc-kpi{display:block;color:inherit;text-decoration:none;transition:border-color .12s}
+.stc-root a.stc-kpi:hover{border-color:var(--accent)}
+.stc-root a.stc-gcard{display:block;color:inherit;text-decoration:none;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px 16px;transition:border-color .12s;min-width:0}
+.stc-root a.stc-gcard:hover{border-color:var(--accent)}
+.stc-root .stc-gh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}
+.stc-root .stc-gh h3{font-size:16px;font-weight:700}
+.stc-root .stc-gh span{font-size:12px;color:var(--mute);white-space:nowrap}
+.stc-root .stc-gl{display:grid;grid-template-columns:minmax(0,1fr) auto 84px;gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:13px;line-height:1.35}
+.stc-root .stc-gl .stc-v{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stc-root .stc-gl .stc-v small{font-weight:500;color:var(--mute);font-size:11.5px;margin-left:4px}
+.stc-root .stc-gl .stc-dl{justify-self:end}
+/* Sở Tài chính: dòng chỉ tiêu có 2 cột so sánh (so kỳ trước | so cùng kỳ) + hàng tiêu đề cột */
+.stc-root .stc-gl.stc-glc{grid-template-columns:minmax(0,1fr) auto 92px 92px}
+.stc-root .stc-gl.stc-glc .stc-dlw{text-align:right}
+.stc-root .stc-gl.stc-glh{padding:2px 0 6px;border-top:0;font-size:11px;font-weight:600;color:var(--mute);line-height:1.25}
+.stc-root .stc-gl.stc-glh span:nth-child(n+3){text-align:right}
+/* Ô KPI: 2 cột so sánh, mỗi cột có nhãn nhỏ phía trên */
+.stc-kdl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.stc-kdl small{display:block;font-size:10.5px;font-weight:500;color:var(--mute);margin-bottom:3px;white-space:nowrap}
+.stc-kdl .stc-dl{margin-top:0;font-size:12px}
+.stc-root .stc-gmore{margin-top:8px;font-size:12.5px;font-weight:600;color:var(--accent)}
+.stc-root .stc-pn{display:flex;justify-content:space-between;gap:20px;margin-top:22px;padding-top:14px;border-top:1px solid var(--line)}
+.stc-root .stc-secrow{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 12px}
+.stc-root .stc-secrow .stc-sec{margin:0}
+
+/* Đóng góp vào mức tăng (màn hình chi tiết) */
+.stc-root .stc-dgrow{padding:9px 8px;border-top:1px solid var(--line)}
+.stc-root .stc-dgrow.hl{background:var(--chip);border-radius:10px;border-top-color:transparent}
+.stc-root .stc-dgtop{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;line-height:1.35}
+.stc-root .stc-dgtop b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.stc-root .stc-dgbar{height:8px;border-radius:4px;background:var(--track);margin:7px 0 4px;overflow:hidden}
+.stc-root .stc-dgbar i{display:block;height:100%;border-radius:4px}
+
+/* Biểu đồ phân cấp ngang (icicle) */
+.stc-root .stc-ic-block{margin-bottom:24px}
+.stc-root .stc-ic-root{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 14px;border-radius:10px;background:var(--track);font-size:13px;font-weight:600}
+.stc-root .stc-ic-root b{font-variant-numeric:tabular-nums}
+.stc-root .stc-ic-row{display:flex;gap:3px;margin-top:3px;height:74px}
+.stc-root .stc-ic-seg{min-width:3px;border-radius:8px;padding:8px 10px;overflow:hidden;color:#061a2e;font-size:12px;line-height:1.3;display:flex;flex-direction:column;gap:2px}
+.stc-root .stc-ic-seg b{font-size:13px;font-variant-numeric:tabular-nums}
+.stc-root .stc-ic-seg.sel{box-shadow:0 0 0 2px var(--ink) inset}
+.stc-root .stc-ic-legend{display:grid;gap:2px;margin-top:10px}
+.stc-root .stc-ic-li{display:grid;grid-template-columns:minmax(0,1fr) 70px 54px;gap:10px;align-items:baseline;padding:6px 4px;font-size:12.5px;font-variant-numeric:tabular-nums;border-radius:8px}
+.stc-root .stc-ic-li.sel{background:var(--chip)}
+.stc-root .stc-ic-li .stc-r{text-align:right}
+.stc-root .stc-ic-li .stc-m{color:var(--mute)}
+/* Màn hình so sánh các kiểu biểu diễn phân cấp */
+.stc-root{--conn:rgba(139,167,194,.6)}
+html.theme-light .stc-root{--conn:rgba(91,106,128,.55)}
+.stc-root .stc-opt-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+.stc-root .stc-opt-tag{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:6px;font-size:11px;font-weight:700;background:var(--chip);color:var(--accent);margin-bottom:6px}
+.stc-root .stc-opt-tag.rec{background:rgba(79,214,156,.14);color:var(--good)}
+.stc-root .stc-opt-when{font-size:12.5px;color:var(--ink2);line-height:1.5;max-width:760px}
+.stc-root .stc-opt-when b{color:var(--ink)}
+
+/* A. Sơ đồ cây thẻ số */
+.stc-root .stc-oc{display:flex;flex-direction:column;align-items:center}
+.stc-root .stc-oc-root{background:var(--card2);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:14px;padding:14px 26px 12px;text-align:center;min-width:320px}
+.stc-root .stc-oc-root .stc-k{font-size:12px;color:var(--mute)}
+.stc-root .stc-oc-root .stc-v{font-size:28px;font-weight:700;letter-spacing:-.015em;margin:2px 0 6px}
+.stc-root .stc-oc-root .stc-v small{font-size:13px;color:var(--mute);font-weight:500;letter-spacing:0}
+.stc-root .stc-oc-stem{width:2px;height:24px;background:var(--conn)}
+.stc-root .stc-oc-row{display:flex;width:100%}
+.stc-root .stc-oc-c{flex:1;position:relative;padding:24px 8px 0;min-width:0}
+.stc-root .stc-oc-c::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--conn)}
+.stc-root .stc-oc-c.first::before{left:50%}
+.stc-root .stc-oc-c.last::before{right:50%}
+.stc-root .stc-oc-c::after{content:"";position:absolute;top:0;left:50%;width:2px;height:24px;margin-left:-1px;background:var(--conn)}
+.stc-root .stc-oc-card{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--cc,var(--s1));border-radius:14px;padding:13px 14px 12px;height:100%}
+.stc-root .stc-oc-card .stc-nm{font-size:12.5px;font-weight:600;line-height:1.35;min-height:34px}
+.stc-root .stc-oc-card .stc-v{font-size:22px;font-weight:700;letter-spacing:-.01em;margin-top:6px;font-variant-numeric:tabular-nums}
+.stc-root .stc-oc-card .stc-sh{font-size:11.5px;color:var(--mute);margin-top:2px}
+.stc-root .stc-oc-card .stc-bar{height:6px;border-radius:3px;background:var(--track);margin:10px 0 10px;overflow:hidden}
+.stc-root .stc-oc-card .stc-bar i{display:block;height:100%;border-radius:3px;background:var(--cc,var(--s1));min-width:2px}
+
+/* B. Thanh phân cấp thụt lề */
+.stc-root .stc-ib-row{display:grid;grid-template-columns:230px minmax(0,1fr) 84px 58px 76px;gap:14px;align-items:center;padding:11px 0;position:relative}
+.stc-root .stc-ib-row.kid{padding-left:34px}
+.stc-root .stc-ib-row.kid::before{content:"";position:absolute;left:12px;top:0;width:2px;height:100%;background:var(--conn)}
+.stc-root .stc-ib-row.kid.last::before{height:50%}
+.stc-root .stc-ib-row.kid::after{content:"";position:absolute;left:12px;top:50%;width:14px;height:2px;background:var(--conn)}
+.stc-root .stc-ib-row.rootrow{font-weight:700;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:2px}
+.stc-root .stc-ib-row .stc-nm{font-size:13px;font-weight:500;line-height:1.35}
+.stc-root .stc-ib-row.rootrow .stc-nm{font-weight:700}
+.stc-root .stc-ib-row .stc-tk{height:14px;border-radius:0 5px 5px 0;background:var(--track);position:relative}
+.stc-root .stc-ib-row .stc-tk i{position:absolute;left:0;top:0;bottom:0;border-radius:0 5px 5px 0;min-width:2px}
+.stc-root .stc-ib-row .stc-r{text-align:right;font-variant-numeric:tabular-nums;font-size:13px}
+.stc-root .stc-ib-row .stc-r.stc-m{color:var(--mute)}
+.stc-root .stc-ib-row .stc-dl{justify-self:end}
+
+/* C. Dòng chảy (Sankey) */
+.stc-root .stc-sk svg{width:100%;height:auto;display:block}
+.stc-root .stc-sk .stc-nm{fill:var(--ink);font-family:'Be Vietnam Pro',system-ui,sans-serif;font-size:12.5px;font-weight:600}
+.stc-root .stc-sk .stc-vv{fill:var(--ink2);font-family:'Be Vietnam Pro',system-ui,sans-serif;font-size:12.5px;font-weight:500}
+.stc-root .stc-sk .stc-lt{fill:var(--ink);font-family:'Be Vietnam Pro',system-ui,sans-serif;font-size:13px;font-weight:700}
+.stc-root .stc-sk .stc-lv{fill:var(--ink);font-family:'Be Vietnam Pro',system-ui,sans-serif;font-size:22px;font-weight:700}
+.stc-root .stc-sk .stc-lm{fill:var(--mute);font-family:'Be Vietnam Pro',system-ui,sans-serif;font-size:11.5px;font-weight:500}
+
+/* D. Cầu nối (waterfall) */
+.stc-root .stc-wf{position:relative;height:290px;margin-left:64px}
+.stc-root .stc-wf .stc-gl2{position:absolute;left:0;right:0;height:1px;background:var(--line)}
+.stc-root .stc-wf .stc-gt{position:absolute;left:-64px;width:56px;text-align:right;font-size:11px;color:var(--mute);transform:translateY(50%)}
+.stc-root .stc-wf .stc-bar2{position:absolute;border-radius:4px 4px 0 0}
+.stc-root .stc-wf .stc-vl2{position:absolute;text-align:center;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stc-root .stc-wf .stc-cn{position:absolute;height:0;border-top:1.5px dashed var(--conn)}
+.stc-root .stc-wfl{display:flex;margin-left:64px;margin-top:10px}
+.stc-root .stc-wfl span{text-align:center;font-size:12px;line-height:1.3;color:var(--ink2);padding:0 4px}
+
+/* E. Donut kèm chú giải */
+.stc-root .stc-dl2{display:grid;grid-template-columns:minmax(0,1fr) 120px 84px 58px;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:13px}
+.stc-root .stc-dl2 .stc-tk{height:8px;border-radius:4px;background:var(--track);overflow:hidden}
+.stc-root .stc-dl2 .stc-tk i{display:block;height:100%;border-radius:4px}
+.stc-root .stc-dl2 .stc-r{text-align:right;font-variant-numeric:tabular-nums}
+.stc-root .stc-dl2 .stc-r.stc-m{color:var(--mute)}
+
+/* Bố cục trình khám phá phân cấp: cột chọn chỉ tiêu + vùng sơ đồ */
+.stc-root .stc-explore{display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px;align-items:start}
+.stc-root .stc-nvh{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);padding:2px 8px 6px}
+.stc-root .stc-nvg{font-size:12.5px;font-weight:700;padding:12px 8px 4px;color:var(--ink)}
+.stc-root .stc-nvi{display:block;width:100%;text-align:left;padding:7px 10px;border-radius:8px;border:0;border-left:3px solid transparent;background:none;color:var(--ink2);font:inherit;font-size:12.5px;line-height:1.35;cursor:pointer}
+.stc-root .stc-nvi:hover{background:var(--card2)}
+.stc-root .stc-nvi.on{background:var(--chip);color:var(--ink);border-left-color:var(--accent);font-weight:600}
+
+/* Sơ đồ cây thẻ số dùng được cho mọi cấp */
+.stc-root .stc-oc-c.first.last::before{display:none}
+.stc-root .stc-oc-stem{margin:0 auto}
+.stc-root .stc-oc-c > .stc-oc-row{width:100%}
+.stc-root .stc-oc-root .stc-v span{display:inline}
+.stc-root .stc-oc-root .stc-v small{margin-left:6px}
+.stc-root button.stc-oc-card{display:block;width:100%;text-align:left;font:inherit;color:var(--ink);cursor:pointer;height:auto;transition:border-color .12s}
+.stc-root button.stc-oc-card:hover{border-right-color:var(--conn);border-bottom-color:var(--conn);border-left-color:var(--conn)}
+.stc-root .stc-oc-card.sel{box-shadow:0 0 0 2px var(--accent)}
+.stc-root .stc-oc-card .stc-sh{min-height:15px}
+.stc-root .stc-oc-card .stc-v{font-size:21px}
+.stc-root .stc-oc-card .stc-nm{font-size:12.5px}
+.stc-root .stc-wf .stc-bar2.sel{box-shadow:0 0 0 2px var(--ink)}
+.stc-root .stc-fl{display:grid;gap:7px}
+
+.stc-root .stc-rawh.nar,.stc-root .stc-rawrow.nar{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 68px 62px;gap:8px}
+
+/* ---- Bổ sung cho bản chạy thật ---- */
+html.theme-green .stc-root{--page:#eef9f3;--card:#ffffff;--card2:#f2fbf6;--line:rgba(31,41,55,.13);--ink:#1f2937;--ink2:#3d4f44;--mute:#566a5e;--s1:#2a78d6;--s2:#eb6834;--s3:#1baf7a;--s4:#eda100;--s5:#e87ba4;--prev:#b3c9bb;--track:#dff3e7;--good:#006300;--bad:#b3261e;--dn:#e34948;--warn:#8a5a00;--accent:#2e9d5b;--btn:#1e7a44;--chip:rgba(46,157,91,.10);--conn:rgba(86,106,94,.55)}
+html.theme-light .stc-root{--accent:#9d151c;--btn:#9d151c;--chip:rgba(157,21,28,.08)}
+.stc-wrap{max-width:none;width:100%}
+#modalBody .stc-root{background:transparent;overflow:visible}
+.stc-toolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.stc-tl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.stc-chips{display:flex;gap:8px;flex-wrap:wrap}
+.stc-root button{font-family:inherit}
+.stc-root button.stc-lnk{background:none;border:0;padding:0;color:var(--accent);font-weight:600;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.stc-root button.stc-lnk:hover{text-decoration:underline}
+.stc-root button.stc-kpi,.stc-root button.stc-gcard{display:block;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;transition:border-color .12s}
+.stc-root button.stc-kpi:hover,.stc-root button.stc-gcard:hover{border-color:var(--accent)}
+.stc-root button.stc-gcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px 16px;min-width:0}
+.stc-root .stc-btn:disabled{opacity:.45;cursor:not-allowed}
+.stc-root .stc-sel select:disabled{opacity:.6}
+.stc-root .stc-warnbox{margin-top:12px}
+.stc-root .stc-x{margin-left:6px}
+@media(max-width:1000px){
+.stc-root .stc-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stc-root .stc-g2,.stc-root .stc-g21,.stc-root .stc-g3{grid-template-columns:minmax(0,1fr)}
+.stc-root .stc-top{flex-direction:column}
+.stc-root .stc-ctrls{flex-wrap:wrap}
+}
+.stc-root svg .stc-ax{fill:var(--mute);font-family:'Be Vietnam Pro',system-ui,sans-serif;font-size:10.5px;font-weight:500}
+.stc-root svg .stc-vl{fill:var(--ink);font-family:'Be Vietnam Pro',system-ui,sans-serif;font-size:12px;font-weight:700}
+.stc-root button.stc-kpi,.stc-root button.stc-gcard{display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch}
+.stc-root button.stc-oc-card{display:block}
+.stc-root .stc-rawrow span:nth-child(2),.stc-root .stc-rawh span:nth-child(2){text-align:left}
+.stc-root .stc-nodata{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-radius:12px;border:1px dashed var(--line);background:var(--card2);color:var(--ink2);font-size:12.5px;line-height:1.5;margin-bottom:12px}
+.stc-root .stc-nodata svg{flex:0 0 auto;width:20px;height:20px;margin-top:1px;color:var(--mute)}
+.stc-root .stc-nodata b{color:var(--ink)}
+.stc-root .stc-blank{opacity:.72}
+.stc-root .stc-blank .stc-stack{background:var(--track);border-radius:3px}
+.stc-btn.demoon{background:rgba(242,182,54,.14);border-color:rgba(242,182,54,.5);color:var(--warn)}
+.stc-root .stc-focus{outline:2px solid var(--accent);outline-offset:3px;border-radius:16px;animation:stcpulse 1.6s ease-out 1}
+@keyframes stcpulse{0%{outline-color:transparent}30%{outline-color:var(--accent)}100%{outline-color:var(--accent)}}
+
+/* Hộp chọn Năm / Kỳ tự dựng (thay <select> gốc) */
+.stc-root .stc-dd{position:relative;display:inline-block}
+.stc-root .stc-ddb{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;font-size:13px;cursor:pointer;transition:border-color .12s,background .12s}
+.stc-root .stc-ddb:hover{border-color:var(--accent)}
+.stc-root .stc-dd.open .stc-ddb{border-color:var(--accent);box-shadow:0 0 0 3px var(--chip)}
+.stc-root .stc-ddb:focus-visible,.stc-root .stc-ddo:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.stc-root .stc-ddb small{color:var(--mute);font-size:11.5px;font-weight:500}
+.stc-root .stc-ddb b{font-weight:700;min-width:44px;text-align:left}
+.stc-root .stc-ddc{width:7px;height:7px;margin:-3px 0 0 2px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);transition:transform .15s}
+.stc-root .stc-dd.open .stc-ddc{transform:rotate(-135deg);margin-top:3px}
+.stc-root .stc-ddl{position:absolute;z-index:40;top:calc(100% + 6px);left:0;min-width:100%;width:max-content;padding:5px;border:1px solid var(--line);border-radius:12px;background:var(--card2);box-shadow:0 14px 34px rgba(0,0,0,.42);display:flex;flex-direction:column;gap:2px}
+html.theme-light .stc-root .stc-ddl,html.theme-green .stc-root .stc-ddl{background:#fff;box-shadow:0 12px 28px rgba(15,23,42,.18)}
+.stc-root .stc-ddo{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;height:34px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:var(--ink);font:inherit;font-size:13px;font-weight:500;text-align:left;cursor:pointer}
+.stc-root .stc-ddo:hover:not(:disabled){background:var(--chip)}
+.stc-root .stc-ddo.on{background:var(--chip);color:var(--accent);font-weight:700}
+.stc-root .stc-ddo i{font-style:normal;font-weight:700}
+.stc-root .stc-ddo.off{color:var(--mute);cursor:not-allowed;opacity:.75}
+.stc-root .stc-ddo em{font-style:normal;font-size:11px;color:var(--mute)}
+
+/* Khung chờ và màn lỗi tải số liệu */
+.stc-root .stc-skel{position:relative;overflow:hidden;border-radius:8px;background:var(--track)}
+.stc-root .stc-skel::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);transform:translateX(-100%);animation:stc-shimmer 1.4s infinite}
+html.theme-light .stc-root .stc-skel::after,html.theme-green .stc-root .stc-skel::after{background:linear-gradient(90deg,transparent,rgba(255,255,255,.7),transparent)}
+@keyframes stc-shimmer{to{transform:translateX(100%)}}
+@media (prefers-reduced-motion:reduce){.stc-root .stc-skel::after{animation:none}}
+.stc-root .stc-err svg{width:30px;height:30px;color:var(--warn)}
+.stc-root .stc-btn:disabled{opacity:.55;cursor:not-allowed}
+
+/* Nút phóng to/thu nhỏ 1 thẻ biểu đồ ra toàn màn hình popup */
+.stc-root .stc-zoombtn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--mute);cursor:pointer;flex:0 0 auto}
+.stc-root .stc-zoombtn:hover{color:var(--accent);border-color:var(--accent)}
+.stc-root .stc-zoombtn[aria-pressed="true"]{color:var(--accent);border-color:var(--accent);background:var(--chip)}
+
+/* Lớp phủ toàn màn hình khi 1 thẻ biểu đồ được phóng to. Tách thẻ ra khỏi #modalBody và đặt vào đây (script
+   trong dashboard-stc.js) để không bị khung popup cắt bớt; mang class stc-root nên vẫn theo đúng theme đang chọn. */
+.stc-zoom-layer.stc-root{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:2vh 2vw;overflow:auto;background:rgba(3,10,20,.82);animation:stc-zoomin .15s ease-out}
+html.theme-light .stc-zoom-layer.stc-root,html.theme-green .stc-zoom-layer.stc-root{background:rgba(15,23,42,.6)}
+@keyframes stc-zoomin{from{opacity:0}to{opacity:1}}
+/* Phóng gần kín khung: bề rộng lấy 1 mốc cố định (min 1180px/bề ngang lớp phủ); độ phóng theo chiều cao (biến
+   --stc-zoom, tính bằng JS trong stcApplyZoom để lấp vừa khung, không chừa khoảng trống thừa) áp cho cả thẻ nên
+   chữ lẫn biểu đồ cùng to lên theo 1 tỉ lệ, không chỉ nới khung rỗng quanh nội dung cũ. */
+.stc-zoom-layer .stc-card.stc-zoomed{width:min(1180px,100%);margin:auto;box-shadow:0 30px 90px rgba(0,0,0,.5);zoom:var(--stc-zoom,1)}
+@media (prefers-reduced-motion:reduce){.stc-zoom-layer.stc-root{animation:none}}
+
+</style>
+</head>
+<body>
+<div class="stc-page">
+  <div class="stc-page-head">
+    <div>
+      <h1>Bộ chỉ tiêu kinh tế – tài chính Thủ đô</h1>
+      <p>Sở Tài chính Hà Nội · trang độc lập, tách riêng từ Trung tâm Điều hành thông minh (IOC) Hà Nội</p>
+    </div>
+    <div class="stc-theme-sw" role="group" aria-label="Chọn giao diện">
+      <button type="button" data-theme="dark" onclick="stcSetThemeStandalone('dark')">Tối</button>
+      <button type="button" data-theme="light" onclick="stcSetThemeStandalone('light')">Sáng</button>
+      <button type="button" data-theme="green" onclick="stcSetThemeStandalone('green')">Xanh lá</button>
+    </div>
+  </div>
+  <div class="field-category-grid" id="stcOuterGrid"></div>
+</div>
+
+<div id="overlay" class="overlay" onclick="closeModal()"></div>
+<section id="modal" class="modal">
+  <div class="modal-head"><div><h3 id="modalTitle">Chi tiết</h3><div class="muted" id="modalSub"></div></div><button class="close" onclick="closeModal()">×</button></div>
+  <div class="modal-body" id="modalBody"></div>
+</section>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================== KHUNG TỐI THIỂU (tự viết) ==============================
+   Thay cho phần lõi của IOC (helpers.js, modal-drawer-toast.js, indicators.js, central-level.js...) mà bộ chỉ
+   tiêu Sở Tài chính cần để chạy: thoát HTML, mở/đóng popup #modal, thông báo nhỏ (toast), và điều hướng khi bấm
+   ô KPI/thẻ nhóm ở ngoài lưới (openCategoryDetail bản rút gọn — bộ chỉ tiêu Sở Tài chính chỉ có 1 lĩnh vực nên
+   không cần định tuyến theo vai trò/lĩnh vực như bản đầy đủ). */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,(m)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function lockScroll(){document.body.style.overflow='hidden';document.documentElement.style.overflow='hidden'}
+function unlockScroll(){document.body.style.overflow='';document.documentElement.style.overflow=''}
+function openModal(){document.getElementById('overlay').classList.add('show');document.getElementById('modal').classList.add('open');lockScroll()}
+function closeModal(){document.getElementById('modal').classList.remove('open');document.getElementById('overlay').classList.remove('show');unlockScroll()}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),3000)}
+const currentRole='UBND';
+const STC_CAT={role:'UBND',id:'ubnd-taichinh'};
+/* Trang này chỉ có đúng 1 lĩnh vực (Sở Tài chính) nên bỏ qua role/catId, chỉ dùng itemIndex — khớp chữ ký hàm
+   openCategoryDetail(role, catId, itemIndex) mà stcOpenForm()/stcOverviewBandHtml() gọi tới. */
+function openCategoryDetail(role, catId, itemIndex){ stcOpenForm(itemIndex, role); }
+function renderStcOuterGrid(){
+  document.getElementById('stcOuterGrid').innerHTML = stcOverviewBandHtml(STC_CAT, 0);
+}
+const renderIndicators = renderStcOuterGrid;   // stcToggleDemo() gọi renderIndicators() để vẽ lại lưới ngoài sau khi đổi chế độ dữ liệu mẫu
+function stcSetThemeStandalone(t){
+  document.documentElement.classList.remove('theme-light','theme-green');
+  if(t==='light'||t==='green') document.documentElement.classList.add('theme-'+t);
+  try{ localStorage.setItem('stc-standalone-theme', t); }catch(e){}
+  document.querySelectorAll('.stc-theme-sw button').forEach((b)=>b.classList.toggle('on', b.dataset.theme===t));
+}
+document.addEventListener('DOMContentLoaded', () => {
+  let saved = 'dark';
+  try{ saved = localStorage.getItem('stc-standalone-theme') || 'dark'; }catch(e){}
+  stcSetThemeStandalone(saved);
+  renderStcOuterGrid();
+});
+
+/* ===== js\core\stc-config.js ===== */
+/* ============================== SỞ TÀI CHÍNH — CẤU HÌNH BỘ CHỈ TIÊU MỚI ==============================
+   Toàn bộ danh mục chỉ tiêu, phân cấp, ánh xạ dòng API -> nút, đơn vị và các giả định gom ở đây (sửa 1 chỗ).
+   Nạp TRƯỚC central-level.js vì central-level.js dùng STC_ITEMS / TC_SHOW_LEGACY.
+   Nguồn số liệu: 14 API Sở Tài chính Hà Nội, dữ liệu thô {chiTieu, giaTri, loai, quy} trong js/data/stc-snapshot.js. */
+
+/* true = hiện lại bộ chỉ tiêu CŨ của Sở Tài chính (ẩn bằng cờ, code cũ vẫn giữ nguyên trong central-level.js). */
+const TC_SHOW_LEGACY = false;
+
+/* true = hiện lại 4 thẻ nhóm rút gọn (Ngân sách, Đầu tư & dự án, Sản xuất..., Kinh tế vĩ mô) NGOÀI lưới chỉ tiêu,
+   bên dưới băng Tổng quan. Đang tắt vì băng Tổng quan (7 ô KPI, bấm mở thẳng đúng nhóm) đã thay thế được — 4 thẻ
+   đó giờ chỉ còn xem trong popup (mục "Bốn nhóm chỉ tiêu" ở màn Trang chủ, hoặc bấm 1 ô KPI/"Xem tổng quan đầy
+   đủ"). Ẩn bằng cờ, hàm dựng thẻ (soItemCardHtml) vẫn giữ nguyên, không xoá. */
+const STC_SHOW_OUTER_GROUP_CARDS = false;
+
+/* true = hiện lại hàng chip trạng thái ở đầu popup (Nguồn: ..., Kỳ báo cáo: ..., Số liệu chụp lúc ..., DỮ LIỆU MẪU).
+   Đang tắt vì các thông tin này đã có ở nơi khác trong popup (phụ đề đầu popup ghi "DỮ LIỆU MẪU · ...", chân màn
+   ghi lại nguồn + kỳ), nên hàng chip bị coi là thừa/rối. Ẩn bằng cờ, hàm dựng chip (stcChips) vẫn giữ nguyên. */
+const STC_SHOW_CHIPS = false;
+
+/* true = mở form với DỮ LIỆU MẪU ngay từ đầu (đang BẬT theo yêu cầu, để xem thiết kế đầy đủ). Luôn có banner vàng "DỮ LIỆU MẪU",
+   thẻ xem trước ở lưới chỉ tiêu cũng có nhãn mẫu, file Excel có hậu tố -DU-LIEU-MAU. Trong popup có nút "Tắt dữ liệu mẫu" để xem số thật
+   (bản chụp API); tải lại trang thì về giá trị này. Khi đưa vào vận hành thật: đặt false để mặc định là số thật. */
+const STC_DEMO_DEFAULT = true;
+
+/* Các GIẢ ĐỊNH chưa được Sở Tài chính xác nhận — sửa ở đây khi có thông tin thật. */
+const STC_ASSUME = {
+  /* A2: "So với cùng kỳ" là chỉ số lấy 100 làm mốc (125 = tăng 25%). Ngoài khoảng này thì cảnh báo "kiểm tra ý nghĩa". */
+  ckRange: [30, 300],
+  /* A1: đơn vị hiển thị (API không trả đơn vị) */
+  unitNote: 'Đơn vị hiển thị theo giả định (tỷ đồng, triệu USD, nghìn lượt), chờ Sở Tài chính xác nhận.',
+  ckNote: 'Mức tăng của "So với cùng kỳ" tính theo giả định đó là chỉ số lấy 100 làm mốc (125 nghĩa là tăng 25%).',
+  /* Quý 1–4 <-> tham số {thang_hoac_quy} của API (chưa xác minh); chỉ dùng để ghi chú. */
+  periodLabel: (y, p) => 'Quý ' + p + '/' + y
+};
+
+const STC_GROUPS = [
+  { id: 'ns', label: 'Ngân sách', inds: ['thu', 'chi'] },
+  { id: 'dt', label: 'Đầu tư & dự án', inds: ['vdt', 'nsnn', 'da'] },
+  { id: 'sx', label: 'Sản xuất – Thương mại – Dịch vụ', inds: ['iip', 'bra', 'ble', 'vt', 'dl', 'xnk'] },
+  { id: 'vm', label: 'Kinh tế vĩ mô', inds: ['grdp', 'gia'] }
+];
+
+/* Cách đọc dòng API -> nút:
+   api      mã API (nút con kế thừa từ nút cha)
+   match    trường của dòng dùng để nhận diện nút: 'loai' | 'chiTieu'
+   measure  ý nghĩa giá trị: 'plain' (giá trị) | 'period' (loai = "Kỳ này"/"Kỳ trước") | 'ck' (chiTieu chứa "so với cùng kỳ")
+            | 'cmp' (chiTieu chứa "giá so sánh")
+   keys     các nhãn API khớp với nút (so khớp sau khi chuẩn hoá chữ thường/khoảng trắng)
+   totalKeys  nhãn của dòng "tổng" do API cung cấp (nếu không có thì cộng các nút con)
+   kind     'add' cộng gộp được | 'idx' chỉ số lấy 100 làm mốc | 'pct' tỷ lệ % | 'container' chỉ để nhóm
+   view     kiểu thẻ ở màn nhóm */
+const STC_INDICATORS = [
+  { id: 'thu', group: 'ns', label: 'Thu ngân sách nhà nước trên địa bàn', unit: 'tỷ đồng', kind: 'add', view: 'barsCompare',
+    api: 'THU_NGAN_SACH', match: 'chiTieu', measure: 'period',
+    kids: [
+      { id: 'thu_nd', label: 'Thu nội địa', keys: ['Thu nội địa'] },
+      { id: 'thu_xnk', label: 'Thu từ hoạt động xuất nhập khẩu', keys: ['Thu từ hoạt động xuất nhập khẩu'] },
+      { id: 'thu_vt', label: 'Thu viện trợ', keys: ['Thu viện trợ'] },
+      { id: 'thu_dt', label: 'Thu từ dầu thô', keys: ['Thu từ dầu thô'] }
+    ] },
+  { id: 'chi', group: 'ns', label: 'Chi ngân sách địa phương', unit: 'tỷ đồng', kind: 'add', view: 'donutTable', neutral: true,
+    api: 'CHI_NGAN_SACH_DIA_PHUONG', match: 'chiTieu', measure: 'period', totalKeys: ['Tổng chi NS ĐP'],
+    kids: [
+      { id: 'chi_dt', label: 'Chi đầu tư phát triển', keys: ['Chi đầu tư phát triển'] },
+      { id: 'chi_tx', label: 'Chi thường xuyên', keys: ['Chi phát triển thường xuyên'] },
+      { id: 'chi_nl', label: 'Chi trả nợ lãi', keys: ['Chi trả nợ lãi'] },
+      { id: 'chi_qd', label: 'Chi bổ sung quỹ dự trữ tài chính', keys: ['Chi bổ sung quỹ dự trữ tài chính'] },
+      { id: 'chi_kh', label: 'Các nhiệm vụ chi khác', keys: ['Các nhiệm vụ chi khác'] }
+    ] },
+
+  { id: 'vdt', group: 'dt', label: 'Vốn đầu tư phát triển toàn xã hội', unit: 'tỷ đồng', kind: 'add', view: 'donutTable',
+    api: 'VON_DAU_TU', match: 'loai', measure: 'plain',
+    kids: [
+      { id: 'vdt_nn', label: 'Vốn nhà nước', keys: ['Vốn nhà nước'] },
+      { id: 'vdt_ngn', label: 'Vốn ngoài nhà nước', keys: ['Vốn ngoài nhà nước'] },
+      { id: 'vdt_fdi', label: 'Vốn đầu tư trực tiếp nước ngoài', keys: ['Vốn đầu tư trực tiếp nước ngoài'] }
+    ] },
+  { id: 'nsnn', group: 'dt', label: 'Vốn đầu tư từ nguồn NSNN do địa phương quản lý', unit: 'tỷ đồng', kind: 'add', view: 'stackTable',
+    api: 'VON_NSNN_DIA_PHUONG', match: 'chiTieu', measure: 'plain',
+    kids: [
+      { id: 'nsnn_tp', label: 'Ngân sách Nhà nước cấp Thành phố', keys: ['Vốn ngân sách Nhà nước cấp thành phố'], color: 'var(--s1)' },
+      { id: 'nsnn_xa', label: 'Ngân sách Nhà nước cấp xã', keys: ['Vốn ngân sách Nhà nước cấp xã'], color: 'var(--s5)' }
+    ] },
+  { id: 'da', group: 'dt', label: 'Tiến độ dự án, công trình trọng điểm', unit: '% hoàn thành', kind: 'pct', view: 'progress',
+    api: 'DA_TRONG_DIEM', match: 'loai', measure: 'plain',
+    kids: [
+      { id: 'da_1', label: 'Xử lý các dự án ngoài ngân sách chậm triển khai', keys: ['Xử lý các dự án ngoài ngân sách chậm triển khai'] },
+      { id: 'da_2', label: 'Quy hoạch và Thể chế phát triển Thủ đô', keys: ['Quy hoạch và Thể chế phát triển Thủ đô'] },
+      { id: 'da_3', label: 'Dự án 07 cầu vượt sông Hồng', keys: ['Dự án 07 cầu vượt sông Hồng'] },
+      { id: 'da_4', label: 'Nhóm 10 dự án, công trình', keys: ['Nhóm 10 dự án, công trình'] },
+      { id: 'da_5', label: 'Các tuyến đường Vành đai và Giao thông trọng điểm', keys: ['Các tuyến đường Vành đai và Giao thông trọng điểm'] }
+    ] },
+
+  { id: 'iip', group: 'sx', label: 'Chỉ số sản xuất công nghiệp (IIP)', unit: '% so cùng kỳ', kind: 'idx', view: 'idxAxis',
+    api: 'CHI_SO_SXCN', match: 'loai', measure: 'plain', totalKeys: ['Toàn ngành công nghiệp'],
+    kids: [
+      { id: 'iip_1', label: 'Khai khoáng', keys: ['Khai khoáng'] },
+      { id: 'iip_2', label: 'Công nghiệp chế biến, chế tạo', keys: ['Công nghiệp chế biến, chế tạo'] },
+      { id: 'iip_3', label: 'Sản xuất và phân phối điện, khí đốt, hơi nước, điều hòa không khí', keys: ['Sản xuất và phân phối điện, khí đốt, hơi nước và điều hoà không khí', 'Sản xuất và phân phối điện, khí đốt, hơi nước và điều hòa không khí'] },
+      { id: 'iip_4', label: 'Cung cấp nước, quản lý và xử lý rác thải, nước thải', keys: ['Cung cấp nước, hoạt động quản lý và xử lý rác thải, nước thải'] }
+    ] },
+  { id: 'bra', group: 'sx', label: 'Tổng mức bán ra và doanh thu dịch vụ', unit: 'tỷ đồng', kind: 'add', view: 'stackTable',
+    api: 'TONG_HANG_BAN_RA', match: 'loai', measure: 'plain',
+    kids: [
+      { id: 'bra_1', label: 'Nhà nước', keys: ['Nhà nước'], color: 'var(--s1)' },
+      { id: 'bra_2', label: 'Ngoài nhà nước', keys: ['Ngoài nhà nước'], color: 'var(--s2)' },
+      { id: 'bra_3', label: 'Khu vực có vốn đầu tư nước ngoài', keys: ['Khu vực có vốn đầu tư nước ngoài'], color: 'var(--s3)' }
+    ] },
+  { id: 'ble', group: 'sx', label: 'Tổng mức bán lẻ hàng hóa và doanh thu dịch vụ tiêu dùng', unit: 'tỷ đồng', kind: 'add', view: 'stackTable',
+    api: 'TONG_HANG_BAN_LE', match: 'loai', measure: 'plain',
+    kids: [
+      { id: 'ble_1', label: 'Nhà nước', keys: ['Nhà nước'], color: 'var(--s1)' },
+      { id: 'ble_2', label: 'Ngoài nhà nước', keys: ['Ngoài nhà nước'], color: 'var(--s2)' },
+      { id: 'ble_3', label: 'Khu vực có vốn đầu tư nước ngoài', keys: ['Khu vực có vốn đầu tư nước ngoài'], color: 'var(--s3)' }
+    ] },
+  { id: 'vt', group: 'sx', label: 'Doanh thu vận tải, kho bãi, bưu chính', unit: 'tỷ đồng', kind: 'add', view: 'barsDelta',
+    api: 'DOANH_THU_VAN_TAI', match: 'loai', measure: 'ck',
+    kids: [
+      { id: 'vt_1', label: 'Vận tải hành khách', keys: ['Vận tải hành khách'] },
+      { id: 'vt_2', label: 'Vận tải hàng hóa', keys: ['Vận tải hàng hóa'] },
+      { id: 'vt_3', label: 'Dịch vụ kho bãi và hỗ trợ vận tải', keys: ['Dịch vụ kho bãi và hỗ trợ vận tải'] },
+      { id: 'vt_4', label: 'Bưu chính, chuyển phát', keys: ['Bưu chính, chuyển phát'] }
+    ] },
+  { id: 'dl', group: 'sx', label: 'Khách du lịch đến Hà Nội', unit: 'nghìn lượt', kind: 'add', view: 'donutTable',
+    api: 'KHACH_DU_LICH_HN', match: 'loai', measure: 'ck',
+    kids: [
+      { id: 'dl_1', label: 'Khách nội địa', keys: ['Khách nội địa'] },
+      { id: 'dl_2', label: 'Khách quốc tế', keys: ['Khách quốc tế'] }
+    ] },
+  { id: 'xnk', group: 'sx', label: 'Kim ngạch xuất nhập khẩu hàng hóa', unit: 'triệu USD', kind: 'container', view: 'xnk',
+    match: 'loai', measure: 'ck',
+    kids: [
+      { id: 'xk', label: 'Xuất khẩu', api: 'KIM_NGACH_XK', kind: 'add', color: 'var(--s1)',
+        kids: [
+          { id: 'xk_1', label: 'Khu vực kinh tế trong nước', keys: ['Khu vực kinh tế trong nước'], color: 'var(--s1)' },
+          { id: 'xk_2', label: 'Khu vực có vốn đầu tư nước ngoài', keys: ['Khu vực có vốn đầu tư nước ngoài'], color: 'var(--s3)' }
+        ] },
+      { id: 'nk', label: 'Nhập khẩu', api: 'KIM_NGACH_NK', kind: 'add', neutral: true, color: 'var(--s2)',
+        kids: [
+          { id: 'nk_1', label: 'Khu vực kinh tế trong nước', keys: ['Khu vực kinh tế trong nước'], color: 'var(--s1)' },
+          { id: 'nk_2', label: 'Khu vực có vốn đầu tư nước ngoài', keys: ['Khu vực có vốn đầu tư nước ngoài'], color: 'var(--s3)' }
+        ] }
+    ] },
+
+  { id: 'grdp', group: 'vm', label: 'Tổng sản phẩm trên địa bàn (GRDP)', unit: 'tỷ đồng', kind: 'add', view: 'donutTable',
+    api: 'SP_DIA_BAN', match: 'loai', measure: 'cmp',
+    kids: [
+      { id: 'grdp_1', label: 'Nông, lâm nghiệp và thủy sản', keys: ['Nông, lâm nghiệp và thủy sản'] },
+      { id: 'grdp_2', label: 'Công nghiệp và xây dựng', keys: ['Công nghiệp và xây dựng'] },
+      { id: 'grdp_3', label: 'Dịch vụ', keys: ['Dịch vụ'] },
+      { id: 'grdp_4', label: 'Thuế sản phẩm trừ trợ cấp sản phẩm', keys: ['Thuế sản phẩm trừ trợ cấp sản phẩm'] }
+    ] },
+  { id: 'gia', group: 'vm', label: 'Chỉ số giá', unit: '% so cùng kỳ', kind: 'container', view: 'scales', neutral: true,
+    api: 'CHI_SO_KINH_TE', match: 'loai', measure: 'plain',
+    kids: [
+      { id: 'gia_1', label: 'Chỉ số giá tiêu dùng (CPI)', kind: 'idx', keys: ['Chỉ số giá tiêu dùng'] },
+      { id: 'gia_2', label: 'Chỉ số giá vàng', kind: 'idx', keys: ['Chỉ số giá vàng'] },
+      { id: 'gia_3', label: 'Chỉ số giá đô la Mỹ', kind: 'idx', keys: ['Chỉ số giá đô la Mỹ'] }
+    ] }
+];
+
+/* 7 thẻ KPI ở trang chủ. fmt: 'nghinTy' (giá trị tỷ đồng -> nghìn tỷ), 'trieuLuot' (nghìn lượt -> triệu), 'idx' (chỉ số), 'pct' */
+const STC_KPIS = [
+  { ind: 'thu', label: 'Tổng thu NSNN trên địa bàn', fmt: 'nghinTy', target: 'ns' },
+  { ind: 'chi', label: 'Tổng chi ngân sách địa phương', fmt: 'nghinTy', target: 'ns' },
+  { ind: 'vdt', label: 'Vốn đầu tư phát triển toàn xã hội', fmt: 'nghinTy', target: 'dt' },
+  { ind: 'grdp', label: 'Tổng sản phẩm trên địa bàn (GRDP)', fmt: 'nghinTy', target: 'vm' },
+  { ind: 'iip', label: 'Chỉ số sản xuất công nghiệp (IIP)', fmt: 'idx', target: 'sx' },
+  { ind: 'dl', label: 'Khách du lịch đến Hà Nội', fmt: 'trieuLuot', target: 'sx' },
+  { ind: 'gia_1', label: 'Chỉ số giá tiêu dùng (CPI)', fmt: 'idx', target: 'vm' }
+];
+
+/* Tên ngắn dùng trong thẻ xem trước ở lưới chỉ tiêu (mỗi thẻ = một nhóm, một popup). */
+const STC_SHORT = {
+  thu: 'Thu NSNN', chi: 'Chi ngân sách địa phương', vdt: 'Vốn đầu tư toàn xã hội', nsnn: 'Vốn NSNN địa phương', da: 'Dự án trọng điểm',
+  iip: 'Chỉ số sản xuất công nghiệp', bra: 'Tổng mức bán ra', ble: 'Tổng mức bán lẻ', vt: 'Vận tải, kho bãi, bưu chính', dl: 'Khách du lịch',
+  xnk: 'Xuất nhập khẩu (cán cân)', grdp: 'GRDP', gia: 'Chỉ số giá tiêu dùng (CPI)'
+};
+
+/* Lưới chỉ tiêu của IOC hiện 5 thẻ: 1 thẻ TỔNG QUAN (đứng đầu, mở màn Trang chủ – tổng quan) + 4 thẻ NHÓM (mỗi nhóm mở
+   thẳng popup của nhóm đó), dạng [tên, số bản ghi, tần suất, nguồn] cho categorySeed (central-level.js). Số bản ghi = 0
+   để hệ thống demo KHÔNG sinh bản ghi giả; stcKey = 'home' cho thẻ tổng quan, hoặc nối với id nhóm trong form mới. */
+const STC_ITEM_OVERVIEW = ['Tổng quan', 0, 'Quý', 'API Sở Tài chính (bản chụp)'];
+STC_ITEM_OVERVIEW.stcKey = 'home';
+const STC_ITEMS = [STC_ITEM_OVERVIEW].concat(STC_GROUPS.map(g => {
+  const it = [g.label, 0, 'Quý', 'API Sở Tài chính (bản chụp)'];
+  it.stcKey = g.id;
+  return it;
+}));
+
+/* ===== js\data\stc-snapshot.js ===== */
+/* TỰ ĐỘNG SINH bởi stc-tool.js — đừng sửa tay. Bản chụp số liệu API Sở Tài chính Hà Nội (dữ liệu thô như API trả về). */
+window.STC_SNAPSHOT = {
+ "version": 1,
+ "periods": {
+  "2026-1": {
+   "year": 2026,
+   "period": 1,
+   "importedAt": "2026-09-21T08:22:44.891Z",
+   "source": "export_stc_api_ba (lấy ngày 18/09/2026)",
+   "data": {
+    "SP_DIA_BAN": [
+     {
+      "chiTieu": "Theo giá hiện hành",
+      "giaTri": 0,
+      "loai": "Nông, lâm nghiệp và thủy sản",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Theo giá so sánh cùng kỳ năm trước",
+      "giaTri": 0,
+      "loai": "Nông, lâm nghiệp và thủy sản",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Theo giá hiện hành",
+      "giaTri": 0,
+      "loai": "Công nghiệp và xây dựng",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Theo giá so sánh cùng kỳ năm trước",
+      "giaTri": 0,
+      "loai": "Công nghiệp và xây dựng",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Theo giá hiện hành",
+      "giaTri": 0,
+      "loai": "Dịch vụ",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Theo giá so sánh cùng kỳ năm trước",
+      "giaTri": 0,
+      "loai": "Dịch vụ",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Theo giá hiện hành",
+      "giaTri": 0,
+      "loai": "Thuế sản phẩm trừ trợ cấp sản phẩm",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Theo giá so sánh cùng kỳ năm trước",
+      "giaTri": 0,
+      "loai": "Thuế sản phẩm trừ trợ cấp sản phẩm",
+      "quy": "Q1/2026"
+     }
+    ],
+    "TONG_HANG_BAN_RA": [
+     {
+      "chiTieu": "Tổng mức bán ra và doanh thu dịch vụ",
+      "giaTri": 0,
+      "loai": "Nhà nước",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Tổng mức bán ra và doanh thu dịch vụ",
+      "giaTri": 0,
+      "loai": "Ngoài nhà nước",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Tổng mức bán ra và doanh thu dịch vụ",
+      "giaTri": 0,
+      "loai": "Khu vực có vốn đầu tư nước ngoài",
+      "quy": "Q1/2026"
+     }
+    ],
+    "TONG_HANG_BAN_LE": [
+     {
+      "chiTieu": "Tổng mức bán lẻ và doanh thu dịch vụ",
+      "giaTri": 0,
+      "loai": "Nhà nước",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Tổng mức bán lẻ và doanh thu dịch vụ",
+      "giaTri": 0,
+      "loai": "Ngoài nhà nước",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Tổng mức bán lẻ và doanh thu dịch vụ",
+      "giaTri": 0,
+      "loai": "Khu vực có vốn đầu tư nước ngoài",
+      "quy": "Q1/2026"
+     }
+    ],
+    "VON_DAU_TU": [
+     {
+      "chiTieu": "Vốn đầu tư phát triển toàn xã hội thực hiện theo giá hiện hành",
+      "giaTri": 0,
+      "loai": "Vốn nhà nước",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Vốn đầu tư phát triển toàn xã hội thực hiện theo giá hiện hành",
+      "giaTri": 0,
+      "loai": "Vốn ngoài nhà nước",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Vốn đầu tư phát triển toàn xã hội thực hiện theo giá hiện hành",
+      "giaTri": 0,
+      "loai": "Vốn đầu tư trực tiếp nước ngoài",
+      "quy": "Q1/2026"
+     }
+    ],
+    "VON_NSNN_DIA_PHUONG": [
+     {
+      "chiTieu": "Vốn ngân sách Nhà nước cấp thành phố",
+      "giaTri": 0,
+      "loai": "Vốn ngân sách Nhà nước cấp",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Vốn ngân sách Nhà nước cấp xã",
+      "giaTri": 0,
+      "loai": "Vốn ngân sách Nhà nước cấp",
+      "quy": "Q1/2026"
+     }
+    ],
+    "CHI_SO_SXCN": [
+     {
+      "chiTieu": "Toàn ngành công nghiệp",
+      "giaTri": 0,
+      "loai": "Toàn ngành công nghiệp",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Khai khoáng",
+      "giaTri": 0,
+      "loai": "Khai khoáng",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Công nghiệp chế biến, chế tạo",
+      "giaTri": 0,
+      "loai": "Công nghiệp chế biến, chế tạo",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Sản xuất và phân phối điện, khí đốt, hơi nước và điều hoà không khí",
+      "giaTri": 0,
+      "loai": "Sản xuất và phân phối điện, khí đốt, hơi nước và điều hoà không khí",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Cung cấp nước, hoạt động quản lý và xử lý rác thải, nước thải",
+      "giaTri": 0,
+      "loai": "Cung cấp nước, hoạt động quản lý và xử lý rác thải, nước thải",
+      "quy": "Q1/2026"
+     }
+    ],
+    "DA_TRONG_DIEM": [
+     {
+      "chiTieu": "Nhóm 10 dự án, công trình - Tiến độ hoàn thành",
+      "giaTri": 20,
+      "loai": "Nhóm 10 dự án, công trình",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Dự án 07 cầu vượt sông Hồng - Tiến độ hoàn thành",
+      "giaTri": 30,
+      "loai": "Dự án 07 cầu vượt sông Hồng",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Các tuyến đường Vành đai và Giao thông trọng điểm - Tiến độ hoàn thành",
+      "giaTri": 10,
+      "loai": "Các tuyến đường Vành đai và Giao thông trọng điểm",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Quy hoạch và Thể chế phát triển Thủ đô - Tiến độ hoàn thành",
+      "giaTri": 45,
+      "loai": "Quy hoạch và Thể chế phát triển Thủ đô",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Xử lý các dự án ngoài ngân sách chậm triển khai - Tiến độ hoàn thành",
+      "giaTri": 50,
+      "loai": "Xử lý các dự án ngoài ngân sách chậm triển khai",
+      "quy": "Q1/2026"
+     }
+    ],
+    "DOANH_THU_VAN_TAI": [
+     {
+      "chiTieu": "Vận tải hành khách Ước tính",
+      "giaTri": 0,
+      "loai": "Vận tải hành khách",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Vận tải hành khách so với cùng kỳ",
+      "giaTri": 0,
+      "loai": "Vận tải hành khách",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Vận tải hàng hóa Ước tính",
+      "giaTri": 0,
+      "loai": "Vận tải hàng hóa",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Vận tải hàng hóa so với cùng kỳ",
+      "giaTri": 0,
+      "loai": "Vận tải hàng hóa",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Dịch vụ kho bãi và hỗ trợ vận tải Ước tính",
+      "giaTri": 0,
+      "loai": "Dịch vụ kho bãi và hỗ trợ vận tải",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Dịch vụ kho bãi và hỗ trợ vận tải so với cùng kỳ",
+      "giaTri": 0,
+      "loai": "Dịch vụ kho bãi và hỗ trợ vận tải",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Bưu chính, chuyển phát Ước tính",
+      "giaTri": 0,
+      "loai": "Bưu chính, chuyển phát",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Bưu chính, chuyển phát so với cùng kỳ",
+      "giaTri": 0,
+      "loai": "Bưu chính, chuyển phát",
+      "quy": "Q1/2026"
+     }
+    ],
+    "KHACH_DU_LICH_HN": [
+     {
+      "chiTieu": "Ước tính quý",
+      "giaTri": 0,
+      "loai": "Khách nội địa",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "So với cùng kỳ",
+      "giaTri": 0,
+      "loai": "Khách nội địa",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Ước tính quý",
+      "giaTri": 0,
+      "loai": "Khách quốc tế",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "So với cùng kỳ",
+      "giaTri": 0,
+      "loai": "Khách quốc tế",
+      "quy": "Q1/2026"
+     }
+    ],
+    "KIM_NGACH_XK": [
+     {
+      "chiTieu": "Ước tính",
+      "giaTri": 0,
+      "loai": "Khu vực kinh tế trong nước",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "So với cùng kỳ",
+      "giaTri": 0,
+      "loai": "Khu vực kinh tế trong nước",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Ước tính",
+      "giaTri": 0,
+      "loai": "Khu vực có vốn đầu tư nước ngoài",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "So với cùng kỳ",
+      "giaTri": 0,
+      "loai": "Khu vực có vốn đầu tư nước ngoài",
+      "quy": "Q1/2026"
+     }
+    ],
+    "KIM_NGACH_NK": [
+     {
+      "chiTieu": "Ước tính",
+      "giaTri": 0,
+      "loai": "Khu vực kinh tế trong nước",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "So với cùng kỳ",
+      "giaTri": 0,
+      "loai": "Khu vực kinh tế trong nước",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Ước tính",
+      "giaTri": 0,
+      "loai": "Khu vực có vốn đầu tư nước ngoài",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "So với cùng kỳ",
+      "giaTri": 0,
+      "loai": "Khu vực có vốn đầu tư nước ngoài",
+      "quy": "Q1/2026"
+     }
+    ],
+    "CHI_SO_KINH_TE": [
+     {
+      "chiTieu": "Chỉ số giá tiêu dùng",
+      "giaTri": 0,
+      "loai": "Chỉ số giá tiêu dùng",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Chỉ số giá vàng",
+      "giaTri": 0,
+      "loai": "Chỉ số giá vàng",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Chỉ số giá đô la Mỹ",
+      "giaTri": 0,
+      "loai": "Chỉ số giá đô la Mỹ",
+      "quy": "Q1/2026"
+     }
+    ],
+    "THU_NGAN_SACH": [
+     {
+      "chiTieu": "Thu nội địa",
+      "giaTri": 0,
+      "loai": "Kỳ này",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Thu nội địa",
+      "giaTri": 0,
+      "loai": "Kỳ trước",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Thu từ dầu thô",
+      "giaTri": 0,
+      "loai": "Kỳ này",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Thu từ dầu thô",
+      "giaTri": 0,
+      "loai": "Kỳ trước",
+      "quy": "Q1/2025"
+     },
+     {
+      "chiTieu": "Thu từ hoạt động xuất nhập khẩu",
+      "giaTri": 0,
+      "loai": "Kỳ này",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Thu từ hoạt động xuất nhập khẩu",
+      "giaTri": 0,
+      "loai": "Kỳ trước",
+      "quy": "Q1/2025"
+     },
+     {
+      "chiTieu": "Thu viện trợ",
+      "giaTri": 0,
+      "loai": "Kỳ này",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Thu viện trợ",
+      "giaTri": 0,
+      "loai": "Kỳ trước",
+      "quy": "Q1/2025"
+     }
+    ],
+    "CHI_NGAN_SACH_DIA_PHUONG": [
+     {
+      "chiTieu": "Tổng chi NS ĐP",
+      "giaTri": 0,
+      "loai": "Kỳ này",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Tổng chi NS ĐP",
+      "giaTri": 0,
+      "loai": "Kỳ trước",
+      "quy": "Q1/2025"
+     },
+     {
+      "chiTieu": "Chi đầu tư phát triển",
+      "giaTri": 0,
+      "loai": "Kỳ này",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Chi đầu tư phát triển",
+      "giaTri": 0,
+      "loai": "Kỳ trước",
+      "quy": "Q1/2025"
+     },
+     {
+      "chiTieu": "Chi phát triển thường xuyên",
+      "giaTri": 0,
+      "loai": "Kỳ này",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Chi phát triển thường xuyên",
+      "giaTri": 0,
+      "loai": "Kỳ trước",
+      "quy": "Q1/2025"
+     },
+     {
+      "chiTieu": "Chi trả nợ lãi",
+      "giaTri": 0,
+      "loai": "Kỳ này",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Chi trả nợ lãi",
+      "giaTri": 0,
+      "loai": "Kỳ trước",
+      "quy": "Q1/2025"
+     },
+     {
+      "chiTieu": "Chi bổ sung quỹ dự trữ tài chính",
+      "giaTri": 0,
+      "loai": "Kỳ này",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Chi bổ sung quỹ dự trữ tài chính",
+      "giaTri": 0,
+      "loai": "Kỳ trước",
+      "quy": "Q1/2025"
+     },
+     {
+      "chiTieu": "Các nhiệm vụ chi khác",
+      "giaTri": 0,
+      "loai": "Kỳ này",
+      "quy": "Q1/2026"
+     },
+     {
+      "chiTieu": "Các nhiệm vụ chi khác",
+      "giaTri": 0,
+      "loai": "Kỳ trước",
+      "quy": "Q1/2025"
+     }
+    ]
+   }
+  }
+ }
+};
+
+/* ===== js\features\stc-demo-data.js ===== */
+/* ============================== SỞ TÀI CHÍNH — DỮ LIỆU THỬ (CHỈ DÙNG KHI PHÁT TRIỂN) ==============================
+   Chỉ được nạp khi mở web với ?stcdemo=1 (xem stc-data.js). Đây là số TỰ ĐẶT để kiểm tra giao diện, KHÔNG PHẢI số liệu
+   thật của Sở Tài chính; giao diện luôn hiện banner "DỮ LIỆU MẪU" khi ở chế độ này. Dòng dữ liệu đúng dạng API thật
+   ({chiTieu, giaTri, loai, quy}, đúng nhãn API) nên cũng kiểm thử luôn các hàm nhận diện dòng.
+   Có 2 kỳ: 2026-1 (đủ số) và 2026-2 (số khác, riêng API khách du lịch toàn 0 để thử trạng thái "Chưa có số"). */
+(function () {
+  function build(q, f, bump, zeroDl) {
+    const cur = 'Q' + q + '/2026', prv = 'Q' + q + '/2025';
+    const r = (chiTieu, giaTri, loai, quy) => ({ chiTieu: chiTieu, giaTri: giaTri, loai: loai, quy: quy });
+    const S = (v) => Math.round(v * f);      // số tiền: nhân hệ số kỳ
+    const I = (v) => Math.round((v + bump) * 10) / 10; // chỉ số: cộng độ lệch kỳ
+    const D = {};
+
+    D.THU_NGAN_SACH = [];
+    [['Thu nội địa', 62400, 55200], ['Thu từ dầu thô', 0, 0], ['Thu từ hoạt động xuất nhập khẩu', 9800, 8700], ['Thu viện trợ', 120, 95]].forEach((t, i) => {
+      D.THU_NGAN_SACH.push(r(t[0], S(t[1]), 'Kỳ này', cur));
+      /* Cố ý lặp lại lỗi của API thật: dòng "Thu nội địa / Kỳ trước" mang quy = kỳ này */
+      D.THU_NGAN_SACH.push(r(t[0], t[2], 'Kỳ trước', i === 0 ? cur : prv));
+    });
+    D.CHI_NGAN_SACH_DIA_PHUONG = [];
+    [['Tổng chi NS ĐP', 28600, 24100], ['Chi đầu tư phát triển', 11200, 8500], ['Chi phát triển thường xuyên', 15900, 14600], ['Chi trả nợ lãi', 620, 540], ['Chi bổ sung quỹ dự trữ tài chính', 12, 10], ['Các nhiệm vụ chi khác', 868, 450]].forEach((t) => {
+      D.CHI_NGAN_SACH_DIA_PHUONG.push(r(t[0], S(t[1]), 'Kỳ này', cur));
+      D.CHI_NGAN_SACH_DIA_PHUONG.push(r(t[0], t[2], 'Kỳ trước', prv));
+    });
+    D.VON_DAU_TU = [['Vốn nhà nước', 21500], ['Vốn ngoài nhà nước', 27800], ['Vốn đầu tư trực tiếp nước ngoài', 4300]]
+      .map((t) => r('Vốn đầu tư phát triển toàn xã hội thực hiện theo giá hiện hành', S(t[1]), t[0], cur));
+    D.VON_NSNN_DIA_PHUONG = [['Vốn ngân sách Nhà nước cấp thành phố', 9100], ['Vốn ngân sách Nhà nước cấp xã', 3900]]
+      .map((t) => r(t[0], S(t[1]), 'Vốn ngân sách Nhà nước cấp', cur));
+    D.DA_TRONG_DIEM = [['Nhóm 10 dự án, công trình', 20], ['Dự án 07 cầu vượt sông Hồng', 30], ['Các tuyến đường Vành đai và Giao thông trọng điểm', 10], ['Quy hoạch và Thể chế phát triển Thủ đô', 45], ['Xử lý các dự án ngoài ngân sách chậm triển khai', 50]]
+      .map((t) => r(t[0] + ' - Tiến độ hoàn thành', t[1] + (q - 1) * 5, t[0], cur));
+    D.CHI_SO_SXCN = [['Toàn ngành công nghiệp', 108.4], ['Khai khoáng', 96.2], ['Công nghiệp chế biến, chế tạo', 109.7], ['Sản xuất và phân phối điện, khí đốt, hơi nước và điều hoà không khí', 106.1], ['Cung cấp nước, hoạt động quản lý và xử lý rác thải, nước thải', 103.5]]
+      .map((t) => r(t[0], I(t[1]), t[0], cur));
+    D.TONG_HANG_BAN_RA = [['Nhà nước', 96000], ['Ngoài nhà nước', 985000], ['Khu vực có vốn đầu tư nước ngoài', 74000]]
+      .map((t) => r('Tổng mức bán ra và doanh thu dịch vụ', S(t[1]), t[0], cur));
+    D.TONG_HANG_BAN_LE = [['Nhà nước', 48000], ['Ngoài nhà nước', 232000], ['Khu vực có vốn đầu tư nước ngoài', 40000]]
+      .map((t) => r('Tổng mức bán lẻ và doanh thu dịch vụ', S(t[1]), t[0], cur));
+    D.DOANH_THU_VAN_TAI = [];
+    [['Vận tải hành khách', 12400, 112.3], ['Vận tải hàng hóa', 26800, 108.9], ['Dịch vụ kho bãi và hỗ trợ vận tải', 18900, 115.6], ['Bưu chính, chuyển phát', 5200, 121.4]].forEach((t) => {
+      D.DOANH_THU_VAN_TAI.push(r(t[0] + ' Ước tính', S(t[1]), t[0], cur));
+      D.DOANH_THU_VAN_TAI.push(r(t[0] + ' so với cùng kỳ', I(t[2]), t[0], cur));
+    });
+    D.KHACH_DU_LICH_HN = [];
+    [['Khách nội địa', 4850, 109.2], ['Khách quốc tế', 1720, 128.5]].forEach((t) => {
+      D.KHACH_DU_LICH_HN.push(r('Ước tính quý', zeroDl ? 0 : S(t[1]), t[0], cur));
+      D.KHACH_DU_LICH_HN.push(r('So với cùng kỳ', zeroDl ? 0 : I(t[2]), t[0], cur));
+    });
+    ['KIM_NGACH_XK', 'KIM_NGACH_NK'].forEach((c) => {
+      const vals = c === 'KIM_NGACH_XK' ? [['Khu vực kinh tế trong nước', 1450, 104.2], ['Khu vực có vốn đầu tư nước ngoài', 3100, 112.7]] : [['Khu vực kinh tế trong nước', 2700, 101.8], ['Khu vực có vốn đầu tư nước ngoài', 2250, 109.4]];
+      D[c] = [];
+      vals.forEach((t) => { D[c].push(r('Ước tính', S(t[1]), t[0], cur)); D[c].push(r('So với cùng kỳ', I(t[2]), t[0], cur)); });
+    });
+    D.CHI_SO_KINH_TE = [['Chỉ số giá tiêu dùng', 103.4], ['Chỉ số giá vàng', 187.2], ['Chỉ số giá đô la Mỹ', 101.9]]
+      .map((t) => r(t[0], I(t[1]), t[0], cur));
+    D.SP_DIA_BAN = [];
+    [['Nông, lâm nghiệp và thủy sản', 6300, 5900], ['Công nghiệp và xây dựng', 74500, 68100], ['Dịch vụ', 152800, 140200], ['Thuế sản phẩm trừ trợ cấp sản phẩm', 21400, 19600]].forEach((t) => {
+      D.SP_DIA_BAN.push(r('Theo giá hiện hành', S(t[1]), t[0], cur));
+      D.SP_DIA_BAN.push(r('Theo giá so sánh cùng kỳ năm trước', S(t[2]), t[0], cur));
+    });
+    return D;
+  }
+  window.STC_DEMO_SNAPSHOT = {
+    version: 1,
+    demo: true,
+    periods: {
+      '2026-1': { year: 2026, period: 1, importedAt: '2026-09-21T09:00:00.000Z', source: 'DỮ LIỆU MẪU tự đặt — không phải số liệu thật', data: build(1, 1, 0, false) },
+      '2026-2': { year: 2026, period: 2, importedAt: '2026-09-21T09:00:00.000Z', source: 'DỮ LIỆU MẪU tự đặt — không phải số liệu thật', data: build(2, 1.07, 1.2, true) }
+    }
+  };
+})();
+
+/* ===== js\features\stc-data.js ===== */
+/* ============================== SỞ TÀI CHÍNH — LỚP DỮ LIỆU ==============================
+   Đọc bản chụp API (window.STC_SNAPSHOT, sinh bởi stc-tool.js) và dựng cây chỉ tiêu theo STC_INDICATORS (stc-config.js).
+   - Mỗi API có cách đọc dòng riêng (match/measure trong cấu hình); nhận diện theo nhãn chuẩn hoá, KHÔNG dựa vào `quy`
+     (API THU_NGAN_SACH có dòng "Kỳ trước" mang quy = Q1/2026 — dữ liệu sai phía nguồn).
+   - Số tính thêm (tổng, % tăng giảm, tỷ trọng, đóng góp) chỉ tính từ số API; không bao giờ tự điền số.
+   - Chế độ dữ liệu thử ?stcdemo=1: nạp js/features/stc-demo-data.js (dữ liệu tự đặt, luôn có banner). Mặc định TẮT. */
+
+let STC_DEMO_ON = ((typeof location !== 'undefined') && /[?&]stcdemo=1(&|$)/.test(location.search || '')) || (typeof STC_DEMO_DEFAULT !== 'undefined' && STC_DEMO_DEFAULT === true);
+let STC_DEMO_LOADING = false;
+let STC_LOAD_ERR = false;   // true khi lần nạp nguồn số liệu gần nhất thất bại (không tải được tệp)
+const STC_CACHE = {};
+
+/* ---------- Định dạng (vi-VN: dấu chấm nghìn, dấu phẩy thập phân) ---------- */
+function stcFmt(n, d) {
+  if (n == null || !isFinite(n)) return '—';
+  d = d || 0;
+  const p = Math.abs(n).toFixed(d).split('.');
+  const g = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return (n < 0 && Number(Math.abs(n).toFixed(d)) !== 0 ? '−' : '') + g + (p[1] ? ',' + p[1] : '');
+}
+function stcSgn(n, d) {
+  if (n == null || !isFinite(n)) return '—';
+  d = d == null ? 1 : d;
+  const r = Number(Math.abs(n).toFixed(d));
+  return (r === 0 ? '' : n > 0 ? '+' : '−') + stcFmt(Math.abs(n), d);
+}
+function stcNorm(s) { return String(s == null ? '' : s).normalize('NFC').toLowerCase().replace(/\s+/g, ' ').trim(); }
+
+/* ---------- Bản chụp và kỳ ---------- */
+function stcSnapshotObj() {
+  if (STC_DEMO_ON) return (typeof window !== 'undefined' && window.STC_DEMO_SNAPSHOT) || null;
+  return (typeof window !== 'undefined' && window.STC_SNAPSHOT) || null;
+}
+/* Trả về Promise: khi ở chế độ thử thì đợi nạp file dữ liệu thử; ngược lại xong ngay. */
+function stcEnsureReady() {
+  if (!STC_DEMO_ON || (typeof window !== 'undefined' && window.STC_DEMO_SNAPSHOT)) return Promise.resolve();
+  return new Promise((resolve) => {
+    if (STC_DEMO_LOADING) { const t = setInterval(() => { if (window.STC_DEMO_SNAPSHOT) { clearInterval(t); resolve(); } }, 50); return; }
+    STC_DEMO_LOADING = true;
+    const s = document.createElement('script');
+    s.src = 'js/features/stc-demo-data.js';
+    s.onload = () => { STC_LOAD_ERR = false; Object.keys(STC_CACHE).forEach((k) => delete STC_CACHE[k]); resolve(); };
+    s.onerror = () => { STC_LOAD_ERR = true; resolve(); };
+    document.head.appendChild(s);
+  });
+}
+/* Bật/tắt dữ liệu mẫu trong lúc đang chạy (nút trong popup). Trả về Promise; tải lại trang thì về mặc định. */
+function stcSetDemo(on) {
+  STC_DEMO_ON = !!on;
+  Object.keys(STC_CACHE).forEach((k) => delete STC_CACHE[k]);
+  return stcEnsureReady();
+}
+/* Nạp lại nguồn số liệu (bản chụp thật hoặc dữ liệu mẫu, tuỳ chế độ) bằng cách tải lại tệp; dùng cho nút "Tải lại"/"Thử lại".
+   Trả về Promise, luôn resolve; kết quả xem stcSnapshotObj() và STC_LOAD_ERR. */
+function stcReloadSource() {
+  Object.keys(STC_CACHE).forEach((k) => delete STC_CACHE[k]);
+  if (typeof document === 'undefined') return Promise.resolve();
+  const file = STC_DEMO_ON ? 'js/features/stc-demo-data.js' : 'js/data/stc-snapshot.js';
+  return new Promise((resolve) => {
+    Array.prototype.slice.call(document.querySelectorAll('script[src]')).forEach((s) => { if ((s.getAttribute('src') || '').split('?')[0] === file) s.parentNode.removeChild(s); });
+    const s = document.createElement('script');
+    s.src = file + '?t=' + Date.now();
+    s.onload = () => { STC_LOAD_ERR = false; resolve(); };
+    s.onerror = () => { STC_LOAD_ERR = true; resolve(); };
+    document.head.appendChild(s);
+  });
+}
+function stcPeriods() {
+  const snap = stcSnapshotObj();
+  if (!snap || !snap.periods) return [];
+  return Object.keys(snap.periods).map((k) => {
+    const p = snap.periods[k];
+    return { key: k, year: p.year, period: p.period, importedAt: p.importedAt, source: p.source };
+  }).sort((a, b) => (b.year - a.year) || (b.period - a.period));
+}
+function stcLatestPeriod() { const l = stcPeriods(); return l.length ? l[0] : null; }
+function stcHasPeriod(y, p) { return stcPeriods().some((x) => x.year === y && x.period === p); }
+
+/* ---------- Dựng cây chỉ tiêu ---------- */
+function stcApplyRows(n, keys, api, match, measure, ctx) {
+  const set = {};
+  keys.forEach((k) => { set[stcNorm(k)] = true; });
+  (ctx.data[api] || []).forEach((r, i) => {
+    const field = match === 'chiTieu' ? r.chiTieu : r.loai;
+    if (!set[stcNorm(field)]) return;
+    (ctx.used[api] = ctx.used[api] || {})[i] = true;
+    ctx.matched++;
+    n.rows.push(r);
+    const v = Number(r.giaTri);
+    if (measure === 'period') {
+      const l = stcNorm(r.loai);
+      if (l === 'kỳ này') n.now = v; else if (l === 'kỳ trước') n.prev = v;
+      else { ctx.odd.push(r.chiTieu + ' / ' + r.loai); }
+    } else if (measure === 'ck') {
+      if (/so với cùng kỳ/.test(stcNorm(r.chiTieu))) n.ck = v; else n.now = v;
+    } else if (measure === 'cmp') {
+      if (/giá so sánh/.test(stcNorm(r.chiTieu))) n.cmp = v; else n.now = v;
+    } else n.now = v;
+  });
+}
+
+function stcBuildNode(spec, inh, ctx) {
+  const api = spec.api || inh.api, match = spec.match || inh.match, measure = spec.measure || inh.measure;
+  const kind = spec.kind || ((inh.kind === 'idx' || inh.kind === 'pct') ? inh.kind : 'leaf');
+  const n = {
+    id: spec.id, label: spec.label, unit: spec.unit || inh.unit, kind: kind,
+    neutral: spec.neutral != null ? spec.neutral : !!inh.neutral,
+    color: spec.color, api: api,
+    apiLabel: (spec.keys && spec.keys[0]) || (spec.totalKeys && spec.totalKeys[0]) || spec.label,
+    now: null, prev: null, ck: null, cmp: null, derivedCk: false, rows: [], kids: []
+  };
+  const own = spec.totalKeys || spec.keys;
+  if (own) stcApplyRows(n, own, api, match, measure, ctx);
+  (spec.kids || []).forEach((k) => {
+    n.kids.push(stcBuildNode(k, { api: api, match: match, measure: measure, unit: n.unit, neutral: n.neutral, kind: n.kind }, ctx));
+  });
+  if (n.kids.length && n.kind === 'add') {
+    if (n.now == null && n.kids.every((k) => k.now != null)) n.now = n.kids.reduce((a, k) => a + k.now, 0);
+    if (n.prev == null && n.kids.every((k) => k.prev != null)) n.prev = n.kids.reduce((a, k) => a + k.prev, 0);
+    /* Tổng của các thành phần chỉ có chỉ số cùng kỳ: suy ra mức tăng chung từ các thành phần (giả định chỉ số lấy 100 làm mốc) */
+    if (n.prev == null && n.ck == null && n.now != null && n.kids.every((k) => k.ck > 0 && k.now != null)) {
+      const pd = n.kids.reduce((a, k) => a + k.now / (k.ck / 100), 0);
+      if (pd > 0) { n.ck = (n.now / pd) * 100; n.derivedCk = true; }
+    }
+  }
+  return n;
+}
+
+function stcWalk(n, fn) { fn(n); (n.kids || []).forEach((k) => stcWalk(k, fn)); }
+function stcCollectApis(spec, out) {
+  if (spec.api) out[spec.api] = true;
+  (spec.kids || []).forEach((k) => stcCollectApis(k, out));
+  return out;
+}
+
+function stcBuildIndicator(spec, data) {
+  const ctx = { data: data, used: {}, matched: 0, odd: [] };
+  const root = stcBuildNode(spec, {}, ctx);
+  root.group = spec.group; root.view = spec.view;
+  const apis = Object.keys(stcCollectApis(spec, {}));
+  root.apis = apis;
+  const unmatched = ctx.odd.slice();
+  apis.forEach((api) => {
+    if (!Array.isArray(data[api])) { unmatched.push('thiếu API ' + api); return; }
+    data[api].forEach((r, i) => { if (!(ctx.used[api] && ctx.used[api][i])) unmatched.push(r.chiTieu + ' / ' + r.loai); });
+  });
+  root.unmatched = unmatched;
+  const vals = [];
+  stcWalk(root, (n) => { ['now', 'prev', 'ck', 'cmp'].forEach((f) => { if (n[f] != null && !n.derivedCk) vals.push(n[f]); }); });
+  root.state = ctx.matched === 0 ? 'missing' : (vals.every((v) => v === 0) ? 'nodata' : 'ok');
+  root.warns = [];
+  return root;
+}
+
+/* ---------- Phép tính từ số API ---------- */
+/* Hai cách so sánh (từ 2026-10-02 hiện cả hai):
+   - SO KỲ TRƯỚC = so với quý liền trước (Q3/2026 so Q2/2026). API không có cột này → lấy "kỳ này" trong bản chụp của quý
+     liền trước (n.kq). Chưa nạp bản chụp quý đó thì để trống.
+   - SO CÙNG KỲ = so với cùng quý năm trước (Q3/2026 so Q3/2025). Lấy theo thứ tự: dòng "Kỳ trước" của API (n.prev — bản chụp
+     thật cho thấy dòng này mang quy = cùng quý năm trước, ví dụ Q1/2026 ↔ Q1/2025, nên thực chất là cùng kỳ); bản chụp cùng
+     quý năm trước; hoặc suy từ chỉ số so cùng kỳ của API (n.ck, giả định lấy 100 làm mốc).
+   Chỉ tiêu dạng chỉ số (idx: 100 = bằng cùng kỳ) thì so cùng kỳ = chỉ số − 100; so kỳ trước = chênh lệch chỉ số (điểm).
+   Chỉ tiêu dạng tỷ lệ % (pct: tiến độ dự án) thì cả hai cách so đều là chênh lệch điểm %. */
+function stcIsIdx(n, parent) { return n.kind === 'idx' || !!(parent && parent.kind === 'idx'); }
+function stcPrevQ(y, p) { return p > 1 ? { year: y, period: p - 1 } : { year: y - 1, period: 4 }; }
+/* Giá trị cùng kỳ năm trước (dùng cho cầu nối, xu hướng, đóng góp). */
+function stcPrev(n) {
+  if (n.cq != null) return n.cq;
+  if (n.prev != null) return n.prev;
+  if (n.ck > 0 && n.now != null) return n.now / (n.ck / 100);
+  return null;
+}
+/* Mức thay đổi so với quý liền trước. null nếu không tính được. */
+function stcDeltaKq(n) {
+  if (n.now == null || n.kq == null) return null;
+  if (n.kind === 'pct' || n.kind === 'idx') return n.now - n.kq;
+  return n.kq > 0 ? (n.now / n.kq - 1) * 100 : null;
+}
+/* Mức thay đổi so với cùng kỳ năm trước. null nếu không tính được. */
+function stcDeltaCq(n) {
+  if (n.kind === 'idx') return n.now > 0 ? n.now - 100 : null;
+  if (n.kind === 'pct') return n.now != null && n.cq != null ? n.now - n.cq : null;
+  if (n.now != null && n.cq > 0) return (n.now / n.cq - 1) * 100;
+  if (n.ck > 0) return n.ck - 100;
+  return null;
+}
+/* Đơn vị của mức thay đổi: '%' (tăng/giảm tương đối), 'điểm %' (chênh lệch tỷ lệ), 'điểm' (chênh lệch chỉ số). */
+function stcDeltaUnit(n, which) {
+  if (n.kind === 'pct') return 'điểm %';
+  if (n.kind === 'idx') return which === 'kq' ? 'điểm' : '%';
+  return '%';
+}
+/* Giữ tên cũ: % so cùng kỳ (xu hướng, xuất Excel, thẻ xem trước dùng). */
+function stcYoy(n) { return stcDeltaCq(n); }
+function stcRefText() { return 'so cùng kỳ'; }
+
+/* Gắn số so sánh cho mọi mục của một kỳ: kq = kỳ này của quý liền trước, cq = cùng kỳ năm trước (xem chú thích phía trên). */
+function stcAttachCompare(res) {
+  const pq = stcPrevQ(res.year, res.period);
+  const rK = stcBuildPeriod(pq.year, pq.period), rC = stcBuildPeriod(res.year - 1, res.period);
+  const valIn = (r, id) => { const x = r && r.byId[id]; return x && r.rootOf[id].state === 'ok' && x.now != null ? x.now : null; };
+  const kqLbl = 'Q' + pq.period + '/' + pq.year, cqLbl = 'Q' + res.period + '/' + (res.year - 1);
+  res.inds.forEach((ind) => stcWalk(ind, (n) => {
+    n.kqLbl = kqLbl; n.cqLbl = cqLbl;
+    n.kq = valIn(rK, n.id);
+    n.cq = null; n.cqSrc = null;
+    if (n.prev != null) { n.cq = n.prev; n.cqSrc = 'api'; }
+    else if (valIn(rC, n.id) != null) { n.cq = valIn(rC, n.id); n.cqSrc = 'snap'; }
+    else if (n.kind !== 'idx' && n.ck > 0 && n.now != null) { n.cq = n.now / (n.ck / 100); n.cqSrc = 'ck'; }
+  }));
+}
+
+/* ---------- Kiểm tra chất lượng số liệu ---------- */
+function stcCheckQuality(res) {
+  const ck = STC_ASSUME.ckRange;
+  res.inds.forEach((ind) => {
+    if (ind.unmatched.length) ind.warns.push(ind.unmatched.length + ' dòng API không nhận diện được (' + ind.unmatched.slice(0, 2).join('; ') + (ind.unmatched.length > 2 ? '…' : '') + ')');
+    if (ind.state !== 'ok') return;
+    /* Dòng "Tổng" của API phải bằng tổng các khoản */
+    if (ind.kind === 'add' && ind.kids.length && ind.now != null && ind.kids.every((k) => k.now != null)) {
+      const s = ind.kids.reduce((a, k) => a + k.now, 0);
+      if (Math.abs(s - ind.now) > 0.5) ind.warns.push('Tổng ' + ind.kids.length + ' khoản (' + stcFmt(s) + ') lệch ' + stcFmt(s - ind.now) + ' so với dòng tổng của API (' + stcFmt(ind.now) + ')');
+    }
+    /* Chỉ số nằm ngoài khoảng giả định */
+    stcWalk(ind, (n) => {
+      const list = [];
+      if (n.kind === 'idx' && n.now > 0) list.push(n.now);
+      if (n.ck > 0 && !n.derivedCk) list.push(n.ck);
+      list.forEach((v) => { if (v < ck[0] || v > ck[1]) ind.warns.push('"' + n.label + '": giá trị ' + stcFmt(v, 1) + ' ngoài khoảng dự kiến ' + ck[0] + '–' + ck[1] + ' của chỉ số lấy 100 làm mốc; API có thể đang trả % tăng, cần xác nhận với Sở Tài chính'); });
+    });
+  });
+  /* Bán lẻ là một phần của bán ra */
+  const bra = res.byId.bra, ble = res.byId.ble;
+  if (bra && ble && bra.state === 'ok' && ble.state === 'ok' && bra.now != null && ble.now != null && ble.now > bra.now) {
+    ble.warns.push('Tổng mức bán lẻ (' + stcFmt(ble.now) + ') lớn hơn tổng mức bán ra (' + stcFmt(bra.now) + '), trong khi bán lẻ là một phần của bán ra');
+  }
+}
+
+/* ---------- Dựng toàn bộ một kỳ ---------- */
+function stcBuildPeriod(year, period) {
+  const key = (STC_DEMO_ON ? 'demo:' : '') + year + '-' + period;
+  if (STC_CACHE[key]) return STC_CACHE[key];
+  const snap = stcSnapshotObj();
+  const pd = snap && snap.periods && snap.periods[year + '-' + period];
+  if (!pd) return null;
+  const res = { year: year, period: period, importedAt: pd.importedAt, source: pd.source, demo: STC_DEMO_ON, inds: [], byId: {}, rootOf: {}, groups: [] };
+  STC_INDICATORS.forEach((spec) => {
+    const ind = stcBuildIndicator(spec, pd.data || {});
+    res.inds.push(ind);
+    stcWalk(ind, (n) => { res.byId[n.id] = n; res.rootOf[n.id] = ind; });
+  });
+  STC_GROUPS.forEach((g) => { res.groups.push({ id: g.id, label: g.label, inds: g.inds.map((id) => res.byId[id]).filter(Boolean) }); });
+  stcCheckQuality(res);
+  STC_CACHE[key] = res;      // đặt cache TRƯỚC khi gắn số so sánh: stcAttachCompare chỉ dựng các kỳ cũ hơn nên không lặp vòng
+  stcAttachCompare(res);
+  return res;
+}
+
+/* Chuỗi hiển thị thời điểm chụp: "21/09/2026 15:22" */
+function stcStampText(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '—';
+  const p2 = (x) => (x < 10 ? '0' : '') + x;
+  return p2(d.getDate()) + '/' + p2(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
+}
+
+/* Chế độ thử: nạp sớm dữ liệu thử, xong thì vẽ lại lưới chỉ tiêu (thẻ xem trước dùng bản chụp). */
+if (STC_DEMO_ON && typeof document !== 'undefined') {
+  stcEnsureReady().then(() => { try { if (typeof renderIndicators === 'function') renderIndicators(); } catch (e) { /* bỏ qua */ } });
+}
+
+/* ===== js\features\dashboard-stc.js ===== */
+/* ============================== SỞ TÀI CHÍNH — FORM CHỈ TIÊU MỚI ==============================
+   Form riêng cho Sở Tài chính, hiển thị trong popup chuẩn của IOC (#modal), 6 màn hình: Trang chủ, 4 màn nhóm, Chi tiết theo cấp bậc (kiểu A).
+   Dữ liệu: stc-data.js (bản chụp API). Không có số nào gõ cứng ở đây: mọi con số đến từ bản chụp (hoặc dữ liệu thử ?stcdemo=1).
+   Mọi lớp CSS có tiền tố stc- (css/stc.css). Cần: esc() từ helpers.js. */
+
+const STC_UI = { open: false, screen: 'home', group: 'ns', ind: 'chi', pick: null, focus: null, dd: null, zoom: null, role: null, year: null, period: null, loading: false, error: false };
+const STC_PAL = ['var(--s1)', 'var(--s2)', 'var(--s3)', 'var(--s4)', 'var(--s5)'];
+const STC_ICON_INFO = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>';
+const STC_ICON_WARN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></svg>';
+const STC_ICON_DB = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>';
+const STC_ICON_REFRESH = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>';
+const STC_ICON_DL = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>';
+const STC_ICON_ZOOMIN = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+const STC_ICON_ZOOMOUT = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
+
+/* ---------- Tiện ích hiển thị ---------- */
+function stcE(s) { return typeof esc === 'function' ? esc(s) : String(s == null ? '' : s); }
+function stcRes() { return (STC_UI.year && STC_UI.period) ? stcBuildPeriod(STC_UI.year, STC_UI.period) : null; }
+function stcQ(y, p) { return 'Q' + p + '/' + y; }
+function stcInd(res, id) { return res.byId[id]; }
+function stcShare(n, parent) { return (parent && parent.kind === 'add' && parent.now > 0 && n.now != null) ? (n.now / parent.now) * 100 : null; }
+function stcVal(n) {
+  if (n.now == null) return '—';
+  if (n.kind === 'pct') return stcFmt(n.now) + '%';
+  if (n.kind === 'idx') return stcFmt(n.now, 1);
+  return stcFmt(n.now);
+}
+/* Chú thích khi rê chuột vào một mũi tên tăng/giảm. which: 'kq' = so kỳ trước (quý liền trước), 'cq' = so cùng kỳ năm trước. */
+function stcDlTip(n, which, v) {
+  const isK = which === 'kq', u = stcDeltaUnit(n, which), base = isK ? n.kq : n.cq, lbl = isK ? n.kqLbl : n.cqLbl;
+  const L = [(isK ? 'So kỳ trước' : 'So cùng kỳ') + ': so với ' + (isK ? 'quý liền trước' : 'cùng quý năm trước') + (lbl ? ' (' + lbl + ')' : '') + '.'];
+  if (v == null) {
+    L.push(isK ? (n.kind === 'idx' && n.now > 0 ? 'Chưa có số của quý liền trước nên chưa so được.' : 'Chưa có số liệu của quý liền trước nên chưa so được.') : 'Nguồn số liệu chưa có số cùng kỳ năm trước cho mục này.');
+    return L.join('\n');
+  }
+  const fv = (x) => (n.kind === 'pct' ? stcFmt(x) + '%' : stcFmt(x, n.kind === 'idx' ? 1 : Math.round(x) === x ? 0 : 1));
+  const other = isK ? 'quý trước' : 'cùng kỳ';
+  if (n.kind === 'idx' && !isK) L.push('Chỉ số đã lấy cùng kỳ năm trước làm mốc 100, nên mức tăng = ' + stcFmt(n.now, 1) + ' − 100 = ' + stcSgn(v, 1) + '%.');
+  else if (u === '%' && base != null) L.push('Cách tính: (kỳ này ÷ ' + other + ' − 1) × 100 = (' + fv(n.now) + ' ÷ ' + fv(base) + ' − 1) × 100 = ' + stcSgn(v, 1) + '%.');
+  else if (u === '%') L.push('Lấy theo chỉ số so cùng kỳ của nguồn số liệu: ' + stcFmt(n.ck, 1) + ' − 100 = ' + stcSgn(v, 1) + '%.');
+  else L.push('Đơn vị "' + u + '": lấy kỳ này TRỪ thẳng ' + other + ' = ' + fv(n.now) + ' − ' + fv(base) + ' = ' + stcSgn(v, 1) + ' ' + u + '.' + (u === 'điểm %' ? ' Không phải tăng ' + stcFmt(Math.abs(v), 1) + '%.' : ''));
+  if (!isK && n.cqSrc === 'ck') L.push('Số cùng kỳ được suy ra từ chỉ số so cùng kỳ (giả định chỉ số lấy 100 làm mốc).');
+  L.push(n.neutral ? 'Tăng hay giảm không tự thân tốt/xấu nên tô màu trung tính.' : 'Tăng tô xanh, giảm tô đỏ.');
+  return L.join('\n');
+}
+/* Một mũi tên tăng/giảm. withRef: ghi kèm chữ "so kỳ trước"/"so cùng kỳ". Không tính được thì hiện "—" (vẫn có chú thích). */
+function stcDlOne(n, which, withRef) {
+  const v = which === 'kq' ? stcDeltaKq(n) : stcDeltaCq(n);
+  const ref = withRef ? ' <span class="stc-ref">' + (which === 'kq' ? 'so kỳ trước' : 'so cùng kỳ') + '</span>' : '';
+  const tip = ' title="' + stcE(stcDlTip(n, which, v)) + '"';
+  if (v == null) return '<span class="stc-dl na"' + tip + '>—' + ref + '</span>';
+  const cls = v > 0.0499 ? 'up' : v < -0.0499 ? 'down' : 'flat';
+  const neutral = n.neutral && cls !== 'flat' ? ' n' : '';
+  const u = stcDeltaUnit(n, which);
+  const txt = cls === 'flat' ? 'Không đổi' : stcFmt(Math.abs(v), 1) + (u === '%' ? '%' : ' ' + u);
+  return '<span class="stc-dl ' + cls + neutral + '"' + tip + '>' + txt + ref + '</span>';
+}
+/* Mũi tên tăng/giảm: hiện CẢ HAI cách so (kỳ trước và cùng kỳ), xếp chồng. Xanh/đỏ chỉ khi chỉ tiêu có "chiều tốt";
+   chi, nhập khẩu, giá dùng màu trung tính. Không cách nào tính được thì trả ''. */
+function stcDl(n, withRef) {
+  if (stcDeltaKq(n) == null && stcDeltaCq(n) == null) return '';
+  return '<span class="stc-dlp">' + stcDlOne(n, 'kq', true) + stcDlOne(n, 'cq', true) + '</span>';
+}
+/* Có cột so sánh nào tính được trong danh sách mục không */
+function stcHasCmp(list) { return list.some((k) => stcDeltaKq(k) != null || stcDeltaCq(k) != null); }
+function stcBtnLnk(label, act) { return '<button type="button" class="stc-lnk" onclick="' + act + '">' + stcE(label) + '</button>'; }
+function stcEmptyBox(title, text) { return '<div class="stc-empty">' + STC_ICON_DB + '<b>' + stcE(title) + '</b><span style="font-size:12px;max-width:360px">' + stcE(text) + '</span></div>'; }
+function stcNote(html) { return '<div class="stc-note">' + STC_ICON_INFO + '<div>' + html + '</div></div>'; }
+
+/* Bản "khung" của chỉ tiêu chưa có số: giữ nguyên cấu trúc (nhãn, đơn vị, phân cấp), mọi giá trị = null để hiện "—".
+   Chỉ dùng để vẽ khung thiết kế; không bao giờ điền số thay thế. */
+function stcBlank(n) {
+  return Object.assign({}, n, { now: null, prev: null, ck: null, cmp: null, kq: null, cq: null, cqSrc: null, derivedCk: false, state: 'blank', kids: (n.kids || []).map(stcBlank) });
+}
+function stcNodataNote(res) {
+  return '<div class="stc-nodata">' + STC_ICON_DB + '<div><b>Chưa có số liệu từ Sở Tài chính.</b> API trả toàn bộ giá trị bằng 0 cho ' + stcQ(res.year, res.period) + ' nên các ô hiển thị "—"; form không điền số thay thế. Khi có số, khung này tự hiện biểu đồ.</div></div>';
+}
+function stcStateBody(ind, res) {
+  if (ind.state === 'nodata') return stcEmptyBox('Chưa có số liệu từ Sở Tài chính', 'API trả toàn bộ giá trị bằng 0 cho ' + stcQ(res.year, res.period) + ', nên form không vẽ biểu đồ rỗng.');
+  if (ind.state === 'missing') return stcEmptyBox('Không nhận diện được dữ liệu', 'Bản chụp không có dòng nào khớp với chỉ tiêu này (API ' + ind.apis.join(', ') + ').');
+  return '';
+}
+
+/* ---------- Đầu form: chip trạng thái, bộ chọn kỳ ---------- */
+function stcYears() {
+  const set = {};
+  stcPeriods().forEach((p) => { set[p.year] = true; });
+  const cy = new Date().getFullYear();
+  set[cy] = true; set[cy - 1] = true;
+  return Object.keys(set).map(Number).sort((a, b) => b - a);
+}
+/* Hộp chọn tự dựng (thay <select> gốc của trình duyệt để danh sách sổ xuống đúng giao diện IOC, cả 3 theme). */
+function stcDd(id, label, cur, opts, handler) {
+  const open = STC_UI.dd === id;
+  const cv = opts.find((o) => String(o.v) === String(cur));
+  const list = open ? '<div class="stc-ddl" role="listbox" aria-label="' + stcE(label) + '">' + opts.map((o) => {
+    const on = String(o.v) === String(cur);
+    return '<button type="button" role="option" aria-selected="' + on + '" class="stc-ddo' + (on ? ' on' : '') + (o.off ? ' off' : '') + '"' + (o.off ? ' disabled' : ' onclick="' + handler + '(' + o.v + ')"') + '><span>' + stcE(o.text) + '</span>' + (o.off ? '<em>chưa có</em>' : on ? '<i>✓</i>' : '') + '</button>';
+  }).join('') + '</div>' : '';
+  return '<div class="stc-dd' + (open ? ' open' : '') + '"><button type="button" class="stc-ddb" aria-haspopup="listbox" aria-expanded="' + open + '" onclick="stcDdToggle(\'' + id + '\')"><small>' + stcE(label) + '</small><b>' + stcE(cv ? cv.text : '—') + '</b><span class="stc-ddc"></span></button>' + list + '</div>';
+}
+function stcPeriodControls() {
+  const yOpts = stcYears().map((y) => ({ v: y, text: String(y) }));
+  const qOpts = [1, 2, 3, 4].map((q) => ({ v: q, text: 'Quý ' + q, off: !stcHasPeriod(STC_UI.year, q) }));
+  return stcDd('year', 'Năm', STC_UI.year, yOpts, 'stcSetYear') + stcDd('period', 'Kỳ', STC_UI.period, qOpts, 'stcSetPeriod');
+}
+function stcDdToggle(id) { STC_UI.dd = STC_UI.dd === id ? null : id; stcRerender(false); }
+function stcChips(res) {
+  let h = STC_DEMO_ON ? '<span class="stc-chip"><i></i>Nguồn: số mẫu tự đặt (không phải API)</span>' : '<span class="stc-chip"><i></i>Nguồn: Sở Tài chính Hà Nội (bản chụp API)</span>';
+  h += '<span class="stc-chip">Kỳ báo cáo: ' + stcE(res ? 'Quý ' + res.period + '/' + res.year : (STC_UI.year ? 'Quý ' + STC_UI.period + '/' + STC_UI.year : '—')) + '</span>';
+  if (res) h += '<span class="stc-chip">Số liệu chụp lúc ' + stcE(stcStampText(res.importedAt)) + '</span>';
+  else h += '<span class="stc-chip demo"><i></i>Chưa có bản chụp cho kỳ này</span>';
+  if (STC_DEMO_ON) h += '<span class="stc-chip demo"><i></i>DỮ LIỆU MẪU – không phải số liệu thật</span>';
+  return h;
+}
+function stcHeader(res, o) {
+  const back = o.back === 'home' ? stcBtnLnk('← Tổng quan', "stcGo('home')") : o.back && o.back.group ? stcBtnLnk('← ' + o.back.label, "stcGo('group','" + o.back.group + "')") : '';
+  const chips = STC_SHOW_CHIPS ? '<div class="stc-chips">' + stcChips(res) + '</div>' : '';
+  return '<div class="stc-toolbar"><div class="stc-tl">' + back + chips + '</div>' +
+    '<div class="stc-ctrls">' + stcPeriodControls() + '<button type="button" class="stc-btn" onclick="stcReload()" title="Tải lại nguồn số liệu (bản chụp API)">' + STC_ICON_REFRESH + 'Tải lại</button><button type="button" class="stc-btn' + (STC_DEMO_ON ? ' demoon' : '') + '" onclick="stcToggleDemo()" title="Bật/tắt dữ liệu mẫu để xem thiết kế; số mẫu không phải số liệu thật">' + (STC_DEMO_ON ? 'Tắt dữ liệu mẫu' : 'Xem dữ liệu mẫu') + '</button><button type="button" class="stc-btn primary" onclick="stcExport()"' + (res ? '' : ' disabled') + '>' + STC_ICON_DL + 'Xuất Excel</button></div></div>';
+}function stcFoot(res) {
+  return '<div class="stc-foot"><span>' + stcE(STC_ASSUME.unitNote) + '</span><span>' + (STC_DEMO_ON ? 'Nguồn: số mẫu tự đặt, không phải số liệu của Sở Tài chính' : 'Nguồn: API Sở Tài chính Hà Nội') + (res ? ' · ' + stcQ(res.year, res.period) : '') + '</span></div>';
+}
+function stcNoPeriodScreen(o) {
+  const latest = stcLatestPeriod();
+  return stcHeader(null, o) + '<div class="stc-card">' + stcEmptyBox('Chưa có bản chụp số liệu cho Quý ' + STC_UI.period + '/' + STC_UI.year,
+    latest ? 'Bản chụp gần nhất là Quý ' + latest.period + '/' + latest.year + '. Chọn kỳ đó ở bộ chọn phía trên, hoặc nạp thêm kỳ mới bằng "node stc-tool.js import" (xem STC_HUONG_DAN.md).' : 'Chưa nạp kỳ nào. Dùng "node stc-tool.js import" để nạp thư mục 14 file JSON của API (xem STC_HUONG_DAN.md).') + '</div>' + stcFoot(null);
+}
+
+/* ---------- Thẻ chỉ tiêu (khung chung) ---------- */
+function stcWarnBadge(ind) { return ind.warns.length ? '<span class="stc-bd warn" title="' + stcE(ind.warns.join(' | ')) + '">Cần đối soát</span>' : ''; }
+/* Nút phóng to/thu nhỏ một thẻ biểu đồ ra toàn màn hình popup (xem stcToggleZoom/stcApplyZoom). */
+function stcZoomBtn(id) {
+  const on = STC_UI.zoom === id;
+  return '<button type="button" class="stc-zoombtn" onclick="event.stopPropagation();stcToggleZoom(\'' + id + '\')" title="' + (on ? 'Thu nhỏ' : 'Phóng to toàn màn hình') + '" aria-label="' + (on ? 'Thu nhỏ' : 'Phóng to toàn màn hình') + '" aria-pressed="' + on + '">' + (on ? STC_ICON_ZOOMOUT : STC_ICON_ZOOMIN) + '</button>';
+}
+function stcCard(ind, res, sub, body, extraCls) {
+  const link = stcBtnLnk('Chi tiết ›', "stcDetail('" + ind.id + "')");
+  const real = (ind.state === 'ok' && !res.demo) ? '<span class="stc-bd real">Số liệu thật từ API</span>' : '';
+  const warnNote = (ind.state === 'ok' && ind.warns.length) ? '<div class="stc-warnbox stc-note" style="color:var(--warn)">' + STC_ICON_WARN + '<div><b>Cần đối soát:</b> ' + ind.warns.map(stcE).join('; ') + '</div></div>' : '';
+  return '<div id="stc-ind-' + ind.id + '" class="stc-card' + (STC_UI.focus === ind.id ? ' stc-focus' : '') + (STC_UI.zoom === ind.id ? ' stc-zoomed' : '') + (extraCls ? ' ' + extraCls : '') + '"><div class="stc-ch"><div><h3 class="stc-ct">' + stcE(ind.label) + '</h3><div class="stc-cs">' + stcE(sub) + '</div></div>' +
+    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">' + real + (ind.state === 'nodata' ? '<span class="stc-bd">Chưa có số liệu</span>' : '') + stcWarnBadge(ind) + link + stcZoomBtn(ind.id) + '<span class="stc-bd">' + stcE(ind.apis.join(' · ')) + '</span></div></div>' +
+    (ind.state === 'missing' ? stcStateBody(ind, res) : (ind.state === 'nodata' ? stcNodataNote(res) + '<div class="stc-blank">' + body + '</div>' : body)) + warnNote + '</div>';
+}
+function stcSubText(ind, res, withPrev) {
+  const cur = stcQ(res.year, res.period);
+  const pq = stcPrevQ(res.year, res.period);
+  return (withPrev ? 'Kỳ này (' + cur + ') so với kỳ trước (' + stcQ(pq.year, pq.period) + ') và cùng kỳ (' + stcQ(res.year - 1, res.period) + ') · ' : '') + ind.unit + (withPrev ? '' : ' · ' + cur);
+}
+/* true = hiện mũi tên so kỳ trước/so cùng kỳ cạnh số tổng ở đầu thẻ chỉ tiêu (màn nhóm). Anh yêu cầu 2026-10-02 bỏ vì
+   bảng/thanh thành phần bên dưới đã có 2 cột so sánh → mặc định false (ẩn bằng cờ, code giữ nguyên). */
+const STC_BIGROW_DL = false;
+function stcBigRow(n, hint) {
+  return '<div class="stc-bigrow"><div class="stc-big">' + stcVal(n) + '<small>' + stcE(n.unit) + '</small></div>' + (STC_BIGROW_DL ? stcDl(n, true) : '') + '</div>' + (hint ? '<div class="stc-hint">' + stcE(hint) + '</div>' : '');
+}
+
+/* ---------- Các kiểu thẻ ---------- */
+function stcDonutSvg(items, total, center, unit, label) {
+  const C = 2 * Math.PI * 54;
+  let cum = 0, segs = '';
+  items.forEach((it) => {
+    if (!(it.v > 0) || !(total > 0)) return;
+    const len = (it.v / total) * C, dash = Math.max(0.6, len - 2.5);
+    segs += '<circle class="stc-seg" cx="80" cy="80" r="54" stroke="' + it.c + '" stroke-dasharray="' + dash.toFixed(1) + ' ' + C.toFixed(1) + '" stroke-dashoffset="' + (-cum).toFixed(1) + '"/>';
+    cum += len;
+  });
+  const fs = center.length > 8 ? 14 : center.length > 6 ? 17 : 21;
+  return '<svg viewBox="0 0 160 160" role="img" aria-label="' + stcE(label) + '"><circle class="stc-trk" cx="80" cy="80" r="54"/><g transform="rotate(-90 80 80)">' + segs + '</g>' +
+    '<text class="stc-tv" x="80" y="80" text-anchor="middle" style="font-size:' + fs + 'px">' + stcE(center) + '</text><text class="stc-tu" x="80" y="96" text-anchor="middle">' + stcE(unit) + '</text></svg>';
+}
+function stcKidColor(k, i) { return k.color || STC_PAL[i % STC_PAL.length]; }
+/* Tiêu đề 2 cột so sánh trong bảng (rỗng nếu không mục nào so được) */
+function stcCmpHeads(kids) { return stcHasCmp(kids) ? '<th>So kỳ trước</th><th>So cùng kỳ</th>' : ''; }
+function stcCmpCells(k) { return '<td>' + stcDlOne(k, 'kq', false) + '</td><td>' + stcDlOne(k, 'cq', false) + '</td>'; }
+
+function stcViewBarsCompare(ind, res) {
+  const kids = ind.kids;
+  const mx = Math.max(1, ...kids.map((k) => Math.max(k.now || 0, k.prev || 0)));
+  let h = stcBigRow(ind, 'Tổng của ' + kids.length + ' nguồn do API cung cấp.');
+  h += '<div class="stc-lg"><span><i style="background:var(--s1)"></i>Kỳ này</span><span><i style="background:var(--prev)"></i>Cùng kỳ năm trước</span></div>';
+  kids.forEach((k, i) => {
+    const w = (v) => (v > 0 ? Math.max(0.2, (v / mx) * 100) : 0);
+    h += '<div class="stc-cmp"' + (i === 0 ? ' style="margin-top:8px"' : '') + '><div class="stc-nm">' + stcE(k.label) + '</div><div class="stc-bars">' +
+      '<div class="stc-br"><div class="stc-tr"><div class="stc-b" style="width:' + w(k.now).toFixed(2) + '%"></div></div><div class="stc-val">' + stcFmt(k.now) + '</div></div>' +
+      (k.prev != null ? '<div class="stc-br"><div class="stc-tr"><div class="stc-b p" style="width:' + w(k.prev).toFixed(2) + '%"></div></div><div class="stc-val p">' + stcFmt(k.prev) + '</div></div>' : '') +
+      '</div>' + (stcDl(k, false) || '<span class="stc-dl flat">—</span>') + '</div>';
+  });
+  return h;
+}
+function stcViewDonutTable(ind, res) {
+  const kids = ind.kids;
+  const extra = ind.id === 'grdp';
+  const cmpH = stcCmpHeads(kids);
+  const items = kids.map((k, i) => ({ v: k.now, c: stcKidColor(k, i) }));
+  const center = stcFmt(ind.now);
+  let h = stcBigRow(ind, ind.id === 'grdp' ? 'Tổng của 4 khu vực theo giá hiện hành.' : ind.id === 'chi' ? 'Lấy đúng dòng "Tổng chi NS ĐP" của API; các khoản chi bên dưới cộng lại phải khớp tổng.' : 'Tổng của ' + kids.length + ' thành phần.');
+  h += '<div class="stc-dn" style="margin-top:14px">' + stcDonutSvg(items, ind.now, center, ind.unit, 'Cơ cấu ' + ind.label) + '<table class="stc-tbl"><thead><tr><th>Thành phần</th><th>Giá trị</th><th>Tỷ trọng</th>' +
+    cmpH + (extra ? '<th>Giá so sánh cùng kỳ năm trước</th>' : '') + '</tr></thead><tbody>';
+  kids.forEach((k, i) => {
+    const sh = stcShare(k, ind);
+    h += '<tr><td><i class="stc-sw" style="background:' + stcKidColor(k, i) + '"></i>' + stcE(k.label) + '</td><td>' + stcFmt(k.now) + '</td><td>' + (sh == null ? '—' : stcFmt(sh, 1) + '%') + '</td>' +
+      (cmpH ? stcCmpCells(k) : '') + (extra ? '<td>' + stcFmt(k.cmp) + '</td>' : '') + '</tr>';
+  });
+  if (extra) h += '<tr class="tot"><td>Tổng</td><td>' + stcFmt(ind.now) + '</td><td>100,0%</td>' + (cmpH ? stcCmpCells(ind) : '') + '<td>' + stcFmt(kids.every((k) => k.cmp != null) ? kids.reduce((a, k) => a + k.cmp, 0) : null) + '</td></tr>';
+  h += '</tbody></table></div>';
+  if (extra) h += '<div class="stc-note" style="margin-top:16px"><span class="stc-bd warn" style="flex:0 0 auto">Chờ xác nhận</span><div>Chưa rõ cột "giá so sánh cùng kỳ năm trước" là giá trị (tỷ đồng) hay tốc độ tăng (%). Form hiện <b>nguyên số API trả về</b> và chưa tính tăng trưởng GRDP.</div></div>';
+  return h;
+}
+function stcViewStackTable(ind, res) {
+  const kids = ind.kids;
+  const cmpH = stcCmpHeads(kids);
+  let h = stcBigRow(ind, ind.id === 'ble' ? 'Là một phần của bán ra; hai chỉ tiêu đặt cạnh nhau, không cộng gộp.' : 'Tổng của ' + kids.length + ' thành phần.' + (cmpH ? '' : ' Nguồn số liệu chưa có kỳ so sánh nên chưa hiện tăng giảm.'));
+  h += '<div class="stc-stack" style="height:20px;margin:16px 0 12px">' + kids.map((k, i) => '<i style="flex:' + Math.max(0, k.now || 0) + ';background:' + stcKidColor(k, i) + '"></i>').join('') + '</div>';
+  h += '<table class="stc-tbl"><thead><tr><th>Thành phần</th><th>Giá trị</th><th>Tỷ trọng</th>' + cmpH + '</tr></thead><tbody>';
+  kids.forEach((k, i) => { const sh = stcShare(k, ind); h += '<tr><td><i class="stc-sw" style="background:' + stcKidColor(k, i) + '"></i>' + stcE(k.label) + '</td><td>' + stcFmt(k.now) + '</td><td>' + (sh == null ? '—' : stcFmt(sh, 1) + '%') + '</td>' + (cmpH ? stcCmpCells(k) : '') + '</tr>'; });
+  h += '</tbody></table>';
+  if (ind.id === 'nsnn') h += '<div style="margin-top:14px">' + stcNote('API chỉ có giá trị đã thực hiện, chưa có kế hoạch vốn, nên form <b>không tính tỷ lệ giải ngân</b>.') + '</div>';
+  return h;
+}
+function stcViewProgress(ind, res) {
+  const kids = ind.kids.slice().sort((a, b) => (b.now || 0) - (a.now || 0));
+  let h = '';
+  kids.forEach((k) => { h += '<div class="stc-pg"><div class="stc-row"><span class="stc-nm">' + stcE(k.label) + '</span><span class="stc-pv">' + stcFmt(k.now) + '%</span></div><div class="stc-trk"><div class="stc-fill" style="width:' + Math.max(0, Math.min(100, k.now || 0)) + '%"></div></div></div>'; });
+  h += '<div style="margin-top:8px">' + stcNote('API chưa có mốc kế hoạch, nên form chỉ hiển thị tỷ lệ hoàn thành và <b>không gắn nhãn "chậm" hay "đúng tiến độ"</b>. Năm nhóm không cùng loại nên cũng không tính tiến độ trung bình.') + '</div>';
+  return h;
+}
+function stcViewIdxAxis(ind, res) {
+  const items = [ind].concat(ind.kids).filter((n) => n.now > 0);
+  const vals = items.map((n) => n.now).concat([100]);
+  const lo = Math.floor(Math.min(...vals) - 3), hi = Math.ceil(Math.max(...vals) + 3), span = hi - lo;
+  const zero = ((100 - lo) / span) * 100;
+  let h = '<div class="stc-lg" style="margin:0 0 6px"><span><i style="background:var(--s1)"></i>Cao hơn cùng kỳ</span><span><i style="background:var(--dn)"></i>Thấp hơn cùng kỳ</span></div>';
+  [ind].concat(ind.kids).forEach((n) => {
+    if (!(n.now > 0)) { h += '<div class="stc-iip"><div class="stc-nm">' + stcE(n.label) + '</div><div class="stc-axis"></div><div class="stc-rt"><b>—</b></div></div>'; return; }
+    const left = n.now >= 100 ? zero : ((n.now - lo) / span) * 100, width = (Math.abs(n.now - 100) / span) * 100;
+    h += '<div class="stc-iip"><div class="stc-nm">' + stcE(n.label) + '</div><div class="stc-axis"><div class="stc-zero" style="left:' + zero.toFixed(2) + '%"></div><div class="stc-bar ' + (n.now >= 100 ? 'up' : 'dn') + '" style="left:' + left.toFixed(2) + '%;width:' + width.toFixed(2) + '%"></div></div>' +
+      '<div class="stc-rt"><b>' + stcFmt(n.now, 1) + '</b>' + stcDl(n, false) + '</div></div>';
+  });
+  return h;
+}
+function stcViewBarsDelta(ind, res) {
+  const kids = ind.kids;
+  const mx = Math.max(1, ...kids.map((k) => k.now || 0));
+  let h = stcBigRow(ind, 'Tổng ' + kids.length + ' nhóm dịch vụ; mức tăng chung tính từ các nhóm (giả định chỉ số lấy 100 làm mốc).');
+  kids.forEach((k) => {
+    h += '<div class="stc-cmp" style="grid-template-columns:150px minmax(0,1fr) 150px"><div class="stc-nm">' + stcE(k.label) + '</div><div class="stc-bars"><div class="stc-br"><div class="stc-tr"><div class="stc-b" style="width:' + (k.now > 0 ? Math.max(0.2, (k.now / mx) * 100).toFixed(2) : 0) + '%"></div></div><div class="stc-val">' + stcFmt(k.now) + '</div></div></div>' + (stcDl(k, false) || '<span class="stc-dl flat">—</span>') + '</div>';
+  });
+  return h;
+}
+function stcViewXnk(ind, res) {
+  const xk = ind.kids[0], nk = ind.kids[1];
+  const col = (n, title) => {
+    let c = '<div><div class="stc-hint" style="font-weight:600;color:var(--ink2)">' + stcE(title) + '</div><div class="stc-bigrow" style="margin-top:4px"><div class="stc-big" style="font-size:26px">' + stcVal(n) + '<small>' + stcE(n.unit) + '</small></div>' + (STC_BIGROW_DL ? stcDl(n, false) : '') + '</div>';
+    c += '<div class="stc-stack">' + n.kids.map((k, i) => '<i style="flex:' + Math.max(0, k.now || 0) + ';background:' + stcKidColor(k, i) + '"></i>').join('') + '</div><table class="stc-tbl"><thead><tr><th>Khu vực</th><th>Giá trị</th><th>So kỳ trước</th><th>So cùng kỳ</th></tr></thead><tbody>';
+    n.kids.forEach((k, i) => { c += '<tr><td><i class="stc-sw" style="background:' + stcKidColor(k, i) + '"></i>' + stcE(k.label) + '</td><td>' + stcFmt(k.now) + '</td>' + stcCmpCells(k) + '</tr>'; });
+    return c + '</tbody></table></div>';
+  };
+  let h = '<div class="stc-g2" style="gap:24px">' + col(xk, 'Xuất khẩu') + col(nk, 'Nhập khẩu') + '</div>';
+  if (xk.now != null && nk.now != null) {
+    const bal = xk.now - nk.now, mx = Math.max(xk.now, nk.now, 1);
+    h += '<div class="stc-note" style="margin-top:18px;align-items:center;justify-content:space-between;gap:24px"><div style="flex:1;min-width:0"><div class="stc-hint" style="margin-bottom:2px">Cán cân thương mại (xuất khẩu trừ nhập khẩu)</div><div style="font-size:18px;font-weight:700;color:var(--ink)">' + (bal < 0 ? 'Nhập siêu ' : bal > 0 ? 'Xuất siêu ' : 'Cân bằng ') + stcFmt(Math.abs(bal)) + ' ' + stcE(ind.unit) + '</div></div>' +
+      '<div style="width:210px;display:grid;gap:6px;flex:0 0 auto"><div style="display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:center;font-size:11px"><span>XK</span><div style="height:8px;border-radius:0 4px 4px 0;background:var(--s1);width:' + ((xk.now / mx) * 100).toFixed(1) + '%"></div></div><div style="display:grid;grid-template-columns:22px 1fr;gap:8px;align-items:center;font-size:11px"><span>NK</span><div style="height:8px;border-radius:0 4px 4px 0;background:var(--prev);width:' + ((nk.now / mx) * 100).toFixed(1) + '%"></div></div></div></div>';
+  }
+  return h;
+}
+function stcViewScales(ind, res) {
+  let h = '<div class="stc-g3">';
+  ind.kids.forEach((k) => {
+    const v = k.now, lo = Math.min(80, Math.floor((v || 0) / 10) * 10 - 10), hi = Math.max(120, Math.ceil(((v || 0) + 10) / 20) * 20), span = hi - lo;
+    h += '<div id="stc-ind-' + k.id + '" class="stc-card' + (STC_UI.zoom === k.id ? ' stc-zoomed' : '') + '"><div class="stc-ch"><div><h3 class="stc-ct">' + stcE(k.label) + '</h3><div class="stc-cs">' + stcE(ind.unit) + '</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">' + stcZoomBtn(k.id) + '<span class="stc-bd">' + stcE(ind.apis[0]) + '</span></div></div>';
+    if (!(v > 0)) h += '<div class="stc-bigrow"><div class="stc-big">—</div></div><div class="stc-hint">Chưa có số liệu</div>';
+    else h += '<div class="stc-bigrow"><div class="stc-big">' + stcFmt(v, 1) + '</div>' + stcDl(k, true) + '</div><div class="stc-scale"><div class="stc-tick" style="left:' + (((100 - lo) / span) * 100).toFixed(2) + '%"></div><div class="stc-dot" style="left:' + (((v - lo) / span) * 100).toFixed(2) + '%"></div></div><div class="stc-scale-cap"><span>' + lo + '</span><span>Vạch đứng: mốc 100</span><span>' + hi + '</span></div>';
+    h += '</div>';
+  });
+  return h + '</div>';
+}
+
+const STC_VIEWS = { barsCompare: stcViewBarsCompare, donutTable: stcViewDonutTable, stackTable: stcViewStackTable, progress: stcViewProgress, idxAxis: stcViewIdxAxis, barsDelta: stcViewBarsDelta, xnk: stcViewXnk, scales: stcViewScales };
+const STC_VIEW_SUB = { barsCompare: (i, r) => stcSubText(i, r, true), donutTable: (i, r) => stcSubText(i, r, i.kids.some((k) => k.prev > 0)), stackTable: (i, r) => stcSubText(i, r, false), progress: (i, r) => 'Tỷ lệ hoàn thành (%) · ' + stcQ(r.year, r.period) + ' · xếp từ cao xuống thấp', idxAxis: (i, r) => 'So với cùng kỳ năm trước · vạch đứng là mốc 100 (bằng cùng kỳ)', barsDelta: (i, r) => 'Ước tính quý · ' + i.unit, xnk: (i, r) => 'Ước tính quý · ' + i.unit + ' · so với cùng kỳ', scales: (i, r) => 'So với cùng kỳ năm trước (100 = bằng cùng kỳ)' };
+
+function stcIndCard(id, res) {
+  const ind = res.byId[id];
+  if (!ind) return '';
+  if (ind.view === 'scales') {
+    /* Chỉ số giá: 3 thẻ riêng, mỗi thẻ một thang riêng (vàng 187 và CPI 103 không đặt chung một biểu đồ) */
+    const secT = '<div class="stc-sec">Chỉ số giá · so với cùng kỳ năm trước (100 = bằng cùng kỳ)</div>';
+    const fc = '<div id="stc-ind-gia"' + (STC_UI.focus === 'gia' ? ' class="stc-focus"' : '') + '>';
+    if (ind.state === 'ok') return fc + secT + stcViewScales(ind, res) + '</div>';
+    if (ind.state === 'nodata') return fc + secT + stcNodataNote(res) + '<div class="stc-blank" style="margin-top:12px">' + stcViewScales(stcBlank(ind), res) + '</div></div>';
+    return stcCard(ind, res, STC_VIEW_SUB.scales(ind, res), '');
+  }
+  const v = ind.state === 'nodata' ? stcBlank(ind) : ind;
+  return stcCard(ind, res, STC_VIEW_SUB[ind.view](v, res), STC_VIEWS[ind.view](v, res));
+}
+
+/* ---------- Màn: Trang chủ ---------- */
+/* onclick tuỳ chỗ dùng: mặc định (trong popup) chuyển màn bằng stcGo; ngoài lưới (stcOverviewBandHtml) mở thẳng
+   popup đúng nhóm bằng openCategoryDetail vì popup chưa mở. */
+function stcKpiTile(k, res, onclick) {
+  const n = res.byId[k.ind], root = res.rootOf[k.ind];
+  const has = root && root.state === 'ok' && n && n.now != null;
+  let v = '—', u = 'Chưa có số liệu', d = '';
+  if (has) {
+    if (k.fmt === 'nghinTy') { v = stcFmt(n.now / 1000, 1); u = 'nghìn tỷ đồng'; }
+    else if (k.fmt === 'trieuLuot') { v = stcFmt(n.now / 1000, 2); u = 'triệu lượt'; }
+    else { v = stcFmt(n.now, 1); u = '% so với cùng kỳ'; }
+    /* 2 cột: so kỳ trước | so cùng kỳ (không tính được thì "—", rê chuột xem lý do) */
+    d = '<div class="stc-kdl"><div><small>So kỳ trước</small>' + stcDlOne(n, 'kq', false) + '</div><div><small>So cùng kỳ</small>' + stcDlOne(n, 'cq', false) + '</div></div>';
+  }
+  return '<button type="button" class="stc-kpi" onclick="' + (onclick || ("stcGo('group','" + k.target + "')")) + '"><div class="stc-lb">' + stcE(k.label) + '</div><div class="stc-v">' + v + '</div><div class="stc-u">' + stcE(u) + '</div><div class="stc-dlw" style="min-height:18px">' + d + '</div></button>';
+}
+/* Một dòng trong thẻ nhóm: nhãn, giá trị + đơn vị, tăng giảm */
+function stcLine(label, n, root, unitOverride, valOverride) {
+  const ok = root.state === 'ok' && (valOverride != null || (n && n.now != null));
+  const val = !ok ? '—' : (valOverride != null ? valOverride : stcVal(n));
+  const unit = ok ? (unitOverride != null ? unitOverride : (n.kind === 'idx' ? '%' : n.unit)) : '';
+  const cmp = ok && n && valOverride == null;
+  return '<div class="stc-gl stc-glc"><span>' + stcE(label) + '</span><span class="stc-v">' + val + (unit ? '<small>' + stcE(unit) + '</small>' : '') + '</span>' +
+    '<span class="stc-dlw">' + (cmp ? stcDlOne(n, 'kq', false) : '') + '</span><span class="stc-dlw">' + (cmp ? stcDlOne(n, 'cq', false) : '') + '</span></div>';
+}
+/* onclick tuỳ chỗ dùng: mặc định (trong popup) chuyển màn bằng stcGo; ngoài lưới (stcOverviewBandHtml) mở thẳng
+   popup đúng nhóm bằng openCategoryDetail vì popup chưa mở (giống stcKpiTile). */
+function stcGroupCardHome(g, gi, res, onclick) {
+  const lines = [];
+  g.inds.forEach((ind) => {
+    if (ind.id === 'gia') { ind.kids.forEach((k) => lines.push(stcLine(k.label, k, ind))); return; }
+    if (ind.id === 'da') { lines.push(stcLine(ind.label, ind, ind, 'nhóm' + (res.demo ? '' : ' · số thật'), ind.kids.length + '')); return; }
+    if (ind.id === 'xnk') {
+      const xk = ind.kids[0], nk = ind.kids[1], ok = ind.state === 'ok' && xk.now != null && nk.now != null;
+      lines.push(stcLine('Kim ngạch xuất nhập khẩu (cán cân)', null, ind, ind.unit, ok ? stcSgn(xk.now - nk.now, 0) : null));
+      return;
+    }
+    lines.push(stcLine(ind.label, ind, ind));
+  });
+  return '<button type="button" class="stc-gcard" onclick="' + (onclick || ("stcGo('group','" + g.id + "')")) + '"><div class="stc-gh"><h3>' + stcE(g.label) + '</h3><span>' + g.inds.length + ' chỉ tiêu</span></div>' +
+    '<div class="stc-gl stc-glc stc-glh"><span></span><span></span><span>So kỳ trước</span><span>So cùng kỳ</span></div>' + lines.join('') + '<div class="stc-gmore">Xem nhóm ' + stcE(g.label) + ' ›</div></button>';
+}
+/* Ghi chú "x/y chỉ tiêu có số liệu" ở cuối màn Trang chủ — dùng chung cho cả trong popup và băng ngoài lưới. */
+function stcHomeQualityNote(res) {
+  const withData = res.inds.filter((i) => i.state === 'ok').length;
+  if (withData >= res.inds.length) return '';
+  return '<div style="margin-top:16px">' + stcNote('<b>' + withData + '/' + res.inds.length + ' chỉ tiêu có số liệu</b> trong bản chụp này. Các chỉ tiêu còn lại hiện "—" vì API của Sở Tài chính đang trả giá trị 0 cho kỳ này (chưa cập nhật số quyết toán); form không điền số thay thế.') + '</div>';
+}
+function stcScreenHome(res) {
+  const o = { eyebrow: 'Sở Tài chính · Chỉ tiêu kinh tế – tài chính', title: 'Bộ chỉ tiêu kinh tế – tài chính Thủ đô', sub: 'Số liệu tổng hợp cấp Thành phố từ API của Sở Tài chính Hà Nội.', back: 'close' };
+  if (!res) return stcNoPeriodScreen(o);
+  let h = stcHeader(res, o);
+  h += '<div class="stc-kpis">' + STC_KPIS.map((k) => stcKpiTile(k, res)).join('') + '</div>';
+  h += '<div class="stc-secrow"><div class="stc-sec">Bốn nhóm chỉ tiêu · mỗi nhóm một màn hình</div>' + stcBtnLnk('Xem chi tiết theo cấp bậc ›', "stcDetail('" + STC_UI.ind + "')") + '</div>';
+  h += '<div class="stc-g2">' + res.groups.map((g, i) => stcGroupCardHome(g, i, res)).join('') + '</div>';
+  return h + stcHomeQualityNote(res) + stcFoot(res);
+}
+
+/* ---------- Màn: 4 nhóm ---------- */
+const STC_LAYOUT = {
+  ns: [{ k: 'g2', c: ['thu', 'chi'] }],
+  dt: [{ k: 'g2', c: ['vdt', 'nsnn'] }, { k: 'full', c: ['da'] }],
+  sx: [{ k: 'g21', c: ['iip', 'vt'] }, { k: 'g2', c: ['bra', 'ble'] }, { k: 'g21', c: ['xnk', 'dl'] }],
+  vm: [{ k: 'full', c: ['grdp'] }, { k: 'full', c: ['gia'] }]
+};
+function stcBackToGroup() {
+  const g = STC_GROUPS.find((x) => x.inds.indexOf(STC_UI.ind) >= 0);
+  return g ? { group: g.id, label: g.label } : null;
+}
+function stcScreenGroup(res) {
+  const gi = STC_GROUPS.findIndex((g) => g.id === STC_UI.group);
+  const g = STC_GROUPS[gi < 0 ? 0 : gi];
+  const o = { eyebrow: 'Sở Tài chính · Nhóm ' + (gi + 1) + '/' + STC_GROUPS.length, title: g.label, sub: g.inds.length + ' chỉ tiêu · Kỳ báo cáo Quý ' + STC_UI.period + '/' + STC_UI.year, back: 'home' };
+  if (!res) return stcNoPeriodScreen(o);
+  let h = stcHeader(res, o);
+  STC_LAYOUT[g.id].forEach((row, ri) => {
+    const cards = row.c.map((id) => stcIndCard(id, res)).join('');
+    h += row.k === 'full' ? '<div' + (ri ? ' style="margin-top:16px"' : '') + '>' + cards + '</div>' : '<div class="stc-' + row.k + (ri ? ' stc-mt' : '') + '">' + cards + '</div>';
+  });
+  if (g.id === 'ns') h += '<div class="stc-mt">' + stcNote('<b>Cách đọc:</b> thu NSNN là thu trên địa bàn, còn chi là chi của ngân sách địa phương. Hai chỉ tiêu khác phạm vi nên form không tính "thu trừ chi". Chi tăng được hiển thị màu trung tính vì tăng chi chưa hẳn là tốt hay xấu; chỉ thu và các chỉ số tăng trưởng mới dùng màu xanh.') + '</div>';
+  if (g.id === 'sx') h += '<div class="stc-mt">' + stcNote(stcE(STC_ASSUME.ckNote)) + '</div>';
+  if (g.id === 'vm' && res.byId.gia.state === 'ok') h += '<div class="stc-mt">' + stcNote('Ba chỉ số có mức chênh rất khác nhau nên mỗi thẻ dùng <b>thang riêng</b> thay vì vẽ chung một biểu đồ cột. Chỉ có dữ liệu một kỳ nên form chưa vẽ đường xu hướng.') + '</div>';
+  const n = STC_GROUPS.length, prev = STC_GROUPS[(gi + n - 1) % n], next = STC_GROUPS[(gi + 1) % n];
+  h += '<div class="stc-pn"><span>' + stcBtnLnk('‹ ' + prev.label, "stcGo('group','" + prev.id + "')") + '</span>' + stcBtnLnk('Tổng quan', "stcGo('home')") + '<span>' + stcBtnLnk(next.label + ' ›', "stcGo('group','" + next.id + "')") + '</span></div>';
+  return h + stcFoot(res);
+}
+
+/* ---------- Màn: Chi tiết theo cấp bậc (kiểu A) ---------- */
+function stcOcCard(n, parent, idx, level) {
+  const yv = stcYoy(n), sh = stcShare(n, parent), pct = n.kind === 'pct';
+  let sub = '';
+  if (sh != null) sub = stcFmt(sh, 1) + '% ' + (level === 1 ? 'của tổng' : 'của ' + parent.label.toLowerCase());
+  else if (pct) sub = 'hoàn thành';
+  else if (n.kind === 'idx') sub = 'chỉ số, 100 = bằng cùng kỳ';
+  const hasBar = sh != null || pct;
+  const barW = pct ? n.now : Math.max(sh || 0, 0.5);
+  const sel = STC_UI.pick === n.id ? ' sel' : '';
+  return '<button type="button" class="stc-oc-card' + sel + '" style="--cc:' + stcKidColor(n, idx) + '" onclick="stcPick(\'' + n.id + '\')"><div class="stc-nm">' + stcE(n.label) + '</div><div class="stc-v">' + stcVal(n) + '</div><div class="stc-sh">' + stcE(sub) + '</div>' +
+    (hasBar ? '<div class="stc-bar"><i style="width:' + Math.max(0, Math.min(100, barW)).toFixed(2) + '%"></i></div>' : '') + stcDl(n, true) + '</button>';
+}
+function stcPosOf(i, n) { return n === 1 ? 'first last' : i === 0 ? 'first' : i === n - 1 ? 'last' : ''; }
+function stcOcDiagram(ind) {
+  const kids = ind.kids;
+  const hasTotal = ind.now != null || (ind.state === 'blank' && ind.kind !== 'container');
+  let h = '<div class="stc-oc"><div class="stc-oc-root"><div class="stc-k">' + stcE(ind.label) + '</div><div class="stc-v"><span>' + (hasTotal ? stcVal(ind) : kids.length + ' thành phần') + '</span>' + (hasTotal ? '<small>' + stcE(ind.unit) + '</small>' : '') + '</div>' + (ind.now != null ? stcDl(ind, true) : '') + '</div><div class="stc-oc-stem"></div><div class="stc-oc-row">';
+  kids.forEach((k, i) => {
+    const sub = k.kids || [];
+    h += '<div class="stc-oc-c ' + stcPosOf(i, kids.length) + '" style="flex:' + Math.max(1, sub.length) + '">' + stcOcCard(k, ind, i, 1);
+    if (sub.length) h += '<div class="stc-oc-stem"></div><div class="stc-oc-row">' + sub.map((g, j) => '<div class="stc-oc-c ' + stcPosOf(j, sub.length) + '">' + stcOcCard(g, k, j, 2) + '</div>').join('') + '</div>';
+    h += '</div>';
+  });
+  return h + '</div></div>';
+}
+
+function stcNiceStep(range) {
+  const p = Math.pow(10, Math.floor(Math.log10(range / 5)));
+  let step = 10 * p;
+  [1, 2, 5, 10].some((m) => { if (range / (m * p) <= 5) { step = m * p; return true; } return false; });
+  return step;
+}
+function stcWaterfall(ind, node, res) {
+  let base = ind;
+  if (node && node !== ind) base = (node.kids && node.kids.length) ? node : (res.byId[stcParentId(res, node)] || ind);
+  const sub = base.label;
+  if (base.kind === 'container' && base.id === 'xnk') return { ok: false, sub: sub, msg: 'Xuất nhập khẩu gồm hai tổng riêng. Bấm thẻ Xuất khẩu hoặc Nhập khẩu ở sơ đồ để xem cầu nối của từng khối.' };
+  const kp = (base.kids || []).map(stcPrev);
+  if (base.kind !== 'add' || !base.kids || !base.kids.length || !kp.every((v) => v != null)) {
+    return { ok: false, sub: sub, msg: base.kind === 'add' ? 'API chưa có kỳ so sánh cho chỉ tiêu này nên chưa vẽ được cầu nối.' : 'Chỉ tiêu dạng chỉ số hoặc tỷ lệ không cộng dồn được nên không có cầu nối.' };
+  }
+  const prevTotal = kp.reduce((a, b) => a + b, 0), nowTotal = base.kids.reduce((a, k) => a + (k.now || 0), 0);
+  const G = nowTotal - prevTotal, absG = Math.abs(G) || 1;
+  const mag = Math.pow(10, Math.floor(Math.log10(absG))), half = mag / 2;
+  let floor = Math.floor((Math.min(prevTotal, nowTotal) - 0.5 * absG) / half) * half;
+  if (floor < 0) floor = 0;
+  const ceil = Math.ceil((Math.max(prevTotal, nowTotal) + 0.1 * absG) / half) * half;
+  const range = ceil - floor || 1, step = stcNiceStep(range);
+  const H = 220, W = 1000, sc = (v) => ((v - floor) / range) * H;
+  const n = base.kids.length + 2, colW = W / n, barW = Math.min(70, colW * 0.56);
+  const fI = (v) => stcFmt(Math.round(v)), sI = (v) => stcSgn(Math.round(v), 0);
+  const steps = [{ id: '', label: 'Cùng kỳ năm trước', from: floor, to: prevTotal, color: 'var(--prev)', val: fI(prevTotal) }];
+  let cum = prevTotal;
+  base.kids.forEach((k, i) => { const inc = (k.now || 0) - kp[i]; steps.push({ id: k.id, label: k.label, from: cum, to: cum + inc, color: stcKidColor(k, i), val: sI(inc) }); cum += inc; });
+  steps.push({ id: '', label: 'Kỳ này', from: floor, to: nowTotal, color: 'var(--ink2)', val: fI(nowTotal) });
+  let bars = '', labels = '', grid = '';
+  steps.forEach((s, i) => {
+    const left = i * colW + (colW - barW) / 2, lo = Math.min(s.from, s.to), h = Math.max(2, Math.abs(sc(s.to) - sc(s.from)));
+    bars += '<div class="stc-bar2' + (s.id && s.id === STC_UI.pick ? ' sel' : '') + '" style="left:' + left.toFixed(1) + 'px;bottom:' + sc(lo).toFixed(1) + 'px;width:' + barW.toFixed(1) + 'px;height:' + h.toFixed(1) + 'px;background:' + s.color + '"></div>' +
+      '<div class="stc-vl2" style="left:' + left.toFixed(1) + 'px;bottom:' + (sc(lo) + h + 6).toFixed(1) + 'px;width:' + barW.toFixed(1) + 'px">' + stcE(s.val) + '</div>' +
+      (i < steps.length - 1 ? '<div class="stc-cn" style="left:' + (left + barW).toFixed(1) + 'px;bottom:' + sc(s.to).toFixed(1) + 'px;width:' + (colW - barW).toFixed(1) + 'px"></div>' : '');
+    labels += '<span style="width:' + colW.toFixed(1) + 'px">' + stcE(s.label) + '</span>';
+  });
+  for (let v = Math.ceil(floor / step) * step; v <= ceil; v += step) grid += '<div class="stc-gl2" style="bottom:' + sc(v).toFixed(1) + 'px"></div><div class="stc-gt" style="bottom:' + sc(v).toFixed(1) + 'px">' + stcFmt(Math.round(v)) + '</div>';
+  const derived = base.kids.some((k) => k.cqSrc === 'ck');
+  const note = 'Cột xám xanh là tổng hai kỳ; cột màu là phần tăng thêm của từng thành phần, cộng lại đúng bằng mức thay đổi chung (' + sI(G) + ').' + (floor > 0 ? ' Trục dọc cắt từ ' + fI(floor) + ' để thấy rõ các bậc.' : '') + (derived ? ' Số cùng kỳ của từng thành phần được suy ra từ chỉ số so cùng kỳ (giả định chỉ số lấy 100 làm mốc).' : '');
+  return { ok: true, sub: sub + ' · ' + (base.unit || (res.rootOf[base.id] && res.rootOf[base.id].unit) || '') + ' · từ cùng kỳ năm trước (' + stcQ(res.year - 1, res.period) + ') sang kỳ này', grid: grid, bars: bars, labels: labels, note: note };
+}
+function stcParentId(res, node) {
+  let pid = null;
+  stcWalk(res.rootOf[node.id], (n) => { if ((n.kids || []).some((k) => k.id === node.id)) pid = n.id; });
+  return pid;
+}
+/* Xu hướng: 5 ô quý kết thúc ở kỳ đang chọn; chỉ vẽ điểm khi bản chụp có số, KHÔNG nội suy */
+function stcTrend(node, res) {
+  const y = res.year, p = res.period;
+  const slots = [];
+  for (let i = 0; i < 5; i++) {
+    const qi = p + i;
+    let yy = y - 1, qq = qi;
+    if (qi > 4) { yy = y; qq = qi - 4; }
+    if (i === 4) { yy = y; qq = p; }
+    let v = null;
+    if (i === 0) v = stcPrev(node);
+    else if (i === 4) v = node.now;
+    else { const r = stcBuildPeriod(yy, qq); const nn = r && r.byId[node.id]; v = nn && r.rootOf[node.id].state === 'ok' && nn.now != null ? nn.now : null; }
+    slots.push({ label: stcQ(yy, qq), v: v });
+  }
+  const pts = slots.map((s, i) => ({ i: i, v: s.v })).filter((s) => s.v != null);
+  if (pts.length < 2) return null;
+  const vs = pts.map((s) => s.v), mn = Math.min(...vs), mx = Math.max(...vs);
+  const span = (mx - mn) || Math.max(mx, 1) * 0.2, lo = Math.max(0, mn - span * 0.8), hi = mx + span * 0.5;
+  const yOf = (v) => 30 + (1 - (v - lo) / (hi - lo)) * 160, xOf = (i) => 70 + i * 105;
+  const mid = (lo + hi) / 2, dd = hi < 30 ? 1 : 0;
+  let s = '<svg viewBox="0 0 560 250" style="width:100%;height:auto;display:block" role="img" aria-label="Xu hướng theo quý"><g stroke="var(--line)" stroke-width="1">';
+  [hi, mid, lo].forEach((v) => { s += '<line x1="70" y1="' + yOf(v).toFixed(1) + '" x2="530" y2="' + yOf(v).toFixed(1) + '"/>'; });
+  s += '</g>';
+  [hi, mid, lo].forEach((v) => { s += '<text class="stc-ax" x="60" y="' + (yOf(v) + 4).toFixed(1) + '" text-anchor="end">' + stcFmt(v, dd) + '</text>'; });
+  for (let k = 0; k < pts.length - 1; k++) {
+    const a = pts[k], b = pts[k + 1], adjacent = b.i - a.i === 1;
+    s += '<line x1="' + xOf(a.i) + '" y1="' + yOf(a.v).toFixed(1) + '" x2="' + xOf(b.i) + '" y2="' + yOf(b.v).toFixed(1) + '" stroke="var(--ink2)" stroke-width="2" ' + (adjacent ? '' : 'stroke-dasharray="5 5" ') + 'stroke-linecap="round"/>';
+  }
+  slots.forEach((sl, i) => { if (sl.v == null) s += '<circle cx="' + xOf(i) + '" cy="190" r="3.5" fill="none" stroke="var(--mute)" stroke-width="1.5"/>'; });
+  pts.forEach((pt) => {
+    s += '<circle cx="' + xOf(pt.i) + '" cy="' + yOf(pt.v).toFixed(1) + '" r="7" fill="' + (pt.i === 4 ? 'var(--s1)' : 'var(--prev)') + '" stroke="var(--card)" stroke-width="2"/><text class="stc-vl" x="' + (pt.i === 0 ? xOf(pt.i) + 12 : xOf(pt.i)) + '" y="' + (yOf(pt.v) - 14).toFixed(1) + '" text-anchor="' + (pt.i === 0 ? 'start' : 'middle') + '">' + stcFmt(Math.round(pt.v)) + '</text>';
+  });
+  slots.forEach((sl, i) => { s += '<text class="stc-ax" x="' + xOf(i) + '" y="214" text-anchor="middle">' + stcE(sl.label) + '</text>'; });
+  return { svg: s + '</svg>', gaps: pts.length < 5 };
+}
+function stcCollectRows(node) {
+  const seen = [], out = [];
+  stcWalk(node, (n) => { (n.rows || []).forEach((r) => { if (seen.indexOf(r) < 0) { seen.push(r); out.push(r); } }); });
+  return out;
+}
+function stcFormulas(ind, node, res) {
+  const F = ['Nguồn: API ' + ind.apis.join(' + ') + '.'];
+  const parentId = node.id === ind.id ? null : stcParentId(res, node);
+  const par = parentId ? res.byId[parentId] : null;
+  if (node.kids && node.kids.length && node.kind === 'add' && node.now != null && node.kids.every((k) => k.now != null)) {
+    const s = node.kids.reduce((a, k) => a + k.now, 0);
+    F.push('Tổng = ' + node.kids.map((k) => stcFmt(k.now)).join(' + ') + ' = ' + stcFmt(s) + (s === node.now ? ' (khớp số của API).' : ' (lệch ' + stcFmt(s - node.now) + ' so với số của API, cần đối soát).'));
+  }
+  const pv = stcPrev(node);
+  const dk = stcDeltaKq(node);
+  if (dk != null) {
+    const uk = stcDeltaUnit(node, 'kq');
+    F.push('So với kỳ trước (quý liền trước, ' + node.kqLbl + ') = ' + (uk === '%' ? stcFmt(node.now) + ' ÷ ' + stcFmt(node.kq) + ' − 1 = ' + stcSgn(dk, 1) + '%.' : stcFmt(node.now, 1) + ' − ' + stcFmt(node.kq, 1) + ' = ' + stcSgn(dk, 1) + ' ' + uk + '.'));
+  } else if (node.now != null) F.push('So với kỳ trước (quý liền trước, ' + node.kqLbl + '): chưa có số liệu của quý đó nên chưa tính.');
+  if (node.kind === 'pct' && node.now != null && node.cq != null) F.push('So với cùng kỳ năm trước (' + node.cqLbl + ') = ' + stcFmt(node.now, 1) + ' − ' + stcFmt(node.cq, 1) + ' = ' + stcSgn(stcDeltaCq(node), 1) + ' điểm %.');
+  else if (node.now != null && pv != null && node.kind !== 'idx') {
+    if (node.cqSrc !== 'ck') F.push('So với cùng kỳ năm trước (' + node.cqLbl + ') = ' + stcFmt(node.now) + ' ÷ ' + stcFmt(pv) + ' − 1 = ' + stcSgn(stcDeltaCq(node), 1) + '%.');
+    else F.push('So với cùng kỳ = chỉ số ' + stcFmt(node.ck, 1) + ' − 100 = ' + stcSgn(node.ck - 100, 1) + '%' + (node.derivedCk ? ' (suy từ các thành phần)' : '') + ' (giả định chỉ số lấy 100 làm mốc).');
+  } else if (node.kind === 'idx' && node.now > 0) F.push('So với cùng kỳ = chỉ số ' + stcFmt(node.now, 1) + ' − 100 = ' + stcSgn(node.now - 100, 1) + '% (giả định chỉ số lấy 100 làm mốc).');
+  if (par && par.kind === 'add' && node.now != null && par.now > 0) {
+    F.push('Tỷ trọng = ' + stcFmt(node.now) + ' ÷ ' + stcFmt(par.now) + ' = ' + stcFmt((node.now / par.now) * 100, 1) + '%.');
+    const pp = par.kids.every((k) => stcPrev(k) != null) ? par.kids.reduce((a, k) => a + stcPrev(k), 0) : null;
+    if (pv != null && pp) F.push('Đóng góp vào mức tăng = (' + stcFmt(Math.round(node.now)) + ' − ' + stcFmt(Math.round(pv)) + ') ÷ ' + stcFmt(Math.round(pp)) + ' = ' + stcFmt(((node.now - pv) / pp) * 100, 1) + ' điểm %.');
+  }
+  if (node.kind === 'pct') F.push('Tỷ lệ hoàn thành lấy nguyên số của API. Năm nhóm không cùng loại và chưa có mốc kế hoạch nên không tính trung bình, không gắn nhãn chậm hay đúng tiến độ.');
+  if (F.length === 1) F.push('Mục này chỉ để nhóm các thành phần, không có công thức riêng.');
+  return F;
+}
+function stcScreenDetail(res) {
+  const o = { eyebrow: 'Sở Tài chính · Chi tiết theo cấp bậc', title: 'Chi tiết chỉ tiêu', sub: 'Sơ đồ cho thấy tổng và các thành phần; bấm vào một thẻ để xem cầu nối, xu hướng, số liệu gốc và cách tính của thẻ đó. Dùng nút Trước / Sau để chuyển chỉ tiêu.', back: stcBackToGroup() };
+  if (!res) return stcNoPeriodScreen(o);
+  const ind = res.byId[STC_UI.ind] && res.rootOf[STC_UI.ind] === res.byId[STC_UI.ind] ? res.byId[STC_UI.ind] : res.byId.chi;
+  const pn = STC_UI.pick && res.byId[STC_UI.pick] && res.rootOf[STC_UI.pick] === ind ? res.byId[STC_UI.pick] : null;
+  const node = pn || ind;
+  const grp = STC_GROUPS.find((g) => g.inds.indexOf(ind.id) >= 0);
+  const at = STC_INDICATORS.findIndex((i) => i.id === ind.id);
+  const prevI = STC_INDICATORS[(at - 1 + STC_INDICATORS.length) % STC_INDICATORS.length], nextI = STC_INDICATORS[(at + 1) % STC_INDICATORS.length];
+  let h = stcHeader(res, o);
+  h += '<div style="display:grid;gap:16px;min-width:0">';
+
+  /* 1. Sơ đồ thẻ số */
+  h += '<div class="stc-card"><div class="stc-crumbs"><span>Sở Tài chính › ' + stcE(grp ? grp.label : '') + ' › ' + stcE(ind.label) + '</span></div>' +
+    '<div class="stc-ch" style="margin-bottom:6px"><div><h3 class="stc-ct" style="font-size:17px">' + stcE(ind.label) + '</h3><div class="stc-cs">' + stcE(ind.unit + ' · ' + stcQ(res.year, res.period)) + '</div></div>' +
+    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end"><span class="stc-hint">' + (at + 1) + ' / ' + STC_INDICATORS.length + '</span><button type="button" class="stc-btn" onclick="stcStep(-1)" aria-label="Chỉ tiêu trước" style="height:32px;padding:0 12px;font-size:12.5px">‹ Trước</button><button type="button" class="stc-btn" onclick="stcStep(1)" aria-label="Chỉ tiêu sau" style="height:32px;padding:0 12px;font-size:12.5px">Sau ›</button>' + stcWarnBadge(ind) + '<span class="stc-bd">' + stcE(ind.apis.join(' · ')) + '</span></div></div>';
+  if (ind.state === 'ok') h += '<div class="stc-hint" style="margin-bottom:6px">Bấm một thẻ để chọn, bấm lại để bỏ chọn. Chỉ tiêu 3 cấp mọc thêm hàng thẻ ngay dưới thẻ cha.</div>' + stcOcDiagram(ind);
+  else if (ind.state === 'nodata') h += stcNodataNote(res) + '<div class="stc-blank" style="margin-top:12px">' + stcOcDiagram(stcBlank(ind)) + '</div>';
+  else h += stcStateBody(ind, res);
+  if (ind.state === 'ok' && ind.warns.length) h += '<div class="stc-warnbox stc-note" style="color:var(--warn)">' + STC_ICON_WARN + '<div><b>Cần đối soát:</b> ' + ind.warns.map(stcE).join('; ') + '</div></div>';
+  h += '</div>';
+
+  const live = ind.state === 'ok';
+  if (ind.state !== 'missing') {
+    /* 2. Cầu nối */
+    const wf = live ? stcWaterfall(ind, node, res) : { ok: false, sub: node.label, msg: 'Chưa có số liệu nên chưa vẽ được cầu nối tăng giảm. Khi có số cho cả hai kỳ, cầu nối sẽ hiện ở đây.' };
+    h += '<div class="stc-card"><div class="stc-ch" style="margin-bottom:10px"><div><h3 class="stc-ct">Cầu nối tăng giảm</h3><div class="stc-cs">' + stcE(wf.sub) + '</div></div></div>';
+    h += wf.ok ? '<div class="stc-wf">' + wf.grid + wf.bars + '</div><div class="stc-wfl">' + wf.labels + '</div><div class="stc-hint" style="margin-top:12px">' + stcE(wf.note) + '</div>' : stcEmptyBox('Chưa vẽ được cầu nối', wf.msg);
+    h += '</div>';
+    /* 3. Xu hướng | Số liệu gốc */
+    const tr = live ? stcTrend(node, res) : null;
+    h += '<div class="stc-g2"><div class="stc-card"><div class="stc-ch" style="margin-bottom:8px"><div><h3 class="stc-ct">Xu hướng theo quý</h3><div class="stc-cs">' + stcE(node.label) + '</div></div></div>' +
+      (tr ? tr.svg + '<div class="stc-hint" style="margin-top:6px">Chỉ vẽ điểm khi bản chụp có số của quý đó. Quý chưa có để trống và <b>không nội suy</b>; nét đứt chỉ nối các điểm cách nhau. Nạp thêm kỳ thì điểm tự vẽ thêm.</div>' : stcEmptyBox('Chưa vẽ được xu hướng', live ? 'Cần ít nhất hai kỳ có số. Mục này chưa có giá trị cùng kỳ năm trước hoặc chưa có bản chụp của các quý khác.' : 'Chưa có số liệu để vẽ xu hướng. Khi có số, các quý có bản chụp sẽ hiện thành điểm.')) + '</div>';
+  } else h += '<div>';
+  const rows = stcCollectRows(node);
+  h += '<div class="stc-card"><div class="stc-ch" style="margin-bottom:10px"><div><h3 class="stc-ct">Số liệu gốc từ API</h3><div class="stc-cs">' + stcE(node.label) + '</div></div></div><div class="stc-rawh"><span>chiTieu</span><span>loai</span><span>giaTri</span><span>quy</span></div>';
+  h += rows.length ? rows.map((r) => '<div class="stc-rawrow"><span>' + stcE(r.chiTieu) + '</span><span>' + stcE(r.loai) + '</span><span>' + stcE(stcFmt(r.giaTri, Math.round(r.giaTri) === r.giaTri ? 0 : 1)) + '</span><span>' + stcE(r.quy) + '</span></div>').join('') : '<div class="stc-hint" style="padding:10px 6px">Mục này không có dòng API riêng: form cộng từ các mục bên dưới.</div>';
+  h += '<div class="stc-hint" style="margin-top:12px">Đúng như API trả về trong bản chụp (' + stcE(stcStampText(res.importedAt)) + ').</div></div></div>';
+
+  /* 4. Cách tính */
+  h += '<div class="stc-card"><div class="stc-ch" style="margin-bottom:10px"><div><h3 class="stc-ct">Cách tính · ' + stcE(node.label) + '</h3><div class="stc-cs">Công thức tính từ số API, không có số nào tự đặt</div></div></div><div class="stc-fl">' +
+    (live ? stcFormulas(ind, node, res) : ['Nguồn: API ' + ind.apis.join(' + ') + '.', 'API trả toàn bộ giá trị bằng 0 nên chưa tính được tổng, mức tăng giảm, tỷ trọng và đóng góp. Công thức sẽ hiện ở đây khi có số.']).map((t) => '<div class="stc-note" style="padding:9px 12px;font-size:12.5px">' + stcE(t) + '</div>').join('') + '</div></div>';
+  h += '</div>';
+  h += '<div class="stc-pn"><button type="button" class="stc-btn" onclick="stcStep(-1)"><span>‹</span><span>' + stcE(prevI.label) + '</span></button><button type="button" class="stc-btn" onclick="stcStep(1)"><span>' + stcE(nextI.label) + '</span><span>›</span></button></div>';
+  return h + stcFoot(res);
+}
+
+/* ---------- Dựng màn hình + điều khiển ---------- */
+/* Khung chờ khi đang nạp nguồn số liệu */
+function stcSkeleton() {
+  const card = '<div class="stc-card"><div class="stc-skel" style="width:38%;height:16px"></div><div class="stc-skel" style="width:22%;height:30px;margin-top:14px"></div><div class="stc-skel" style="width:70%;height:10px;margin-top:14px"></div><div class="stc-skel" style="width:100%;height:10px;margin-top:22px"></div><div class="stc-skel" style="width:100%;height:10px;margin-top:10px"></div><div class="stc-skel" style="width:86%;height:10px;margin-top:10px"></div></div>';
+  return '<div role="status" aria-live="polite" aria-label="Đang tải số liệu">' + '<div class="stc-toolbar"><div class="stc-tl"><div class="stc-chips"><span class="stc-chip"><i></i>Đang tải số liệu…</span></div></div></div>' + '<div class="stc-g2">' + card + card + '</div></div>';
+}
+/* Không nạp được nguồn số liệu (không tải được tệp bản chụp) */
+function stcErrorScreen() {
+  return '<div class="stc-toolbar"><div class="stc-tl"><div class="stc-chips"><span class="stc-chip demo"><i></i>Không tải được số liệu</span></div></div></div>' +
+    '<div class="stc-card"><div class="stc-empty stc-err" style="min-height:260px">' + STC_ICON_WARN + '<b>Không tải được số liệu của Sở Tài chính</b><span style="font-size:12px;max-width:420px">Tệp bản chụp số liệu (' + (STC_DEMO_ON ? 'js/features/stc-demo-data.js' : 'js/data/stc-snapshot.js') + ') không tải được. Kiểm tra kết nối mạng hoặc tệp đã được đưa lên máy chủ, rồi thử lại. Form không hiển thị số nào khi chưa tải được dữ liệu.</span><button type="button" class="stc-btn primary" style="margin-top:10px" onclick="stcReload()">' + STC_ICON_REFRESH + 'Thử lại</button></div></div>';
+}
+function stcScreenHtml() {
+  if (STC_UI.loading) return stcSkeleton();
+  if (STC_UI.error) return stcErrorScreen();
+  const res = stcRes();
+  if (STC_UI.screen === 'group') return stcScreenGroup(res);
+  if (STC_UI.screen === 'detail') return stcScreenDetail(res);
+  return stcScreenHome(res);
+}
+/* Tiêu đề popup (đặt vào phần đầu của #modal của IOC) */
+function stcScreenMeta() {
+  if (STC_UI.screen === 'group') {
+    const gi = STC_GROUPS.findIndex((g) => g.id === STC_UI.group), g = STC_GROUPS[gi < 0 ? 0 : gi];
+    return { title: 'Sở Tài chính — ' + g.label, sub: 'Nhóm ' + (gi + 1) + '/' + STC_GROUPS.length + ' · ' + g.inds.length + ' chỉ tiêu' };
+  }
+  if (STC_UI.screen === 'detail') {
+    const it = STC_INDICATORS.find((i) => i.id === STC_UI.ind);
+    return { title: 'Sở Tài chính — Chi tiết chỉ tiêu', sub: it ? it.label : '' };
+  }
+  return { title: 'Sở Tài chính — Bộ chỉ tiêu kinh tế – tài chính Thủ đô', sub: 'Số liệu tổng hợp cấp Thành phố từ API của Sở Tài chính Hà Nội' };
+}
+/* Form dùng đúng popup chuẩn của IOC (#modal): cùng khung, nền, nút đóng ×, nền mờ, cách cuộn và giao diện sáng/tối/xanh. */
+/* Khối "Nhiệm vụ đã giao" dùng chung của IOC (giống các lĩnh vực khác), gắn với lĩnh vực Sở Tài chính; nằm dưới các chỉ tiêu. */
+function stcTasksHtml() {
+  if (typeof fieldScenarioSummary !== 'function' || STC_UI.loading || STC_UI.error) return '';
+  try { return '<div class="stc-tasks" style="margin-top:18px">' + fieldScenarioSummary('cat::' + (STC_UI.role || (typeof currentRole !== 'undefined' ? currentRole : 'UBND')) + '::ubnd-taichinh') + '</div>'; } catch (e) { return ''; }
+}
+function stcRerender(resetScroll) {
+  const body = document.getElementById('modalBody'), title = document.getElementById('modalTitle'), sub = document.getElementById('modalSub');
+  if (!body || !STC_UI.open) return;
+  const top = body.scrollTop, meta = stcScreenMeta();
+  if (title) title.textContent = meta.title;
+  if (sub) sub.textContent = (STC_DEMO_ON ? 'DỮ LIỆU MẪU · ' : '') + meta.sub;
+  body.innerHTML = '<div class="stc-root stc-wrap">' + stcScreenHtml() + '</div>' + stcTasksHtml();
+  body.scrollTop = resetScroll ? 0 : top;
+  if (resetScroll && STC_UI.focus && STC_UI.screen === 'group') {
+    const el = body.querySelector('#stc-ind-' + STC_UI.focus);
+    if (el) body.scrollTop = Math.max(0, el.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12);
+  }
+  stcApplyZoom(body);
+}
+/* Phóng to 1 thẻ biểu đồ ra toàn màn hình: tách hẳn thẻ đó ra khỏi #modalBody (chỗ nào khỏi bị #modal/#modalBody
+   cắt bớt do có transform/overflow riêng) và đặt vào 1 lớp phủ cố định phủ kín popup; đóng lại thì render bình
+   thường sẽ tự đặt thẻ về đúng chỗ cũ trong lưới. Lớp phủ mang class "stc-root" để thừa hưởng đúng theme đang chọn. */
+function stcToggleZoom(id) { STC_UI.zoom = STC_UI.zoom === id ? null : id; stcRerender(false); }
+function stcZoomLayer() {
+  let el = document.getElementById('stcZoomLayer');
+  if (el) return el;
+  el = document.createElement('div');
+  el.id = 'stcZoomLayer';
+  el.className = 'stc-zoom-layer stc-root';
+  el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-modal', 'true');
+  el.addEventListener('click', (e) => { if (e.target === el) { STC_UI.zoom = null; stcRerender(false); } });
+  document.body.appendChild(el);
+  return el;
+}
+function stcRemoveZoomLayer() {
+  const el = document.getElementById('stcZoomLayer');
+  if (el && el.parentNode) el.parentNode.removeChild(el);
+}
+function stcApplyZoom(body) {
+  if (!STC_UI.zoom) { stcRemoveZoomLayer(); return; }
+  const card = body.querySelector('#stc-ind-' + STC_UI.zoom);
+  if (!card) { STC_UI.zoom = null; stcRemoveZoomLayer(); return; }        // chỉ tiêu này không có ở màn hiện tại (vd. vừa đổi kỳ/nhóm)
+  const layer = stcZoomLayer();
+  layer.innerHTML = '';
+  card.style.removeProperty('--stc-zoom');                                // đo ở tỉ lệ 1x trước, tính độ phóng sau
+  layer.appendChild(card);
+  /* Lấp vừa khung, không chừa khoảng trống thừa phía dưới: đo chiều cao nội dung thật ở tỉ lệ 1x rồi phóng theo
+     chiều cao cho khít khung sẵn có (không tràn ngang); nội dung sẵn cao hơn khung thì giữ nguyên 1x, tự cuộn. */
+  if (typeof requestAnimationFrame === 'function') {
+    requestAnimationFrame(() => {
+      if (STC_UI.zoom == null || !layer.contains(card)) return;           // đã đóng/đổi thẻ trong lúc chờ đo
+      const availW = layer.clientWidth - 32, availH = layer.clientHeight - 32;
+      const natW = card.scrollWidth, natH = card.scrollHeight;
+      if (natW > 0 && natH > 0 && availW > 0 && availH > 0) {
+        const scale = Math.max(1, Math.min(availH / natH, availW / natW, 2.6));
+        card.style.setProperty('--stc-zoom', scale.toFixed(3));
+      }
+    });
+  }
+}
+function stcOpenForm(itemIndex, role) {
+  if (role) STC_UI.role = role;
+  /* itemIndex tra theo STC_ITEMS (thẻ 0 = Tổng quan, thẻ 1–4 = 4 nhóm), không dùng chỉ số thô để không lệch khi đổi thứ tự thẻ.
+     Không chỉ định thẻ nào (vd. quay về từ luồng giao nhiệm vụ) → giữ nhóm đang xem gần nhất, không phải Tổng quan. */
+  const it = typeof itemIndex === 'number' ? STC_ITEMS[itemIndex] : null;
+  STC_UI.focus = null; STC_UI.dd = null; STC_UI.zoom = null;
+  if (it && it.stcKey === 'home') {
+    STC_UI.screen = 'home'; STC_UI.pick = null;
+  } else {
+    const key = it ? it.stcKey : STC_UI.group;
+    const g = STC_GROUPS.find((x) => x.id === key) || STC_GROUPS[0];
+    STC_UI.screen = 'group'; STC_UI.group = g.id; STC_UI.pick = null;
+  }
+  if (typeof SGD_UI !== 'undefined') SGD_UI.open = false;          // popup đang thuộc về form Sở Tài chính
+  if (typeof HCC_UI !== 'undefined') HCC_UI.open = false;
+  STC_UI.open = true; STC_UI.loading = true; STC_UI.error = false;
+  stcRerender(true);                                  // mở popup ngay với khung chờ
+  if (typeof openModal === 'function') openModal();
+  stcEnsureReady().then(() => { stcSettleSource(true); });
+}
+/* Sau khi nạp nguồn xong: bỏ khung chờ, báo lỗi nếu không có dữ liệu, chọn lại kỳ hợp lệ rồi vẽ. */
+function stcSettleSource(resetScroll) {
+  STC_UI.loading = false;
+  STC_UI.error = !!STC_LOAD_ERR || !stcSnapshotObj();
+  if (!STC_UI.error) {
+    const latest = stcDefaultPeriod();
+    if (!STC_UI.year || !stcHasPeriod(STC_UI.year, STC_UI.period)) { STC_UI.year = latest ? latest.year : new Date().getFullYear(); STC_UI.period = latest ? latest.period : 1; }
+  }
+  stcRerender(resetScroll);
+  try { if (typeof renderIndicators === 'function') renderIndicators(); } catch (e) { /* lưới chỉ tiêu vẽ lại khi mở lần sau */ }
+}
+/* Nút "Tải lại" / "Thử lại": nạp lại tệp số liệu; giữ khung chờ tối thiểu 400 ms để không nhấp nháy. */
+function stcReload() {
+  if (STC_UI.loading) return;
+  STC_UI.loading = true; STC_UI.error = false; STC_UI.dd = null;
+  stcRerender(false);
+  Promise.all([stcReloadSource(), new Promise((r) => setTimeout(r, 400))]).then(() => { stcSettleSource(false); });
+}/* Nút "Xem dữ liệu mẫu": chuyển giữa số thật (bản chụp API) và số mẫu tự đặt; kỳ tự chọn lại theo nguồn. */
+function stcToggleDemo() {
+  stcSetDemo(!STC_DEMO_ON).then(() => {
+    const list = stcPeriods();
+    const pick = STC_DEMO_ON ? list.slice().reverse()[0] : list[0];
+    if (pick) { STC_UI.year = pick.year; STC_UI.period = pick.period; }
+    STC_UI.pick = null;
+    stcRerender(false);
+    try { if (typeof renderIndicators === 'function') renderIndicators(); } catch (e) { /* lưới chỉ tiêu vẽ lại khi mở lần sau */ }
+  });
+}
+function stcClose() {
+  STC_UI.open = false;
+  STC_UI.zoom = null;
+  stcRemoveZoomLayer();
+  if (typeof closeModal === 'function') closeModal();
+}
+/* Esc đóng popup (IOC chưa có sẵn) — chỉ khi popup đang chứa form STC */
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || !STC_UI.open) return;
+    const m = document.getElementById('modal');
+    if (!(m && m.classList.contains('open') && m.querySelector('.stc-root'))) return;
+    if (STC_UI.zoom) { STC_UI.zoom = null; stcRerender(false); return; }   // Esc đầu tiên chỉ thu nhỏ thẻ đang phóng to
+    if (STC_UI.dd) { STC_UI.dd = null; stcRerender(false); return; }       // rồi mới đến đóng danh sách đang sổ
+    stcClose();
+  });
+  /* bấm ra ngoài hộp chọn thì thu danh sách lại */
+  document.addEventListener('click', (e) => {
+    if (!STC_UI.dd || !STC_UI.open) return;
+    if (e.target && e.target.closest && e.target.closest('.stc-dd')) return;
+    STC_UI.dd = null;
+    stcRerender(false);
+  });
+}function stcGo(screen, arg) {
+  STC_UI.focus = null; STC_UI.dd = null; STC_UI.zoom = null;
+  STC_UI.screen = screen;
+  if (screen === 'group' && arg) STC_UI.group = arg;
+  STC_UI.pick = null;
+  stcRerender(true);
+}
+function stcDetail(indId) { STC_UI.focus = null; STC_UI.dd = null; STC_UI.zoom = null; STC_UI.screen = 'detail'; if (indId) STC_UI.ind = (stcRes() && stcRes().rootOf[indId] ? stcRes().rootOf[indId].id : indId); STC_UI.pick = null; stcRerender(true); }
+function stcPick(id) { STC_UI.pick = STC_UI.pick === id ? null : id; stcRerender(false); }
+function stcStep(d) {
+  const at = STC_INDICATORS.findIndex((i) => i.id === STC_UI.ind);
+  STC_UI.ind = STC_INDICATORS[(at + d + STC_INDICATORS.length) % STC_INDICATORS.length].id;
+  STC_UI.pick = null;
+  stcRerender(true);
+}
+function stcSetYear(v) {
+  STC_UI.dd = null;
+  STC_UI.year = Number(v);
+  const same = stcHasPeriod(STC_UI.year, STC_UI.period);
+  if (!same) { const p = [1, 2, 3, 4].filter((q) => stcHasPeriod(STC_UI.year, q)).pop(); if (p) STC_UI.period = p; }
+  STC_UI.pick = null;
+  stcRerender(false);
+}
+function stcSetPeriod(v) { STC_UI.dd = null; STC_UI.period = Number(v); STC_UI.pick = null; stcRerender(false); }
+
+/* ---------- Xuất Excel ---------- */
+async function stcExport() {
+  const res = stcRes();
+  if (!res) { if (typeof toast === 'function') toast('Chưa có bản chụp cho kỳ này để xuất.'); return; }
+  if (typeof ExcelJS === 'undefined') { if (typeof toast === 'function') toast('Thư viện xuất Excel chưa tải xong, thử lại sau giây lát.'); return; }
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet('Chỉ tiêu');
+  const note = 'Sở Tài chính Hà Nội · ' + stcQ(res.year, res.period) + ' · số liệu chụp lúc ' + stcStampText(res.importedAt) + (res.demo ? ' · DỮ LIỆU MẪU, KHÔNG PHẢI SỐ LIỆU THẬT' : '');
+  ws.addRow([note]).font = { italic: true };
+  ws.addRow([STC_ASSUME.unitNote]).font = { italic: true };
+  ws.addRow([]);
+  const pq = stcPrevQ(res.year, res.period);
+  ws.addRow(['Nhóm', 'Chỉ tiêu', 'Thành phần', 'Kỳ này (' + stcQ(res.year, res.period) + ')', 'Kỳ trước (' + stcQ(pq.year, pq.period) + ')', 'So kỳ trước', 'Cùng kỳ năm trước (' + stcQ(res.year - 1, res.period) + ')', 'So cùng kỳ', 'Đơn vị', 'Trạng thái', 'Mã API']).font = { bold: true };
+  const num = (v) => (v == null ? null : v);
+  /* Mức thay đổi ghi kèm đơn vị: "%" hoặc "điểm %" / "điểm" để không nhầm */
+  const dv = (n, which) => { const v = which === 'kq' ? stcDeltaKq(n) : stcDeltaCq(n); if (v == null) return null; const u = stcDeltaUnit(n, which); return stcSgn(v, 1) + (u === '%' ? '%' : ' ' + u); };
+  const row = (g, ind, label, n, st, api) => {
+    const ok = ind.state === 'ok';
+    ws.addRow([g.label, ind.label, label, ok ? num(n.now) : null, ok ? num(n.kq) : null, ok ? dv(n, 'kq') : null, ok && n.kind !== 'idx' ? num(stcPrev(n)) : null, ok ? dv(n, 'cq') : null, ind.unit, st, api]);
+  };
+  res.groups.forEach((g) => g.inds.forEach((ind) => {
+    const st = ind.state === 'ok' ? 'Có số' : ind.state === 'nodata' ? 'Chưa có số liệu' : 'Không nhận diện được';
+    row(g, ind, '(tổng)', ind, st, ind.apis.join(' + '));
+    const add = (n, depth) => (n.kids || []).forEach((k) => {
+      row(g, ind, '   '.repeat(depth) + k.label, k, st, k.api || ind.apis[0]);
+      add(k, depth + 1);
+    });
+    add(ind, 1);
+  }));
+  ws.columns = [{ width: 26 }, { width: 46 }, { width: 46 }, { width: 16 }, { width: 16 }, { width: 14 }, { width: 22 }, { width: 14 }, { width: 14 }, { width: 22 }, { width: 30 }];
+  const raw = wb.addWorksheet('Số liệu gốc API');
+  raw.addRow(['Mã API', 'chiTieu', 'loai', 'giaTri', 'quy']).font = { bold: true };
+  const snap = stcSnapshotObj().periods[res.year + '-' + res.period].data;
+  Object.keys(snap).forEach((code) => snap[code].forEach((r) => raw.addRow([code, r.chiTieu, r.loai, r.giaTri, r.quy])));
+  raw.columns = [{ width: 28 }, { width: 60 }, { width: 44 }, { width: 14 }, { width: 12 }];
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'so-tai-chinh-Q' + res.period + '-' + res.year + (res.demo ? '-DU-LIEU-MAU' : '') + '.xlsx';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+/* ---------- Thẻ xem trước ở lưới chỉ tiêu (indicators.js gọi qua catItemPreviewBody) ----------
+   Mỗi thẻ = một NHÓM (một popup): liệt kê gọn các chỉ tiêu của nhóm với số chính và mức tăng giảm. */
+function stcDefaultPeriod() { return STC_DEMO_ON ? stcPeriods().slice().reverse()[0] : stcLatestPeriod(); }
+/* Biểu đồ nhỏ dưới mỗi dòng ở thẻ xem trước (thẻ nằm ngoài .stc-root nên dùng màu trực tiếp, không dùng biến CSS). */
+const STC_MINI_COLORS = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181'];
+const STC_MINI_TRACK = 'rgba(127,150,180,.30)';
+function stcMiniViz(ind) {
+  if (ind.state !== 'ok') return '';
+  const h = 'height:4px;border-radius:3px;margin:3px 0 1px;';
+  const seg = (w, c, gap) => '<i style="display:block;flex:' + Math.max(w, 0.5) + ' 1 0;background:' + c + ';border-radius:3px;' + (gap ? 'margin-left:2px' : '') + '"></i>';
+  if (ind.id === 'da') {   // mỗi nhóm dự án một thanh nhỏ, độ đầy = % hoàn thành của chính nhóm đó (không tính trung bình)
+    return '<div style="display:flex;gap:3px;margin:3px 0 1px">' + ind.kids.map((k) => '<span style="flex:1 1 0;height:4px;border-radius:3px;background:' + STC_MINI_TRACK + ';overflow:hidden"><i style="display:block;height:100%;width:' + Math.max(0, Math.min(100, k.now || 0)) + '%;background:#3987e5"></i></span>').join('') + '</div>';
+  }
+  if (ind.id === 'xnk') {
+    const x = ind.kids[0].now, n = ind.kids[1].now, m = Math.max(x, n, 1);
+    const bar = (v, c) => '<span style="display:block;height:3px;border-radius:3px;background:' + STC_MINI_TRACK + ';margin:2px 0"><i style="display:block;height:100%;width:' + (v / m * 100) + '%;background:' + c + ';border-radius:3px"></i></span>';
+    return '<div style="margin:3px 0 1px">' + bar(x, '#3987e5') + bar(n, '#d95926') + '</div>';
+  }
+  if (ind.kind === 'idx' || ind.id === 'gia') {   // thang 0–200, vạch mốc 100
+    const v = ind.id === 'gia' ? ind.kids[0].now : ind.now;
+    if (v == null) return '';
+    const p = Math.max(0, Math.min(100, v / 200 * 100));
+    return '<div style="position:relative;' + h + 'background:' + STC_MINI_TRACK + '"><i style="position:absolute;left:50%;top:-2px;width:1px;height:8px;background:rgba(127,150,180,.9)"></i><i style="position:absolute;left:calc(' + p + '% - 4px);top:-2px;width:8px;height:8px;border-radius:50%;background:#3987e5"></i></div>';
+  }
+  const kids = ind.kids.filter((k) => k.now > 0);
+  if (kids.length >= 2) return '<div style="display:flex;' + h + '">' + kids.map((k, i) => seg(k.now, STC_MINI_COLORS[i % 5], i)).join('') + '</div>';
+  return '';
+}
+function stcPreviewLine(ind) {
+  const nm = STC_SHORT[ind.id] || ind.label;
+  let val = '—', dl = '';
+  if (ind.state === 'ok') {
+    if (ind.id === 'da') val = ind.kids.length + ' nhóm';
+    else if (ind.id === 'xnk') { const b = ind.kids[0].now - ind.kids[1].now; val = stcSgn(b, 0) + ' <span style="opacity:.7;font-weight:500;font-size:10.5px">triệu USD</span>'; }
+    else if (ind.id === 'gia') val = stcFmt(ind.kids[0].now, 1) + ' <span style="opacity:.7;font-weight:500;font-size:10.5px">%</span>';
+    else val = stcVal(ind) + ' <span style="opacity:.7;font-weight:500;font-size:10.5px">' + stcE(ind.kind === 'idx' ? '%' : ind.unit) + '</span>';
+    /* Hai dòng nhỏ: so kỳ trước, so cùng kỳ (có chú thích khi rê chuột) */
+    const one = (which, ref) => {
+      const y = which === 'kq' ? stcDeltaKq(ind) : stcDeltaCq(ind), u = stcDeltaUnit(ind, which);
+      const t = y == null ? '—' : (y > 0.0499 ? '▲ ' : y < -0.0499 ? '▼ ' : '') + stcFmt(Math.abs(y), 1) + (u === '%' ? '%' : ' ' + u);
+      return '<span style="display:block;cursor:help" title="' + stcE(stcDlTip(ind, which, y)) + '">' + t + ' <span style="opacity:.65;font-size:10px">' + ref + '</span></span>';
+    };
+    if (['da', 'xnk', 'gia'].indexOf(ind.id) < 0 && (stcDeltaKq(ind) != null || stcDeltaCq(ind) != null)) dl = one('kq', 'kỳ trước') + one('cq', 'cùng kỳ');
+  }
+  return '<div style="font-size:12px;padding:4px 0 3px;border-top:1px solid rgba(87,178,255,.14)"><div style="display:grid;grid-template-columns:minmax(0,1fr) auto 104px;gap:8px;align-items:baseline"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.9">' + stcE(nm) + '</span><b style="font-variant-numeric:tabular-nums;white-space:nowrap">' + val + '</b><span style="text-align:right;opacity:.85;font-size:11px;white-space:nowrap">' + dl + '</span></div>' + stcMiniViz(ind) + '</div>';
+}
+/* Thẻ xem trước riêng cho thẻ "Tổng quan" ở lưới chỉ tiêu: vài số nổi bật của cả 4 nhóm, không phải của riêng một nhóm. */
+function stcOverviewPreviewBody() {
+  const latest = stcDefaultPeriod();
+  const res = latest ? stcBuildPeriod(latest.year, latest.period) : null;
+  const label = 'Tổng quan';
+  if (!res) return { label: label, bodyHtml: '<p class="cpi-legend">Chưa có bản chụp số liệu.</p>' };
+  const rows = ['thu', 'chi', 'grdp', 'iip'].map((id) => res.byId[id]).filter(Boolean).map(stcPreviewLine).join('');
+  const total = STC_INDICATORS.length, withData = STC_INDICATORS.filter((s) => res.byId[s.id] && res.byId[s.id].state === 'ok').length;
+  const foot = '<p class="cpi-legend" style="margin:8px 0 0;font-size:11px;line-height:1.3;display:flex;justify-content:space-between;gap:8px"><span>' + stcQ(res.year, res.period) + ' · ' + STC_GROUPS.length + ' nhóm · ' + total + ' chỉ tiêu' + (withData < total ? ' · ' + (total - withData) + ' chưa có số' : '') + '</span>' + (STC_DEMO_ON ? '<span style="color:#f2b636;font-weight:700;font-size:10.5px;letter-spacing:.3px">DỮ LIỆU MẪU</span>' : '') + '</p>';
+  return { label: label, bodyHtml: '<div style="margin-top:4px">' + rows + '</div>' + foot };
+}
+/* Băng "Tổng quan" đưa ra NGOÀI popup, nằm ngay trong lưới chỉ tiêu của IOC (thay cho thẻ xem trước rút gọn ở trên):
+   7 ô KPI y hệt màn Trang chủ – tổng quan trong popup, rộng hết cả hàng lưới. Bấm 1 ô KPI mở thẳng popup đúng
+   nhóm chứa chỉ tiêu đó (chưa mở popup nên dùng openCategoryDetail, không dùng stcGo); bấm "Xem tổng quan đầy đủ ›"
+   mở popup ở màn Trang chủ (7 ô KPI + 4 thẻ nhóm + ghi chú). Không dùng <button> bọc ngoài vì bên trong đã có các
+   nút KPI riêng — button lồng button là HTML không hợp lệ. */
+function stcOverviewBandHtml(cat, idx) {
+  const latest = stcDefaultPeriod();
+  const res = latest ? stcBuildPeriod(latest.year, latest.period) : null;
+  const openArgs = (i) => "'" + cat.role + "','" + cat.id + "'," + i;
+  const groupIdx = (target) => { const i = STC_ITEMS.findIndex((x) => x.stcKey === target); return i < 0 ? idx : i; };
+  let body;
+  if (!res) {
+    body = '<p class="cpi-legend">Chưa có bản chụp số liệu.</p>';
+  } else {
+    body = '<div class="stc-kpis">' + STC_KPIS.map((k) => stcKpiTile(k, res, 'openCategoryDetail(' + openArgs(groupIdx(k.target)) + ')')).join('') + '</div>';
+    body += '<div class="stc-sec" style="margin:4px 0 12px">Bốn nhóm chỉ tiêu · mỗi nhóm một màn hình</div>';
+    body += '<div class="stc-g2">' + res.groups.map((g, i) => stcGroupCardHome(g, i, res, 'openCategoryDetail(' + openArgs(groupIdx(g.id)) + ')')).join('') + '</div>';
+    body += stcHomeQualityNote(res);
+  }
+  const foot = res ? '<p class="cpi-legend" style="margin:10px 0 0;font-size:11px;display:flex;justify-content:space-between;gap:8px"><span>' + stcQ(res.year, res.period) + ' · 4 nhóm · ' + STC_INDICATORS.length + ' chỉ tiêu</span>' + (STC_DEMO_ON ? '<span style="color:#f2b636;font-weight:700;font-size:10.5px;letter-spacing:.3px">DỮ LIỆU MẪU</span>' : '') + '</p>' : '';
+  return '<div class="field-category-card so-item-card stc-overview-band" style="grid-column:1/-1"><div class="stc-root" style="background:transparent;overflow:visible">' +
+    '<div class="stc-gh" style="margin-bottom:12px"><h4 style="margin:0">Tổng quan</h4><button type="button" class="stc-gmore" style="background:none;border:0;cursor:pointer;padding:0;font:inherit" onclick="openCategoryDetail(' + openArgs(idx) + ')">Xem tổng quan đầy đủ ›</button></div>' +
+    body + foot + '</div></div>';
+}
+function stcPreviewBody(it) {
+  if (it.stcKey === 'home') return stcOverviewPreviewBody();
+  const g = STC_GROUPS.find((x) => x.id === it.stcKey);
+  const label = g ? g.label : it[0];
+  const latest = stcDefaultPeriod();
+  const res = latest ? stcBuildPeriod(latest.year, latest.period) : null;
+  if (!g || !res) return { label: label, bodyHtml: '<p class="cpi-legend">Chưa có bản chụp số liệu.</p>' };
+  const rows = g.inds.map((id) => res.byId[id]).filter(Boolean).map(stcPreviewLine).join('');
+  const withData = g.inds.filter((id) => res.byId[id] && res.byId[id].state === 'ok').length;
+  const foot = '<p class="cpi-legend" style="margin:8px 0 0;font-size:11px;line-height:1.3;display:flex;justify-content:space-between;gap:8px"><span>' + stcQ(res.year, res.period) + ' · ' + g.inds.length + ' chỉ tiêu' + (withData < g.inds.length ? ' · ' + (g.inds.length - withData) + ' chưa có số' : '') + '</span>' + (STC_DEMO_ON ? '<span style="color:#f2b636;font-weight:700;font-size:10.5px;letter-spacing:.3px">DỮ LIỆU MẪU</span>' : '') + '</p>';
+  return { label: label, bodyHtml: '<div style="margin-top:4px">' + rows + '</div>' + foot };
+}
+</script>
+</body>
+</html>

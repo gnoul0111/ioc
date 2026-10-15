@@ -1,0 +1,19 @@
+[
+  {"id": "c2", "text": "Trung tâm điều hành thông minh, gọi tắt là IOC, được xây dựng nhằm phục vụ công tác quản lý, chỉ đạo và điều hành của thành phố Hà Nội."},
+  {"id": "c3", "text": "Việc kết nối, tổng hợp và khai thác dữ liệu từ các hệ thống thông tin là yêu cầu thiết yếu nhằm bảo đảm thông tin thống nhất, kịp thời, phục vụ công tác điều hành."},
+  {"id": "c4", "text": "IOC cung cấp thông tin tổng hợp, hỗ trợ nhận diện vấn đề thông qua cảnh báo, tổ chức giao nhiệm vụ và theo dõi kết quả thực hiện; từng bước nâng cao hiệu quả điều hành trên cơ sở dữ liệu."},
+  {"id": "c5", "text": "Hệ thống được xây dựng theo mô hình liên thông bốn trục, gồm Thành ủy, Hội đồng nhân dân, Ủy ban nhân dân và Ủy ban Mặt trận Tổ quốc Việt Nam thành phố Hà Nội."},
+  {"id": "c6", "text": "Việc truy cập được thực hiện thông qua ứng dụng điều hành số thống nhất trên nền tảng web và thiết bị di động, sử dụng một định danh số duy nhất."},
+  {"id": "c7", "text": "Mỗi trục được bố trí không gian làm việc phù hợp với chức năng, nhiệm vụ và phạm vi phân quyền."},
+  {"id": "c8", "text": "Nền tảng điều hành và tác nghiệp dùng chung tích hợp các chức năng quản lý chỉ đạo, văn bản, nhiệm vụ, báo cáo và cảnh báo; đồng thời áp dụng cơ chế đăng nhập một lần và phân quyền thống nhất."},
+  {"id": "c9", "text": "Dữ liệu từ các hệ thống nguồn của mười bốn sở, ba đơn vị ngang sở và một trăm hai mươi sáu xã, phường được tiếp nhận, chuẩn hóa và tổng hợp vào kho dữ liệu điều hành. Trên cơ sở đó, hệ thống cung cấp các bảng thông tin tổng hợp theo từng trục, bản đồ số và cảnh báo thông minh."},
+  {"id": "c10", "text": "Việc quản lý, khai thác dữ liệu tuân thủ nguyên tắc nhập một lần, sử dụng nhiều lần, hạn chế trùng lặp; bảo đảm dữ liệu đúng, đủ, sạch và được cập nhật thường xuyên."},
+  {"id": "c11", "text": "Màn hình tổng quan cung cấp thông tin khái quát về tình hình hoạt động và các nội dung trọng tâm, phục vụ công tác theo dõi, đánh giá và điều hành."},
+  {"id": "c12", "text": "Văn bản chỉ đạo cùng các nhiệm vụ được giao và tiếp nhận được quản lý thống nhất, gắn với thời hạn xử lý, tiến độ thực hiện và kết quả hoàn thành."},
+  {"id": "c13", "text": "Các chỉ tiêu của sở, ngành được trình bày theo cấu trúc thống nhất, gồm thông tin chỉ số, mức độ hoàn thành và biểu đồ diễn biến; kèm theo nguồn dữ liệu và thời điểm cập nhật."},
+  {"id": "c14", "text": "Hệ thống tự động cảnh báo đối với nhiệm vụ sắp đến hạn, quá hạn và chỉ số vượt ngưỡng thiết lập; đồng thời hỗ trợ tra cứu thông tin chi tiết theo từng đơn vị, địa bàn trong phạm vi được phân quyền."},
+  {"id": "c15", "text": "Bản đồ số hỗ trợ hiển thị phạm vi ba mươi tư tỉnh, thành phố, bao gồm quần đảo Hoàng Sa và quần đảo Trường Sa."},
+  {"id": "c16", "text": "Thông tin về tổ chức, tài khoản và quyền truy cập được quản trị tập trung. Các thao tác trên hệ thống được ghi nhật ký, phục vụ công tác kiểm tra và giám sát."},
+  {"id": "c17", "text": "Với dữ liệu được tập trung, xác định rõ nguồn và cập nhật kịp thời, IOC hỗ trợ công tác phân tích, đánh giá và ra quyết định; giảm trùng lặp trong nhập liệu, tăng cường phối hợp và liên thông trong toàn hệ thống."},
+  {"id": "c18", "text": "Trung tâm điều hành thông minh IOC góp phần nâng cao hiệu quả quản lý, chỉ đạo và điều hành trên cơ sở dữ liệu, hướng tới sự kịp thời, chính xác và minh bạch. Xin trân trọng cảm ơn."}
+]

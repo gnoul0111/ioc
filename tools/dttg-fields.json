@@ -1,0 +1,237 @@
+[
+ {
+  "eform": "Chương trình mục tiêu quốc gia phát triển kinh tế - xã hội vùng đồng bào dân tộc thiểu số và miền núi",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Mã dự án/tiểu dự án/hoạt động",
+    "ma_du_an_hoat_dong",
+    "Chữ"
+   ],
+   [
+    "Tên dự án/tiểu dự án/hoạt động",
+    "ten_du_an_hoat_dong",
+    "Chữ"
+   ],
+   [
+    "Dự án thành phần/Nội dung CTMTQG",
+    "du_an_thanh_phan_noi_dung",
+    "Danh mục"
+   ],
+   [
+    "Loại bản ghi",
+    "loai_ban_ghi",
+    "Danh mục"
+   ],
+   [
+    "Nguồn vốn",
+    "nguon_von",
+    "Danh mục"
+   ],
+   [
+    "Kế hoạch vốn năm (triệu đồng)",
+    "ke_hoach_von_nam_trieu_dong",
+    "Số"
+   ],
+   [
+    "Vốn được phân bổ (triệu đồng)",
+    "von_duoc_phan_bo_trieu_dong",
+    "Số"
+   ],
+   [
+    "Giải ngân kỳ này (triệu đồng)",
+    "giai_ngan_ky_nay_trieu_dong",
+    "Số"
+   ],
+   [
+    "Giải ngân lũy kế (triệu đồng)",
+    "giai_ngan_luy_ke_trieu_dong",
+    "Số"
+   ],
+   [
+    "Tỷ lệ giải ngân/KH",
+    "ty_le_giai_ngan_ke_hoach",
+    "Số"
+   ],
+   [
+    "Tỷ lệ giải ngân/phân bổ",
+    "ty_le_giai_ngan_phan_bo",
+    "Số"
+   ],
+   [
+    "Trạng thái triển khai",
+    "trang_thai_trien_khai",
+    "Danh mục"
+   ],
+   [
+    "Tiến độ kế hoạch (%)",
+    "tien_do_ke_hoach_pct",
+    "Số"
+   ],
+   [
+    "Tiến độ thực tế (%)",
+    "tien_do_thuc_te_pct",
+    "Số"
+   ],
+   [
+    "Đúng tiến độ?",
+    "dung_tien_do",
+    "Danh mục"
+   ],
+   [
+    "Vốn đình trệ do pháp lý/TTHC (triệu đồng)",
+    "von_dinh_tre_phap_ly_tthc_trieu_dong",
+    "Số"
+   ],
+   [
+    "Tỷ lệ vốn đình trệ",
+    "ty_le_von_dinh_tre",
+    "Số"
+   ],
+   [
+    "Số vụ vi phạm/sai phạm",
+    "so_vu_vi_pham_sai_pham",
+    "Số"
+   ],
+   [
+    "Có báo cáo KTGS đúng hạn?",
+    "bao_cao_ktgs_dung_han",
+    "Danh mục"
+   ],
+   [
+    "Áp dụng công nghệ số/báo cáo tháng?",
+    "ap_dung_cong_nghe_so",
+    "Danh mục"
+   ],
+   [
+    "Số hộ DTTS",
+    "so_ho_dtts",
+    "Số"
+   ],
+   [
+    "Số hộ DTTS dùng nước HVS",
+    "so_ho_dtts_dung_nuoc_hvs",
+    "Số"
+   ],
+   [
+    "Tỷ lệ hộ DTTS dùng nước HVS",
+    "ty_le_ho_dtts_dung_nuoc_hvs",
+    "Số"
+   ],
+   [
+    "Số địa bàn có đường ô tô đến trung tâm",
+    "so_dia_ban_co_duong_o_to_den_trung_tam",
+    "Số"
+   ],
+   [
+    "Số địa bàn đã cứng hóa",
+    "so_dia_ban_da_cung_hoa",
+    "Số"
+   ],
+   [
+    "Tỷ lệ đường trung tâm cứng hóa",
+    "ty_le_duong_trung_tam_cung_hoa",
+    "Số"
+   ],
+   [
+    "HS trong độ tuổi đi học",
+    "so_hs_trong_do_tuoi",
+    "Số"
+   ],
+   [
+    "HS đi học đúng cấp",
+    "so_hs_di_hoc_dung_cap",
+    "Số"
+   ],
+   [
+    "Tỷ lệ HS đi học đúng cấp",
+    "ty_le_hs_di_hoc_dung_cap",
+    "Số"
+   ],
+   [
+    "Hộ nghèo đầu kỳ",
+    "so_ho_ngheo_dau_ky",
+    "Số"
+   ],
+   [
+    "Hộ nghèo cuối kỳ",
+    "so_ho_ngheo_cuoi_ky",
+    "Số"
+   ],
+   [
+    "Tỷ lệ giảm hộ nghèo",
+    "ty_le_giam_ho_ngheo",
+    "Số"
+   ],
+   [
+    "Vướng mắc/Nguyên nhân",
+    "vuong_mac_nguyen_nhan",
+    "Chữ"
+   ],
+   [
+    "Kiến nghị xử lý",
+    "kien_nghi_xu_ly",
+    "Chữ"
+   ],
+   [
+    "Nguồn dữ liệu",
+    "nguon_du_lieu",
+    "Danh mục"
+   ],
+   [
+    "Minh chứng URL",
+    "minh_chung_url",
+    "Chữ"
+   ],
+   [
+    "Người nhập",
+    "nguoi_nhap",
+    "Chữ"
+   ],
+   [
+    "Người xác nhận",
+    "nguoi_xac_nhan",
+    "Chữ"
+   ],
+   [
+    "Trạng thái đối soát",
+    "trang_thai_doi_soat",
+    "Danh mục"
+   ],
+   [
+    "Cờ dữ liệu",
+    "trang_thai_chat_luong_du_lieu",
+    "Danh mục"
+   ]
+  ]
+ }
+]

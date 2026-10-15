@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>IOC video – demo</title>
+<link rel="stylesheet" href="../node_modules/@fontsource/be-vietnam-pro/400.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/be-vietnam-pro/500.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/be-vietnam-pro/600.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/be-vietnam-pro/700.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/be-vietnam-pro/800.css">
+<link rel="stylesheet" href="../node_modules/@fontsource/be-vietnam-pro/900.css">
+<link rel="stylesheet" href="stage.css">
+<script src="../node_modules/gsap/dist/gsap.min.js"></script>
+</head>
+<body>
+<div id="stage">
+  <canvas id="bg" class="layer" width="1920" height="1080"></canvas>
+
+  <!-- A: lật màn hình -->
+  <div id="flipWrap" class="layer"><div id="flipCam"></div><div id="flipTint"></div></div>
+  <div id="flipLabels" class="layer" style="z-index:14"></div>
+  <canvas id="logo" class="layer" width="1920" height="1080" style="z-index:25"></canvas>
+  <div id="title" class="layer">
+    <div class="t1"></div><div class="rule"></div><div class="t2"></div>
+  </div>
+
+  <!-- B: sơ đồ tầng 4–5 -->
+  <div id="dgWrap" class="layer" style="display:none"><div id="dgCam"></div></div>
+
+  <!-- C: băng chuyền chỉ tiêu + tách lớp -->
+  <div id="carWrap" class="layer" style="display:none"><div id="carRing"></div></div>
+  <div id="xbase"><img alt=""></div>
+  <div id="xparts" class="layer" style="z-index:30"></div>
+
+  <canvas id="fx" class="layer" width="1920" height="1080" style="z-index:45; mix-blend-mode:screen"></canvas>
+  <div id="chapters"></div>
+  <div id="vignette" class="layer"></div>
+  <div id="subs"></div>
+  <div id="fadeBlack" class="layer"></div>
+</div>
+<script src="engine.js"></script>
+<script src="demo.js"></script>
+</body>
+</html>

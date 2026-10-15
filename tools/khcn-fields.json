@@ -1,0 +1,342 @@
+[
+ {
+  "eform": "Danh sách KHCN - Hạ tầng và thiết bị số",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Loại đối tượng",
+    "loai_doi_tuong",
+    "Chữ"
+   ],
+   [
+    "Tên đối tượng",
+    "ten_doi_tuong",
+    "Chữ"
+   ],
+   [
+    "Tổng số hộ gia đình (mã 9)",
+    "tong_so_ho_gia_dinh_ma9",
+    "Số"
+   ],
+   [
+    "Số hộ có Internet cáp quang (mã 9)",
+    "so_ho_co_internet_cap_quang_ma9",
+    "Số"
+   ],
+   [
+    "Tỷ lệ hộ có Internet cáp quang - mã 9 (%)",
+    "ty_le_ma9",
+    "Số"
+   ],
+   [
+    "Dân số từ 15 tuổi (mã 42)",
+    "dan_so_tu_15_tuoi_ma42",
+    "Số"
+   ],
+   [
+    "Số người dùng smartphone (mã 42)",
+    "so_nguoi_dung_smartphone_ma42",
+    "Số"
+   ],
+   [
+    "Tỷ lệ dùng smartphone kết nối Internet - mã 42 (%)",
+    "ty_le_ma42",
+    "Số"
+   ],
+   [
+    "Có kết nối Internet cáp quang (mã 10)",
+    "co_ket_noi_internet_cap_quang_ma10",
+    "Danh mục"
+   ],
+   [
+    "Đã đáp ứng hạ tầng CNTT giao ban (mã 12)",
+    "da_dap_ung_ha_tang_cntt_giao_ban_ma12",
+    "Danh mục"
+   ],
+   [
+    "Có wifi công cộng miễn phí (mã 45)",
+    "co_wifi_cong_cong_mien_phi_ma45",
+    "Danh mục"
+   ],
+   [
+    "Có phục vụ DVC trực tuyến (mã 13)",
+    "co_phuc_vu_dvc_truc_tuyen_ma13",
+    "Danh mục"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ]
+  ]
+ },
+ {
+  "eform": "Danh sách KHCN - Con người và cộng đồng số",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Loại đối tượng",
+    "loai_doi_tuong",
+    "Chữ"
+   ],
+   [
+    "Tên đối tượng",
+    "ten_doi_tuong",
+    "Chữ"
+   ],
+   [
+    "Dân số (mã 48)",
+    "dan_so_ma48",
+    "Số"
+   ],
+   [
+    "Số người dùng DVC trực tuyến (mã 48)",
+    "so_nguoi_dung_dvc_truc_tuyen_ma48",
+    "Số"
+   ],
+   [
+    "Tỷ lệ dùng DVC trực tuyến - mã 48 (%)",
+    "ty_le_ma48",
+    "Số"
+   ],
+   [
+    "Dân số từ 14 tuổi (mã 40)",
+    "dan_so_tu_14_tuoi_ma40",
+    "Số"
+   ],
+   [
+    "Số người có danh tính điện tử (mã 40)",
+    "so_nguoi_co_danh_tinh_dien_tu_ma40",
+    "Số"
+   ],
+   [
+    "Tỷ lệ có danh tính điện tử - mã 40 (%)",
+    "ty_le_ma40",
+    "Số"
+   ],
+   [
+    "Dân số trưởng thành (mã 41)",
+    "dan_so_truong_thanh_ma41",
+    "Số"
+   ],
+   [
+    "Số người có chữ ký số (mã 41)",
+    "so_nguoi_co_chu_ky_so_ma41",
+    "Số"
+   ],
+   [
+    "Tỷ lệ có chữ ký số - mã 41 (%)",
+    "ty_le_ma41",
+    "Số"
+   ],
+   [
+    "Dân số (mã 19)",
+    "dan_so_ma19",
+    "Số"
+   ],
+   [
+    "Số người phổ cập kỹ năng số (mã 19)",
+    "so_nguoi_pho_cap_ky_nang_so_ma19",
+    "Số"
+   ],
+   [
+    "Tỷ lệ phổ cập kỹ năng số - mã 19 (%)",
+    "ty_le_ma19",
+    "Số"
+   ],
+   [
+    "Có Tổ chuyển đổi số cộng đồng (mã 14)",
+    "co_to_cds_cong_dong_ma14",
+    "Danh mục"
+   ],
+   [
+    "Có Đội hỗ trợ CĐS phản ứng nhanh (mã 15)",
+    "co_doi_ho_tro_cds_phan_ung_nhanh_ma15",
+    "Danh mục"
+   ],
+   [
+    "Có mô hình khuyến khích DVC trực tuyến (mã 8)",
+    "co_mo_hinh_khuyen_khich_dvc_tt_ma8",
+    "Danh mục"
+   ],
+   [
+    "Tổng CBCCVC (mã 21)",
+    "tong_cbccvc_ma21",
+    "Số"
+   ],
+   [
+    "Số tham gia lớp ATTT (mã 21)",
+    "so_tham_gia_lop_attt_ma21",
+    "Số"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ]
+  ]
+ },
+ {
+  "eform": "Danh sách KHCN - Văn bản, quy trình và dịch vụ công",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Loại đối tượng",
+    "loai_doi_tuong",
+    "Chữ"
+   ],
+   [
+    "Tên đối tượng",
+    "ten_doi_tuong",
+    "Chữ"
+   ],
+   [
+    "Tổng hồ sơ TTHC tiếp nhận (mã 25/49)",
+    "tong_ho_so_tthc_tiep_nhan_ma25_49",
+    "Số"
+   ],
+   [
+    "Tỷ lệ hồ sơ trực tuyến toàn trình - mã 25/49 (%)",
+    "ty_le_ma25_49",
+    "Số"
+   ],
+   [
+    "Tổng hồ sơ có nghĩa vụ tài chính (mã 50)",
+    "tong_ho_so_nghia_vu_tai_chinh_ma50",
+    "Số"
+   ],
+   [
+    "Số hồ sơ thanh toán trực tuyến (mã 50)",
+    "so_ho_so_thanh_toan_truc_tuyen_ma50",
+    "Số"
+   ],
+   [
+    "Tỷ lệ thanh toán trực tuyến - mã 50 (%)",
+    "ty_le_ma50",
+    "Số"
+   ],
+   [
+    "Có chấp nhận thanh toán không tiền mặt (mã 37)",
+    "co_chap_nhan_thanh_toan_khong_tien_mat_ma37",
+    "Danh mục"
+   ],
+   [
+    "Tổng văn bản/hồ sơ nội bộ (mã 27)",
+    "tong_van_ban_ho_so_noi_bo_ma27",
+    "Số"
+   ],
+   [
+    "Số xử lý trên môi trường mạng (mã 27)",
+    "so_xu_ly_tren_moi_truong_mang_ma27",
+    "Số"
+   ],
+   [
+    "Tỷ lệ xử lý trên môi trường mạng - mã 27 (%)",
+    "ty_le_ma27",
+    "Số"
+   ],
+   [
+    "Tổng văn bản trao đổi CQNN (mã 28)",
+    "tong_van_ban_trao_doi_cqnn_ma28",
+    "Số"
+   ],
+   [
+    "Số văn bản điện tử ký số (mã 28)",
+    "so_van_ban_dien_tu_ky_so_ma28",
+    "Số"
+   ],
+   [
+    "Tỷ lệ văn bản điện tử ký số - mã 28 (%)",
+    "ty_le_ma28",
+    "Số"
+   ],
+   [
+    "Có trợ lý ảo (mã 29)",
+    "co_tro_ly_ao_ma29",
+    "Danh mục"
+   ],
+   [
+    "Số hội nghị tổ chức trong kỳ (mã 5)",
+    "so_hoi_nghi_to_chuc_trong_ky_ma5",
+    "Số"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ]
+  ]
+ }
+]

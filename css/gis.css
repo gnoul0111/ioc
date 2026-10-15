@@ -1,0 +1,177 @@
+/* ============================== gis.css ==============================
+   Style riêng cho widget Bản đồ GIS (#gismap). Tách khỏi demo_ioc.html để
+   file chính đỡ nặng — nạp qua <link rel="stylesheet" href="gis.css"> trong <head>.
+   Phần shell chung (.widget/.widget-head/.widget-title/.mini-btn/.widget-body...)
+   đã có sẵn trong CSS chính của demo_ioc.html nên KHÔNG lặp lại ở đây — chỉ còn
+   đúng các rule riêng của .gis-widget (bản đồ Leaflet, KPI strip, sidebar lớp khác,
+   popup, marker, cụm marker, khoanh vùng, toàn màn hình). */
+
+.gis-widget .widget-body{padding:0!important}
+/* Sidebar "LỚP KHÁC" chiếm ĐÚNG 20% chiều rộng widget GIS (không phải 190px cố định như trước) — grid-template-
+   columns nhận % trực tiếp nên cột sidebar tự co giãn theo kích thước widget (toàn màn hình ⛶ hay layout co
+   giãn theo màn hình). minmax(150px, min(20%,360px)) giữ 1 khoảng an toàn: không nhỏ hơn 150px (chữ hết đọc
+   được) và không vượt quá 360px (widget rất lớn thì sidebar cũng không nên chiếm quá nhiều). */
+.gis-map-body{display:grid;grid-template-columns:1fr minmax(150px,min(20%,360px));grid-template-rows:1fr;height:100%;background:#020b16;flex:1;min-height:0}
+.gis-map-viewport{position:relative;overflow:hidden;isolation:isolate;height:100%;min-height:0}
+#gisMap{position:absolute;inset:0;background:#020b16}
+/* Theme "dark" = ảnh vệ tinh (OSM đã bỏ hẳn, xem gisTileUrls trong gis.js) làm tối bớt cho hợp giao diện
+   IOC nền tối, marker vẫn nổi rõ. KHÔNG dùng invert — đảo màu ảnh chụp sẽ ra màu âm bản. */
+.gis-tile-dark{filter:brightness(0.6) saturate(0.75)}
+.gis-map-topline{position:absolute;top:0;left:0;right:0;z-index:640;display:flex;align-items:center;gap:6px;padding:5px 8px;background:rgba(2,14,27,.82);backdrop-filter:blur(6px);border-bottom:1px solid rgba(73,188,255,.2);flex-wrap:nowrap;pointer-events:auto}
+.gis-map-topline label{display:none}
+
+/* Dải KPI kiểu dashboard: mỗi chip = 1 nhóm điểm nghẽn (+ Cháy nổ), bấm để bật/tắt layer
+   và tự fitBounds khi bật. Khi đứng trong sidebar (kèm class --sidebar) chuyển về dạng cột tĩnh. */
+.gis-kpi-strip{position:absolute;top:38px;left:0;right:0;z-index:630;display:flex;gap:6px;padding:7px 8px;overflow-x:auto;background:linear-gradient(180deg,rgba(2,14,27,.6) 60%,transparent);pointer-events:auto;scrollbar-width:none}
+.gis-kpi-strip::-webkit-scrollbar{display:none}
+.gis-kpi-chip{flex:0 0 auto;display:flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:9px;border:1px solid;background:rgba(4,20,39,.9);backdrop-filter:blur(6px);cursor:pointer;font-size:10.5px;font-weight:700;white-space:nowrap;color:inherit;transition:opacity .15s,filter .15s}
+.gis-kpi-chip b{font-size:12.5px;font-variant-numeric:tabular-nums;font-weight:900}
+.gis-kpi-chip:hover{filter:brightness(1.3)}
+.gis-kpi-chip.off{opacity:.38}
+/* Icon chip — bọc riêng .gis-kpi-chip-icon để phóng to bằng CSS (span bên trong do gisInlineIconHtml() sinh ra
+   có width/height cố định theo px truyền từ JS, phải !important mới đè được style inline đó). */
+.gis-kpi-chip-icon{display:inline-flex;flex-shrink:0}
+.gis-kpi-chip-icon>span{width:20px!important;height:20px!important}
+.gis-kpi-strip--sidebar{position:static;flex-direction:column;align-items:stretch;overflow:visible;background:none;padding:0;gap:4px;top:auto;left:auto;right:auto;z-index:auto}
+.gis-kpi-strip--sidebar .gis-kpi-chip{width:100%;height:auto;min-height:28px;padding:5px 8px;white-space:normal;justify-content:flex-start;border-radius:6px;font-size:clamp(9px,5.3cqw,15px)}
+.gis-kpi-strip--sidebar .gis-kpi-chip-icon>span{width:clamp(14px,7.5cqw,24px)!important;height:clamp(14px,7.5cqw,24px)!important}
+.gis-kpi-strip--sidebar .gis-kpi-chip-name{flex:1;min-width:0}
+.gis-kpi-strip--sidebar .gis-kpi-chip b{flex:0 0 auto;margin-left:6px;min-width:14px;text-align:right;font-size:clamp(11px,6.5cqw,18px)}
+/* Phân vùng 5 nhóm điểm nghẽn (GIS_BOTTLENECKS) khỏi chip "Cháy nổ" đứng riêng trong dải KPI dạng cột — Cháy
+   nổ là 1 lớp dữ liệu tách biệt khỏi 5 nhóm theo đúng kiến trúc GIS gốc (xem GIS_TRUSO_META trong gis.js).
+   Trước đây chỉ 1 đường kẻ chấm rất mờ (opacity .25), gần như lẫn vào nền — tăng độ dày/độ sáng (đường liền,
+   sáng hơn) + khoảng cách trên/dưới rộng hơn để nhìn rõ ranh giới ngay cả khi lướt nhanh. */
+.gis-kpi-strip-divider{border-top:2px solid rgba(73,188,255,.5);margin:10px 2px 8px}
+
+/* Tab "Đang hiển thị"/"Đã xử lý" của panel Báo cáo người dùng — cùng phong cách pill/chip với gis-kpi-chip
+   ở trên, chỉ khác là 2 nút chia đều 1 hàng thay vì cuộn ngang. */
+.gis-report-tab{flex:1;height:auto;min-height:26px;padding:4px 2px;border-radius:7px;border:1px solid rgba(73,188,255,.3);background:rgba(4,20,39,.9);color:#8ab0c8;font-size:clamp(9px,5.3cqw,14px);font-weight:700;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.gis-report-tab:hover{filter:brightness(1.25)}
+.gis-report-tab.active{background:rgba(73,188,255,.22);border-color:#49bcff;color:#d0e8f8}
+.gis-report-item{padding:6px 0;border-bottom:1px solid rgba(73,188,255,.08)}
+.gis-report-item:last-child{border-bottom:none}
+.gis-report-item.clickable{cursor:pointer}
+.gis-report-item.clickable:hover{background:rgba(73,188,255,.06)}
+.gis-report-item span{color:#8ab0c8}
+
+/* Dock giữa đáy bản đồ: 2 toggle (Vùng giám sát/Mật độ nguy hiểm) + nút Khoanh vùng, cùng 1 kiểu pill. */
+.gis-map-bottom-dock{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:1010;display:flex;flex-wrap:nowrap;justify-content:center;gap:6px;pointer-events:auto;max-width:calc(100% - 16px);overflow-x:auto;scrollbar-width:none}
+.gis-map-bottom-dock::-webkit-scrollbar{display:none}
+.gis-map-pill{flex:0 0 auto;display:flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:9px;border:1px solid rgba(73,188,255,.4);background:rgba(4,20,39,.92);backdrop-filter:blur(6px);color:#d0e8f8;font-family:inherit;font-size:10.5px;font-weight:700;white-space:nowrap;cursor:pointer;box-shadow:0 7px 20px rgba(0,0,0,.35);transition:background .15s,border-color .15s}
+.gis-map-pill:hover{background:#0d3c68;border-color:#4dc5ff;color:#fff}
+.gis-map-pill.active{background:#0d3c68;border-color:#4dc5ff;color:#fff}
+.gis-map-pill .gdi{font-size:15px;line-height:1}
+.gis-map-pill input{width:14px;height:14px;accent-color:#49bcff;cursor:pointer}
+.gis-map-pill small{font-size:9px;background:#08213c;color:#a8cae0;border-radius:8px;padding:1px 5px}
+/* Nút "Thêm báo cáo mới" đứng trong sidebar dùng CHUNG class .gis-map-pill với 2 toggle nổi ở đáy bản đồ —
+   nhưng 2 nơi này ở 2 ngữ cảnh co giãn khác nhau (đáy bản đồ cố định, sidebar co theo % widget), nên phải ghi
+   đè riêng ở đây bằng cqw của .gis-layer-sidebar, nếu không nút này bị bỏ sót khỏi việc co giãn cỡ chữ. */
+.gis-layer-sidebar .gis-map-pill{height:auto;min-height:34px;padding:8px 12px;font-size:clamp(9px,5.3cqw,15px)}
+.gis-layer-sidebar .gis-map-pill .gdi{font-size:clamp(13px,6.8cqw,19px)}
+
+/* container-type:inline-size biến sidebar thành 1 "container query container" — mọi cỡ chữ bên trong dùng đơn
+   vị cqw (% chiều rộng CHÍNH sidebar, không phải widget) sẽ tự to/nhỏ theo đúng chiều rộng sidebar thực tế
+   (đã được set theo % widget ở .gis-map-body phía trên), tức là "phóng to GIS → sidebar to ra → chữ to theo",
+   không cần JS tính toán hay lắng nghe resize. clamp(min,…,max) giữ cỡ chữ trong khoảng đọc được hợp lý. */
+/* min-height:0 bắt buộc phải có: sidebar là 1 grid item nằm trong track cao cố định (1fr) của .gis-map-body,
+   nhưng mặc định grid item vẫn tự set min-height theo nội dung bên trong (giống lỗi kinh điển của flexbox) nên
+   overflow-y:auto phía dưới KHÔNG kích hoạt được — nội dung dài (đủ 5 nhóm + trạng thái + báo cáo người dùng)
+   bị tràn ra ngoài, cắt cụt ở mép dưới widget thay vì cuộn được như anh phản ánh. */
+.gis-layer-sidebar{container-type:inline-size;background:#041424;border-left:1px solid rgba(73,188,255,.16);padding:8px;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:2px}
+.gis-layer-head{font-size:clamp(8px,4.7cqw,13px);font-weight:800;color:#5d8aaa;letter-spacing:.08em;padding:3px 2px 4px;border-bottom:1px solid rgba(73,188,255,.12);margin-bottom:4px}
+.gis-status-legend{display:flex;flex-direction:column;gap:4px}
+.gis-status-legend span{display:flex;align-items:center;gap:5px;font-size:clamp(9px,5.3cqw,14px);color:#8fa8bd}
+.gis-status-legend i{display:inline-block;width:9px;height:9px;border-radius:50%;flex-shrink:0}
+#gisMapStatus,#gisReportList{font-size:clamp(9px,5.3cqw,14px)!important}
+
+#gisSearchSuggest button{width:100%;display:grid;grid-template-columns:22px 1fr;gap:5px;align-items:center;padding:7px 8px;border-bottom:1px solid rgba(41,88,126,.35);text-align:left;color:#c9e1ef;font-size:11px;cursor:pointer;background:transparent;border-left:none;border-right:none;border-top:none}
+#gisSearchSuggest button:hover{background:#0b3155;color:#fff}
+#gisSearchSuggest button:last-child{border-bottom:none}
+
+/* Leaflet — nền tối + popup/control đồng bộ theme của dashboard.
+   !important bắt buộc trên background/color: CSS "core" gốc của Leaflet (nhúng trong demo_ioc.html, nạp SAU
+   gis.css) có rule .leaflet-popup-content-wrapper{background:white;color:#333} cùng độ ưu tiên — nếu không có
+   !important thì rule nạp sau (core Leaflet) thắng, popup bị trắng/chữ mờ không đọc được. */
+.leaflet-container{font-family:inherit;background:#020b16}
+.leaflet-popup-content-wrapper{background:linear-gradient(180deg,#082039,#031120)!important;border:1px solid rgba(73,188,255,.42);border-radius:10px;box-shadow:0 14px 42px rgba(0,0,0,.6)!important;color:#ecf7ff!important;padding:0}
+.leaflet-popup-tip{background:#082039!important}
+/* Khung popup to hẳn (min 380px, max 460px) + toàn bộ chữ bên trong tăng cỡ rõ rệt so với bản trước — anh
+   phản ánh bản 280-340px/11px vẫn nhỏ khó đọc. */
+.leaflet-popup-content{margin:14px 18px;min-width:380px;max-width:460px}
+.leaflet-popup-content h4{margin:0 0 8px;color:#ffd54b;font-size:15px;font-weight:700}
+.leaflet-popup-content p{margin:4px 0;color:#a8c3d8;font-size:13.5px;line-height:1.6}
+/* Title mới = icon nhóm + tên nhóm, to hẳn (18px, icon 26px truyền từ JS) để nhận diện nhanh loại điểm
+   nghẽn ngay khi mở popup. */
+.gis-popup-title{display:flex;align-items:center;gap:8px;font-size:18px!important}
+/* Khối "Nội dung phản ánh" tách riêng khỏi các dòng thông tin khác (vị trí/đơn vị/thời gian...) bằng nền nhẹ +
+   viền trái nổi bật, giống cách .manual-note đã dùng ở các nơi khác trong app. */
+.gis-popup-content{margin:0 0 10px;color:#d0e8f8!important;font-size:13.5px;line-height:1.6;padding:12px!important}
+.gis-popup-content b{color:#ecf7ff}
+.gis-pb{display:inline-block;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:800}
+.leaflet-popup-content .gis-pb{padding:5px 14px;font-size:13px;margin-top:8px}
+
+/* Modal "Báo cáo điểm nghẽn mới" dùng chung #modal (mặc định rất rộng VÀ luôn cao ~96vh vì .modal{inset:
+   calc(var(--vh,1vh)*2) 50%} ghim cả top lẫn bottom — thiết kế cho bảng/danh sách dài, không phải cho
+   form ngắn). Class .modal-compact ghi đè cả width lẫn cách định vị (căn giữa theo cả 2 trục, cao theo
+   nội dung, có max-height làm giới hạn an toàn) để không còn khoảng trống thừa bên dưới form. Class được
+   gỡ trong closeModal() để không ảnh hưởng các modal khác vẫn cần kích thước mặc định. */
+.modal.modal-compact{width:min(560px,94vw);inset:auto;top:50%;left:50%;right:auto;bottom:auto;max-height:calc(var(--vh,1vh)*90);transform:translate(-50%,-50%) scale(.96)}
+.modal.modal-compact.open{transform:translate(-50%,-50%) scale(1)}
+.leaflet-popup-content small{color:#a8c3d8;font-size:10px}
+.leaflet-control-zoom a{background:#082039!important;border-color:rgba(73,188,255,.35)!important;color:#d5eeff!important}
+.leaflet-control-zoom a:hover{background:#0c3060!important}
+.leaflet-control-attribution{background:rgba(3,14,26,.85)!important;color:#7ba8c4!important;font-size:9px!important}
+.leaflet-control-attribution a{color:#58b7ff!important}
+/* Ẩn dòng attribution "Leaflet | © OpenStreetMap" (link ra ngoài) — bỏ dòng này để hiện lại */
+.leaflet-control-attribution{display:none!important}
+.gis-widget .leaflet-top{margin-top:46px!important}
+
+/* Marker = nền trong suốt nhạt + viền trong suốt + quầng nhấp nháy động (đúng bản đồ GIS gốc), icon vector tô theo màu marker. */
+/* KHÔNG đặt overflow:hidden ở đây — .gis-marker-pulse (quầng nhấp nháy) cố tình phình rộng ra ngoài viền
+   marker (inset:-4px, scale tới 1.4 lúc pulse), overflow:hidden ở cấp này sẽ cắt mất hiệu ứng đó. */
+.gis-marker{display:flex;align-items:center;justify-content:center;border-radius:50%;position:relative}
+.gis-marker svg{width:100%;height:100%;display:block}
+.gis-marker-pulse{position:absolute;inset:-4px;border-radius:50%;border:2px solid currentColor;opacity:.35;animation:gisPulse 2s ease infinite}
+@keyframes gisPulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:0;transform:scale(1.4)}}
+.gis-cluster{width:100%;height:100%;display:flex;align-items:center;justify-content:center;border-radius:50%;position:relative;font-size:13px;font-weight:900}
+.gis-zone-tooltip{background:rgba(2,16,31,.85)!important;border:1px solid rgba(73,188,255,.4)!important;border-radius:4px!important;color:#c0ddf0!important;font-size:10px!important;font-weight:700!important;box-shadow:none!important}
+.marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:transparent!important}
+.marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:transparent!important}
+
+/* Ảnh đính kèm báo cáo (form nhập liệu + popup/detail) — cùng 1 class dùng ở cả 2 nơi, form có thêm nút ✕ xoá. */
+.gis-report-images{display:flex;flex-wrap:wrap;gap:6px}
+.gis-report-image-thumb{position:relative;width:52px;height:52px;border-radius:6px;overflow:hidden;border:1px solid rgba(73,188,255,.3);flex-shrink:0}
+.gis-report-image-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.gis-report-image-thumb button{position:absolute;top:0;right:0;width:16px;height:16px;line-height:16px;padding:0;border:none;background:rgba(211,58,68,.9);color:#fff;font-size:9px;cursor:pointer;border-radius:0 0 0 6px}
+/* Danh sách "phản ánh liên quan" (đã gộp vào cùng 1 điểm) trong popup/detail — chữ nhỏ, không viền để không
+   cạnh tranh với các khối thông tin chính. */
+.gis-report-related{margin-top:4px;font-size:10.5px;color:#a8c3d8;line-height:1.6}
+
+/* Toàn màn hình khi bấm nút ⛶ */
+.gis-widget.gis-fs-active{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;z-index:8000!important;border-radius:0!important;margin:0!important}
+.gis-widget.gis-fs-active .gis-map-body{height:calc(100vh - 46px)!important}
+.gis-widget.gis-fs-active .widget-body{height:calc(100vh - 46px)!important}
+
+@media (max-width:640px){
+ .gis-map-body{grid-template-columns:1fr;grid-template-rows:1fr auto}
+ .gis-layer-sidebar{width:100%;min-width:0;flex-direction:row;flex-wrap:wrap;max-height:120px;border-left:0;border-top:1px solid rgba(73,188,255,.16)}
+ /* .gis-map-topline mặc định flex-wrap:nowrap, 3 con (nhãn "GIS trực tuyến" / khối select+nút / ô tìm kiếm)
+    cùng cố ở 1 hàng — khối giữa lại tự flex-wrap:wrap (từ style inline) nên khi hàng bị bóp hẹp trên mobile,
+    khối giữa vỡ thành 2-3 dòng NGAY TRONG hàng đó, đẩy nhãn/ô tìm kiếm (2 item còn lại của hàng nowrap) lệch
+    vị trí trông như tráo thứ tự. Chuyển hẳn sang xếp cột đúng theo thứ tự DOM (nhãn → khối nút → ô tìm kiếm),
+    khối nút cho cuộn ngang thay vì wrap để không chiếm quá nhiều chiều cao đè lên bản đồ. */
+ .gis-map-topline{flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:6px;padding:6px 8px}
+ .gis-map-topline>div{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;width:100%}
+ .gis-map-topline>div::-webkit-scrollbar{display:none}
+ .gis-map-topline>div>*{flex:0 0 auto}
+ #gisMapSearch{width:100%!important;min-width:0}
+ /* Sidebar lớp/tab báo cáo dùng container query (cqw) để tự co giãn chữ theo bề rộng CHÍNH sidebar — thiết kế
+    cho sidebar hẹp đứng dọc cạnh bản đồ. Ở breakpoint này sidebar đã chuyển thành hàng ngang RỘNG BẰNG CẢ
+    WIDGET (xem rule .gis-layer-sidebar phía trên) nên cqw tính ra chữ/nút phóng to quá khổ (chạm mức max của
+    clamp). Ép cỡ chữ/khoảng đệm cố định hợp lý cho đúng bối cảnh hàng ngang này. */
+ .gis-report-tab{font-size:9px!important;padding:6px 4px}
+ .gis-kpi-strip--sidebar .gis-kpi-chip{font-size:9px!important;padding:5px 8px}
+ .gis-layer-sidebar .gis-map-pill{font-size:9px!important;padding:6px 10px!important;min-height:30px!important}
+ .gis-layer-head{font-size:8.5px!important}
+ #gisMapStatus,#gisReportList{font-size:9px!important}
+}

@@ -1,0 +1,282 @@
+[
+ {
+  "eform": "Tổng hợp chỉ số thống kê qđ (chỉ số 20)",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Ngày báo cáo",
+    "ngay_bao_cao",
+    "Ngày tháng"
+   ],
+   [
+    "Đơn vị báo cáo",
+    "don_vi_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Loại công trình",
+    "loai_cong_trinh",
+    "Danh mục"
+   ],
+   [
+    "Loại nhà ở",
+    "loai_nha_o",
+    "Danh mục"
+   ],
+   [
+    "Tình trạng công trình",
+    "tinh_trang_cong_trinh",
+    "Danh mục"
+   ],
+   [
+    "Số lượng công trình",
+    "so_luong_cong_trinh",
+    "Số"
+   ],
+   [
+    "Tổng diện tích xây dựng (m²)",
+    "tong_dien_tich_xay_dung_m2",
+    "Số"
+   ],
+   [
+    "Tổng diện tích sàn (m²)",
+    "tong_dien_tich_san_m2",
+    "Số"
+   ],
+   [
+    "Số tầng",
+    "so_tang",
+    "Số"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Danh sách tổng hợp chỉ số vận tải hành khách - cấp đơn vị vận tải (doanh nghiệp/htx) (chỉ số 24)",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Ngày báo cáo",
+    "ngay_bao_cao",
+    "Ngày tháng"
+   ],
+   [
+    "Đơn vị báo cáo",
+    "don_vi_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Ngành vận tải",
+    "nganh_van_tai",
+    "Danh mục"
+   ],
+   [
+    "Loại hình vận tải",
+    "loai_hinh_van_tai",
+    "Danh mục"
+   ],
+   [
+    "Số lượt hành khách vận chuyển (HK)",
+    "so_luot_hanh_khach_van_chuyen_hk",
+    "Số"
+   ],
+   [
+    "Cự ly vận chuyển bình quân (km)",
+    "cu_ly_van_chuyen_binh_quan_km",
+    "Số"
+   ],
+   [
+    "Hành khách.km (tự tính)",
+    "hanh_khach_km_tu_tinh",
+    "Số"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Danh sách Nguy cơ sạt lở úng ngập (chỉ số 84)",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Đơn vị báo cáo",
+    "don_vi_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Cấp báo cáo",
+    "cap_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Tên tuyến đường",
+    "ten_tuyen_duong",
+    "Chữ"
+   ],
+   [
+    "Tên vị trí / Địa điểm",
+    "ten_vi_tri_dia_diem",
+    "Chữ"
+   ],
+   [
+    "Latitude (Vĩ độ)",
+    "latitude_vi_do",
+    "Số"
+   ],
+   [
+    "Longitude (Kinh độ)",
+    "longitude_kinh_do",
+    "Số"
+   ],
+   [
+    "Loại nguy cơ",
+    "loai_nguy_co",
+    "Danh mục"
+   ],
+   [
+    "Chiều dài ảnh hưởng (m)",
+    "chieu_dai_anh_huong_m",
+    "Số"
+   ],
+   [
+    "Mức độ nguy cơ",
+    "muc_do_nguy_co",
+    "Danh mục"
+   ],
+   [
+    "Phương án xử lý",
+    "phuong_an_xu_ly",
+    "Chữ"
+   ],
+   [
+    "Trạng thái xử lý",
+    "trang_thai_xu_ly",
+    "Danh mục"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Danh sách Thu thập dữ liệu vận tải (chỉ số 68, 69)",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Cấp báo cáo",
+    "cap_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Đối tượng vận chuyển",
+    "doi_tuong_van_chuyen",
+    "Danh mục"
+   ],
+   [
+    "Loại hình vận tải",
+    "loai_hinh_van_tai",
+    "Danh mục"
+   ],
+   [
+    "Khối lượng vận chuyển (Hành khách hoặc Tấn)",
+    "khoi_luong_van_chuyen_hanh_khach_hoac_tan",
+    "Số"
+   ],
+   [
+    "Khối lượng luân chuyển (Hành khách.km hoặc Tấn.km)",
+    "khoi_luong_luan_chuyen_hanh_khach_km_hoac_tan_km",
+    "Số"
+   ]
+  ]
+ }
+]

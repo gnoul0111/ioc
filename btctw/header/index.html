@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IOC Việt Hưng · Tổng quan Pie/Donut</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+</head>
+<style>
+    :root {
+        --bg: #04101d;
+        --bg2: #071d35;
+        --panel: #082039;
+        --panel2: #0a2a4b;
+        --line: #1f6fa6;
+        --line-soft: rgba(87, 178, 255, 0.28);
+        --text: #ecf7ff;
+        --muted: #a8c3d8;
+        --red: #9d151c;
+        --red2: #cf3434;
+        --gold: #ffd54b;
+        --cyan: #39d5ff;
+        --head-bg1: #9d151c;
+        --head-bg2: #5c0f14;
+        --card-radius: 12px;
+        --shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+        --font: "Be Vietnam Pro", Inter, Segoe UI, Roboto, Arial, sans-serif;
+        --radius: 12px;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        scrollbar-gutter: stable;
+        margin: 0;
+        min-height: 100%;
+        font-family: var(--font);
+        background: radial-gradient(circle at 50% -20%,
+                #093b6c 0,
+                #06162a 40%,
+                #020813 100%);
+        color: var(--text);
+        font-size: 14px;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        margin: 0;
+        font-weight: 800;
+    }
+
+    b,
+    strong {
+        font-weight: 400;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+        font: inherit;
+        color: inherit;
+        min-width: 0;
+    }
+
+    button {
+        cursor: pointer;
+        border: 0;
+        background: none;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .muted {
+        color: var(--muted);
+    }
+
+    .truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        min-width: 0;
+    }
+
+    .mono {
+        font-variant-numeric: tabular-nums;
+    }
+
+    .app-bg-grid:before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(79, 160, 255, 0.055) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(79, 160, 255, 0.055) 1px, transparent 1px);
+        background-size: 48px 48px;
+        pointer-events: none;
+        opacity: 0.85;
+    }
+
+    .app-bg-grid:after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background:
+            radial-gradient(circle at 20% 0%,
+                rgba(23, 137, 255, 0.25),
+                transparent 36%),
+            radial-gradient(circle at 90% 15%,
+                rgba(239, 40, 40, 0.12),
+                transparent 28%);
+        pointer-events: none;
+    }
+
+    .role-icon {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #13416c, #0b2442);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        font-size: 21px;
+        flex: 0 0 auto;
+    }
+
+    .ghost {
+        border-radius: 12px;
+        border: 1px solid rgba(87, 178, 255, 0.34);
+        background: rgba(8, 34, 61, 0.8);
+        padding: 10px 12px;
+        font-weight: 800;
+        color: #d9efff;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        text-align: center;
+    }
+
+    .ghost:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        filter: grayscale(0.4);
+    }
+
+    /* APP SHELL */
+    .app {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        padding: 14px 18px 24px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .badge {
+        display: inline-block;
+        border: 1px solid rgba(87, 178, 255, 0.28);
+        border-radius: 999px;
+        padding: 4px 9px;
+        color: #d7efff;
+        font-size: 11.5px;
+        font-weight: 900;
+        background: rgba(10, 44, 80, 0.85);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px;
+        vertical-align: middle;
+    }
+
+    .access-lock {
+        border: 1px dashed rgba(255, 213, 75, 0.45);
+        background: rgba(255, 213, 75, 0.08);
+        border-radius: 12px;
+        padding: 10px;
+        color: #ffe6a6;
+        line-height: 1.45;
+    }
+
+    /* SIDE NAV */
+    .side-nav {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 280px;
+        height: 100vh;
+        z-index: 70;
+        overflow: hidden;
+        border: 1px solid var(--line-soft);
+        border-left: 0;
+        background: linear-gradient(180deg,
+                rgba(6, 26, 48, 0.99),
+                rgba(2, 12, 24, 0.99));
+        border-radius: 0 18px 18px 0;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+        display: flex;
+        flex-direction: column;
+        transition: width 0.2s ease;
+    }
+
+    .side-nav.collapsed {
+        display: none;
+    }
+
+    .side-nav-head {
+        flex: 0 0 auto;
+        min-height: 42px;
+        background: linear-gradient(180deg, var(--head-bg1), var(--head-bg2));
+        border-bottom: 2px solid rgba(255, 213, 75, 0.32);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 12px;
+        font-weight: 900;
+        font-size: 12.5px;
+        color: #eaf6ff;
+        white-space: nowrap;
+    }
+
+    .side-nav-head span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .side-nav-head .mini-btn {
+        flex: 0 0 auto;
+        width: 26px;
+        height: 26px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        font-size: 16px;
+        line-height: 1;
+    }
+
+    .side-nav-body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 8px;
+    }
+
+    .side-nav-body,
+    .side-nav-body::-webkit-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(73, 188, 255, .5) rgba(4, 20, 39, .35);
+    }
+
+    .snav-node {
+        margin: 1px 0;
+    }
+
+    .snav-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+        padding: 6px 8px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: #d6efff;
+        font-size: 12.5px;
+        text-align: left;
+        cursor: pointer;
+        line-height: 1.3;
+    }
+
+    .snav-row:hover {
+        background: rgba(73, 188, 255, 0.12);
+        border-color: rgba(87, 178, 255, 0.22);
+    }
+
+    .snav-row .snav-caret {
+        flex: 0 0 auto;
+        width: 14px;
+        display: inline-block;
+        color: #8ab0c8;
+        transition: transform 0.15s;
+    }
+
+    .snav-row .snav-caret.open {
+        transform: rotate(90deg);
+    }
+
+    .snav-row .snav-icon {
+        flex: 0 0 auto;
+    }
+
+    .snav-row .snav-label {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .snav-row.snav-leaf {
+        color: #bcd9ee;
+    }
+
+    .snav-row.snav-split {
+        padding: 0;
+        gap: 0;
+    }
+
+    .snav-caret-btn {
+        flex: 0 0 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 0;
+        color: #8ab0c8;
+        cursor: pointer;
+    }
+
+    .snav-main {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 8px 6px 0;
+        background: transparent;
+        border: 0;
+        color: #bcd9ee;
+        font-size: 12.5px;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .snav-main:hover {
+        color: #ffe083;
+    }
+
+    .snav-children {
+        margin-left: 14px;
+        padding-left: 8px;
+        border-left: 1px dashed rgba(87, 178, 255, 0.2);
+        display: none;
+    }
+
+    .snav-children.open {
+        display: block;
+    }
+
+    @media (max-width: 700px) {
+        .side-nav {
+            width: 88vw;
+        }
+    }
+
+    .view-as-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border: 1px solid rgba(255, 213, 75, 0.4);
+        background: linear-gradient(180deg,
+                rgba(255, 213, 75, 0.14),
+                rgba(255, 213, 75, 0.04));
+        border-radius: 12px;
+        padding: 10px 14px;
+        margin-bottom: 12px;
+        color: #ffe083;
+        font-weight: 800;
+        font-size: 13px;
+    }
+
+    /* TOPBAR */
+    .topbar-header {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) auto;
+        gap: 16px;
+        align-items: center;
+        padding: 4px 8px 14px;
+        margin-bottom: 4px;
+    }
+
+    .brand {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        min-width: 0;
+    }
+
+    .crest {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: #fff;
+        box-shadow: 0 0 24px rgba(255, 213, 75, 0.18);
+        flex: 0 0 auto;
+        overflow: hidden;
+    }
+
+    .crest img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .brand h1 {
+        margin: 0;
+        color: var(--gold);
+        font-size: 21px;
+        line-height: 1.1;
+        text-transform: uppercase;
+        letter-spacing: 0.2px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        text-shadow: 0 0 18px rgba(255, 213, 75, 0.22);
+    }
+
+    .brand .sub {
+        color: #dcefff;
+        font-size: 11.5px;
+        margin-top: 5px;
+        font-weight: 700;
+    }
+
+    .right-tools {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .rt-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, auto));
+        grid-auto-flow: row;
+        gap: 8px;
+    }
+
+    .pw-modal {
+        width: min(420px, 94vw);
+    }
+
+    .field-hint {
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.4;
+    }
+
+    .field-pw-wrap {
+        position: relative;
+    }
+
+    .field-pw-wrap input {
+        padding-right: 42px;
+    }
+
+    .field-pw-toggle {
+        position: absolute;
+        top: 50%;
+        right: 6px;
+        transform: translateY(-50%);
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--muted);
+        font-size: 16px;
+    }
+
+    .rt-account-col {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .clock-card {
+        border: 1px solid rgba(87, 178, 255, 0.25);
+        background: rgba(5, 24, 44, 0.78);
+        border-radius: 14px;
+        padding: 8px 12px;
+        text-align: right;
+        min-width: 170px;
+        line-height: 1.35;
+    }
+
+    .user-pill-wrap {
+        position: relative;
+    }
+
+    .user-pill {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        max-width: 360px;
+        border: 1px solid rgba(87, 178, 255, 0.34);
+        background: linear-gradient(180deg,
+                rgba(8, 37, 67, 0.95),
+                rgba(5, 21, 39, 0.95));
+        border-radius: 14px;
+        padding: 9px 12px;
+        cursor: pointer;
+    }
+
+    .user-pill b {
+        display: block;
+    }
+
+    .user-pill small {
+        display: block;
+        color: var(--muted);
+        margin-top: 2px;
+    }
+
+    .user-menu {
+        display: none;
+        flex-direction: column;
+        gap: 4px;
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        min-width: 190px;
+        border: 1px solid rgba(87, 178, 255, 0.34);
+        background: linear-gradient(180deg,
+                rgba(8, 37, 67, 0.98),
+                rgba(5, 21, 39, 0.98));
+        border-radius: 12px;
+        padding: 6px;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        z-index: 120;
+    }
+
+    .user-menu.show {
+        display: flex;
+    }
+
+    .user-menu-item {
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #d9efff;
+        font-weight: 700;
+        text-align: left;
+        padding: 9px 10px;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .user-menu-item:hover {
+        background: rgba(73, 188, 255, 0.14);
+    }
+
+    /* TOAST */
+    .toast {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 200;
+        background: #06223f;
+        border: 1px solid rgba(87, 178, 255, 0.45);
+        border-radius: 12px;
+        padding: 12px 14px;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        transform: translateY(20px);
+        opacity: 0;
+        pointer-events: none;
+        transition: 0.2s;
+        max-width: 420px;
+        overflow-wrap: anywhere;
+    }
+
+    .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    @media (max-width: 1000px) {
+        .topbar {
+            grid-template-columns: 1fr;
+        }
+
+        .right-tools {
+            justify-content: flex-start;
+        }
+
+        .brand h1 {
+            font-size: 18px;
+        }
+    }
+</style>
+
+<body class="app-bg-grid">
+    <main id="app">
+        <div class="top-header-overview">
+            <div class="topbar-header">
+                <div class="brand">
+                    <div class="crest"><img src="https://ioc-thanhuy.vercel.app/assets/images/images.png"
+                            alt="Logo IOC/CAD" /></div>
+                    <div class="truncate">
+                        <h1 id="appBrandTitle">
+                            TRUNG TÂM ĐIỀU HÀNH IOC/CAD Ban Tổ chức Thành ủy Hà Nội
+                        </h1>
+                        <div class="sub truncate">
+                            Nền tảng giám sát · điều hành · giao nhận nhiệm vụ · dashboard
+                            theo phân quyền
+                        </div>
+                    </div>
+                </div>
+                <div class="right-tools">
+                    <div class="rt-actions-grid">
+                        <button class="ghost" onclick="toggleSideNav()">
+                            🗂️ Cơ cấu tổ chức
+                        </button>
+
+                        <button class="ghost" onclick="openActionLogModal()">
+                            📜 Nhật ký thao tác
+                        </button>
+                    </div>
+                    <div class="rt-account-col">
+                        <div class="clock-card">
+                            <b id="clock">--:--:--</b><br /><span class="muted" id="dateText">--</span>
+                        </div>
+                        <div class="user-pill-wrap">
+                            <div class="user-pill" id="userPill" onclick="toggleUserMenu(event)">
+                                <div class="role-icon" id="currentIcon">🏢</div>
+                                <div class="truncate">
+                                    <b id="currentRoleName">--</b><small id="currentRoleDesc">--</small>
+                                </div>
+                            </div>
+                            <div class="user-menu" id="userMenu">
+                                <button class="user-menu-item" onclick="closeUserMenu(); openChangePasswordModal();">
+                                    🔑 Đổi mật khẩu
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="view-as-banner hidden" id="viewAsBanner">
+            <span id="viewAsBannerText"></span><button class="ghost" onclick="returnToHomeScope()">
+                ← Quay lại phạm vi tài khoản gốc
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Lớp phủ dùng chung (drawer cấp 1 / modal cấp 2 / toast / customizer) -->
+    <div id="customizer" class="widget-customizer">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <b>Ẩn/hiện widget dashboard</b>
+            <button class="close" onclick="toggleCustomizer()">×</button>
+        </div>
+        <div class="muted" style="margin-top:6px;line-height:1.4">Cấu hình lưu riêng theo tài khoản đang đăng nhập.
+        </div>
+        <div class="custom-list" id="customList"></div>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="closeChangePasswordModal()"></div>
+
+    <section id="modal" class="modal">
+        <div class="modal-head">
+            <div>
+                <h3 id="modalTitle">Chi tiết</h3>
+                <div class="muted" id="modalSub"></div>
+            </div><button class="close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </section>
+
+    <!-- ========================= ĐỔI MẬT KHẨU ========================== -->
+    <section id="pwModal" class="modal pw-modal">
+        <div class="modal-head">
+            <div>
+                <h3>🔑 Đổi mật khẩu</h3>
+                <div class="muted">Cập nhật mật khẩu đăng nhập cho tài khoản hiện tại</div>
+            </div><button class="close" onclick="closeChangePasswordModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="changePasswordForm" class="form-grid" onsubmit="return submitChangePassword(event)">
+                <div class="field">
+                    <label>Mật khẩu hiện tại</label>
+                    <div class="field-pw-wrap">
+                        <input type="password" id="pwCurrent" autocomplete="current-password" required />
+                        <button type="button" class="field-pw-toggle" onclick="togglePasswordField('pwCurrent', this)"
+                            title="Hiện mật khẩu" aria-label="Hiện/ẩn mật khẩu hiện tại"><svg class="pwi" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M6.61 6.61A18.5 18.5 0 0 0 1 12s4 8 11 8a9.26 9.26 0 0 0 5.39-1.61"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Mật khẩu mới</label>
+                    <div class="field-pw-wrap">
+                        <input type="password" id="pwNew" autocomplete="new-password" minlength="8" required />
+                        <button type="button" class="field-pw-toggle" onclick="togglePasswordField('pwNew', this)"
+                            title="Hiện mật khẩu" aria-label="Hiện/ẩn mật khẩu mới"><svg class="pwi" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M6.61 6.61A18.5 18.5 0 0 0 1 12s4 8 11 8a9.26 9.26 0 0 0 5.39-1.61"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
+                    </div>
+                    <div class="field-hint">Tối thiểu 8 ký tự, có ít nhất 1 chữ in hoa và 1 ký tự đặc biệt.</div>
+                </div>
+                <div class="field">
+                    <label>Xác nhận mật khẩu mới</label>
+                    <div class="field-pw-wrap">
+                        <input type="password" id="pwConfirm" autocomplete="new-password" minlength="8" required />
+                        <button type="button" class="field-pw-toggle" onclick="togglePasswordField('pwConfirm', this)"
+                            title="Hiện mật khẩu" aria-label="Hiện/ẩn xác nhận mật khẩu mới"><svg class="pwi" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M6.61 6.61A18.5 18.5 0 0 0 1 12s4 8 11 8a9.26 9.26 0 0 0 5.39-1.61"/><line x1="1" y1="1" x2="23" y2="23"/></svg></button>
+                    </div>
+                </div>
+                <div id="pwError" class="danger hidden" style="font-weight:700"></div>
+                <button type="submit" class="primary" id="pwSubmitBtn" style="width:100%">Xác nhận đổi mật khẩu</button>
+            </form>
+        </div>
+    </section>
+
+
+    <!-- ========================= CƠ CẤU TỔ CHỨC ========================== -->
+    <aside class="side-nav collapsed" id="sideNav">
+        <div class="side-nav-head">
+            <span>🗂️ Cơ cấu tổ chức</span><button class="mini-btn" onclick="toggleSideNav()" id="sideNavToggle"
+                title="Đóng">
+                ×
+            </button>
+        </div>
+        <div style="padding: 8px 8px 0">
+            <input type="text" id="sideNavSearch" placeholder="Tìm đơn vị..." autocomplete="off"
+                oninput="filterSideNav(this.value)" style="
+                width: 100%;
+                border: 1px solid rgba(87, 178, 255, 0.32);
+                background: #061528;
+                border-radius: 10px;
+                padding: 8px 12px;
+                outline: 0;
+                color: #d0e8f8;
+                font-size: 12.5px;
+              " />
+        </div>
+        <div class="side-nav-body" id="sideNavBody"></div>
+    </aside>
+    <div id="toast" class="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

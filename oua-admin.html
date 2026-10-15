@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>OUA</title>
+ <!-- Điện thoại / màn cảm ứng → chuyển sang UI mobile mới trước khi tải dữ liệu nặng. Đồng bộ với cờ
+      OUA_MOBILE_NEW_UI trong js/oua-data.js (đặt false ở cả 2 nơi để quay lại bản mobile cũ). -->
+ <script>(function(){var OUA_MOBILE_NEW_UI=true;try{if(OUA_MOBILE_NEW_UI&&matchMedia('(max-width:520px), (pointer:coarse)').matches)location.replace('mobile-admin/index.html');}catch(e){}})();</script>
+ <link rel="stylesheet" href="css/oua.css" />
+ <link rel="stylesheet" href="css/oua-login-log.css?v=20261013" />
+ <style>
+   #ouaScreen .oua-dnd-node{cursor:grab}
+   #ouaScreen .oua-dnd-node:active{cursor:grabbing}
+   #ouaScreen .oua-dnd-node.oua-dnd-selected{outline:2px solid #49bcff;border-radius:8px}
+   #ouaScreen .tree-source-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.03)}
+   /* KPI thu nhỏ cho Admin Tổng (8 thẻ dễ bị to/tốn diện tích nếu dùng nguyên .kpi mặc định) — chỉ áp dụng cho
+      lớp .oua-kpis-compact, không đụng .kpis/.kpi mặc định đang dùng ở các màn khác. */
+   #ouaScreen .kpis.oua-kpis-compact{gap:8px}
+   #ouaScreen .oua-kpis-compact .kpi{padding:10px 12px;border-radius:12px}
+   #ouaScreen .oua-kpis-compact .kpi .label{font-size:11.5px}
+   #ouaScreen .oua-kpis-compact .kpi .val{font-size:19px;margin-top:3px}
+   #ouaScreen .oua-kpis-compact .kpi .hint{font-size:10.5px;margin-top:3px}
+   /* ===== Thanh lọc gọn 1 hàng (Quản lý người dùng) ===== */
+   #ouaScreen .oua-filterbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 10px}
+   #ouaScreen .oua-search{flex:1 1 280px;min-width:220px;height:42px;display:flex;align-items:center;gap:9px;padding:0 13px;border:1px solid rgba(87,178,255,.28);background:rgba(6,21,40,.7);border-radius:12px;color:#8fb4d8;cursor:text;transition:border-color .15s,box-shadow .15s}
+   #ouaScreen .oua-search:focus-within{border-color:#49bcff;box-shadow:0 0 0 3px rgba(73,188,255,.14)}
+   #ouaScreen .oua-search input{flex:1;min-width:0;height:100%;background:transparent;border:0;outline:0;box-shadow:none;padding:0;margin:0;color:#dceeff;font-size:13.5px;font-family:inherit}
+   #ouaScreen .oua-search input::placeholder{color:#7f9dbb}
+   #ouaScreen .oua-filterbar .oua-dd{width:190px;flex:0 0 auto}
+   #ouaScreen .oua-filterbar .btn{height:42px;padding:0 16px;border-radius:12px;white-space:nowrap}
+   #ouaScreen .oua-total{margin-left:auto;color:#49bcff;font-weight:800;font-size:13px;white-space:nowrap}
+
+   /* ===== Dropdown tự vẽ thay <select> gốc (popup mặc định của trình duyệt không chỉnh CSS được) ===== */
+   #ouaScreen .oua-dd{position:relative;display:inline-block;min-width:0;vertical-align:middle}
+   #ouaScreen .oua-dd-native{display:none!important}
+   #ouaScreen .oua-dd-trigger{width:100%;height:42px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 13px;margin:0;border:1px solid rgba(87,178,255,.28);background:rgba(6,21,40,.7);box-shadow:none;border-radius:12px;color:#dceeff;font-size:13.5px;font-weight:500;font-family:inherit;text-align:left;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+   #ouaScreen .oua-dd-trigger:hover{border-color:rgba(87,178,255,.55)}
+   #ouaScreen .oua-dd.open .oua-dd-trigger{border-color:#49bcff;box-shadow:0 0 0 3px rgba(73,188,255,.14)}
+   #ouaScreen .oua-dd-label{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+   #ouaScreen .oua-dd-caret{flex:0 0 auto;width:7px;height:7px;border-right:2px solid #7fb8e8;border-bottom:2px solid #7fb8e8;transform:translateY(-2px) rotate(45deg);transition:transform .15s}
+   #ouaScreen .oua-dd.open .oua-dd-caret{transform:translateY(2px) rotate(-135deg)}
+   #ouaScreen .oua-dd-panel{position:absolute;top:calc(100% + 6px);left:0;min-width:100%;z-index:90;background:#0a2038;border:1px solid rgba(87,178,255,.35);border-radius:12px;box-shadow:0 18px 44px rgba(0,0,0,.5);padding:6px;max-height:min(40vh,300px);overflow:auto;scrollbar-width:thin;scrollbar-color:#2f6fa8 transparent}
+   #ouaScreen .oua-dd-panel.hidden{display:none}
+   #ouaScreen .oua-dd-opt{display:block;width:100%;text-align:left;padding:9px 12px;margin:0;border:0;background:transparent;box-shadow:none;color:#d6efff;font-size:13px;font-weight:500;font-family:inherit;border-radius:8px;cursor:pointer;white-space:nowrap}
+   #ouaScreen .oua-dd-opt:hover{background:rgba(87,178,255,.14)}
+   #ouaScreen .oua-dd-opt.active{background:rgba(255,213,75,.14);color:#ffe188;font-weight:700}
+   /* Dropdown nằm trong ô .field / ô bảng / form modal: bỏ khung đôi, co theo ngữ cảnh */
+   #ouaScreen .field .oua-dd{display:block;width:100%}
+   #ouaScreen .field .oua-dd-trigger{height:auto;padding:0;border:0;background:transparent;box-shadow:none}
+   #ouaScreen td .oua-dd{display:block;width:100%;min-width:150px}
+   #ouaScreen td .oua-dd-trigger{height:34px;font-size:12.5px;padding:0 10px}
+   #ouaScreen .form-control .oua-dd{display:block;width:100%}
+
+   /* Bảng cố định tỉ lệ cột (table-layout:fixed) — tránh bảng "nhảy" chiều rộng cột mỗi khi lọc ra nội dung dài/ngắn khác nhau. */
+   #ouaScreen table.oua-fixed-table{table-layout:fixed;width:100%}
+   #ouaScreen table.oua-fixed-table th,#ouaScreen table.oua-fixed-table td{overflow-wrap:anywhere}
+   #ouaScreen .oua-kpis-5col{grid-template-columns:repeat(5,1fr)}
+   /* 5 ô thống kê tài khoản: đơn giản — chỉ nhãn + con số, không icon/emoji (emoji tự mang màu riêng, dễ bị đỏ/lệch tông) */
+   #ouaScreen .oua-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
+   #ouaScreen .oua-stat{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:11px 15px;margin:0;border:1px solid rgba(87,178,255,.2);background:rgba(10,31,55,.7);box-shadow:none;border-radius:12px;color:#eaf5ff;font-family:inherit;text-align:left;cursor:pointer;transition:border-color .15s,background .15s}
+   #ouaScreen .oua-stat:hover{border-color:rgba(87,178,255,.5)}
+   #ouaScreen .oua-stat.active{border-color:#49bcff;background:rgba(29,127,242,.18)}
+   #ouaScreen .oua-stat-label{font-size:12px;font-weight:500;color:#a8bfda}
+   #ouaScreen .oua-stat.active .oua-stat-label{color:#cfe6ff}
+   #ouaScreen .oua-stat-val{font-size:22px;font-weight:800;line-height:1.15;font-variant-numeric:tabular-nums;color:#eaf5ff}
+   #ouaScreen .oua-stats.oua-stats-4{grid-template-columns:repeat(4,1fr)}
+   #ouaScreen .oua-stat.static{cursor:default}
+   #ouaScreen .oua-stat.static:hover{border-color:rgba(87,178,255,.2)}
+   @media(max-width:1000px){ #ouaScreen .oua-stats,#ouaScreen .oua-stats.oua-stats-4{grid-template-columns:repeat(2,1fr)} }
+   /* Avatar tròn + công tắc gạt (switch) thật cho bảng "Quản lý người dùng" (theo mẫu UI anh gửi). */
+   #ouaScreen .oua-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0;font-size:14px}
+   #ouaScreen .oua-user-cell{display:flex;align-items:center;gap:10px}
+   #ouaScreen .oua-switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+   #ouaScreen .oua-switch input{display:none}
+   #ouaScreen .oua-switch-track{width:38px;height:20px;border-radius:999px;background:#3a4a5e;position:relative;transition:background .15s;flex-shrink:0}
+   #ouaScreen .oua-switch-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#cfe3ff;transition:left .15s}
+   #ouaScreen .oua-switch input:checked + .oua-switch-track{background:#2fc97a}
+   #ouaScreen .oua-switch input:checked + .oua-switch-track .oua-switch-thumb{left:20px}
+
+   /* Khuôn thẻ mobile Phase D (song song với <table> desktop) — ẩn mặc định, chỉ hiện dưới 760px, xem khối
+      @media bên dưới. Bảng nào chưa chuyển sang Phase D thì container này rỗng, không ảnh hưởng gì. */
+   #ouaScreen .oua-cards-mobile{display:none}
+   /* Phase G — nút "Chuyển vào đây" thay kéo-thả, chỉ hiện trên mobile (xem @media bên dưới); desktop vẫn
+      dùng Drag & Drop như cũ nên 2 nút này ẩn hẳn để không gây rối giao diện bàn phím/chuột. */
+   #ouaScreen .oua-tree-move-btn,#ouaScreen .oua-tree-move-root-btn{display:none}
+
+   /* ===================== Phase A — Token thiết kế mobile (làm lại từ đầu) =====================
+      Ngôn ngữ hình ảnh RIÊNG cho mobile — không tái dùng .kpi/.pill/table desktop. Chỉ định nghĩa biến +
+      khối dùng chung (.oua-m-*) ở đây; CHƯA gắn vào trang nào (sẽ gắn dần ở Phase B→G). Toàn bộ scoped
+      trong @media(max-width:760px) nên không ảnh hưởng desktop dù đặt ở đâu trong file. */
+   @media(max-width:760px){
+     #ouaScreen{
+       --m-sp-1:4px; --m-sp-2:8px; --m-sp-3:12px; --m-sp-4:16px; --m-sp-5:24px;
+       --m-radius-card:16px; --m-radius-chip:999px;
+       --m-surface-top:#1a3a5c; --m-surface-bot:#0c2238;
+       --m-border:rgba(255,255,255,.09);
+       --m-text:#eaf3ff; --m-text-dim:#8fa6c2; --m-text-faint:#5d7591;
+       --m-blue:#5b9dff;   --m-blue-bg:rgba(91,157,255,.16);
+       --m-green:#3ad492;  --m-green-bg:rgba(58,212,146,.16);
+       --m-amber:#f0bb4a;  --m-amber-bg:rgba(240,187,74,.16);
+       --m-red:#ff6b6b;    --m-red-bg:rgba(255,107,107,.16);
+       --m-violet:#c08af2; --m-violet-bg:rgba(192,138,242,.16);
+     }
+
+     /* Khung thẻ 2 lớp nền + dải màu cạnh trái (--card-accent qua class màu ngữ nghĩa) */
+     #ouaScreen .oua-m-card{position:relative;background:linear-gradient(165deg,var(--m-surface-top) 0%,var(--m-surface-bot) 65%);border:1px solid var(--m-border);border-left:3px solid var(--card-accent,var(--m-blue));border-radius:var(--m-radius-card);padding:var(--m-sp-4);margin-bottom:var(--m-sp-3);box-shadow:0 8px 20px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.04)}
+     #ouaScreen .oua-m-card.blue{--card-accent:var(--m-blue)}
+     #ouaScreen .oua-m-card.green{--card-accent:var(--m-green)}
+     #ouaScreen .oua-m-card.amber{--card-accent:var(--m-amber)}
+     #ouaScreen .oua-m-card.red{--card-accent:var(--m-red)}
+     #ouaScreen .oua-m-card.violet{--card-accent:var(--m-violet)}
+     #ouaScreen .oua-m-card-title{font-size:15.5px;font-weight:700;color:var(--m-text)}
+     #ouaScreen .oua-m-card-sub{font-size:12.5px;color:var(--m-text-dim);margin-top:2px;overflow-wrap:break-word}
+     #ouaScreen .oua-m-card-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+     #ouaScreen .oua-m-card-actions{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--m-border)}
+     #ouaScreen .oua-m-row{display:flex;align-items:flex-start;gap:12px;min-width:0}
+     #ouaScreen .oua-m-grow{flex:1;min-width:0}
+
+     /* Chip nhỏ theo màu ngữ nghĩa — thay cho nhãn chữ hoa lặp lại */
+     #ouaScreen .oua-m-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:var(--m-radius-chip);font-size:11.5px;font-weight:600;white-space:nowrap}
+     #ouaScreen .oua-m-chip.blue{background:var(--m-blue-bg);color:var(--m-blue)}
+     #ouaScreen .oua-m-chip.green{background:var(--m-green-bg);color:var(--m-green)}
+     #ouaScreen .oua-m-chip.amber{background:var(--m-amber-bg);color:var(--m-amber)}
+     #ouaScreen .oua-m-chip.red{background:var(--m-red-bg);color:var(--m-red)}
+     #ouaScreen .oua-m-chip.violet{background:var(--m-violet-bg);color:var(--m-violet)}
+     #ouaScreen .oua-m-chip.ghost{background:rgba(255,255,255,.06);color:var(--m-text-dim)}
+     /* Chip "đơn vị" có thể dài (tên đầy đủ cơ quan) — cho phép xuống dòng, không ép 1 hàng như chip ngắn. */
+     #ouaScreen .oua-m-chip.wrap{white-space:normal;max-width:100%;word-break:break-word}
+
+     /* Nút tròn cho thao tác phụ + nút chữ full-width cho thao tác chính */
+     #ouaScreen .oua-m-iconbtn{width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid var(--m-border);color:var(--m-text-dim);font-size:15px;cursor:pointer;flex-shrink:0;padding:0}
+     #ouaScreen .oua-m-iconbtn:active{background:rgba(255,255,255,.12)}
+     #ouaScreen .oua-m-iconbtn.primary{background:var(--m-blue-bg);color:var(--m-blue);border-color:transparent}
+     #ouaScreen .oua-m-btn-text{flex:1;min-width:0;height:38px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--m-border);color:var(--m-text);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 10px}
+
+     /* Avatar tròn + chấm trạng thái góc dưới-phải */
+     #ouaScreen .oua-m-avatar-wrap{position:relative;flex-shrink:0}
+     #ouaScreen .oua-m-avatar-wrap .oua-avatar{width:44px;height:44px;font-size:16px}
+     #ouaScreen .oua-m-avatar-dot{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;border:2.5px solid var(--m-surface-bot)}
+     #ouaScreen .oua-m-avatar-dot.green{background:var(--m-green)}
+     #ouaScreen .oua-m-avatar-dot.red{background:var(--m-red)}
+
+     /* Hàng KPI cuộn ngang — thay lưới hộp đồng dạng */
+     #ouaScreen .oua-m-kpi-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+     #ouaScreen .oua-m-kpi{flex:0 0 auto;min-width:118px;background:linear-gradient(165deg,var(--m-surface-top) 0%,var(--m-surface-bot) 65%);border:1px solid var(--m-border);border-left:3px solid var(--kpi-accent,var(--m-blue));border-radius:14px;padding:12px 14px}
+     #ouaScreen .oua-m-kpi .l{font-size:11px;color:var(--m-text-dim);font-weight:600;white-space:nowrap}
+     #ouaScreen .oua-m-kpi .v{font-size:20px;font-weight:800;margin-top:3px;font-variant-numeric:tabular-nums}
+     #ouaScreen .oua-m-kpi.blue{--kpi-accent:var(--m-blue)}
+     #ouaScreen .oua-m-kpi.amber{--kpi-accent:var(--m-amber)}
+     #ouaScreen .oua-m-kpi.red{--kpi-accent:var(--m-red)}
+     #ouaScreen .oua-m-kpi.green{--kpi-accent:var(--m-green)}
+
+     /* Phase E — ô thống kê (KPI) cuộn ngang, dải màu cạnh trái theo ngữ nghĩa thay vì lưới hộp đồng dạng.
+        Tái dùng đúng HTML/id hiện có (không nhân đôi khuôn như Phase D) vì đây là ô tĩnh/toggle, không phải
+        danh sách sinh động — chỉ thêm class màu (blue/green/amber/red/violet) trên từng ô trong HTML rồi
+        restyle bằng CSS. */
+     #ouaScreen .oua-stats{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:10px;padding-bottom:6px;-webkit-overflow-scrolling:touch;margin-bottom:var(--m-sp-4)}
+     #ouaScreen .oua-stats.oua-stats-4{grid-template-columns:unset}
+     #ouaScreen .oua-stats .oua-stat{flex:0 0 auto;min-width:124px;background:linear-gradient(165deg,var(--m-surface-top) 0%,var(--m-surface-bot) 65%)!important;border:1px solid var(--m-border)!important;border-left:3px solid var(--kpi-accent,var(--m-blue))!important;border-radius:14px!important;padding:12px 14px!important;box-shadow:none}
+     #ouaScreen .oua-stats .oua-stat-label{font-size:11px;color:var(--m-text-dim)}
+     #ouaScreen .oua-stats .oua-stat-val{font-size:19px;color:var(--m-text)}
+     #ouaScreen .oua-stats .oua-stat.active{background:rgba(91,157,255,.14)!important;border-color:var(--kpi-accent,var(--m-blue))!important}
+     #ouaScreen .oua-stat.blue{--kpi-accent:var(--m-blue)}
+     #ouaScreen .oua-stat.green{--kpi-accent:var(--m-green)}
+     #ouaScreen .oua-stat.amber{--kpi-accent:var(--m-amber)}
+     #ouaScreen .oua-stat.red{--kpi-accent:var(--m-red)}
+     #ouaScreen .oua-stat.violet{--kpi-accent:var(--m-violet)}
+
+     /* Phase F — modal căn giữa (desktop) -> bottom sheet trượt lên (mobile). Chỉ đổi khung ngoài (backdrop
+        căn đáy, modal full-width bo góc trên + thanh kéo nhỏ), không đụng nội dung modal-body/form bên trong. */
+     #ouaScreen .modal-backdrop{align-items:flex-end;padding:0}
+     #ouaScreen .modal{width:100%;max-width:100%;max-height:85vh;border-radius:20px 20px 0 0;margin:0;animation:ouaSheetUp .22s ease}
+     #ouaScreen .modal::before{content:'';display:block;width:38px;height:4px;border-radius:999px;background:rgba(255,255,255,.25);margin:10px auto 0}
+     #ouaScreen .modal-header{padding-top:8px}
+     #ouaScreen .form-grid{grid-template-columns:1fr}
+     @keyframes ouaSheetUp{from{transform:translateY(60px);opacity:.3}to{transform:translateY(0);opacity:1}}
+
+     /* Phase G — hiện nút "Chuyển vào đây" (thay kéo-thả chạm tay không hoạt động được) + để .node tự giãn
+        hàng cho nút nằm gọn bên phải tên đơn vị. */
+     #ouaScreen .oua-tree-move-btn{display:inline-flex;width:28px;height:28px;font-size:13px;margin-left:auto;flex-shrink:0}
+     #ouaScreen .oua-tree-move-root-btn{display:inline-flex;align-items:center}
+     #ouaScreen .tree .node{display:flex;align-items:center;gap:8px}
+     #ouaScreen .tree .node .oua-tree-node-label{flex:1;min-width:0}
+
+     /* Phase D — bật khuôn thẻ mobile, tắt <table> tương ứng (đã migrate: Quản lý người dùng, Quản lý đơn vị) */
+     #ouaScreen table.oua-table-v2{display:none}
+     #ouaScreen .oua-cards-mobile{display:block}
+     #ouaScreen .oua-m-card-top{display:flex;gap:12px;align-items:flex-start}
+     #ouaScreen .oua-m-card-body{flex:1;min-width:0}
+     #ouaScreen .oua-m-card-title a{color:inherit}
+     #ouaScreen .oua-m-card-actions .oua-switch{flex-shrink:0;margin-right:auto}
+     #ouaScreen .oua-m-card-actions .oua-switch span:last-child{font-size:11.5px;color:var(--m-text-dim)}
+   }
+
+   /* ===================== Mobile CŨ (Phase 0 — bản vá bảng/sidebar đầu tiên) =====================
+      Giữ nguyên để các trang CHƯA được chuyển sang khuôn Phase D vẫn hiển thị được trên mobile — sẽ dỡ
+      bỏ dần từng mảnh khi Phase B/C/D/E/F thay thế xong, không xoá 1 lần kẻo trang chưa tới lượt bị trống. */
+   /* Hamburger mở sidebar + lớp phủ tối phía sau — ẩn trên desktop, chỉ hiện trong @media bên dưới. */
+   #ouaScreen .oua-hamburger{display:none;flex-direction:column;justify-content:center;align-items:center;gap:4px;width:38px;height:38px;flex-shrink:0;border:1px solid rgba(87,178,255,.3);background:rgba(10,31,55,.75);border-radius:10px;cursor:pointer;padding:0}
+   #ouaScreen .oua-hamburger span{display:block;width:16px;height:2px;background:#9fc6e8;border-radius:2px}
+   #ouaScreen .oua-sidebar-close{display:none;background:transparent;border:0;color:#9fc6e8;font-size:20px;line-height:1;cursor:pointer;padding:4px 8px;flex-shrink:0}
+   #ouaScreen .oua-sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:95}
+   #ouaScreen .oua-sidebar-backdrop.show{display:block}
+
+   /* ===================== Phase B — Thanh trên cùng + menu kéo ra (thiết kế mới) ===================== */
+   #ouaScreen .oua-sidebar-footer{display:none}
+   @media(max-width:900px){
+     #ouaScreen .oua-hamburger{display:flex}
+     #ouaScreen .sidebar{position:fixed;top:0;left:0;bottom:0;z-index:100;width:min(82vw,300px);transform:translateX(-100%);transition:transform .22s ease;box-shadow:24px 0 60px rgba(0,0,0,.45);overflow-y:auto;display:flex;flex-direction:column}
+     #ouaScreen .sidebar.open{transform:translateX(0)}
+     #ouaScreen .main{width:100%;min-width:0}
+
+     /* Thanh trên cùng: bỏ breadcrumb, chỉ còn ☰ + tiêu đề 1 dòng; ẩn khối avatar (chuyển xuống chân menu). */
+     #ouaScreen .topbar{flex-wrap:nowrap}
+     #ouaScreen .topbar h1{font-size:17px;line-height:1.3}
+     #ouaScreen .topbar .crumb{display:none}
+     #ouaScreen #ouaTopbarAvatar{display:none!important}
+
+     /* Logo + tên app ở đầu menu kéo ra */
+     #ouaScreen .sidebar .brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+     #ouaScreen .oua-sidebar-close{display:inline-block}
+
+     /* Mỗi mục menu: icon trong khung vuông bo góc màu riêng, bỏ dòng mô tả phụ (hoặc rút 1 dòng),
+        mục đang chọn có vạch màu bên trái thay vì tô cả khối nền. */
+     #ouaScreen .sidebar{padding-bottom:0}
+     #ouaScreen .sidebar .nav{display:flex;align-items:center;gap:12px;border-radius:12px;border:1px solid transparent;border-left:3px solid transparent;background:transparent;padding:10px 12px}
+     #ouaScreen .sidebar .nav > span:first-child{flex-shrink:0;width:38px;height:38px;border-radius:11px;background:var(--m-blue-bg,rgba(91,157,255,.16));display:flex;align-items:center;justify-content:center;font-size:17px}
+     #ouaScreen .sidebar .nav > span:last-child{min-width:0}
+     #ouaScreen .sidebar .nav b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+     #ouaScreen .sidebar .nav small{display:none}
+     #ouaScreen .sidebar .nav.active{background:rgba(91,157,255,.08);border-color:transparent;border-left-color:var(--m-blue,#5b9dff)}
+     #ouaScreen .sidebar .nav.active > span:first-child{background:var(--m-blue,#5b9dff);color:#06233f}
+
+     /* Chân menu: avatar + tên tài khoản, đặt cố định cuối sidebar (sau danh sách menu có thể cuộn) */
+     #ouaScreen .oua-sidebar-footer{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-top:auto;padding:14px 16px;border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.15)}
+     #ouaScreen .oua-sidebar-footer-info{min-width:0;display:flex;flex-direction:column;gap:4px}
+     #ouaScreen .oua-sidebar-footer-info b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+     #ouaScreen .oua-sidebar-footer-info .pill{align-self:flex-start;font-size:10.5px;padding:2px 9px}
+     #ouaScreen .note{flex-shrink:0;margin:0 12px 14px}
+   }
+
+   /* ===================== Phase C — Tìm kiếm + bảng lọc trượt lên (bottom sheet) =====================
+      .oua-filter-extra bọc quanh các <select>/nút lọc "phụ" (không phải ô tìm kiếm chính) của 1 trang.
+      display:contents mặc định (mọi màn hình) để không đổi layout desktop — children coi như con trực tiếp
+      của .toolbar/.oua-filterbar như cũ. Trên mobile mới ẩn tại chỗ + hiện lại bên trong bảng lọc. */
+   .oua-filter-extra{display:contents}
+   .oua-m-filter-trigger{display:none}
+   @media(max-width:760px){
+     #ouaScreen .oua-m-search-row{display:flex;align-items:center;gap:8px}
+     #ouaScreen .oua-m-search-row > .field,#ouaScreen .oua-m-search-row > .oua-search{flex:1;min-width:0;width:auto!important}
+     #ouaScreen .oua-filter-extra{display:none}
+     #ouaScreen .oua-m-sheet-body .oua-filter-extra{display:flex;flex-direction:column;gap:12px}
+     #ouaScreen .oua-m-sheet-body .field,#ouaScreen .oua-m-sheet-body select,#ouaScreen .oua-m-sheet-body .oua-dd,#ouaScreen .oua-m-sheet-body .btn,#ouaScreen .oua-m-sheet-body .oua-total{width:100%;margin:0}
+
+     #ouaScreen .oua-m-filter-trigger{display:flex;flex-shrink:0;width:42px;height:42px;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--m-border,rgba(255,255,255,.09));background:rgba(255,255,255,.06);color:var(--m-text,#eaf3ff);font-size:16px;cursor:pointer;padding:0}
+     #ouaScreen .oua-m-filter-trigger.active{background:var(--m-blue-bg,rgba(91,157,255,.16));border-color:var(--m-blue,#5b9dff);color:var(--m-blue,#5b9dff)}
+
+     #ouaScreen .oua-m-sheet-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:140}
+     #ouaScreen .oua-m-sheet-backdrop.show{display:block}
+     #ouaScreen .oua-m-sheet{position:fixed;left:0;right:0;bottom:0;z-index:150;background:linear-gradient(180deg,var(--m-surface-top,#1a3a5c),var(--m-surface-bot,#0c2238));border:1px solid var(--m-border,rgba(255,255,255,.09));border-bottom:none;border-radius:20px 20px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));max-height:80vh;overflow-y:auto;transform:translateY(105%);transition:transform .25s ease;box-shadow:0 -20px 50px rgba(0,0,0,.45)}
+     #ouaScreen .oua-m-sheet.open{transform:translateY(0)}
+     #ouaScreen .oua-m-sheet-handle{width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.2);margin:0 auto 14px}
+     #ouaScreen .oua-m-sheet-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+     #ouaScreen .oua-m-sheet-header b{font-size:15px;color:var(--m-text,#eaf3ff)}
+     #ouaScreen .oua-m-sheet-footer{margin-top:16px}
+   }
+
+   /* Thanh lọc/toolbar xếp dọc, đầy chiều rộng, thay vì ép nằm 1 hàng gây tràn ngang (trang chưa gắn sheet). */
+   @media(max-width:760px){
+     /* .oua-filterbar giờ đã dùng khuôn .oua-m-search-row (Phase C, ô tìm kiếm + nút lọc nằm 1 hàng) —
+        không ép flex-direction:column nữa, chỉ còn giữ cho .toolbar (những toolbar chưa gắn sheet). */
+     #ouaScreen .toolbar:not(.oua-m-search-row){display:flex!important;flex-direction:column;align-items:stretch;gap:10px}
+     #ouaScreen .toolbar:not(.oua-m-search-row) .field{width:100%}
+     #ouaScreen .kpis{grid-template-columns:repeat(2,1fr)!important}
+     #ouaScreen .quick-stack{flex-direction:column;align-items:stretch}
+     #ouaScreen .quick-stack .btn{width:100%;text-align:center}
+     #ouaScreen .grid2{grid-template-columns:1fr!important}
+     #ouaScreen .head{flex-direction:column;align-items:stretch}
+     #ouaScreen .head .actions{width:100%}
+     #ouaScreen .head .actions .btn{flex:1 1 auto;text-align:center}
+     #ouaScreen .oua-mode-field{flex-shrink:1!important;width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+     #ouaScreen .oua-mode-field label{margin-right:0}
+     #ouaScreen .oua-mode-field .oua-dd{width:100%}
+   }
+
+   /* Bảng dữ liệu -> thẻ xếp dọc trên mobile (chỉ áp dụng cho bảng có class .oua-table-cards). Mỗi <td> cần
+      thuộc tính data-th="Tên cột" (gắn sẵn trong JS render) để hiện nhãn cột ngay trên giá trị — ô đầu tiên
+      (tên người/đơn vị) không lặp nhãn, được nhấn mạnh làm tiêu đề thẻ. */
+   @media(max-width:760px){
+     #ouaScreen table.oua-table-cards{border:none;border-collapse:separate}
+     #ouaScreen table.oua-table-cards thead{display:none}
+     #ouaScreen table.oua-table-cards,#ouaScreen table.oua-table-cards tbody{display:block;width:100%}
+     #ouaScreen table.oua-table-cards tr{display:block;margin-bottom:12px;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:4px 14px;background:rgba(13,34,59,.6)}
+     #ouaScreen table.oua-table-cards td{display:block;width:auto;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.07);border-right:none}
+     #ouaScreen table.oua-table-cards tr td:last-child{border-bottom:none}
+     #ouaScreen table.oua-table-cards td[data-th]::before{content:attr(data-th);display:block;font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:#7fa6cc;margin-bottom:5px}
+     #ouaScreen table.oua-table-cards td.oua-td-title{padding-top:12px;padding-bottom:11px;border-bottom:2px solid rgba(87,178,255,.25);font-weight:700}
+     #ouaScreen table.oua-table-cards td.oua-td-title::before{display:none}
+     #ouaScreen table.oua-table-cards td.oua-td-check{padding:6px 0 0}
+     #ouaScreen table.oua-table-cards td.oua-td-check::before{display:none}
+     #ouaScreen table.oua-table-cards .actions{justify-content:flex-start}
+   }
+ </style>
+</head>
+<body>
+<section id="ouaScreen">
+<div class="app">
+  <div class="oua-sidebar-backdrop" id="ouaSidebarBackdrop" onclick="ouaToggleMobileSidebar(false)"></div>
+  <aside class="sidebar" id="ouaSidebar">
+    <div class="brand"><div class="logo">IOC</div><div><div class="brand-title">Cài đặt hệ thống</div><div class="brand-sub">Quản trị nền tảng IOC/CAD</div></div><button type="button" class="oua-sidebar-close" onclick="ouaToggleMobileSidebar(false)" aria-label="Đóng menu">✕</button></div>
+    <div class="menu-title">Danh mục quản trị</div>
+    <button class="nav active" data-page="admin-overview"><span>⚙️</span><span><b>Admin Tổng</b><small>Quản trị admin theo địa bàn và 4 trục</small></span></button>
+    <button class="nav" data-page="org-list"><span>🏛️</span><span><b>Quản lý đơn vị</b><small>Đơn vị, cây tổ chức, đơn vị trực thuộc</small></span></button>
+    <button class="nav" data-page="user-list"><span>👤</span><span><b>Quản lý người dùng</b><small>Tài khoản, role module, phạm vi dữ liệu</small></span></button>
+    <button class="nav" data-page="login-log"><span>🕒</span><span><b>Nhật ký đăng nhập</b><small>Lượt đăng nhập của mọi tài khoản, thành công/thất bại</small></span></button>
+    <button class="nav" data-page="field-settings"><span>🏷️</span><span><b>Cài đặt lĩnh vực</b><small>Danh mục lĩnh vực của đơn vị, thêm/sửa theo nhu cầu</small></span></button>
+    <button class="nav" data-page="org-grouping"><span>📁</span><span><b>Phân nhóm đơn vị</b><small>Gán tay nhóm TP/Sở/Xã-Phường/BTCTW cho từng đơn vị</small></span></button>
+    <button class="nav" data-page="indicator-mapping"><span>📊</span><span><b>Cấu hình chỉ tiêu đơn vị</b><small>Sửa id_url_chỉ_tiêu của từng đơn vị trong user-tree</small></span></button>
+    <button class="nav" data-page="tree-settings"><span>🌳</span><span><b>Cài đặt cây thư mục</b><small>Cấu hình cây đơn vị tùy biến, tách khỏi Xã/Phường</small></span></button>
+    <div class="oua-sidebar-footer" id="ouaSidebarFooter">
+      <div class="oua-avatar" style="background:#3b6fd6">I</div>
+      <div class="oua-sidebar-footer-info"><b>ioc_mbfs</b><span class="pill violet">Admin toàn cục</span></div>
+    </div>
+    <div class="note" id="ouaBackNote">Đây là màn hình quản trị độc lập, không gắn theo tài khoản đơn vị đang đăng nhập.<br><button class="btn ghost small" style="margin-top:10px" onclick="ouaExit()">← Quay lại màn hình đăng nhập</button></div>
+  </aside>
+  <main class="main">
+    <div class="topbar" style="display:flex;justify-content:space-between;align-items:center;gap:16px">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <button type="button" class="oua-hamburger" onclick="ouaToggleMobileSidebar(true)" aria-label="Mở menu"><span></span><span></span><span></span></button>
+        <div style="min-width:0"><div class="crumb">Cài đặt hệ thống / Quản trị IOC-CAD</div><h1 id="pageTitle">Admin Tổng</h1></div>
+      </div>
+      <div id="ouaTopbarAvatar" style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <div class="oua-avatar" style="background:#3b6fd6">I</div>
+        <div><b>ioc_mbfs</b> <span class="pill violet">Admin toàn cục</span><div class="muted">Quản trị toàn cục</div></div>
+      </div>
+    </div>
+
+    <section id="admin-overview" class="page active">
+      <div class="panel">
+        <div class="head"><div><h2>Phân Quyền Quản Trị Hệ Thống</h2><p>Tổng hợp số lượng admin theo 4 trục (Đảng ủy/HĐND/UBND/MTTQ), khối Trung ương và theo Sở/địa bàn — tính từ dữ liệu người dùng thật (BKAV CBCCVC). Đây là số liệu suy luận demo dựa trên chức vụ, chưa phải quyền RBAC thật.</p></div><div class="actions"><button class="btn" onclick="ouaBuildRealData();ouaRenderAdminOverview();ouaToast('Đã làm mới dữ liệu.')">↻ Làm mới dữ liệu</button></div></div>
+        <div class="pill violet" style="margin-bottom:14px">📍 Toàn hệ thống (Global Scope)</div>
+        <div class="oua-stats oua-stats-4">
+          <div class="oua-stat static red" title="Admin trục Đảng ủy"><span class="oua-stat-label">Đảng ủy</span><span class="oua-stat-val" id="ouaKpiAdminDang">–</span></div>
+          <div class="oua-stat static amber" title="Admin trục HĐND"><span class="oua-stat-label">HĐND</span><span class="oua-stat-val" id="ouaKpiAdminHdnd">–</span></div>
+          <div class="oua-stat static green" title="Admin trục UBND"><span class="oua-stat-label">UBND</span><span class="oua-stat-val" id="ouaKpiAdminUbnd">–</span></div>
+          <div class="oua-stat static violet" title="Admin trục MTTQ"><span class="oua-stat-label">MTTQ</span><span class="oua-stat-val" id="ouaKpiAdminMttq">–</span></div>
+          <div class="oua-stat static blue" title="Mọi admin trong hệ thống (mọi loại)"><span class="oua-stat-label">Tổng admin</span><span class="oua-stat-val" id="ouaKpiAdminTotal">–</span></div>
+          <div class="oua-stat static amber" title="Quản trị Ban Tổ chức Trung ương"><span class="oua-stat-label">Admin TW (BTCTW)</span><span class="oua-stat-val" id="ouaKpiAdminTw">–</span></div>
+          <div class="oua-stat static blue" title="Quản trị theo Sở / Ngành"><span class="oua-stat-label">Admin Sở</span><span class="oua-stat-val" id="ouaKpiAdminSo">–</span></div>
+          <div class="oua-stat static violet" title="Quản trị theo Phường / Xã"><span class="oua-stat-label">Admin địa bàn</span><span class="oua-stat-val" id="ouaKpiAdminDiaBan">–</span></div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+            <div>
+              <h3>Cấu hình quyền cấp cho người dùng</h3>
+              <p class="muted" style="margin:-4px 0 0">Chọn hình thức quản trị toàn diện hoặc phân quyền theo từng khối chuyên trách. Dữ liệu người dùng lấy từ danh sách thật, quyền admin ở đây là nhãn demo minh họa.</p>
+            </div>
+            <div class="field oua-mode-field" style="flex-shrink:0"><label class="muted" style="margin-right:6px;white-space:nowrap">Hình thức phân quyền:</label><select id="ouaAdminModeSel" onchange="ouaFilterAdminUsers()"><option value="">⚙️ Admin tổng quát</option><option value="axis">🚩 Theo trục</option><option value="so">📘 Theo Sở/Ngành</option><option value="diaban">⭐ Theo địa bàn</option></select></div>
+          </div>
+          <div class="toolbar" style="margin-top:12px"><div class="field">🔎 <input id="ouaAdminUserSearch" placeholder="Tìm theo tên, username, email..." oninput="ouaFilterAdminUsers()"></div></div>
+          <div class="quick-stack" id="adminUserFilterButtons" style="margin:10px 0">
+            <button class="btn primary" onclick="ouaSetAdminFilterMode('all', this)">Tất cả quyền</button>
+            <button class="btn" onclick="ouaSetAdminFilterMode('granted', this)">Đã có quyền admin</button>
+            <button class="btn" onclick="ouaSetAdminFilterMode('ungranted', this)">Chưa có quyền admin</button>
+          </div>
+          <div class="muted" id="ouaAdminUserCount" style="margin-bottom:8px"></div>
+          <table class="oua-table-v2"><thead><tr><th style="width:34px"><input type="checkbox" id="ouaAdminSelectAll" onchange="ouaToggleSelectAllAdminUsers(this.checked)"></th><th>Người dùng</th><th>Địa bàn</th><th>Đơn vị / Trục công tác</th><th>Quyền Admin hiện tại</th></tr></thead><tbody id="ouaAdminUserTbody"></tbody></table>
+          <div class="oua-cards-mobile" id="ouaAdminUserCardsMobile"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="org-list" class="page">
+      <div class="panel">
+        <div class="head"><div><h2>Quản lý đơn vị</h2><p>Danh sách đơn vị theo cây tổ chức THẬT (BKAV CBCCVC) của Thành phố Hà Nội, cộng thêm khối Trung ương/BTCTW (dữ liệu mô phỏng vì chưa có trong nguồn thật). Bấm tên đơn vị hoặc nút "Chi tiết" để vào màn chi tiết đơn vị.</p></div><div class="actions"><button class="btn" onclick="ouaOpenModal('syncOrgModal')">Đồng bộ cơ cấu tổ chức</button><button class="btn primary" onclick="ouaOpenModal('addOrgRealModal')">+ Tạo đơn vị mới</button></div></div>
+        <div class="kpis"><div class="kpi"><div class="label">Tổng đơn vị</div><div class="val" id="ouaKpiTotal">–</div><div class="hint" id="ouaKpiTotalHint">Đang tải dữ liệu…</div></div><div class="kpi"><div class="label">Đơn vị đã map BKAV</div><div class="val" id="ouaKpiMapped">–</div><div class="hint">Có org code khớp</div></div><div class="kpi"><div class="label">Chờ rà soát</div><div class="val" id="ouaKpiReview">–</div><div class="hint">Chưa gán người dùng nào</div></div><div class="kpi"><div class="label">Đơn vị active</div><div class="val" id="ouaKpiActive">–</div><div class="hint">Đang dùng trong phân quyền</div></div></div>
+        <div class="quick-stack" style="margin:10px 0">
+          <button class="btn primary" id="ouaOrgViewTableBtn" onclick="ouaSetOrgView('table')">📋 Dạng bảng</button>
+          <button class="btn" id="ouaOrgViewTreeBtn" onclick="ouaSetOrgView('tree')">🌳 Cây đơn vị</button>
+        </div>
+        <div id="ouaOrgTableWrap">
+          <div class="toolbar oua-m-search-row"><div class="field">🔎 <input id="ouaOrgSearch" placeholder="Tìm theo tên đơn vị, mã đơn vị, org code..." oninput="ouaFilterOrgList()"></div><button type="button" class="oua-m-filter-trigger" onclick="ouaOpenFilterSheet('#org-list .oua-filter-extra', this)">⚙</button><div class="oua-filter-extra"><div class="field"><select id="ouaOrgAxisSel" onchange="ouaFilterOrgList()"><option value="">Tất cả trục</option><option value="DANG">Đảng ủy</option><option value="HDND">HĐND</option><option value="UBND">UBND</option><option value="MTTQ">MTTQ</option><option value="TW_CTN">Chủ tịch nước</option><option value="TW_DANG">BCH Trung ương Đảng</option><option value="TW_QH">Quốc hội</option><option value="TW_CP">Chính phủ</option><option value="TW_MTTQ">MTTQ Trung ương</option></select></div><div class="field"><select id="ouaOrgLevelSel" onchange="ouaFilterOrgList()"><option value="">Tất cả cấp</option><option value="Trung ương">Trung ương (mô phỏng)</option><option value="Cấp 1">Cấp 1</option><option value="Cấp 2">Cấp 2</option><option value="Cấp 3">Cấp 3</option><option value="Cấp 4">Cấp 4</option><option value="Cấp 5">Cấp 5</option></select></div></div></div>
+          <div class="muted" id="ouaOrgListCount" style="margin-bottom:8px"></div>
+          <table class="oua-table-v2"><thead><tr><th>Tên đơn vị</th><th>Mã IOC</th><th>Trục</th><th>Cấp tổ chức</th><th>Đơn vị cấp trên</th><th>Nguồn</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="ouaOrgTbody">
+          </tbody></table>
+          <div class="oua-cards-mobile" id="ouaOrgCardsMobile"></div>
+        </div>
+        <div id="ouaOrgTreeWrap" class="hidden"></div>
+      </div>
+    </section>
+
+    <section id="org-detail" class="page">
+      <div class="panel"><div class="detail-head"><div class="detail-title"><div class="crumb">Quản lý đơn vị / Chi tiết đơn vị</div><h2 id="ouaOrgDetailTitle">Văn phòng Thành ủy Hà Nội</h2><div class="path" id="ouaOrgDetailPath">Mã IOC: ORG-TU-001 • Mã BKAV: BKAV-ORG-00012 • Trục Thành ủy • Cấp Thành phố</div></div><div class="actions"><button class="btn ghost" onclick="ouaGoPage('org-list')">← Quay lại danh sách</button><button class="btn" onclick="ouaOpenModal('syncOrgModal')">Đồng bộ lại</button></div></div>
+        <div class="tabs" data-tabs="org"><button class="tab active" data-target="org-info">Thông tin đơn vị</button><button class="tab" data-target="org-child">Đơn vị trực thuộc</button><button class="tab" data-target="org-tree">Cây tổ chức</button><button class="tab" data-target="org-scope">Ràng buộc dữ liệu</button></div>
+        <div id="org-info" class="tab-panel active"><div class="grid2"><div class="card"><h3>Thông tin định danh</h3><div class="field-list"><div class="label">Tên đơn vị</div><div class="value" id="ouaOrgFName">Văn phòng Thành ủy Hà Nội</div><div class="label">Tên viết tắt</div><div class="value" id="ouaOrgFAbbr">VPTU Hà Nội</div><div class="label">Mã đơn vị IOC</div><div class="value" id="ouaOrgFCode">ORG-TU-001</div><div class="label">Mã đơn vị BKAV</div><div class="value" id="ouaOrgFBkav">BKAV-ORG-00012</div><div class="label">Trục</div><div class="value" id="ouaOrgFAxis">Thành ủy</div><div class="label">Cấp tổ chức</div><div class="value" id="ouaOrgFLevel">Thành phố</div><div class="label">Đơn vị cấp trên</div><div class="value" id="ouaOrgFParent">Thành phố Hà Nội</div><div class="label">Trạng thái</div><div class="value" id="ouaOrgFStatus"><span class="pill green">Đang hoạt động</span></div></div></div><div class="card"><h3>Thông tin vận hành</h3><div class="field-list"><div class="label">Người đứng đầu</div><div class="value" id="ouaOrgFHead">Chánh Văn phòng Thành ủy</div><div class="label">Địa chỉ</div><div class="value">Số 9 Ngô Quyền, Hoàn Kiếm, Hà Nội</div><div class="label">Email công vụ</div><div class="value" id="ouaOrgFEmail">vptu@hanoi.gov.vn</div><div class="label">Nhóm nghiệp vụ</div><div class="value">Văn bản, nhiệm vụ, lịch họp, chỉ đạo điều hành</div><div class="label">Nguồn dữ liệu</div><div class="value" id="ouaOrgFSource">BKAV làm nguồn gốc; IOC quản lý metadata mở rộng</div><div class="label">Lần đồng bộ cuối</div><div class="value">21/07/2026 09:15</div></div></div></div></div>
+        <div id="org-child" class="tab-panel"><div class="head"><div><h2>Đơn vị trực thuộc</h2><p>Thay cho khái niệm "chi nhánh"; dùng để liệt kê đơn vị dưới quyền trong cây nhà nước.</p></div></div><table><thead><tr><th>Tên đơn vị</th><th>Mã</th><th>Trục</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="ouaOrgChildTbody"></tbody></table></div>
+        <div id="org-tree" class="tab-panel"><div class="card"><h3>Cây tổ chức</h3><div class="tree" id="ouaOrgDetailTree"></div></div></div>
+        <div id="org-scope" class="tab-panel"><div class="grid2"><div class="card"><h3>Ràng buộc dữ liệu mặc định</h3><ul><li>Lãnh đạo cấp Thành phố có thể được cấp scope xem rộng theo trục/cấp.</li><li>Xã/phường chỉ xem dữ liệu của xã/phường mình nhưng đủ 4 trục trong phạm vi xã/phường.</li><li>IOC không sửa hồ sơ tổ chức gốc của BKAV; chỉ lưu mapping và metadata quyền.</li></ul></div><div class="card"><h3>Thao tác</h3><button class="btn" onclick="ouaOpenModal('dataScopeModal')">Cấu hình scope đơn vị</button> <button class="btn" onclick="ouaOpenModal('previewOrgScopeModal')">Preview dữ liệu đơn vị được xem</button></div></div></div>
+      </div>
+    </section>
+
+    <section id="user-list" class="page">
+      <div class="panel"><div class="head"><div><h2>Quản lý người dùng</h2><p>Danh sách tài khoản người dùng IOC thực tế trong hệ thống RBAC (BKAV CBCCVC/eGov, 12.577 người trong 3.612 đơn vị). Bấm vào tên người dùng hoặc nút "Chi tiết" để phân quyền và thiết lập scope dữ liệu.</p></div><div class="actions"><button class="btn primary" onclick="ouaOpenModal('createUserRealModal')">Tạo tài khoản</button><button class="btn" onclick="ouaOpenModal('importUserExcelModal')">Import Excel</button></div></div>
+        <div class="oua-stats">
+          <button type="button" class="oua-stat oua-kpi-clickable active blue" data-kpi="all" onclick="ouaSetUserKpiFilter('all')"><span class="oua-stat-label">Tổng số tài khoản</span><span class="oua-stat-val" id="ouaUserKpiTotal">–</span></button>
+          <button type="button" class="oua-stat oua-kpi-clickable green" data-kpi="new" onclick="ouaSetUserKpiFilter('new')"><span class="oua-stat-label">Tạo mới (30 ngày)</span><span class="oua-stat-val" id="ouaUserKpiNew">–</span></button>
+          <button type="button" class="oua-stat oua-kpi-clickable amber" data-kpi="never_login" onclick="ouaSetUserKpiFilter('never_login')"><span class="oua-stat-label">Chưa đăng nhập</span><span class="oua-stat-val" id="ouaUserKpiNeverLogin">–</span></button>
+          <button type="button" class="oua-stat oua-kpi-clickable green" data-kpi="logged_in" onclick="ouaSetUserKpiFilter('logged_in')"><span class="oua-stat-label">Đã đăng nhập</span><span class="oua-stat-val" id="ouaUserKpiLoggedIn">–</span></button>
+          <button type="button" class="oua-stat oua-kpi-clickable red" data-kpi="locked" onclick="ouaSetUserKpiFilter('locked')"><span class="oua-stat-label">Đã khóa</span><span class="oua-stat-val" id="ouaUserKpiLocked">–</span></button>
+        </div>
+        <div class="oua-filterbar oua-m-search-row">
+          <label class="oua-search"><span class="oua-search-ic">🔎</span><input id="ouaUserSearch" placeholder="Tìm theo họ tên, username SSO, email..." oninput="ouaFilterUserList()"></label>
+          <button type="button" class="oua-m-filter-trigger" onclick="ouaOpenFilterSheet('#user-list .oua-filter-extra', this)">⚙</button>
+          <div class="oua-filter-extra">
+            <select id="ouaUserStatusSel" onchange="ouaFilterUserList()"><option value="">Tất cả trạng thái</option><option value="active">Đang hoạt động</option><option value="locked">Khóa</option></select>
+            <select id="ouaUserRoleSel" onchange="ouaFilterUserList()"><option value="">Tất cả vai trò</option><option value="Lãnh đạo trục">Lãnh đạo trục</option><option value="Chuyên viên">Chuyên viên</option><option value="Chưa gán role">Chưa gán role</option></select>
+            <button class="btn" onclick="ouaOpenModal('filterModal')">⚙ Bộ lọc nâng cao</button>
+            <span class="oua-total" id="ouaUserTotalCount"></span>
+          </div>
+        </div>
+        <div class="muted" id="ouaUserListCount" style="margin-bottom:8px"></div>
+        <table class="oua-fixed-table oua-table-v2"><colgroup><col style="width:23%"><col style="width:8%"><col style="width:23%"><col style="width:15%"><col style="width:11%"><col style="width:9%"><col style="width:11%"></colgroup><thead><tr><th>Người dùng</th><th>Trục</th><th>Đơn vị công tác</th><th>Chức vụ</th><th>Trạng thái</th><th>Khóa / Mở</th><th>Thao tác</th></tr></thead><tbody id="ouaUserTbody">
+        </tbody></table>
+        <div class="oua-cards-mobile" id="ouaUserCardsMobile"></div>
+      </div>
+    </section>
+
+    <section id="user-detail" class="page">
+      <div class="panel"><div class="detail-head"><div class="detail-title"><div class="crumb">Quản lý người dùng / Chi tiết người dùng</div><h2 id="ouaUserDetailName">Nguyễn Văn A</h2><div class="path" id="ouaUserDetailPath">SSO: nguyenvana • CBCCVC: CCVC-00128 • Đơn vị: Văn phòng Thành ủy Hà Nội • Trạng thái IOC: Active</div></div><div class="actions"><button class="btn ghost" onclick="ouaGoPage('user-list')">← Quay lại danh sách</button><button class="btn" onclick="ouaOpenModal('syncUserModal')">Đồng bộ lại</button><button class="btn primary" onclick="ouaOpenModal('savePermissionModal')">Lưu thay đổi</button></div></div>
+        <div class="tabs" data-tabs="user"><button class="tab active" data-target="user-perm">Quyền truy cập</button><button class="tab" data-target="user-account">Thông tin tài khoản</button><button class="tab" data-target="user-scope">Phạm vi dữ liệu</button><button class="tab" data-target="user-log">Nhật ký & Đồng bộ</button></div>
+
+        <div id="user-perm" class="tab-panel active">
+          <div class="role-screen">
+            <div class="role-summary">
+              <h3>Thiết lập quyền theo module</h3>
+              <div class="field-list" style="grid-template-columns:145px 1fr">
+                <div class="label">Người dùng</div><div class="value">Nguyễn Văn A</div>
+                <div class="label">Role mặc định</div><div class="value"><span class="pill red">Lãnh đạo trục</span></div>
+                <div class="label">Trục áp dụng</div><div class="value">Thành ủy</div>
+                <div class="label">Đơn vị áp dụng</div><div class="value">Văn phòng Thành ủy Hà Nội</div>
+                <div class="label">Cách cấp quyền</div><div class="value">Chọn role cho từng module</div>
+              </div>
+              <div class="quick-stack">
+                <button class="btn" onclick="ouaOpenModal('applyRoleTemplateModal')">Áp role mẫu cho nhiều module</button>
+                <button class="btn" onclick="ouaOpenModal('roleModuleModal')">Xem quyền của role đang chọn</button>
+                <button class="btn" onclick="ouaOpenModal('previewPermissionModal')">Preview quyền hiệu lực</button>
+                <button class="btn danger" onclick="ouaOpenModal('resetPermissionModal')">Reset quyền</button>
+              </div>
+            </div>
+            <div class="role-module-board">
+              <div class="module-group">
+                <div class="module-group-title"><div><h3>Nhóm điều hành IOC/CAD</h3><span>Module tác nghiệp chính cần phân quyền cho lãnh đạo, điều phối, chuyên viên, văn thư</span></div><button class="btn small" onclick="ouaOpenModal('bulkEditOperationModulesModal')">Sửa nhanh nhóm</button></div>
+                <div class="matrix role-perm-table"><table><thead><tr><th style="width:40%">Module / chức năng</th><th style="width:28%">Role áp dụng</th><th style="width:18%">Data scope</th><th style="width:14%">Thao tác</th></tr></thead><tbody>
+                  <tr><td class="module-name"><b>Dashboard điều hành / CAD</b><small>M01_Dashboard_CAD - xem KPI, dashboard, drilldown, export</small></td><td><select class="role-select leader"><option selected>Lãnh đạo trục</option><option>Cấp phó trục</option><option>Văn phòng/Điều phối</option><option>Chuyên viên/Cán bộ</option><option>Trực IOC/CAD</option><option>Chỉ xem</option><option>Không cấp quyền</option></select></td><td><span class="scope-chip">CITY_AXIS</span></td><td><button class="btn small" onclick="ouaOpenModal('dashboardRoleDetailModal')">Chi tiết</button></td></tr>
+                  <tr><td class="module-name"><b>Nhiệm vụ IOC/CAD</b><small>M02_Nhiem_vu - tạo, giao, cập nhật, duyệt, hủy, mở lại nhiệm vụ</small></td><td><select class="role-select leader"><option selected>Lãnh đạo trục</option><option>Cấp phó trục</option><option>Văn phòng/Điều phối</option><option>Trưởng đơn vị</option><option>Phó đơn vị</option><option>Chuyên viên/Cán bộ</option><option>Văn thư</option><option>Trực IOC/CAD</option><option>Chỉ xem</option><option>Không cấp quyền</option></select></td><td><span class="scope-chip">TASK_BY_ORG_USER</span></td><td><button class="btn small" onclick="ouaOpenModal('taskRoleDetailModal')">Chi tiết</button></td></tr>
+                  <tr><td class="module-name"><b>Văn bản / QLVB</b><small>M03_Van_ban - văn bản đến/đi, giao xử lý, phát hành, lưu trữ</small></td><td><select class="role-select leader"><option selected>Lãnh đạo trục</option><option>Văn phòng/Điều phối</option><option>Trưởng đơn vị</option><option>Chuyên viên/Cán bộ</option><option>Văn thư</option><option>Chỉ xem</option><option>Không cấp quyền</option></select></td><td><span class="scope-chip">DOC_BY_ORG</span></td><td><button class="btn small" onclick="ouaOpenModal('docRoleDetailModal')">Chi tiết</button></td></tr>
+                  <tr><td class="module-name"><b>Notify IOC/CAD</b><small>M04_Notify_CAD - cảnh báo, tiếp nhận, chuyển nhiệm vụ, báo cáo vượt cấp</small></td><td><select class="role-select"><option>Lãnh đạo trục</option><option selected>Văn phòng/Điều phối</option><option>Trực IOC/CAD</option><option>Chuyên viên/Cán bộ</option><option>Chỉ xem</option><option>Không cấp quyền</option></select></td><td><span class="scope-chip">NOTIFY_BY_ORG</span></td><td><button class="btn small" onclick="ouaOpenModal('notifyRoleDetailModal')">Chi tiết</button></td></tr>
+                </tbody></table></div>
+              </div>
+              <div class="module-group">
+                <div class="module-group-title"><div><h3>Nhóm nghiệp vụ mở rộng</h3><span>Kịch bản, chỉ tiêu, GIS, lịch họp dùng chung cho các trục</span></div><button class="btn small" onclick="ouaOpenModal('bulkEditBusinessModulesModal')">Sửa nhanh nhóm</button></div>
+                <div class="matrix role-perm-table"><table><thead><tr><th>Module / chức năng</th><th>Role áp dụng</th><th>Data scope</th><th>Thao tác</th></tr></thead><tbody>
+                  <tr><td class="module-name"><b>Kịch bản xử lý</b><small>M05_Kich_ban_Xu_ly - chọn, tạo, sửa, archive/khôi phục scenario</small></td><td><select class="role-select"><option>Lãnh đạo trục</option><option selected>Văn phòng/Điều phối</option><option>Trực IOC/CAD</option><option>Chuyên viên/Cán bộ</option><option>Chỉ xem</option><option>Không cấp quyền</option></select></td><td><span class="scope-chip">BY_FIELD</span></td><td><button class="btn small" onclick="ouaOpenModal('scenarioRoleDetailModal')">Chi tiết</button></td></tr>
+                  <tr><td class="module-name"><b>Chỉ tiêu / Lĩnh vực</b><small>M06_Chi_tieu_Linh_vuc - xem nhóm chỉ tiêu, record, dashboard sở/ngành</small></td><td><select class="role-select leader"><option selected>Lãnh đạo trục</option><option>Cấp phó trục</option><option>Trưởng đơn vị</option><option>Chuyên viên/Cán bộ</option><option>Chỉ xem</option><option>Không cấp quyền</option></select></td><td><span class="scope-chip">INDICATOR_BY_AXIS</span></td><td><button class="btn small" onclick="ouaOpenModal('indicatorRoleDetailModal')">Chi tiết</button></td></tr>
+                  <tr><td class="module-name"><b>GIS / Bản đồ hiện trường</b><small>M07_GIS - layer, marker, vùng giám sát, liên kết hồ sơ</small></td><td><select class="role-select view"><option>Lãnh đạo trục</option><option>Chuyên viên/Cán bộ</option><option selected>Chỉ xem</option><option>Không cấp quyền</option></select></td><td><span class="scope-chip">MAP_BY_ORG</span></td><td><button class="btn small" onclick="ouaOpenModal('gisRoleDetailModal')">Chi tiết</button></td></tr>
+                  <tr><td class="module-name"><b>Lịch họp / Lịch công tác</b><small>M08_Lich_Hop - xem lịch, tài liệu họp, tạo nhiệm vụ từ kết luận</small></td><td><select class="role-select leader"><option selected>Lãnh đạo trục</option><option>Văn phòng/Điều phối</option><option>Chuyên viên/Cán bộ</option><option>Chỉ xem</option><option>Không cấp quyền</option></select></td><td><span class="scope-chip">CALENDAR_BY_ORG</span></td><td><button class="btn small" onclick="ouaOpenModal('calendarRoleDetailModal')">Chi tiết</button></td></tr>
+                </tbody></table></div>
+              </div>
+              <div class="module-group">
+                <div class="module-group-title"><div><h3>Nhóm quản trị & tích hợp</h3><span>Chỉ cấp cho tài khoản quản trị hoặc tài khoản được ủy quyền rõ ràng</span></div><button class="btn small" onclick="ouaOpenModal('bulkEditAdminModulesModal')">Sửa nhanh nhóm</button></div>
+                <div class="matrix role-perm-table"><table><thead><tr><th>Module / chức năng</th><th>Role áp dụng</th><th>Data scope</th><th>Thao tác</th></tr></thead><tbody>
+                  <tr><td class="module-name"><b>Nguồn dữ liệu / Đồng bộ</b><small>M09_Nguon_Du_lieu - cấu hình nguồn, chạy sync, xem log lỗi</small></td><td><select class="role-select view"><option>Quản trị hệ thống</option><option>Văn phòng/Điều phối</option><option>Trực IOC/CAD</option><option selected>Chỉ xem</option><option>Không cấp quyền</option></select></td><td><span class="scope-chip">SYSTEM_CONFIG</span></td><td><button class="btn small" onclick="ouaOpenModal('sourceRoleDetailModal')">Chi tiết</button></td></tr>
+                  <tr><td class="module-name"><b>Quản trị / Audit</b><small>M10_Quan_tri_Audit - người dùng, đơn vị, role, audit log</small></td><td><select class="role-select none"><option>Quản trị hệ thống</option><option>Văn phòng/Điều phối</option><option>Chỉ xem</option><option selected>Không cấp quyền</option></select></td><td><span class="scope-chip">SYSTEM_ADMIN</span></td><td><button class="btn small" onclick="ouaOpenModal('adminRoleDetailModal')">Chi tiết</button></td></tr>
+                  <tr><td class="module-name"><b>Quản lý đơn vị</b><small>Quản trị cây tổ chức, mapping mã BKAV, đơn vị trực thuộc</small></td><td><select class="role-select none"><option>Quản trị hệ thống</option><option>Chỉ xem</option><option selected>Không cấp quyền</option></select></td><td><span class="scope-chip">ORG_ADMIN</span></td><td><button class="btn small" onclick="ouaOpenModal('orgAdminRoleDetailModal')">Chi tiết</button></td></tr>
+                  <tr><td class="module-name"><b>Quản lý người dùng</b><small>Mapping SSO, gán role theo module, reset quyền, xem audit</small></td><td><select class="role-select none"><option>Quản trị hệ thống</option><option>Chỉ xem</option><option selected>Không cấp quyền</option></select></td><td><span class="scope-chip">USER_ADMIN</span></td><td><button class="btn small" onclick="ouaOpenModal('userAdminRoleDetailModal')">Chi tiết</button></td></tr>
+                </tbody></table></div>
+              </div>
+            </div>
+          </div>
+        </div>
+<div id="user-account" class="tab-panel"><div class="grid2"><div class="card"><h3>Thông tin tài khoản SSO/IOC</h3><div class="field-list"><div class="label">Họ tên</div><div class="value">Nguyễn Văn A</div><div class="label">Username SSO</div><div class="value">nguyenvana</div><div class="label">SSO ID</div><div class="value">SSO-00012991</div><div class="label">Email</div><div class="value">nva@hanoi.gov.vn</div><div class="label">Trạng thái SSO</div><div class="value"><span class="pill green">Hợp lệ</span></div><div class="label">Trạng thái IOC</div><div class="value"><span class="pill green">Active</span></div></div></div><div class="card"><h3>Thông tin CBCCVC phục vụ phân quyền dữ liệu</h3><div class="field-list"><div class="label">Mã CBCCVC</div><div class="value">CCVC-00128</div><div class="label">Đơn vị công tác</div><div class="value">Văn phòng Thành ủy Hà Nội</div><div class="label">Mã đơn vị BKAV</div><div class="value">BKAV-ORG-00012</div><div class="label">Chức vụ</div><div class="value">Chánh Văn phòng</div><div class="label">Nhóm chức vụ</div><div class="value">Lãnh đạo</div><div class="label">Lần đồng bộ</div><div class="value">21/07/2026 09:15</div></div></div></div></div>
+        <div id="user-scope" class="tab-panel"><div class="grid2"><div class="card"><h3>Phạm vi dữ liệu hiệu lực</h3><div class="field-list"><div class="label">Scope level</div><div class="value">CITY_AXIS</div><div class="label">Trục dữ liệu</div><div class="value">Thành ủy</div><div class="label">Đơn vị được xem</div><div class="value">VPTU và đơn vị trực thuộc được cấu hình</div><div class="label">Nguồn tính scope</div><div class="value">Role IOC + chức vụ/đơn vị từ CBCCVC</div></div><div class="actions" style="margin-top:14px"><button class="btn" onclick="ouaOpenModal('editScopeModal')">Chỉnh scope</button><button class="btn" onclick="ouaOpenModal('previewPermissionModal')">Preview dữ liệu nhìn thấy</button></div></div><div class="card"><h3>Quy tắc hiển thị</h3><ul><li>Lãnh đạo có thể nhìn thêm phạm vi dữ liệu rộng hơn nếu được cấp scope mở rộng.</li><li>Cán bộ cấp xã/phường chỉ xem dữ liệu thuộc xã/phường của mình.</li><li>Chuyên viên mặc định chỉ xem hồ sơ được giao, hồ sơ tạo bởi mình hoặc hồ sơ thuộc đơn vị được phân công.</li></ul></div></div></div>
+        <div id="user-log" class="tab-panel"><div class="split"><div class="card"><h3>Nhật ký quyền</h3><ul><li>21/07/2026 09:35 - Gán role Lãnh đạo trục.</li><li>21/07/2026 09:36 - Đồng bộ lại chức vụ từ CBCCVC.</li><li>21/07/2026 09:37 - Tính lại data scope CITY_AXIS.</li></ul></div><div class="card"><h3>Tình trạng đồng bộ</h3><ul><li>SSO: tài khoản hợp lệ.</li><li>BKAV CBCCVC: có hồ sơ cán bộ khớp.</li><li>IOC: mapping đầy đủ user_id - sso_id - ccvc_id - org_id.</li></ul></div></div></div>
+      </div>
+    </section>
+
+    <section id="field-settings" class="page">
+      <div class="panel">
+        <div class="head"><div><h2>Cài đặt lĩnh vực</h2><p>Danh mục lĩnh vực dùng cho kịch bản xử lý và thống kê của từng đơn vị. Đơn vị chưa cấu hình sẽ dùng danh mục mặc định — riêng Sở/Ban chuyên môn, mặc định đã thu hẹp theo lĩnh vực của đơn vị.</p></div></div>
+        <div class="kpis">
+          <div class="kpi"><div class="label">Tổng lĩnh vực</div><div class="val" id="ouaFieldKpiTotal">–</div><div class="hint">Đang dùng danh mục hiện tại</div></div>
+          <div class="kpi"><div class="label">Lĩnh vực mặc định</div><div class="val" id="ouaFieldKpiDefault">–</div><div class="hint">Có sẵn theo đơn vị</div></div>
+          <div class="kpi"><div class="label">Đơn vị tự thêm</div><div class="val" id="ouaFieldKpiCustom">–</div><div class="hint">Do đơn vị bổ sung</div></div>
+          <div class="kpi"><div class="label">Đang ẩn</div><div class="val" id="ouaFieldKpiHidden">–</div><div class="hint">Không hiện khi chọn lĩnh vực</div></div>
+        </div>
+        <div class="toolbar oua-m-search-row">
+          <div class="field">🔎 <input id="ouaFieldSearch" placeholder="Tìm theo tên hoặc mã lĩnh vực..." oninput="ouaFilterFieldList()"></div>
+          <button type="button" class="oua-m-filter-trigger" onclick="ouaOpenFilterSheet('#field-settings .oua-filter-extra', this)">⚙</button>
+          <div class="oua-filter-extra"><div class="field"><select id="ouaFieldOrgSel" onchange="ouaRenderFieldSettings()"></select></div></div>
+        </div>
+        <div class="muted" id="ouaFieldOrgNote" style="margin:6px 0 12px"></div>
+        <div class="toolbar">
+          <div class="field"><input id="newFieldName" placeholder="Tên lĩnh vực mới (VD: Đô thị thông minh)"></div>
+          <div class="field"><input id="newFieldDesc" placeholder="Mô tả ngắn (tùy chọn)"></div>
+          <button class="btn primary" onclick="ouaAddField()">+ Thêm lĩnh vực</button>
+        </div>
+        <div class="muted" id="ouaFieldCount" style="margin-bottom:8px"></div>
+        <table class="oua-table-v2"><thead><tr><th>Lĩnh vực</th><th>Mã</th><th>Nguồn</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="ouaFieldTbody"></tbody></table>
+        <div class="oua-cards-mobile" id="ouaFieldCardsMobile"></div>
+      </div>
+    </section>
+
+    <section id="org-grouping" class="page">
+      <div class="panel">
+        <div class="head"><div><h2>Phân nhóm đơn vị</h2><p>Gán tay nhóm của từng đơn vị (Cấp thành phố / Sở-ban-ngành / Xã-Phường / BTCTW) dùng cho phân loại trên màn Admin Tổng. Nhóm "Tự động" tính theo đường dẫn phả hệ; gán tay ưu tiên hơn và không bị nguồn ngoài ghi đè. Cột mapping trục/địa bàn dùng để sửa công tay những đơn vị chưa map đúng, chỉ dành cho Global Admin.</p></div><div class="actions"><button class="btn" onclick="ouaGroupingRowsCache=null;ouaFilterGroupingList();ouaToast('Đã làm mới dữ liệu.')">↻ Làm mới</button></div></div>
+        <div class="toolbar oua-m-search-row">
+          <div class="field">🔎 <input id="ouaGroupSearch" placeholder="Tìm theo tên đơn vị, external id, đường dẫn phả hệ..." oninput="ouaFilterGroupingList()"></div>
+          <button type="button" class="oua-m-filter-trigger" onclick="ouaOpenFilterSheet('#org-grouping .oua-filter-extra', this)">⚙</button>
+          <div class="oua-filter-extra"><div class="field"><select id="ouaGroupFilterSel" onchange="ouaFilterGroupingList()"><option value="">Tất cả nhóm</option><option value="BTCTW (Trung ương)">BTCTW (Trung ương)</option><option value="Cấp thành phố">Cấp thành phố</option><option value="Sở/Ban/Ngành">Sở/Ban/Ngành</option><option value="Phòng/Đơn vị">Phòng/Đơn vị</option><option value="Xã/Phường">Xã/Phường</option></select></div></div>
+        </div>
+        <div class="muted" id="ouaGroupListCount" style="margin-bottom:8px"></div>
+        <table class="oua-table-v2"><thead><tr><th>Đơn vị</th><th>Đường dẫn phả hệ</th><th>org_level (DB)</th><th>Nhóm tự động</th><th>Nhóm gán tay</th><th>Mapping trục / địa bàn</th></tr></thead><tbody id="ouaGroupTbody"></tbody></table>
+        <div class="oua-cards-mobile" id="ouaGroupCardsMobile"></div>
+      </div>
+    </section>
+
+    <section id="indicator-mapping" class="page">
+      <div class="panel">
+        <div class="head"><div><h2>Cấu hình chỉ tiêu đơn vị</h2><p>Sửa bảng dvhc_mappings — nguồn của <code>id_url_chi_tieu</code> mà user-tree trả cho từng đơn vị. Đơn vị con chưa có mapping riêng sẽ kế thừa giá trị từ tổ tiên gần nhất. Row đánh dấu "Đã sửa tay" sẽ không bị script seed ghi đè.</p></div><div class="actions"><button class="btn" onclick="ouaIndicatorRows=null;ouaFilterIndicatorList();ouaToast('Đã làm mới dữ liệu.')">↻ Làm mới</button><button class="btn primary" onclick="ouaOpenModal('addIndicatorMappingModal')">+ Thêm mapping</button></div></div>
+        <div class="toolbar oua-m-search-row">
+          <div class="field">🔎 <input id="ouaIndicatorSearch" placeholder="Tìm theo id_url_chi_tieu, tên đơn vị IOC, org liên kết..." oninput="ouaFilterIndicatorList()"></div>
+          <button type="button" class="oua-m-filter-trigger" onclick="ouaOpenFilterSheet('#indicator-mapping .oua-filter-extra', this)">⚙</button>
+          <div class="oua-filter-extra"><div class="field"><select id="ouaIndicatorStatusSel" onchange="ouaFilterIndicatorList()"><option value="">Tất cả</option><option value="active">Đang dùng</option><option value="hidden">Ẩn</option></select></div></div>
+        </div>
+        <div class="muted" id="ouaIndicatorCount" style="margin-bottom:8px"></div>
+        <table class="oua-table-v2"><thead><tr><th>id_url_chi_tieu</th><th>Tên đơn vị IOC</th><th>Org liên kết</th><th>Dashboard</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="ouaIndicatorTbody"></tbody></table>
+        <div class="oua-cards-mobile" id="ouaIndicatorCardsMobile"></div>
+      </div>
+    </section>
+
+    <section id="login-log" class="page"><div class="panel" id="ollRoot"></div></section>
+
+    <section id="tree-settings" class="page">
+      <div class="panel">
+        <div class="head"><div><h2>Cài Đặt Cây Thư Mục Đơn Vị Tùy Biến</h2><p>Cấu hình phân cấp cây thư mục cho từng đơn vị, tách khỏi Xã/Phường, kéo thả sắp xếp linh hoạt.</p></div></div>
+        <div class="toolbar">
+          <div class="field"><select id="ouaTreeOrgSel"><option>Cây tổng thể toàn Hệ thống (Mặc định)</option></select></div>
+          <div class="field"><select id="ouaTreeUserSel"><option>— Không cấu hình riêng theo user —</option></select></div>
+          <button class="btn" onclick="ouaResetCustomTree()">↻ Khôi phục mặc định</button>
+          <button class="btn primary" onclick="ouaSaveCustomTree()">📋 Lưu cấu hình cây</button>
+        </div>
+        <div class="grid2" style="align-items:start;margin-top:14px">
+          <div class="card">
+            <h3>🏛 Danh sách Đơn vị Nguồn</h3>
+            <div class="toolbar" style="margin-bottom:10px"><div class="field">🔎 <input id="ouaTreeSourceSearch" placeholder="Tìm kiếm đơn vị..." oninput="ouaFilterTreeSourceList()"></div></div>
+            <div id="ouaTreeSourceList" style="max-height:60vh;overflow:auto;display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+          <div class="card">
+            <div class="head" style="margin-bottom:8px"><div><h3>📁 Cây Thư Mục Tùy Biến (Hỗ trợ Drag &amp; Drop Kéo - Thả)</h3></div><div class="actions"><button class="btn" onclick="ouaOpenModal('addVirtualFolderModal')">📥 Thêm thư mục ảo</button><button class="btn danger" onclick="ouaDeleteSelectedNode()">🗑 Xóa nút</button><button class="btn oua-tree-move-root-btn" onclick="ouaTreeMoveSelectedHere(event,'root')">⇩ Chuyển vào gốc cây</button></div></div>
+            <div class="hint" style="margin-bottom:10px">💡 Hướng dẫn (desktop): kéo thả (Drag &amp; Drop) để thay đổi vị trí cha-con. 💡 Hướng dẫn (điện thoại): chạm vào tên 1 đơn vị để chọn, rồi chạm nút "⇩" ở vị trí muốn chuyển tới.</div>
+            <div id="ouaCustomTreeWrap" class="tree" style="max-height:60vh;overflow:auto"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="ouaModalRoot" class="modal-backdrop" onclick="if(event.target.id==='ouaModalRoot') ouaCloseModal()"><div class="modal"><div class="modal-header"><h3 id="ouaModalTitle">Modal</h3><button class="x" onclick="ouaCloseModal()">×</button></div><div id="ouaModalBody" class="modal-body"></div><div class="modal-footer"><button class="btn ghost" onclick="ouaCloseModal()">Đóng</button><button class="btn primary" onclick="ouaConfirmModal()">Xác nhận</button></div></div></div>
+
+<!-- Bảng lọc trượt lên (mobile) — dùng chung cho mọi trang, Phase C. Trên desktop ẩn hẳn (CSS chỉ bật trong
+     @media(max-width:760px)); nội dung bên trong là các <select>/nút lọc THẬT của trang đang mở, được
+     chuyển tạm vào đây bằng JS (ouaOpenFilterSheet) rồi trả về đúng chỗ cũ khi đóng (ouaCloseFilterSheet). -->
+<div class="oua-m-sheet-backdrop" id="ouaFilterSheetBackdrop" onclick="ouaCloseFilterSheet()"></div>
+<div class="oua-m-sheet" id="ouaFilterSheet">
+  <div class="oua-m-sheet-handle"></div>
+  <div class="oua-m-sheet-header"><b>Bộ lọc</b><button type="button" class="oua-m-iconbtn" onclick="ouaCloseFilterSheet()">✕</button></div>
+  <div class="oua-m-sheet-body" id="ouaFilterSheetBody"></div>
+  <div class="oua-m-sheet-footer"><button class="btn primary" style="width:100%" onclick="ouaCloseFilterSheet()">Áp dụng</button></div>
+</div>
+<div id="ouaToastBox" class="toast"></div>
+</section>
+<script src="js/core/account-data.js"></script>
+<script src="js/core/login-log-data.js?v=20261014"></script>
+<script src="js/oua-data.js"></script>
+<script src="js/oua-login-log.js?v=20261014"></script>
+<script>ollRecordAdminSession();ouaBuildRealData();ouaGoPage('admin-overview');</script>
+</body>
+</html>

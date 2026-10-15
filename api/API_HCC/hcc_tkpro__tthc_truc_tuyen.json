@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_type": "response_baseline_schema_v1",
+  "source": "hcc_tkpro",
+  "endpoint": "tthc_truc_tuyen",
+  "table_name": "iceberg.bronze.hcc_tkpro__tthc_truc_tuyen",
+  "version": 1,
+  "allow_additive": true,
+  "fields": {
+    "id": "int64",
+    "code": "string",
+    "name": "string",
+    "level": "int64",
+    "sortOrder": "int64",
+    "parentId": "int64",
+    "total": "int64",
+    "total_TT": "int64",
+    "total_1Phan": "int64",
+    "total_ChuaTT": "int64"
+  },
+  "required_fields": [
+    "id"
+  ],
+  "defaults": {
+    "id": null,
+    "code": null,
+    "name": null,
+    "level": null,
+    "sortOrder": null,
+    "parentId": null,
+    "total": null,
+    "total_TT": null,
+    "total_1Phan": null,
+    "total_ChuaTT": null
+  }
+}

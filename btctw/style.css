@@ -1,0 +1,527 @@
+/* ===========================================================================
+ * Dashboard IOC/CAD Trung ương – Combined CSS
+ * File này import CSS từ các module con + thêm layout dashboard + header
+ * =========================================================================== */
+
+/* ===== Import module CSS (giữ nguyên 100% logic/style gốc) ===== */
+@import url("./tongquan/style.css");
+@import url("./gis/style.css");
+@import url("./noti/style.css");
+@import url("./data/style.css");
+@import url("./chitieu/style.css");
+@import url("./header/style.css");
+
+
+/* ===== GREEN THEME OVERRIDES ===== */
+/* Nền dashboard trắng theo green theme 1 */
+body.app-bg-grid[data-cms-theme="green"] {
+    background: #f0fdf4 !important;
+}
+
+body.app-bg-grid[data-cms-theme="green"]:before {
+    background-image:
+        linear-gradient(rgba(46, 157, 91, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(46, 157, 91, 0.06) 1px, transparent 1px) !important;
+    background-size: 48px 48px;
+}
+
+body.app-bg-grid[data-cms-theme="green"]:after {
+    background:
+        radial-gradient(circle at 20% 0%, rgba(46, 157, 91, 0.12), transparent 36%),
+        radial-gradient(circle at 90% 15%, rgba(46, 157, 91, 0.06), transparent 28%) !important;
+}
+
+/* Widget green theme */
+[data-cms-theme="green"] .widget {
+    background: #ffffff !important;
+    border: 1px solid #bbf7d0 !important;
+    color: #14532d !important;
+    box-shadow: 0 2px 8px rgba(46, 157, 91, 0.08) !important;
+    border-radius: 12px !important;
+}
+
+[data-cms-theme="green"] .widget-head {
+    background: #bfead6 !important;
+    border-bottom: 1px solid #86efac !important;
+    color: #1c7a49 !important;
+    border-radius: 12px 12px 0 0 !important;
+}
+
+[data-cms-theme="green"] .widget-title,
+[data-cms-theme="green"] .widget-head * {
+    color: #14532d !important;
+    font-weight: 800 !important;
+    text-shadow: none !important;
+}
+
+[data-cms-theme="green"] .widget-head .mini-btn {
+    background: #ffffff !important;
+    border: 1px solid #86efac !important;
+    color: #14532d !important;
+    border-radius: 6px !important;
+    font-weight: 800 !important;
+}
+
+[data-cms-theme="green"] .widget-body {
+    color: #1e3a2f !important;
+}
+
+/* Top overview green */
+[data-cms-theme="green"] .top-overview {
+    background: #ffffff !important;
+    border: 1px solid #bbf7d0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(46, 157, 91, 0.08) !important;
+}
+
+/* Source items green theme */
+[data-cms-theme="green"] .source-item {
+    background: #ffffff !important;
+    border: 1px solid #bbf7d0 !important;
+    color: #14532d !important;
+    box-shadow: 0 2px 8px rgba(46, 157, 91, 0.08) !important;
+    border-radius: 12px !important;
+}
+
+[data-cms-theme="green"] .source-item:hover {
+    border-color: #2E9D5B !important;
+    box-shadow: 0 4px 16px rgba(46, 157, 91, 0.15) !important;
+}
+
+[data-cms-theme="green"] .source-item b,
+[data-cms-theme="green"] .source-item small {
+    color: #14532d !important;
+}
+
+/* Notify items green */
+[data-cms-theme="green"] .notify {
+    background: #ffffff !important;
+    border: 1px solid #bbf7d0 !important;
+    color: #14532d !important;
+    border-radius: 12px !important;
+}
+
+/* Field category cards green */
+[data-cms-theme="green"] .field-category-card,
+[data-cms-theme="green"] .indicator-card,
+[data-cms-theme="green"] .category-item-card {
+    background: #ffffff !important;
+    border: 1px solid #bbf7d0 !important;
+    color: #14532d !important;
+    border-radius: 12px !important;
+}
+
+/* Donut/pie green theme */
+[data-cms-theme="green"] .summary-pie-card,
+[data-cms-theme="green"] .donut-box,
+[data-cms-theme="green"] .pie-side {
+    background: #ffffff !important;
+    border: 1px solid #bbf7d0 !important;
+    color: #14532d !important;
+    border-radius: 12px !important;
+}
+
+/* Detail/record cards green */
+[data-cms-theme="green"] .detail-card,
+[data-cms-theme="green"] .record-row {
+    background: #ffffff !important;
+    border: 1px solid #bbf7d0 !important;
+    color: #14532d !important;
+}
+
+/* Tabs green */
+[data-cms-theme="green"] .tabs button,
+[data-cms-theme="green"] .mode-tabs button,
+[data-cms-theme="green"] .field-category-tabs button,
+[data-cms-theme="green"] div[class*="-tabs"] button {
+    background: #ffffff !important;
+    border: 1px solid #bbf7d0 !important;
+    color: #0f172a !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+}
+
+[data-cms-theme="green"] .tabs button.active,
+[data-cms-theme="green"] .mode-tabs button.active,
+[data-cms-theme="green"] div[class*="-tabs"] button.active {
+    border-color: #2e9d5b !important;
+    color: #2e9d5b !important;
+    background: #ddf2e8 !important;
+}
+
+/* Badge green */
+[data-cms-theme="green"] .badge {
+    color: #14532d !important;
+}
+
+/* Drawer / Modal green theme */
+[data-cms-theme="green"] .drawer {
+    background: #ffffff !important;
+    border-color: #bbf7d0 !important;
+    color: #14532d !important;
+}
+
+[data-cms-theme="green"] .drawer-head {
+    background: #f0fdf4 !important;
+    border-bottom: 1px solid #bbf7d0 !important;
+    color: #14532d !important;
+}
+
+[data-cms-theme="green"] .modal {
+    background: #ffffff !important;
+    border: 1px solid #bbf7d0 !important;
+    color: #14532d !important;
+}
+
+[data-cms-theme="green"] .modal-head {
+    background: #f0fdf4 !important;
+    border-bottom: 1px solid #bbf7d0 !important;
+    color: #14532d !important;
+}
+
+/* Overlay green - keep semi-transparent */
+[data-cms-theme="green"] .overlay.show {
+    background: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Muted text in green theme */
+[data-cms-theme="green"] .muted {
+    color: #6b7280 !important;
+}
+
+/* CAD toolbar / action buttons green */
+[data-cms-theme="green"] .cad-toolbar button,
+[data-cms-theme="green"] .action-bar button {
+    background: #f0fdf4 !important;
+    border: 1px solid #bbf7d0 !important;
+    color: #14532d !important;
+    border-radius: 8px !important;
+}
+
+[data-cms-theme="green"] .cad-toolbar button:hover,
+[data-cms-theme="green"] .action-bar button:hover {
+    background: #ddf2e8 !important;
+    border-color: #2E9D5B !important;
+}
+
+[data-cms-theme="green"] .action-bar button.primary {
+    background: #2E9D5B !important;
+    color: #fff !important;
+    border-color: #2E9D5B !important;
+}
+
+/* Freshness grid green */
+[data-cms-theme="green"] .freshness-kpi {
+    background: #f0fdf4 !important;
+    border: 1px solid #bbf7d0 !important;
+    color: #14532d !important;
+}
+
+/* ===== HEADER BAR ===== */
+.dash-header {
+    position: sticky;
+    top: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #166534, #15803d, #22c55e);
+    color: #ffffff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    font-family: 'Be Vietnam Pro', Inter, sans-serif;
+    min-height: 56px;
+    flex-wrap: wrap;
+}
+
+.dash-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.dash-logo svg {
+    flex-shrink: 0;
+}
+
+.dash-brand h1 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #ffffff !important;
+    text-shadow: none !important;
+}
+
+.dash-brand .sub {
+    margin: 0;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+}
+
+.dash-nav {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.dash-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.dash-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-1px);
+}
+
+.dash-nav-btn i {
+    font-size: 14px;
+}
+
+.dash-header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.dash-clock {
+    text-align: right;
+    line-height: 1.3;
+}
+
+.dash-clock-time {
+    font-size: 16px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+}
+
+.dash-clock-date {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 600;
+}
+
+.dash-user {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* ===== MAIN LAYOUT ===== */
+.dash-main {
+    position: relative;
+    z-index: 1;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 100%;
+}
+
+.dash-row {
+    width: 100%;
+}
+
+.dash-row-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #166534;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    background: rgba(46, 157, 91, 0.08);
+    border-radius: 6px;
+    display: inline-block;
+}
+
+/* Row 2: GIS + Noti */
+.dash-row-gis-noti {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 14px;
+    align-items: stretch;
+}
+
+.dash-col-gis {
+    min-width: 0;
+    min-height: 500px;
+}
+
+.dash-col-noti {
+    min-width: 0;
+}
+
+.dash-col-noti .widget {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.dash-col-noti .widget-body {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 560px;
+}
+
+/* Row 3: Data + Chitieu */
+.dash-row-data-chitieu {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    align-items: start;
+}
+
+.dash-col-data,
+.dash-col-chitieu {
+    min-width: 0;
+}
+
+/* GIS widget in dashboard should fill its container */
+.dash-col-gis .gis-page-wrap {
+    height: 100%;
+}
+
+.dash-col-gis .gis-widget {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.dash-col-gis .widget-body {
+    flex: 1 !important;
+    min-height: 400px !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+    .dash-row-gis-noti {
+        grid-template-columns: 1fr;
+    }
+
+    .dash-row-data-chitieu {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .dash-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px 12px;
+    }
+
+    .dash-nav {
+        justify-content: flex-start;
+    }
+
+    .dash-header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .dash-main {
+        padding: 8px;
+    }
+}
+
+/* ===== Layout .grid riêng cho trang btctw =====
+   header/style.css dựng .grid thành lưới 3 cột và đặt .grid>.col{display:contents}
+   cho layout dashboard cũ (axis + gis + noti + sources + indicators). Trang này chỉ có
+   1 .col gồm 1 hàng full-width + 1 hàng chia đôi, nên .col phải là khối thật; nếu không
+   .dash-row-2col rơi vào cột 1.15fr của lưới cha và 2 widget bị bóp/đè lên nhau. */
+.grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.grid>.col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px;
+    min-width: 0;
+}
+
+/* Vị trí grid-column/grid-row header/style.css gán cho layout cũ không còn đúng ở đây */
+.grid [data-widget="notifications"],
+.grid [data-widget="indicators"] {
+    grid-column: auto !important;
+    grid-row: auto !important;
+}
+
+/* ===== Fix potential CSS conflicts ===== */
+/* GIS widget keeps its dark theme internally regardless of green theme */
+[data-cms-theme="green"] .gis-widget {
+    border-color: rgba(73, 188, 255, .25) !important;
+    color: #ecf7ff !important;
+}
+
+[data-cms-theme="green"] .gis-widget .widget-head {
+    background: rgba(4, 30, 56, .95) !important;
+    border-bottom-color: rgba(73, 188, 255, .2) !important;
+}
+
+[data-cms-theme="green"] .gis-widget .widget-title,
+[data-cms-theme="green"] .gis-widget .widget-head * {
+    color: #d0e8f8 !important;
+}
+
+[data-cms-theme="green"] .gis-widget .widget-head .mini-btn {
+    background: rgba(73, 188, 255, .1) !important;
+    border-color: rgba(73, 188, 255, .3) !important;
+    color: #d0e8f8 !important;
+}
+
+[data-cms-theme="green"] .gis-widget .widget-body {
+    color: #d0e8f8 !important;
+}
+
+[data-cms-theme="green"] .gis-layer-sidebar {
+    background: rgba(4, 16, 30, .96) !important;
+    color: #d0e8f8 !important;
+}
+
+[data-cms-theme="green"] .gis-layer-head {
+    color: #49bcff !important;
+}
+
+/* Iframe widget đang mở modal/drawer: phóng lên phủ toàn màn hình dashboard cha,
+   để popup bên trong iframe không bị khung widget cắt (kèm postMessage expand_iframe). */
+.fullscreen-modal-mode {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    z-index: 9999 !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+}

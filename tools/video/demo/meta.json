@@ -1,0 +1,445 @@
+{
+ "duration": 49.294000000000004,
+ "voices": {
+  "c2": {
+   "start": 13.55,
+   "dur": 7.992
+  },
+  "c9": {
+   "start": 24.242,
+   "dur": 9.312
+  },
+  "c13": {
+   "start": 37.404,
+   "dur": 9.24
+  }
+ },
+ "events": [
+  {
+   "t": 3.37,
+   "type": "flip",
+   "speed": 0.62
+  },
+  {
+   "t": 3.909,
+   "type": "flip",
+   "speed": 0.5394
+  },
+  {
+   "t": 4.379,
+   "type": "flip",
+   "speed": 0.469278
+  },
+  {
+   "t": 4.787,
+   "type": "flip",
+   "speed": 0.40827186
+  },
+  {
+   "t": 5.142,
+   "type": "flip",
+   "speed": 0.3551965182
+  },
+  {
+   "t": 5.451,
+   "type": "flip",
+   "speed": 0.309020970834
+  },
+  {
+   "t": 5.72,
+   "type": "flip",
+   "speed": 0.26884824462558
+  },
+  {
+   "t": 5.954,
+   "type": "flip",
+   "speed": 0.2338979728242546
+  },
+  {
+   "t": 6.157,
+   "type": "flip",
+   "speed": 0.20349123635710148
+  },
+  {
+   "t": 6.334,
+   "type": "flip",
+   "speed": 0.17703737563067828
+  },
+  {
+   "t": 6.488,
+   "type": "flip",
+   "speed": 0.1540225167986901
+  },
+  {
+   "t": 6.622,
+   "type": "flip",
+   "speed": 0.1339995896148604
+  },
+  {
+   "t": 6.739,
+   "type": "flip",
+   "speed": 0.11657964296492854
+  },
+  {
+   "t": 6.84,
+   "type": "flip",
+   "speed": 0.10142428937948783
+  },
+  {
+   "t": 6.929,
+   "type": "flip",
+   "speed": 0.08823913176015441
+  },
+  {
+   "t": 7.005,
+   "type": "flip",
+   "speed": 0.07676804463133434
+  },
+  {
+   "t": 7.08,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 7.155,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 7.23,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 7.305,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 7.38,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 7.455,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 7.53,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 7.605,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 7.68,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 7.755,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 7.83,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 7.905,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 7.98,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 8.055,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 8.13,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 8.205,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 8.28,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 8.355,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 8.43,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 8.505,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 8.58,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 8.655,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 8.73,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 8.805,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 8.88,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 8.955,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 9.03,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 9.105,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 9.18,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 9.255,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 9.33,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 9.405,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 9.48,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 9.555,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 9.63,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 9.705,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 9.78,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 9.855,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 9.93,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 10.005,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 10.08,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 10.155,
+   "type": "flip",
+   "speed": 0.075
+  },
+  {
+   "t": 2.75,
+   "type": "flash"
+  },
+  {
+   "t": 12.3,
+   "type": "impact"
+  },
+  {
+   "t": 10.2,
+   "type": "reveal"
+  },
+  {
+   "t": 13.55,
+   "type": "voice",
+   "id": "c2"
+  },
+  {
+   "t": 22.692,
+   "type": "whoosh",
+   "dur": 1.7
+  },
+  {
+   "t": 24.242,
+   "type": "voice",
+   "id": "c9"
+  },
+  {
+   "t": 28.116,
+   "type": "pop"
+  },
+  {
+   "t": 25.695,
+   "type": "pop"
+  },
+  {
+   "t": 26.787,
+   "type": "pop"
+  },
+  {
+   "t": 30.655,
+   "type": "ding",
+   "i": 0
+  },
+  {
+   "t": 31.45,
+   "type": "ding",
+   "i": 1
+  },
+  {
+   "t": 32.11,
+   "type": "ding",
+   "i": 2
+  },
+  {
+   "t": 32.56,
+   "type": "ding",
+   "i": 3
+  },
+  {
+   "t": 35.054,
+   "type": "whoosh",
+   "dur": 1.7
+  },
+  {
+   "t": 37.404,
+   "type": "voice",
+   "id": "c13"
+  },
+  {
+   "t": 40.07,
+   "type": "swoosh"
+  },
+  {
+   "t": 41.136,
+   "type": "swoosh"
+  },
+  {
+   "t": 42.333,
+   "type": "swoosh"
+  },
+  {
+   "t": 43.53,
+   "type": "swoosh"
+  },
+  {
+   "t": 48.144,
+   "type": "end"
+  }
+ ],
+ "cues": [
+  {
+   "a": 13.558958000000002,
+   "b": 16.519458,
+   "text": "Hệ thống Trung tâm điều hành thông minh – IOC"
+  },
+  {
+   "a": 16.519458,
+   "b": 18.861583,
+   "text": "phục vụ công tác lãnh đạo, chỉ đạo"
+  },
+  {
+   "a": 18.861583,
+   "b": 20.889458,
+   "text": "điều hành của Thành phố Hà Nội."
+  },
+  {
+   "a": 24.250958,
+   "b": 26.81675,
+   "text": "Dữ liệu từ hệ thống nguồn của mười bốn sở"
+  },
+  {
+   "a": 26.81675,
+   "b": 29.724625,
+   "text": "ba đơn vị ngang sở và một trăm hai mươi sáu xã"
+  },
+  {
+   "a": 29.724625,
+   "b": 32.910458000000006,
+   "text": "phường được tiếp nhận, chuẩn hóa qua nền tảng dữ liệu."
+  },
+  {
+   "a": 37.412958,
+   "b": 40.14979100000001,
+   "text": "Chỉ tiêu các sở, ngành được trình bày thống nhất"
+  },
+  {
+   "a": 40.14979100000001,
+   "b": 43.610333000000004,
+   "text": "thẻ chỉ số, màu theo mức đạt, biểu đồ diễn biến"
+  },
+  {
+   "a": 43.610333000000004,
+   "b": 46.00662400000001,
+   "text": "kèm nguồn dữ liệu và thời điểm cập nhật."
+  }
+ ]
+}

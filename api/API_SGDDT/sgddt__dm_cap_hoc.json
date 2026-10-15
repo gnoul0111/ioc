@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_type": "response_baseline_schema_v1",
+  "source": "sgddt",
+  "endpoint": "dm_cap_hoc",
+  "table_name": "iceberg.bronze.sgddt__dm_cap_hoc",
+  "version": 1,
+  "allow_additive": true,
+  "fields": {
+    "MA": "string",
+    "TEN": "string"
+  },
+  "required_fields": [
+    "MA"
+  ],
+  "defaults": {
+    "MA": null,
+    "TEN": null
+  }
+}

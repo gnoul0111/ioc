@@ -1,0 +1,342 @@
+[
+ {
+  "eform": "VP UBND VPUB eForm QD5279 Chỉ số 27",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Đơn vị báo cáo",
+    "don_vi_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Cấp báo cáo",
+    "cap_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Tổng số văn bản, hồ sơ công việc",
+    "tong_so_van_ban_ho_so_cong_viec",
+    "Số"
+   ],
+   [
+    "Số văn bản, hồ sơ xử lý trên môi trường mạng",
+    "so_van_ban_ho_so_xu_ly_tren_moi_truong_mang",
+    "Số"
+   ],
+   [
+    "Tỷ lệ (%) (tự tính)",
+    "ty_le_tu_tinh",
+    "Số"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Thu thập dữ liệu chỉ tiêu: Triển khai trợ lý ảo (chỉ số 29)",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Đơn vị báo cáo",
+    "don_vi_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Đối tượng phục vụ",
+    "doi_tuong_phuc_vu",
+    "Chữ"
+   ],
+   [
+    "Đã triển khai trợ lý ảo",
+    "da_trien_khai_tro_ly_ao",
+    ""
+   ],
+   [
+    "Tên ứng dụng trợ lý ảo",
+    "ten_ung_dung_tro_ly_ao",
+    "Chữ"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Theo dõi nhiệm vụ Chính phủ, Thủ tướng Chính phủ giao (chỉ số 74)",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Mã nhiệm vụ",
+    "ma_nhiem_vu",
+    "Chữ"
+   ],
+   [
+    "Tên nhiệm vụ",
+    "ten_nhiem_vu",
+    "Chữ"
+   ],
+   [
+    "Cơ quan giao",
+    "co_quan_giao",
+    "Chữ"
+   ],
+   [
+    "Văn bản giao nhiệm vụ",
+    "van_ban_giao_nhiem_vu",
+    "Chữ"
+   ],
+   [
+    "Ngày giao",
+    "ngay_giao",
+    "Ngày tháng"
+   ],
+   [
+    "Hạn hoàn thành",
+    "han_hoan_thanh",
+    "Ngày tháng"
+   ],
+   [
+    "Đơn vị chủ trì",
+    "don_vi_chu_tri",
+    "Chữ"
+   ],
+   [
+    "Đơn vị phối hợp",
+    "don_vi_phoi_hop",
+    "Chữ"
+   ],
+   [
+    "Trạng thái thực hiện",
+    "trang_thai_thuc_hien",
+    "Danh mục"
+   ],
+   [
+    "Tỷ lệ hoàn thành (%)",
+    "ty_le_hoan_thanh",
+    "Số"
+   ],
+   [
+    "Ngày hoàn thành",
+    "ngay_hoan_thanh",
+    "Ngày tháng"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ],
+   [
+    "Cảnh báo tiến độ",
+    "canh_bao_tien_do",
+    "Chữ"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ]
+  ]
+ },
+ {
+  "eform": "Thống kê hồ sơ thủ tục hành chính/dịch vụ công (chỉ số 52)",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Đơn vị báo cáo",
+    "don_vi_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Tổng số hồ sơ tiếp nhận",
+    "tong_so_ho_so_tiep_nhan",
+    "Số"
+   ],
+   [
+    "Hồ sơ giải quyết đúng hạn",
+    "ho_so_giai_quyet_dung_han",
+    "Số"
+   ],
+   [
+    "Hồ sơ giải quyết quá hạn",
+    "ho_so_giai_quyet_qua_han",
+    "Số"
+   ],
+   [
+    "Hồ sơ trực tuyến",
+    "ho_so_truc_tuyen",
+    "Số"
+   ],
+   [
+    "Hồ sơ thanh toán trực tuyến",
+    "ho_so_thanh_toan_truc_tuyen",
+    "Số"
+   ],
+   [
+    "Hồ sơ đã số hóa",
+    "ho_so_da_so_hoa",
+    "Số"
+   ],
+   [
+    "Điểm hài lòng (%)",
+    "diem_hai_long",
+    "Số"
+   ]
+  ]
+ },
+ {
+  "eform": "Quản lý hạ tầng CNTT (chỉ số 11,12)",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Đơn vị báo cáo",
+    "don_vi_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Cấp báo cáo",
+    "cap_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Đối tượng phục vụ",
+    "doi_tuong_phuc_vu",
+    "Danh mục"
+   ],
+   [
+    "Loại hạ tầng CNTT",
+    "loai_ha_tang_cntt",
+    "Danh mục"
+   ],
+   [
+    "Tình trạng hoạt động",
+    "tinh_trang_hoat_dong",
+    "Danh mục"
+   ],
+   [
+    "Số lượng",
+    "so_luong",
+    "Số"
+   ],
+   [
+    "Mức độ đáp ứng",
+    "muc_do_dap_ung",
+    "Danh mục"
+   ],
+   [
+    "Tổng số phòng họp (chỉ áp dụng HT07)",
+    "tong_so_phong_hop_chi_ap_dung_ht07",
+    "Số"
+   ],
+   [
+    "Số phòng được trang bị hệ thống giao ban trực tuyến (HT07)",
+    "so_phong_duoc_trang_bi_he_thong_giao_ban_truc_tuyen_ht07",
+    "Số"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ }
+]

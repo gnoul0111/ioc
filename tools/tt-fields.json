@@ -1,0 +1,597 @@
+[
+ {
+  "eform": "Eform Kiểm tra Chủ tịch UBND xã, phường và người đứng đầu trong thực hiện pháp luật",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Loại bản ghi",
+    "loai_ban_ghi",
+    "Danh mục"
+   ],
+   [
+    "Mã cuộc kiểm tra",
+    "ma_cuoc_kiem_tra",
+    "Chữ"
+   ],
+   [
+    "Tên cuộc kiểm tra/nội dung",
+    "ten_cuoc_kiem_tra_noi_dung",
+    "Chữ"
+   ],
+   [
+    "Đối tượng kiểm tra",
+    "doi_tuong_kiem_tra",
+    "Chữ"
+   ],
+   [
+    "Nhóm đối tượng",
+    "nhom_doi_tuong",
+    "Chữ"
+   ],
+   [
+    "Cơ quan chủ trì kiểm tra",
+    "co_quan_chu_tri_kiem_tra",
+    "Danh mục"
+   ],
+   [
+    "Căn cứ/Quyết định kiểm tra số",
+    "can_cu_quyet_dinh_kiem_tra_so",
+    "Chữ"
+   ],
+   [
+    "Ngày quyết định",
+    "ngay_quyet_dinh",
+    "Ngày tháng"
+   ],
+   [
+    "Nội dung kiểm tra chính",
+    "noi_dung_kiem_tra_chinh",
+    "Chữ"
+   ],
+   [
+    "Lĩnh vực kiểm tra chi tiết",
+    "linh_vuc_kiem_tra_chi_tiet",
+    "Chữ"
+   ],
+   [
+    "Thời gian bắt đầu",
+    "thoi_gian_bat_dau",
+    "Ngày tháng"
+   ],
+   [
+    "Thời gian kết thúc kế hoạch",
+    "thoi_gian_ket_thuc_ke_hoach",
+    "Ngày tháng"
+   ],
+   [
+    "Thời gian kết thúc thực tế",
+    "thoi_gian_ket_thuc_thuc_te",
+    "Ngày tháng"
+   ],
+   [
+    "Trạng thái kiểm tra",
+    "trang_thai_kiem_tra",
+    "Chữ"
+   ],
+   [
+    "Số đơn vị được kiểm tra",
+    "so_don_vi_duoc_kiem_tra",
+    "Số"
+   ],
+   [
+    "Đã ban hành kết luận",
+    "da_ban_hanh_ket_luan",
+    "Danh mục"
+   ],
+   [
+    "Ngày ban hành kết luận",
+    "ngay_ban_hanh_ket_luan",
+    "Ngày tháng"
+   ],
+   [
+    "Số kết luận",
+    "so_ket_luan",
+    "Chữ"
+   ],
+   [
+    "Có kiến nghị xử lý",
+    "co_kien_nghi_xu_ly",
+    "Danh mục"
+   ],
+   [
+    "Số kiến nghị xử lý",
+    "so_kien_nghi_xu_ly",
+    "Số"
+   ],
+   [
+    "Kiến nghị hành chính",
+    "kien_nghi_hanh_chinh",
+    "Chữ"
+   ],
+   [
+    "Kiến nghị tài chính",
+    "kien_nghi_tai_chinh",
+    "Chữ"
+   ],
+   [
+    "Kiến nghị chuyển CQĐT",
+    "kien_nghi_chuyen_cqdt",
+    "Chữ"
+   ],
+   [
+    "Giá trị kiến nghị thu hồi/giảm trừ (triệu đồng)",
+    "gia_tri_kien_nghi_thu_hoi_giam_tru_trieu_dong",
+    "Số"
+   ],
+   [
+    "Đã thực hiện kiến nghị",
+    "da_thuc_hien_kien_nghi",
+    "Số"
+   ],
+   [
+    "Đang thực hiện kiến nghị",
+    "dang_thuc_hien_kien_nghi",
+    "Số"
+   ],
+   [
+    "Quá hạn thực hiện kiến nghị",
+    "qua_han_thuc_hien_kien_nghi",
+    "Số"
+   ],
+   [
+    "Tỷ lệ thực hiện kiến nghị",
+    "ty_le_thuc_hien_kien_nghi",
+    "Số"
+   ],
+   [
+    "Hạn báo cáo kết quả",
+    "han_bao_cao_ket_qua",
+    "Ngày tháng"
+   ],
+   [
+    "Tình trạng quá hạn",
+    "tinh_trang_qua_han",
+    "Chữ"
+   ],
+   [
+    "Vướng mắc/kiến nghị",
+    "vuong_mac_kien_nghi",
+    "Chữ"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Thanh tra",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Loại bản ghi",
+    "loai_ban_ghi",
+    "Danh mục"
+   ],
+   [
+    "Mã cuộc thanh tra",
+    "ma_cuoc_thanh_tra",
+    "Chữ"
+   ],
+   [
+    "Tên cuộc thanh tra/nội dung",
+    "ten_cuoc_thanh_tra_noi_dung",
+    "Chữ"
+   ],
+   [
+    "Nguồn kế hoạch",
+    "nguon_ke_hoach",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Đơn vị được thanh tra",
+    "don_vi_duoc_thanh_tra",
+    "Chữ"
+   ],
+   [
+    "Lĩnh vực thanh tra",
+    "linh_vuc_thanh_tra",
+    "Danh mục"
+   ],
+   [
+    "Cơ quan chủ trì",
+    "co_quan_chu_tri",
+    "Danh mục"
+   ],
+   [
+    "Số QĐ thanh tra",
+    "so_qd_thanh_tra",
+    "Chữ"
+   ],
+   [
+    "Ngày QĐ thanh tra",
+    "ngay_qd_thanh_tra",
+    "Ngày tháng"
+   ],
+   [
+    "Ngày bắt đầu",
+    "ngay_bat_dau",
+    "Ngày tháng"
+   ],
+   [
+    "Ngày kết thúc dự kiến",
+    "ngay_ket_thuc_du_kien",
+    "Ngày tháng"
+   ],
+   [
+    "Ngày kết thúc thực tế",
+    "ngay_ket_thuc_thuc_te",
+    "Ngày tháng"
+   ],
+   [
+    "Trạng thái cuộc thanh tra",
+    "trang_thai_cuoc_thanh_tra",
+    "Danh mục"
+   ],
+   [
+    "Số đơn vị được thanh tra",
+    "so_don_vi_duoc_thanh_tra",
+    "Số"
+   ],
+   [
+    "Đã ban hành kết luận",
+    "da_ban_hanh_ket_luan",
+    "Danh mục"
+   ],
+   [
+    "Số KL thanh tra",
+    "so_kl_thanh_tra",
+    "Chữ"
+   ],
+   [
+    "Ngày KL thanh tra",
+    "ngay_kl_thanh_tra",
+    "Ngày tháng"
+   ],
+   [
+    "Kiến nghị xử lý",
+    "kien_nghi_xu_ly",
+    "Danh mục"
+   ],
+   [
+    "Số kiến nghị xử lý",
+    "so_kien_nghi_xu_ly",
+    "Số"
+   ],
+   [
+    "Giá trị kiến nghị thu hồi (triệu đồng)",
+    "gia_tri_kien_nghi_thu_hoi_trieu_dong",
+    "Số"
+   ],
+   [
+    "Giá trị đã thu hồi (triệu đồng)",
+    "gia_tri_da_thu_hoi_trieu_dong",
+    "Số"
+   ],
+   [
+    "Số cá nhân/tổ chức kiến nghị xử lý HC",
+    "so_ca_nhan_to_chuc_kien_nghi_xu_ly_hc",
+    "Số"
+   ],
+   [
+    "Số vụ việc chuyển CQ điều tra",
+    "so_vu_viec_chuyen_cq_dieu_tra",
+    "Số"
+   ],
+   [
+    "Số văn bản đôn đốc/nhắc",
+    "so_van_ban_don_doc_nhac",
+    "Số"
+   ],
+   [
+    "Tỷ lệ thu hồi",
+    "ty_le_thu_hoi",
+    "Số"
+   ],
+   [
+    "Tiến độ %",
+    "tien_do_phan_tram",
+    "Số"
+   ],
+   [
+    "Quá hạn (ngày)",
+    "qua_han_ngay",
+    "Số"
+   ],
+   [
+    "Mức cảnh báo",
+    "muc_canh_bao",
+    "Danh mục"
+   ],
+   [
+    "Vướng mắc",
+    "vuong_mac",
+    "Chữ"
+   ],
+   [
+    "Kiến nghị hỗ trợ",
+    "kien_nghi_ho_tro",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Tiếp công dân, giải quyết khiếu nại, tố cáo",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Ngày báo cáo",
+    "ngay_bao_cao",
+    "Ngày tháng"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Loại bản ghi",
+    "loai_ban_ghi",
+    "Danh mục"
+   ],
+   [
+    "Loại tiếp công dân chính",
+    "loai_tiep_cong_dan_chinh",
+    "Danh mục"
+   ],
+   [
+    "Số cuộc tiếp công dân",
+    "so_cuoc_tiep_cong_dan",
+    "Số"
+   ],
+   [
+    "Số lượt công dân",
+    "so_luot_cong_dan",
+    "Số"
+   ],
+   [
+    "Số đoàn đông người",
+    "so_doan_dong_nguoi",
+    "Số"
+   ],
+   [
+    "Số vụ việc tiếp nhận qua tiếp dân",
+    "so_vu_viec_tiep_nhan_qua_tiep_dan",
+    "Số"
+   ],
+   [
+    "Tổng đơn thư tiếp nhận",
+    "tong_don_thu_tiep_nhan",
+    "Số"
+   ],
+   [
+    "Đơn kỳ trước chuyển sang",
+    "don_ky_truoc_chuyen_sang",
+    "Số"
+   ],
+   [
+    "Đơn mới trong kỳ",
+    "don_moi_trong_ky",
+    "Số"
+   ],
+   [
+    "Đơn đủ điều kiện xử lý",
+    "don_du_dieu_kien_xu_ly",
+    "Số"
+   ],
+   [
+    "Đơn không đủ điều kiện/lưu",
+    "don_khong_du_dieu_kien_luu",
+    "Số"
+   ],
+   [
+    "Đơn thuộc thẩm quyền",
+    "don_thuoc_tham_quyen",
+    "Số"
+   ],
+   [
+    "Đơn không thuộc thẩm quyền đã chuyển",
+    "don_khong_thuoc_tham_quyen_da_chuyen",
+    "Số"
+   ],
+   [
+    "Đơn không thuộc thẩm quyền đã hướng dẫn",
+    "don_khong_thuoc_tham_quyen_da_huong_dan",
+    "Số"
+   ],
+   [
+    "Số đơn khiếu nại",
+    "so_don_khieu_nai",
+    "Số"
+   ],
+   [
+    "Số đơn tố cáo",
+    "so_don_to_cao",
+    "Số"
+   ],
+   [
+    "Số đơn kiến nghị/phản ánh",
+    "so_don_kien_nghi_phan_anh",
+    "Số"
+   ],
+   [
+    "Số đơn nhiều nội dung/khác",
+    "so_don_nhieu_noi_dung_khac",
+    "Số"
+   ],
+   [
+    "Số vụ việc thụ lý",
+    "so_vu_viec_thu_ly",
+    "Số"
+   ],
+   [
+    "Số vụ việc đã giải quyết",
+    "so_vu_viec_da_giai_quyet",
+    "Số"
+   ],
+   [
+    "Số vụ giải quyết đúng hạn",
+    "so_vu_giai_quyet_dung_han",
+    "Số"
+   ],
+   [
+    "Số vụ giải quyết quá hạn",
+    "so_vu_giai_quyet_qua_han",
+    "Số"
+   ],
+   [
+    "Số vụ đang xử lý trong hạn",
+    "so_vu_dang_xu_ly_trong_han",
+    "Số"
+   ],
+   [
+    "Số vụ đang xử lý quá hạn",
+    "so_vu_dang_xu_ly_qua_han",
+    "Số"
+   ],
+   [
+    "Số vụ rút đơn/đình chỉ",
+    "so_vu_rut_don_dinh_chi",
+    "Số"
+   ],
+   [
+    "Số vụ phức tạp/kéo dài",
+    "so_vu_phuc_tap_keo_dai",
+    "Số"
+   ],
+   [
+    "Tỷ lệ giải quyết vụ việc",
+    "ty_le_giai_quyet_vu_viec",
+    "Số"
+   ],
+   [
+    "Tỷ lệ giải quyết đúng hạn",
+    "ty_le_giai_quyet_dung_han",
+    "Số"
+   ],
+   [
+    "Tồn cuối kỳ",
+    "ton_cuoi_ky",
+    "Số"
+   ],
+   [
+    "Hạn báo cáo/chốt số liệu",
+    "han_bao_cao_chot_so_lieu",
+    "Ngày tháng"
+   ],
+   [
+    "Quá hạn báo cáo (ngày)",
+    "qua_han_bao_cao_ngay",
+    "Ngày tháng"
+   ],
+   [
+    "Tình trạng xử lý tổng hợp",
+    "tinh_trang_xu_ly_tong_hop",
+    "Danh mục"
+   ],
+   [
+    "Vướng mắc/nguyên nhân",
+    "vuong_mac_nguyen_nhan",
+    "Chữ"
+   ],
+   [
+    "Kiến nghị hỗ trợ",
+    "kien_nghi_ho_tro",
+    "Chữ"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ }
+]

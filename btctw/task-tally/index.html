@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kiểm đếm nhiệm vụ - Ban Tổ chức Trung ương</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body class="tt-page">
+  <div class="bt-wrap">
+
+    <article class="bt-widget" id="dashboardWidget">
+      <div class="bt-widget-head">
+        <div class="bt-widget-title">Kiểm đếm nhiệm vụ - Ban Tổ chức Trung ương</div>
+        <button class="bt-mini-btn" id="widgetToggle" aria-label="Thu gọn">−</button>
+      </div>
+      <div class="bt-widget-body" id="dashboardWidgetBody">
+
+        <!-- điều khiển -->
+        <div class="bt-bar">
+          <div class="hgroup">
+            <div class="h2" id="h2Row" hidden>
+              <button class="back-btn" id="drillBack" title="Quay lại tổng quan" aria-label="Quay lại tổng quan">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4"
+                  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M19 12H5" />
+                  <path d="M12 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <span class="h2-name" id="h2Name"></span>
+            </div>
+          </div>
+          <div class="right">
+            <div class="bt-seg small" id="tScale" role="group" aria-label="Kỳ báo cáo">
+              <button data-p="week" aria-pressed="false">Tuần</button>
+              <button data-p="month" aria-pressed="false">Tháng</button>
+              <button data-p="quarter" aria-pressed="false">Quý</button>
+              <button data-p="year" aria-pressed="true">Năm</button>
+              <button data-p="all" aria-pressed="false">Tất cả</button>
+            </div>
+            <div class="fgrp"><span class="lbl">Từ</span><input class="ctrl" type="date" id="from" value="2026-01-01">
+              <span class="lbl">đến</span><input class="ctrl" type="date" id="to" value="2026-12-31">
+            </div>
+            <div class="fgrp"><span class="lbl">LĐ phụ trách</span>
+              <select class="ctrl" id="fLd" aria-label="Lọc theo lãnh đạo phụ trách"></select>
+            </div>
+            <div class="msel" id="chuDeSel">
+              <button type="button" class="ctrl msel-btn" id="chuDeBtn" aria-haspopup="listbox"
+                aria-expanded="false">Chủ đề: Tất cả</button>
+              <div class="msel-panel" id="chuDePanel" hidden>
+                <div class="msel-toolbar">
+                  <button type="button" class="x-link" data-act="all">Chọn tất cả</button>
+                  <button type="button" class="x-link" data-act="none">Bỏ chọn</button>
+                </div>
+                <div class="msel-list" id="chuDeList"></div>
+              </div>
+            </div>
+            <div class="msel" id="vbgSel">
+              <button type="button" class="ctrl msel-btn" id="vbgBtn" aria-haspopup="listbox" aria-expanded="false">Văn
+                bản giao: Tất cả</button>
+              <div class="msel-panel" id="vbgPanel" hidden>
+                <div class="msel-toolbar">
+                  <button type="button" class="x-link" data-act="all">Chọn tất cả</button>
+                  <button type="button" class="x-link" data-act="none">Bỏ chọn</button>
+                </div>
+                <div class="msel-list" id="vbgList"></div>
+              </div>
+            </div>
+            <button class="btn bt-primary" id="xlsx">⤓ Xuất Excel</button>
+            <button class="btn" id="syncUp">⟳ Đồng bộ</button>
+          </div>
+        </div>
+
+        <!-- KPI -->
+        <section class="kpis">
+          <article class="kpi total" data-drill="reset" title="Quay lại tổng quan">
+            <div class="k-top">Tổng nhiệm vụ theo dõi</div>
+            <div class="k-row"><span class="k-val bt-num" id="k-total">–</span></div>
+          </article>
+          <article class="kpi" data-drill="status:done"
+            style="--c:var(--done);--bgc:var(--done-bg);--bdc:rgba(47,177,116,.4)">
+            <div class="k-top">Đã hoàn thành</div>
+            <div class="k-row"><span class="k-val bt-num" id="k-done">–</span><span class="k-pct" id="p-done">–</span>
+            </div>
+          </article>
+          <article class="kpi" data-drill="status:ontime"
+            style="--c:var(--ontime);--bgc:var(--ontime-bg);--bdc:rgba(44,125,210,.4)">
+            <div class="k-top">Đang thực hiện – Trong hạn</div>
+            <div class="k-row"><span class="k-val bt-num" id="k-ontime">–</span><span class="k-pct"
+                id="p-ontime">–</span></div>
+          </article>
+          <article class="kpi" data-drill="status:late"
+            style="--c:var(--late);--bgc:var(--late-bg);--bdc:rgba(211,58,68,.4)">
+            <div class="k-top">Đang thực hiện – Quá hạn</div>
+            <div class="k-row"><span class="k-val bt-num" id="k-late">–</span><span class="k-pct" id="p-late">–</span>
+            </div>
+          </article>
+          <article class="kpi" data-drill="status:routine"
+            style="--c:var(--routine);--bgc:var(--routine-bg);--bdc:rgba(216,165,12,.4)">
+            <div class="k-top">Nhiệm vụ thường xuyên</div>
+            <div class="k-row"><span class="k-val bt-num" id="k-routine">–</span><span class="k-pct"
+                id="p-routine">–</span></div>
+          </article>
+          <article class="kpi alert" id="kpiSoon" data-drill="soon:1" style="--c:var(--warn)">
+            <div class="k-top">Sắp tới hạn
+              <svg class="ico-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5.4l3.4 2" />
+              </svg>
+            </div>
+            <div class="k-row"><span class="k-val bt-num" id="k-soon">–</span><span class="k-pct">cần nhắc việc</span>
+            </div>
+          </article>
+        </section>
+
+        <div class="grid">
+          <div class="card g-cap">
+            <div class="bt-card-head">
+              <div class="card-title">Theo cấp trình đề án</div>
+              <div class="bt-seg small" id="capScale" role="group" aria-label="Xem theo" style="margin-left:auto">
+                <button data-v="deAn" aria-pressed="true">Theo đề án</button>
+                <button data-v="chuyenDoiSo" aria-pressed="false">Nhiệm vụ chuyển đổi số</button>
+              </div>
+            </div>
+            <div class="card-body" id="c-cap" style="padding:10px 16px 16px"></div>
+          </div>
+
+          <div class="card g-unit">
+            <div class="bt-card-head">
+              <div class="card-title" id="unitTitle">Theo đơn vị chủ trì</div>
+              <div class="bt-legend">
+                <span class="lg"><i style="background:var(--done)"></i>Hoàn thành</span>
+                <span class="lg"><i style="background:var(--ontime)"></i>Trong hạn</span>
+                <span class="lg"><i style="background:var(--late)"></i>Quá hạn</span>
+                <span class="lg"><i style="background:var(--routine)"></i>Thường xuyên</span>
+              </div>
+            </div>
+            <div class="card-body chart-box" id="c-unit"></div>
+          </div>
+
+          <div class="card g-ld">
+            <div class="bt-card-head">
+              <div class="card-title">Theo lãnh đạo Ban phụ trách</div>
+            </div>
+            <div class="card-body chart-box" id="c-ld"></div>
+          </div>
+
+          <div class="card g-time">
+            <div class="bt-card-head">
+              <div class="card-title">Theo thời gian<small id="tNote" hidden></small></div>
+            </div>
+            <div class="card-body chart-box" id="c-time"></div>
+          </div>
+        </div>
+
+        <!-- lớp 2: dashboard riêng khi drill từ KPI / cấp trình -->
+        <div class="grid2" id="l2" hidden>
+          <div class="card g2-a">
+            <div class="bt-card-head">
+              <div class="card-title" id="l2aT"></div>
+            </div>
+            <div class="card-body chart-box" id="c2-a"></div>
+          </div>
+          <div class="card g2-b">
+            <div class="bt-card-head">
+              <div class="card-title" id="l2bT"></div>
+              <div class="bt-seg small" id="l2CapScale" role="group" aria-label="Xem theo" style="margin-left:auto"
+                hidden>
+                <button data-v="deAn" aria-pressed="true">Theo đề án</button>
+                <button data-v="chuyenDoiSo" aria-pressed="false">Nhiệm vụ chuyển đổi số</button>
+              </div>
+            </div>
+            <div class="card-body chart-box" id="c2-b"></div>
+          </div>
+          <div class="card g2-c" id="g2c" hidden>
+            <div class="bt-card-head">
+              <div class="card-title" id="l2cT"></div>
+            </div>
+            <div class="card-body chart-box" id="c2-c"></div>
+          </div>
+          <div class="card g2-list">
+            <div class="bt-card-head">
+              <div class="card-title" id="l2listT"></div>
+              <div class="l2-tools">
+                <input class="ctrl" id="l2q" type="search"
+                  placeholder="Tìm mã, tên nhiệm vụ, văn bản giao, người thực hiện...">
+                <select class="ctrl" id="l2fU" aria-label="Lọc theo đơn vị"></select>
+                <select class="ctrl" id="l2fC" aria-label="Lọc theo cấp trình"></select>
+                <select class="ctrl" id="l2fS" aria-label="Lọc theo trạng thái"></select>
+              </div>
+              <span class="l2-count" id="l2Count"></span>
+            </div>
+            <div class="card-body" id="c2-list"></div>
+          </div>
+        </div>
+
+      </div>
+    </article>
+  </div>
+
+  <!-- form xuất Excel: chọn trường -->
+  <div class="ov" id="xOv" hidden>
+    <div class="dlg" style="width:min(760px,100%)" role="dialog" aria-modal="true" aria-labelledby="xTitle">
+      <div class="dlg-h bt-blue"><span id="xTitle">Xuất Excel danh sách nhiệm vụ</span>
+        <button class="dlg-x" id="xX" aria-label="Đóng">✕</button>
+      </div>
+      <div class="dlg-b">
+        <div class="x-scope" id="xScope"></div>
+        <div class="x-toolbar">
+          <span class="f-lb">Chọn trường dữ liệu <span class="req">*</span></span>
+          <button class="x-link" id="xAll">Chọn tất cả</button><span style="color:var(--line)">|</span>
+          <button class="x-link" id="xNone">Bỏ chọn tất cả</button>
+          <span class="x-err" id="xErr" hidden>Chọn ít nhất một trường.</span>
+        </div>
+        <div class="x-grid" id="xFields"></div>
+        <label class="x-sum"><input type="checkbox" id="xSum" checked>
+          Kèm các bảng tổng hợp (theo đơn vị chủ trì, cấp trình, lãnh đạo phụ trách, đề án)</label>
+      </div>
+      <div class="dlg-f">
+        <button class="btn-cancel" id="xCancel">Hủy</button>
+        <button class="btn-send bt-blue" id="xGo">⤓ Xuất Excel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- popup chi tiết 1 nhiệm vụ (bấm vào 1 dòng trong bảng "Danh sách nhiệm vụ" ở lớp 2) -->
+  <div class="ov" id="tdOv" hidden>
+    <div class="dlg" style="width:min(720px,100%)" role="dialog" aria-modal="true" aria-labelledby="tdTitle">
+      <div class="dlg-h bt-blue">
+        <div>
+          <div id="tdTitle" style="font-size:16px;font-weight:700">Chi tiết nhiệm vụ</div>
+          <div style="font-size:12px;font-weight:400;opacity:.85;margin-top:2px">Thông tin và tình hình thực hiện</div>
+        </div>
+        <button class="dlg-x" id="tdX" aria-label="Đóng">✕</button>
+      </div>
+      <div class="dlg-b" id="tdBody" style="max-height:min(70vh,600px);overflow-y:auto"></div>
+      <div class="dlg-f">
+        <button class="btn-cancel" id="tdCancel">Đóng</button>
+        <button class="btn-send bt-blue" id="tdUpdate">Cập nhật nhiệm vụ</button>
+        <button class="btn-send bt-blue" id="tdReport">Yêu cầu báo cáo</button>
+      </div>
+    </div>
+  </div>
+  <div id="toast" class="toast"></div>
+
+  <script src="script.js" defer></script>
+  <script>
+    // --- FULLSCREEN MODAL OBSERVER ---
+    // Port từ tongquan/chitieu/noti/index.html: khi mở popup (#xOv "Xuất Excel", #tdOv "Chi
+    // tiết nhiệm vụ" — cả 2 dùng class="ov" + thuộc tính hidden, xem task-tally/script.js
+    // openTaskDetail/closeTaskDetail), báo cho trang cha phóng iframe lên toàn màn hình, nếu
+    // không popup vẫn bị .ov{position:fixed} nhưng "fixed" theo viewport CỦA IFRAME (chỉ to
+    // bằng khối widget), không phải viewport trình duyệt thật.
+    //
+    // CHỈ phóng iframe thôi thì .bt-wrap (nội dung widget — filter/chart/bảng, xem index.html
+    // <div class="bt-wrap">) trôi theo lấp đầy luôn iframe vừa to ra, nhìn như "cả khối kiểm
+    // đếm bị phóng to" chứ không phải chỉ mỗi modal. Phải GHIM .bt-wrap lại đúng vị trí/kích
+    // thước cũ (position:absolute theo rect đã lưu) trong lúc iframe to — 2 popup .ov nằm
+    // NGOÀI .bt-wrap (xem cấu trúc body) nên không bị ảnh hưởng, vẫn tự do full màn hình.
+    (function () {
+      if (window.parent === window) return;
+
+      let isExpanded = false;
+            let __collapseTimer = null;
+      const wrap = document.querySelector('.bt-wrap');
+
+      function resetWrapStyles() {
+        if (!wrap) return;
+        wrap.style.removeProperty('position');
+        wrap.style.removeProperty('top');
+        wrap.style.removeProperty('left');
+        wrap.style.removeProperty('width');
+        wrap.style.removeProperty('height');
+        wrap.style.removeProperty('overflow');
+      }
+
+      function checkExpanded() {
+        const activeModals = document.querySelectorAll(".ov:not([hidden])");
+        const shouldExpand = activeModals.length > 0;
+
+        if (shouldExpand && !isExpanded) {
+          if (__collapseTimer) { clearTimeout(__collapseTimer); __collapseTimer = null; }
+          window.parent.postMessage({ type: "expand_iframe" }, "*");
+          // Giống tongquan/index.html: body có nền đặc (var(--bg)) — phải ép trong suốt khi
+          // phóng to, nếu không toàn vùng ngoài .bt-wrap (đã ghim nhỏ) vẫn hiện thành khối đặc
+          // che mất mọi thứ phía sau thay vì chỉ có backdrop mờ của modal.
+          document.documentElement.style.setProperty("background", "transparent", "important");
+          document.body.style.setProperty("background", "transparent", "important");
+          isExpanded = true;
+        } else if (!shouldExpand && isExpanded) {
+          if (__collapseTimer) clearTimeout(__collapseTimer);
+          __collapseTimer = setTimeout(function () {
+            __collapseTimer = null;
+            document.documentElement.style.removeProperty("background");
+            document.body.style.removeProperty("background");
+            window.parent.postMessage({ type: "collapse_iframe" }, "*");
+          }, 50);
+          isExpanded = false;
+        }
+      }
+
+      window.addEventListener('message', function (e) {
+        if (!e.data) return;
+        if (e.data.type === 'set_widget_rect') {
+          if (!wrap) return;
+          wrap.style.position = 'absolute';
+          wrap.style.top = e.data.top + 'px';
+          wrap.style.left = e.data.left + 'px';
+          wrap.style.width = e.data.width + 'px';
+          wrap.style.height = e.data.height + 'px';
+          wrap.style.overflow = 'hidden';
+        } else if (e.data.type === 'reset_widget_rect') {
+          resetWrapStyles();
+        }
+      });
+
+      const observer = new MutationObserver(checkExpanded);
+      observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ["hidden", "class"] });
+    })();
+  </script>
+</body>
+
+</html>

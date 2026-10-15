@@ -1,0 +1,25 @@
+.env.local
+.env
+.gitignore
+AGENTS.md
+CLAUDE.md
+README.md
+IOC 3-Layer API Collection.postman_collection.json
+.claude
+.vercel
+/index.html
+
+# Thư mục nội bộ: tài liệu, công cụ dev, trang độc lập, bản sao lưu, file cũ
+docs/
+tools/
+standalone/
+tests/
+_backups/
+_archive/
+
+# STC (Bo chi tieu So Tai chinh): never deploy secrets or dev tools
+export_stc_api_ba/
+.env.stc
+.env.stc.*
+data/stc-local/
+_backup_before_*/

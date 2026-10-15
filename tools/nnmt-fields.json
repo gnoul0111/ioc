@@ -1,0 +1,952 @@
+[
+ {
+  "eform": "Eform Tỷ lệ xã được công nhận đạt chuẩn nông thôn mới",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Ngày báo cáo",
+    "ngay_bao_cao",
+    "Ngày tháng"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Phân tổ/loại dữ liệu",
+    "phan_to_loai_du_lieu",
+    "Chữ"
+   ],
+   [
+    "Tên nội dung/dự án/sự kiện",
+    "ten_noi_dung_du_an_su_kien",
+    "Chữ"
+   ],
+   [
+    "Đơn vị chủ trì/phối hợp",
+    "don_vi_chu_tri_phoi_hop",
+    "Chữ"
+   ],
+   [
+    "Kế hoạch/chuẩn tham chiếu",
+    "ke_hoach_chuan_tham_chieu",
+    "Chữ"
+   ],
+   [
+    "Giá trị kỳ này",
+    "gia_tri_ky_nay",
+    "Số"
+   ],
+   [
+    "Giá trị lũy kế",
+    "gia_tri_luy_ke",
+    "Số"
+   ],
+   [
+    "Cùng kỳ/chuẩn so sánh",
+    "cung_ky_chuan_so_sanh",
+    "Số"
+   ],
+   [
+    "Tỷ lệ/tiến độ tự tính",
+    "ty_le_tien_do_tu_tinh",
+    "Số"
+   ],
+   [
+    "Chênh lệch kỳ này-cùng kỳ",
+    "chenh_lech_ky_nay_cung_ky",
+    "Số"
+   ],
+   [
+    "Trạng thái triển khai",
+    "trang_thai_trien_khai",
+    "Danh mục"
+   ],
+   [
+    "Vướng mắc/Nguyên nhân",
+    "vuong_mac_nguyen_nhan",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Diện tích rừng bị thiệt hại (bị chặt phá, bị cháy…)",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Ngày báo cáo",
+    "ngay_bao_cao",
+    "Ngày tháng"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Phân tổ/loại dữ liệu",
+    "phan_to_loai_du_lieu",
+    "Danh mục"
+   ],
+   [
+    "Tên nội dung/dự án/sự kiện",
+    "ten_noi_dung_du_an_su_kien",
+    "Chữ"
+   ],
+   [
+    "Đơn vị chủ trì/phối hợp",
+    "don_vi_chu_tri_phoi_hop",
+    "Chữ"
+   ],
+   [
+    "Kế hoạch/chuẩn tham chiếu",
+    "assignees",
+    "Chữ"
+   ],
+   [
+    "Giá trị kỳ này",
+    "gia_tri_ky_nay",
+    "Số"
+   ],
+   [
+    "Giá trị lũy kế",
+    "gia_tri_luy_ke",
+    "Số"
+   ],
+   [
+    "Cùng kỳ/chuẩn so sánh",
+    "cung_ky_chuan_so_sanh",
+    "Số"
+   ],
+   [
+    "Tỷ lệ/tiến độ tự tính",
+    "ty_le_tien_do_tu_tinh",
+    "Số"
+   ],
+   [
+    "Chênh lệch kỳ này-cùng kỳ",
+    "chenh_lech_ky_nay_cung_ky",
+    "Số"
+   ],
+   [
+    "Trạng thái triển khai",
+    "trang_thai_trien_khai",
+    "Danh mục"
+   ],
+   [
+    "Vướng mắc/Nguyên nhân",
+    "vuong_mac_nguyen_nhan",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Diện tích rừng trồng mới tập trung",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Ngày báo cáo",
+    "ngay_bao_cao",
+    "Ngày tháng"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Phân tổ/loại dữ liệu",
+    "phan_to_loai_du_lieu",
+    "Danh mục"
+   ],
+   [
+    "Tên nội dung/dự án/sự kiện",
+    "ten_noi_dung_du_an_su_kien",
+    "Chữ"
+   ],
+   [
+    "Đơn vị chủ trì/phối hợp",
+    "don_vi_chu_tri_phoi_hop",
+    "Chữ"
+   ],
+   [
+    "Kế hoạch/chuẩn tham chiếu",
+    "ke_hoach_chuan_tham_chieu",
+    "Chữ"
+   ],
+   [
+    "Giá trị kỳ này",
+    "gia_tri_ky_nay",
+    "Số"
+   ],
+   [
+    "Giá trị lũy kế",
+    "gia_tri_luy_ke",
+    "Số"
+   ],
+   [
+    "Cùng kỳ/chuẩn so sánh",
+    "cung_ky_chuan_so_sanh",
+    "Số"
+   ],
+   [
+    "Tỷ lệ/tiến độ tự tính",
+    "ty_le_tien_do_tu_tinh",
+    "Số"
+   ],
+   [
+    "Chênh lệch kỳ này-cùng kỳ",
+    "chenh_lech_ky_nay_cung_ky",
+    "Số"
+   ],
+   [
+    "Trạng thái triển khai",
+    "trang_thai_trien_khai",
+    "Danh mục"
+   ],
+   [
+    "Vướng mắc/Nguyên nhân",
+    "vuong_mac_nguyen_nhan",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Chương trình mục tiêu quốc gia về xây dựng nông thôn mới",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Ngày báo cáo",
+    "ngay_bao_cao",
+    "Ngày tháng"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Phân tổ/loại dữ liệu",
+    "phan_to_loai_du_lieu",
+    "Danh mục"
+   ],
+   [
+    "Tên nội dung/dự án/sự kiện",
+    "ten_noi_dung_du_an_su_kien",
+    "Chữ"
+   ],
+   [
+    "Đơn vị chủ trì/phối hợp",
+    "don_vi_chu_tri_phoi_hop",
+    "Chữ"
+   ],
+   [
+    "Kế hoạch/chuẩn tham chiếu",
+    "ke_hoach_chuan_tham_chieu",
+    "Chữ"
+   ],
+   [
+    "Giá trị kỳ này",
+    "gia_tri_ky_nay",
+    "Số"
+   ],
+   [
+    "Giá trị lũy kế",
+    "gia_tri_luy_ke",
+    "Số"
+   ],
+   [
+    "Cùng kỳ/chuẩn so sánh",
+    "cung_ky_chuan_so_sanh",
+    "Số"
+   ],
+   [
+    "Tỷ lệ/tiến độ tự tính",
+    "ty_le_tien_do_tu_tinh",
+    "Số"
+   ],
+   [
+    "Chênh lệch kỳ này-cùng kỳ",
+    "chenh_lech_ky_nay_cung_ky",
+    "Số"
+   ],
+   [
+    "Trạng thái triển khai",
+    "trang_thai_trien_khai",
+    "Danh mục"
+   ],
+   [
+    "Vướng mắc/Nguyên nhân",
+    "vuong_mac_nguyen_nhan",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Chương trình mục tiêu quốc gia giảm nghèo bền vững",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Ngày báo cáo",
+    "ngay_bao_cao",
+    "Ngày tháng"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Cụm/TDP",
+    "cum_tdp",
+    "Chữ"
+   ],
+   [
+    "Phân tổ/loại dữ liệu",
+    "phan_to_loai_du_lieu",
+    "Chữ"
+   ],
+   [
+    "Tên nội dung/dự án/sự kiện",
+    "ten_noi_dung_du_an_s",
+    "Chữ"
+   ],
+   [
+    "Đơn vị chủ trì/phối hợp",
+    "don_vi_chu_tri_phoi_hop",
+    "Chữ"
+   ],
+   [
+    "Kế hoạch/chuẩn tham chiếu",
+    "ke_hoach_chuan_tham",
+    "Chữ"
+   ],
+   [
+    "Giá trị kỳ này",
+    "gia_tri_ky_nay",
+    "Số"
+   ],
+   [
+    "Giá trị lũy kế",
+    "gia_tri_luy_ke",
+    "Số"
+   ],
+   [
+    "Cùng kỳ/chuẩn so sánh",
+    "cung_ky_chuan_so_sanh",
+    "Số"
+   ],
+   [
+    "Tỷ lệ/tiến độ tự tính",
+    "ty_le_tien_do_tu_tinh",
+    "Số"
+   ],
+   [
+    "Chênh lệch kỳ này-cùng kỳ",
+    "chenh_lech_ky_nay_cung_ky",
+    "Số"
+   ],
+   [
+    "Trạng thái triển khai",
+    "trang_thai_trien_khai",
+    "Danh mục"
+   ],
+   [
+    "Vướng mắc/Nguyên nhân",
+    "vuong_mac_nguyen_nhan",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Các thông tin về khí tượng thủy văn",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Ngày báo cáo",
+    "ngay_bao_cao",
+    "Ngày tháng"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Phân tổ/loại dữ liệu",
+    "phan_to_loai_du_lieu",
+    "Danh mục"
+   ],
+   [
+    "Tên nội dung/dự án/sự kiện",
+    "ten_noi_dung_du_an_su_kien",
+    "Chữ"
+   ],
+   [
+    "Đơn vị chủ trì/phối hợp",
+    "don_vi_chu_tri_phoi_hop",
+    "Chữ"
+   ],
+   [
+    "Kế hoạch/chuẩn tham chiếu",
+    "ke_hoach_chuan_tham_chieu",
+    "Chữ"
+   ],
+   [
+    "Giá trị kỳ này",
+    "gia_tri_ky_nay",
+    "Số"
+   ],
+   [
+    "Giá trị lũy kế",
+    "gia_tri_luy_ke",
+    "Số"
+   ],
+   [
+    "Cùng kỳ/chuẩn so sánh",
+    "cung_ky_chuan_so_sanh",
+    "Số"
+   ],
+   [
+    "Tỷ lệ/tiến độ tự tính",
+    "ty_le_tien_do_tu_tinh",
+    "Số"
+   ],
+   [
+    "Chênh lệch kỳ này-cùng kỳ",
+    "chenh_lech_ky_nay_cung_ky",
+    "Số"
+   ],
+   [
+    "Trạng thái triển khai",
+    "trang_thai_trien_khai",
+    "Danh mục"
+   ],
+   [
+    "Vướng mắc/Nguyên nhân",
+    "vuong_mac_nguyen_nhan",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Các thông tin về công trình phòng chống thiên tai",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Ngày báo cáo",
+    "ngay_bao_cao",
+    "Ngày tháng"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Phân tổ/loại dữ liệu",
+    "phan_to_loai_du_lieu",
+    "Danh mục"
+   ],
+   [
+    "Tên nội dung/dự án/sự kiện",
+    "ten_noi_dung_du_an_su_kien",
+    "Chữ"
+   ],
+   [
+    "Đơn vị chủ trì/phối hợp",
+    "don_vi_chu_tri_phoi_hop",
+    "Chữ"
+   ],
+   [
+    "Kế hoạch/chuẩn tham chiếu",
+    "ke_hoach_chuan_tham_chieu",
+    "Chữ"
+   ],
+   [
+    "Giá trị kỳ này",
+    "gia_tri_ky_nay",
+    "Số"
+   ],
+   [
+    "Giá trị lũy kế",
+    "gia_tri_luy_ke",
+    "Số"
+   ],
+   [
+    "Cùng kỳ/chuẩn so sánh",
+    "cung_ky_chuan_so_sanh",
+    "Số"
+   ],
+   [
+    "Tỷ lệ/tiến độ tự tính",
+    "ty_le_tien_do_tu_tinh",
+    "Số"
+   ],
+   [
+    "Chênh lệch kỳ này-cùng kỳ",
+    "chenh_lech_ky_nay_cung_ky",
+    "Số"
+   ],
+   [
+    "Trạng thái triển khai",
+    "trang_thai_trien_khai",
+    "Danh mục"
+   ],
+   [
+    "Vướng mắc/Nguyên nhân",
+    "vuong_mac_nguyen_nhan",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Số hộ/người được hỗ trợ lương thực do thiên tai, hỏa hoạn, giáp hạt hoặc lý do bất khả kháng khác",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Ngày báo cáo",
+    "ngay_bao_cao",
+    "Ngày tháng"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Phân tổ/loại dữ liệu",
+    "phan_to_loai_du_lieu",
+    "Danh mục"
+   ],
+   [
+    "Tên nội dung/dự án/sự kiện",
+    "ten_noi_dung_du_an_su_kien",
+    "Chữ"
+   ],
+   [
+    "Đơn vị chủ trì/phối hợp",
+    "don_vi_chu_tri_phoi_hop",
+    "Chữ"
+   ],
+   [
+    "Kế hoạch/chuẩn tham chiếu",
+    "ke_hoach_chuan_tham_chieu",
+    "Chữ"
+   ],
+   [
+    "Giá trị kỳ này",
+    "gia_tri_ky_nay",
+    "Số"
+   ],
+   [
+    "Giá trị lũy kế",
+    "gia_tri_luy_ke",
+    "Số"
+   ],
+   [
+    "Cùng kỳ/chuẩn so sánh",
+    "cung_ky_chuan_so_sanh",
+    "Số"
+   ],
+   [
+    "Tỷ lệ/tiến độ tự tính",
+    "ty_le_tien_do_tu_tinh",
+    "Số"
+   ],
+   [
+    "Chênh lệch kỳ này-cùng kỳ",
+    "chenh_lech_ky_nay_cung_ky",
+    "Số"
+   ],
+   [
+    "Trạng thái triển khai",
+    "trang_thai_trien_khai",
+    "Danh mục"
+   ],
+   [
+    "Vướng mắc/Nguyên nhân",
+    "vuong_mac_nguyen_nhan",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Tổng số gạo hỗ trợ",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Ngày báo cáo",
+    "ngay_bao_cao",
+    "Ngày tháng"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Phân tổ/loại dữ liệu",
+    "phan_to_loai_du_lieu",
+    "Danh mục"
+   ],
+   [
+    "Tên nội dung/dự án/sự kiện",
+    "ten_noi_dung_du_an_su_kien",
+    "Chữ"
+   ],
+   [
+    "Đơn vị chủ trì/phối hợp",
+    "don_vi_chu_tri_phoi_hop",
+    "Chữ"
+   ],
+   [
+    "Kế hoạch/chuẩn tham chiếu",
+    "ke_hoach_chuan_tham_chieu",
+    "Chữ"
+   ],
+   [
+    "Giá trị kỳ này",
+    "gia_tri_ky_nay",
+    "Số"
+   ],
+   [
+    "Giá trị lũy kế",
+    "gia_tri_luy_ke",
+    "Số"
+   ],
+   [
+    "Cùng kỳ/chuẩn so sánh",
+    "cung_ky_chuan_so_sanh",
+    "Số"
+   ],
+   [
+    "Tỷ lệ/tiến độ tự tính",
+    "ty_le_tien_do_tu_tinh",
+    "Số"
+   ],
+   [
+    "Chênh lệch kỳ này-cùng kỳ",
+    "chenh_lech_ky_nay_cung_ky",
+    "Số"
+   ],
+   [
+    "Trạng thái triển khai",
+    "trang_thai_trien_khai",
+    "Danh mục"
+   ],
+   [
+    "Vướng mắc/Nguyên nhân",
+    "vuong_mac_nguyen_nhan",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Eform Các dữ liệu về bản đồ và ảnh viễn thám",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Ngày báo cáo",
+    "ngay_bao_cao",
+    "Ngày tháng"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Phân tổ/loại dữ liệu",
+    "phan_to_loai_du_lieu",
+    "Danh mục"
+   ],
+   [
+    "Tên nội dung/dự án/sự kiện",
+    "ten_noi_dung_du_an_su_kien",
+    "Chữ"
+   ],
+   [
+    "Đơn vị chủ trì/phối hợp",
+    "don_vi_chu_tri_phoi_hop",
+    "Chữ"
+   ],
+   [
+    "Kế hoạch/chuẩn tham chiếu",
+    "ke_hoach_chuan_tham_chieu",
+    "Chữ"
+   ],
+   [
+    "Giá trị kỳ này",
+    "gia_tri_ky_nay",
+    "Số"
+   ],
+   [
+    "Giá trị lũy kế",
+    "gia_tri_luy_ke",
+    "Số"
+   ],
+   [
+    "Cùng kỳ/chuẩn so sánh",
+    "cung_ky_chuan_so_sanh",
+    "Số"
+   ],
+   [
+    "Tỷ lệ/tiến độ tự tính",
+    "ty_le_tien_do_tu_tinh",
+    "Số"
+   ],
+   [
+    "Chênh lệch kỳ này-cùng kỳ",
+    "chenh_lech_ky_nay_cung_ky",
+    "Số"
+   ],
+   [
+    "Trạng thái triển khai",
+    "trang_thai_trien_khai",
+    "Danh mục"
+   ],
+   [
+    "Vướng mắc/Nguyên nhân",
+    "vuong_mac_nguyen_nhan",
+    "Chữ"
+   ]
+  ]
+ }
+]

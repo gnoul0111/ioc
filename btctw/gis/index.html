@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IOC/CAD - Bản đồ GIS (bản độc lập)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="../theme.css" />
+
+    <!-- Vietflex OpenMap: MapLibre renderer + Vietflex basemap styles -->
+    <link rel="stylesheet" href="https://vietflexmap.github.io/openmap/dist/vietflex.css" />
+    <script src="https://vietflexmap.github.io/openmap/dist/vietflex.js"></script>
+    <script src="https://vietflexmap.github.io/openmap/plugins/basemaps.js"></script>
+    <!-- File này (index.html/script.js/style.css) là bản demo GIS ĐỘC LẬP, phải tự chạy được trên máy khác không
+       có sẵn thư mục lib/ của project (demo_ioc.html mới dùng lib/ cục bộ để né Edge Tracking Prevention chặn
+       riêng domain unpkg.com — không áp dụng domain cdnjs.cloudflare.com). Trước đây dán thẳng code minified
+       Leaflet/markercluster vào 2 thẻ <script> cho gọn 1 file, nhưng cách đó lại hay lỗi không tải được thư
+       viện (UMD bundle dò đường dẫn icon mặc định qua thẻ <script src>, không có src thì dò sai) nên đổi sang
+       nạp qua CDN cdnjs.cloudflare.com (đã dùng ổn định cho Chart.js/CountUp ở demo_ioc.html) — cần có mạng khi
+       mở file, không tự chạy offline được nữa, đổi lại luôn tải đúng, không phụ thuộc file cục bộ nào khác. -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" /> -->
+</head>
+
+<body>
+    <div class="gis-page-wrap">
+        <!-- Bản demo_ioc.html gốc suy ra phạm vi xem (toàn thành phố/1 sở-ngành/1 xã-phường) từ tài khoản đăng
+    nhập (currentSoId/currentXaId) — bản độc lập này không có hệ thống đăng nhập, nên thêm 1 dropdown chọn
+    thẳng phạm vi, gọi đúng gisSwitchScope()/refreshGisScope() có sẵn trong script.js để đổi dữ liệu GIS
+    theo từng đơn vị, y hệt cơ chế thật.
+    ẨN khỏi màn hình theo yêu cầu (luonghd2k) — CỐ Ý chỉ display:none, KHÔNG xoá khối này: setupGisScopePicker()
+    trong script.js vẫn chạy bình thường và gắn đủ dữ liệu vào #gisScopePicker mỗi khi trang tải, dropdown vẫn
+    "có tác dụng" (đổi được qua console: document.getElementById('gisScopePicker').value=...; rồi bắn sự kiện
+    change), chỉ là không hiển thị ra giao diện nữa. Muốn hiện lại thì bỏ display:none là xong, không cần dựng lại. -->
+        <div style="display:none;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+            <label for="gisScopePicker" style="font-size:12px;color:#8ab0c8;font-weight:700">Xem theo phạm vi:</label>
+            <select id="gisScopePicker"
+                style="height:30px;padding:0 8px;border:1px solid rgba(73,188,255,.4);background:rgba(4,20,39,.92);color:#d0e8f8;border-radius:6px;font-size:12px;cursor:pointer;min-width:240px"></select>
+        </div>
+        <article class="widget gis-widget" id="gismap" data-widget="gismap">
+            <div class="widget-head">
+                <div class="widget-title" id="gisWidgetTitle">🗺️ BẢN ĐỒ GIS – Tổng quan Thành phố Hà Nội · 5 nhóm điểm
+                    nghẽn</div>
+                <div style="display:flex;gap:5px;flex-shrink:0">
+                    <button class="mini-btn" onclick="gisSetTheme('dark')" title="Nền tối"
+                        style="padding-left:1px">🌙</button>
+                    <button class="mini-btn" onclick="gisSetTheme('light')" title="Nền sáng"
+                        style="padding-left:5px">☀</button>
+                    <button class="mini-btn" onclick="gisSetTheme('satellite')" title="Ảnh vệ tinh"
+                        style="padding-left:4px">🛰</button>
+                    <button class="mini-btn" onclick="gisResetView()" title="Về trung tâm phường">⌖</button>
+                    <button class="mini-btn" onclick="gisToggleFullscreen(this)" id="gisFsBtn"
+                        title="Toàn màn hình">⛶</button>
+                    <button class="mini-btn" onclick="toggleWidgetBody(this)">−</button>
+                </div>
+            </div>
+            <div class="widget-body" style="padding:0;flex:1;min-height:0;display:flex;flex-direction:column">
+                <div class="gis-map-body">
+                    <div class="gis-map-viewport" id="gisMapViewport">
+                        <div id="gisVietflexMap" aria-hidden="true"></div>
+                        <div id="gisMap"></div>
+                        <div class="gis-map-topline">
+                            <span
+                                style="display:flex;align-items:center;gap:5px;font-size:10.5px;color:#49bcff;flex-shrink:0"><i
+                                    style="width:7px;height:7px;border-radius:50%;background:#2fc97a;box-shadow:0 0 6px #2fc97a;flex-shrink:0;display:inline-block"></i><span
+                                    id="gisLiveLabel">GIS trực tuyến • Nền tối</span></span>
+                            <div style="display:flex;gap:4px;flex-wrap:wrap">
+                                <select id="gisBaseSelect" title="Nền bản đồ"
+                                    style="height:24px;padding:0 5px;border:1px solid rgba(73,188,255,.4);background:rgba(4,20,39,.92);color:#d0e8f8;border-radius:4px;font-size:10px;cursor:pointer">
+                                    <option value="dark">Vietflex · Nền tối</option>
+                                    <option value="light">Vietflex · Nền sáng</option>
+                                    <option value="bright">Vietflex · Sáng rõ</option>
+                                    <option value="fiord">Vietflex · Địa hình tối</option>
+                                    <option value="satellite">Vietflex · Vệ tinh</option>
+                                    <option value="tedp">Vietflex · TEDP</option>
+                                    <option value="terrain">Vietflex · Terrain / Topo</option>
+                                    <option value="vnmap">Vietflex · VNMap Core</option>
+                                    <option value="streets">Vietflex · Đường phố</option>
+                                </select>
+                                <button id="gisDrawBtn"
+                                    style="height:24px;padding:0 8px;border:1px solid rgba(73,188,255,.4);background:rgba(4,20,39,.92);color:#d0e8f8;border-radius:4px;font-size:10px">✏
+                                    Khoanh vùng</button>
+                                <button id="gisFinishBtn"
+                                    style="display:none;height:24px;padding:0 8px;border:1px solid #2fb174;background:rgba(3,60,36,.85);color:#7dffba;border-radius:4px;font-size:10px">✓
+                                    Hoàn tất</button>
+                                <button id="gisClearBtn"
+                                    style="height:24px;padding:0 8px;border:1px solid rgba(220,60,60,.5);background:rgba(4,20,39,.92);color:#f48;border-radius:4px;font-size:10px">✕
+                                    Xóa vùng</button>
+                                <button id="gisReportBtn"
+                                    style="height:24px;padding:0 8px;border:1px solid rgba(216,165,12,.5);background:rgba(4,20,39,.92);color:#f0c14b;border-radius:4px;font-size:10px">➕
+                                    Báo cáo mới</button>
+                            </div>
+                            <input id="gisMapSearch" placeholder="Tìm điểm nghẽn, khu dân cư, trụ sở…"
+                                autocomplete="off"
+                                style="height:24px;padding:0 8px;border:1px solid rgba(73,188,255,.35);background:rgba(4,20,39,.92);color:#d0e8f8;border-radius:4px;font-size:10px;width:180px;min-width:100px" />
+                        </div>
+                        <div id="gisDrawHint"
+                            style="display:none;position:absolute;top:46px;left:50%;transform:translateX(-50%);z-index:650;background:rgba(4,30,58,.95);border:1px solid #49bcff;border-radius:6px;padding:6px 14px;font-size:10.5px;color:#49bcff;pointer-events:none;white-space:nowrap">
+                            <strong>CHẾ ĐỘ KHOANH VÙNG:</strong> click từng điểm, double-click để đóng vùng.
+                        </div>
+                        <div id="gisReportHint"
+                            style="display:none;position:absolute;top:46px;left:50%;transform:translateX(-50%);z-index:650;background:rgba(4,30,58,.95);border:1px solid #d8a50c;border-radius:6px;padding:6px 14px;font-size:10.5px;color:#d8a50c;pointer-events:none;white-space:nowrap">
+                            <strong>THÊM BÁO CÁO:</strong> click 1 điểm trên bản đồ để chọn vị trí.
+                        </div>
+                        <div id="gisCoordinate"
+                            style="position:absolute;bottom:6px;left:10px;z-index:1010;background:rgba(2,11,22,.75);padding:2px 8px;border-radius:4px;font-size:10px;color:#8ab0c8;pointer-events:none">
+                            21.0453, 105.8988 • Z15</div>
+                        <div id="gisSearchSuggest"
+                            style="display:none;position:absolute;z-index:700;right:7px;top:37px;width:240px;max-height:200px;overflow:auto;border:1px solid #2f759f;border-radius:5px;background:rgba(3,18,34,.98);box-shadow:0 14px 30px rgba(0,0,0,.55)">
+                        </div>
+                        <div class="gis-map-bottom-dock" id="gisMapBottomDock">
+                            <label class="gis-map-pill"><input type="checkbox" data-gis-layer="zones" checked><span><em
+                                        style="background:#28cedd22;color:#28cedd;padding:2px 6px;border-radius:4px;font-style:normal;font-size:12px;margin-right:3px">🗺️</em>Vùng
+                                    giám sát (tự khoanh)</span><small id="gisZoneCount">00</small></label>
+                            <button class="gis-map-pill" onclick="gisStartDraw()"><i class="gdi">📐</i><span>Khoanh
+                                    vùng</span></button>
+                        </div>
+                    </div>
+                    <!-- Đổi từ <aside> sang <div> — nghi ngờ nền tảng nhúng có sẵn 1 rule CSS nền riêng nhắm thẳng vào
+          thẻ <aside> (kiểu layout sidebar cố định/position:fixed dùng chung cho mọi trang), ghi đè mất
+          .gis-layer-sidebar khiến nó bật ra khỏi luồng flex bình thường — thẻ <div> trung tính, không mang theo
+          rule mặc định nào của trình duyệt hay của nền tảng khác để tránh xung đột kiểu này. -->
+                    <div class="gis-layer-sidebar">
+                        <div class="gis-layer-head">5 ĐIỂM NGHẼN</div>
+                        <div class="gis-kpi-strip gis-kpi-strip--sidebar" id="gisKpiStrip"></div>
+                        <div style="margin:8px 0 6px;border-top:1px solid rgba(73,188,255,.15)"></div>
+                        <div class="gis-layer-head">TRẠNG THÁI XỬ LÝ</div>
+                        <div class="gis-status-legend">
+                            <span
+                                style="background:rgba(216,165,12,.12);border:1px solid rgba(216,165,12,.3);border-radius:6px;padding:3px 6px"><i
+                                    style="background:#d8a50c"></i>Chưa xử lý (&lt;5 phản ánh)</span>
+                            <span
+                                style="background:rgba(211,58,68,.12);border:1px solid rgba(211,58,68,.3);border-radius:6px;padding:3px 6px"><i
+                                    style="background:#d33a44"></i>Chưa xử lý (&ge;5 phản ánh)</span>
+                            <span
+                                style="background:rgba(44,125,210,.12);border:1px solid rgba(44,125,210,.3);border-radius:6px;padding:3px 6px"><i
+                                    style="background:#2c7dd2"></i>Đang xử lý</span>
+                            <span
+                                style="background:rgba(47,177,116,.12);border:1px solid rgba(47,177,116,.3);border-radius:6px;padding:3px 6px"><i
+                                    style="background:#2fb174"></i>Đã hoàn thành (sắp tự ẩn)</span>
+                        </div>
+                        <div style="margin:8px 0 4px;border-top:1px solid rgba(73,188,255,.15)"></div>
+                        <div id="gisMapStatus" style="font-size:10px;color:#7f9bb5;line-height:1.7"></div>
+                        <div style="margin:8px 0 6px;border-top:1px solid rgba(73,188,255,.15)"></div>
+                        <div class="gis-layer-head">BÁO CÁO NGƯỜI DÙNG</div>
+                        <button class="gis-map-pill" style="width:100%;justify-content:center;margin-bottom:6px"
+                            onclick="gisOpenNewReportForm()"><i class="gdi">➕</i><span>Thêm báo cáo mới</span></button>
+                        <div style="display:flex;gap:4px;margin-bottom:6px">
+                            <button class="gis-report-tab" id="gisReportTabActive"
+                                onclick="gisSetReportTab('active')">Đang hiển thị</button>
+                            <button class="gis-report-tab" id="gisReportTabHistory"
+                                onclick="gisSetReportTab('history')">Đã xử lý</button>
+                        </div>
+                        <div id="gisReportList"
+                            style="font-size:10px;color:#9db8cc;line-height:1.6;max-height:160px;overflow:auto"></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <!-- Modal dùng chung tối thiểu — bản gốc lấy từ khung #modal có sẵn trong demo_ioc.html, ở đây dựng lại rút
+       gọn chỉ đủ cho form "Báo cáo điểm nghẽn mới" (openGisReportForm/submitGisReport trong script.js gọi tới).
+       ID đặt tiền tố gisDemo* (không dùng #overlay/#modal chung chung) để tránh trùng với hệ popup riêng của
+       nền tảng bên thứ 3 khi nhúng chung 1 trang — xem chú thích trong tools/gis-standalone-shim.js. -->
+    <div id="gisDemoOverlay" class="overlay"></div>
+    <section id="gisDemoModal" class="modal">
+        <div class="modal-head">
+            <div>
+                <h3 id="gisDemoModalTitle">—</h3>
+                <div class="muted" id="gisDemoModalSub"></div>
+            </div>
+            <button class="close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body" id="gisDemoModalBody"></div>
+    </section>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js"></script> -->
+    <script src="script.js"></script>
+    <script>
+        // --- WIDGET THEME (đồng bộ với dashboard: postMessage + localStorage) ---
+        const WIDGET_THEME_KEY = 'px-ioc-theme';
+        function isLightTheme() {
+            return document.documentElement.classList.contains('theme-light') || document.documentElement.classList.contains('theme-green');
+        }
+        function applyWidgetTheme(theme) {
+            const t = (theme === 'light' || theme === 'green') ? theme : 'dark';
+            document.documentElement.classList.remove('theme-light', 'theme-green');
+            document.body.classList.remove('theme-light', 'theme-green');
+            if (t !== 'dark') {
+                document.documentElement.classList.add('theme-' + t);
+                document.body.classList.add('theme-' + t);
+            }
+            if (typeof gisSetTheme === 'function' && typeof GM !== 'undefined' && GM.map) gisSetTheme(isLightTheme() ? 'light' : 'dark');
+        }
+        function initWidgetTheme() {
+            let saved = 'dark';
+            try { saved = localStorage.getItem(WIDGET_THEME_KEY) || 'dark'; } catch (e) { }
+            applyWidgetTheme(saved);
+        }
+        initWidgetTheme();
+        window.addEventListener('message', function (e) {
+            if (!e.data || e.data.type !== 'set_theme') return;
+            applyWidgetTheme(e.data.theme);
+        });
+        // --- FULLSCREEN MODAL OBSERVER ---
+        (function () {
+            if (window.parent === window) return;
+
+            document.documentElement.classList.add("embedded-dashboard");
+            document.body.classList.add("embedded-dashboard");
+
+            let isExpanded = false;
+            let __collapseTimer = null;
+
+            function checkExpanded() {
+                const activeModals = document.querySelectorAll(".modal.show, .modal.open, .drawer.show, .drawer.open, .overlay.show");
+                const shouldExpand = activeModals.length > 0;
+
+                if (shouldExpand && !isExpanded) {
+                    if (__collapseTimer) { clearTimeout(__collapseTimer); __collapseTimer = null; }
+                    window.parent.postMessage({ type: "expand_iframe" }, "*");
+                    document.documentElement.style.setProperty("background", "transparent", "important");
+                    document.body.style.setProperty("background", "transparent", "important");
+                    document.body.classList.remove("app-bg-grid");
+                    isExpanded = true;
+                } else if (!shouldExpand && isExpanded) {
+                    if (__collapseTimer) clearTimeout(__collapseTimer);
+                    __collapseTimer = setTimeout(function () {
+                        __collapseTimer = null;
+                        document.documentElement.style.removeProperty("background");
+                        document.body.style.removeProperty("background");
+                        document.body.classList.add("app-bg-grid");
+                        window.parent.postMessage({ type: "collapse_iframe" }, "*");
+                    }, 50);
+                    isExpanded = false;
+                }
+            }
+
+            function resetAppStyles() {
+                const app = document.getElementById("app") || document.querySelector("main");
+                if (app) {
+                    app.style.removeProperty("position");
+                    app.style.removeProperty("top");
+                    app.style.removeProperty("left");
+                    app.style.removeProperty("width");
+                    app.style.removeProperty("height");
+                    app.style.removeProperty("opacity");
+                    app.style.removeProperty("overflow");
+                    app.style.removeProperty("z-index");
+                }
+            }
+
+            window.addEventListener("message", function (e) {
+                if (!e.data) return;
+                if (e.data.type === "set_widget_rect") {
+                    const app = document.getElementById("app") || document.querySelector("main");
+                    if (app) {
+                        app.style.position = "absolute";
+                        app.style.top = e.data.top + "px";
+                        app.style.left = e.data.left + "px";
+                        app.style.width = e.data.width + "px";
+                        app.style.height = e.data.height + "px";
+                        app.style.overflow = "hidden";
+                        app.style.opacity = "1";
+                    }
+                } else if (e.data.type === "reset_widget_rect") {
+                    resetAppStyles();
+                } else if (e.data.type === "set_theme") {
+                    applyWidgetTheme(e.data.theme);
+                }
+            });
+
+            const observer = new MutationObserver(checkExpanded);
+            observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ["class", "style"] });
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "style"] });
+        })();
+    </script>
+</body>
+
+</html>

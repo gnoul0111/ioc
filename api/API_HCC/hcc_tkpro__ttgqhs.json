@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_type": "response_baseline_schema_v1",
+  "source": "hcc_tkpro",
+  "endpoint": "ttgqhs",
+  "table_name": "iceberg.bronze.hcc_tkpro__ttgqhs",
+  "version": 1,
+  "allow_additive": true,
+  "fields": {
+    "department_code": "string",
+    "department_name": "string",
+    "totalTruocHan": "int64",
+    "totalDungHan": "int64",
+    "totalTreHan": "int64"
+  },
+  "required_fields": [
+    "department_code"
+  ],
+  "defaults": {
+    "department_code": null,
+    "department_name": null,
+    "totalTruocHan": null,
+    "totalDungHan": null,
+    "totalTreHan": null
+  }
+}

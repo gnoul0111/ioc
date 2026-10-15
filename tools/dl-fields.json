@@ -1,0 +1,112 @@
+[
+ {
+  "eform": "Khách du lịch nội địa & quốc tế",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Đơn vị báo cáo",
+    "don_vi_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Loại điểm du lịch",
+    "loai_diem_du_lich",
+    "Danh mục"
+   ],
+   [
+    "Số lượt khách du lịch quốc tế",
+    "so_luot_khach_du_lich_quoc_te",
+    "Số"
+   ],
+   [
+    "Số lượt khách du lịch nội địa",
+    "so_luot_khach_du_lich_noi_dia",
+    "Số"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Doanh thu dịch vụ du lịch",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Đơn vị báo cáo",
+    "don_vi_bao_cao",
+    "Chữ"
+   ],
+   [
+    "Loại điểm du lịch",
+    "loai_diem_du_lich",
+    "Danh mục"
+   ],
+   [
+    "Số lượt khách du lịch quốc tế",
+    "so_luot_khach_du_lich_quoc_te",
+    "Số"
+   ],
+   [
+    "Số lượt khách du lịch nội địa",
+    "so_luot_khach_du_lich_noi_dia",
+    "Số"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ],
+   [
+    "Loại doanh thu",
+    "loai_doanh_thu",
+    "Danh mục"
+   ],
+   [
+    "Giá trị doanh thu (VND)",
+    "gia_tri_doanh_thu_vnd",
+    "Số"
+   ]
+  ]
+ }
+]

@@ -1,0 +1,7 @@
+{
+  "framework": null,
+  "rewrites": [
+    { "source": "/api/ioc/:path*", "destination": "https://administrator.lifetex.vn:324/api/v1/ioc/:path*" },
+    { "source": "/", "destination": "/demo_ioc.html" }
+  ]
+}

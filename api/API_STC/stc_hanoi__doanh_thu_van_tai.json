@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "contract_type": "response_baseline_schema_v1",
+  "source": "stc_hanoi",
+  "endpoint": "doanh_thu_van_tai",
+  "table_name": "iceberg.bronze.stc_hanoi__doanh_thu_van_tai",
+  "version": 1,
+  "allow_additive": true,
+  "fields": {
+    "chiTieu": "string",
+    "giaTri": "double",
+    "loai": "string",
+    "quy": "string"
+  },
+  "required_fields": [
+    "chiTieu",
+    "giaTri"
+  ],
+  "defaults": {
+    "chiTieu": null,
+    "giaTri": null,
+    "loai": null,
+    "quy": null
+  }
+}

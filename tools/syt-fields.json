@@ -1,0 +1,247 @@
+[
+ {
+  "eform": "Số vụ ngộ độc thực phẩm và mức độ thiệt hại",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Mã bản ghi",
+    "ma_ban_ghi",
+    "Chữ"
+   ],
+   [
+    "Tên vụ việc",
+    "ten_vu_viec",
+    "Chữ"
+   ],
+   [
+    "Ngày phát hiện",
+    "ngay_phat_hien",
+    "Ngày tháng"
+   ],
+   [
+    "Số người mắc/nhập viện",
+    "so_nguoi_mac_nhap_vien",
+    "Số"
+   ],
+   [
+    "Số ca nặng",
+    "so_ca_nang",
+    "Số"
+   ],
+   [
+    "Số ca tử vong",
+    "so_ca_tu_vong",
+    "Số"
+   ],
+   [
+    "Nguyên nhân nghi ngờ",
+    "nguyen_nhan_nghi_ngo",
+    "Chữ"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Tỷ lệ bao phủ bảo hiểm y tế",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Tổng dân số thôn",
+    "tong_dan_so_thon",
+    "Số"
+   ],
+   [
+    "Số người có thẻ BHYT",
+    "so_nguoi_co_the_bhyt",
+    "Số"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ]
+  ]
+ },
+ {
+  "eform": "Dịch bệnh nhóm A, B theo Luật Phòng chống bệnh truyền nhiễm",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Tên bệnh",
+    "ten_benh",
+    "Chữ"
+   ],
+   [
+    "Ngày phát hiện",
+    "ngay_phat_hien",
+    "Ngày tháng"
+   ],
+   [
+    "Số ca mắc",
+    "so_ca_mac",
+    "Số"
+   ],
+   [
+    "Số ca nặng",
+    "so_ca_nang",
+    "Số"
+   ],
+   [
+    "Số ca tử vong",
+    "so_ca_tu_vong",
+    "Số"
+   ],
+   [
+    "Biện pháp xử lý",
+    "bien_phap_xu_ly",
+    "Chữ"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ },
+ {
+  "eform": "Tỷ lệ người dân có hồ sơ sức khỏe điện tử",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Thôn/TDP",
+    "thon_tdp",
+    "Chữ"
+   ],
+   [
+    "Tổng dân số thôn",
+    "tong_dan_so_thon",
+    "Số"
+   ],
+   [
+    "Số người có hồ sơ SKĐT",
+    "so_nguoi_co_ho_so_skdt",
+    "Số"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ]
+  ]
+ }
+]

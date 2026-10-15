@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TRUNG TÂM ĐIỀU HÀNH THÔNG MINH NGÀNH TỔ CHỨC XÂY DỰNG ĐẢNG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./theme.css" />
+    <style>
+        /* 
+         * Khôi phục phong cách từ header/index.html mà người dùng đã định nghĩa
+         */
+        :root {
+            --bg: #04101d;
+            --bg2: #071d35;
+            --panel: #082039;
+            --panel2: #0a2a4b;
+            --line: #1f6fa6;
+            --line-soft: rgba(87, 178, 255, 0.28);
+            --text: #ecf7ff;
+            --muted: #a8c3d8;
+            --red: #9d151c;
+            --red2: #cf3434;
+            --gold: #ffd54b;
+            --cyan: #39d5ff;
+            --head-bg1: #9d151c;
+            --head-bg2: #5c0f14;
+            --card-radius: 12px;
+            --shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+            --font: "Be Vietnam Pro", Inter, Segoe UI, Roboto, Arial, sans-serif;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            scrollbar-gutter: stable;
+            margin: 0;
+            min-height: 100%;
+            font-family: var(--font);
+            background: radial-gradient(circle at 50% -20%,
+                    #093b6c 0,
+                    #06162a 40%,
+                    #020813 100%);
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin: 0;
+            font-weight: 800;
+        }
+
+        b,
+        strong {
+            font-weight: 400;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+            color: inherit;
+            min-width: 0;
+        }
+
+        button {
+            cursor: pointer;
+            border: 0;
+            background: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            min-width: 0;
+        }
+
+        .mono {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .app-bg-grid:before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(79, 160, 255, 0.055) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79, 160, 255, 0.055) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        .app-bg-grid:after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 0%,
+                    rgba(23, 137, 255, 0.25),
+                    transparent 36%),
+                radial-gradient(circle at 90% 15%,
+                    rgba(239, 40, 40, 0.12),
+                    transparent 28%);
+            pointer-events: none;
+        }
+
+        .role-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #13416c, #0b2442);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            font-size: 21px;
+            flex: 0 0 auto;
+        }
+
+        .ghost {
+            border-radius: 12px;
+            border: 1px solid rgba(87, 178, 255, 0.34);
+            background: rgba(8, 34, 61, 0.8);
+            padding: 10px 12px;
+            font-weight: 800;
+            color: #d9efff;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            text-align: center;
+        }
+
+        .ghost:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(0.4);
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            padding: 14px 18px 24px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            border: 1px solid rgba(87, 178, 255, 0.28);
+            border-radius: 999px;
+            padding: 4px 9px;
+            color: #d7efff;
+            font-size: 11.5px;
+            font-weight: 900;
+            background: rgba(10, 44, 80, 0.85);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+            vertical-align: middle;
+        }
+
+        .access-lock {
+            border: 1px dashed rgba(255, 213, 75, 0.45);
+            background: rgba(255, 213, 75, 0.08);
+            border-radius: 12px;
+            padding: 10px;
+            color: #ffe6a6;
+            line-height: 1.45;
+        }
+
+        .side-nav {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 280px;
+            height: 100vh;
+            z-index: 70;
+            overflow: hidden;
+            border: 1px solid var(--line-soft);
+            border-left: 0;
+            background: linear-gradient(180deg,
+                    rgba(6, 26, 48, 0.99),
+                    rgba(2, 12, 24, 0.99));
+            border-radius: 0 18px 18px 0;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.2s ease;
+        }
+
+        .side-nav.collapsed {
+            display: none;
+        }
+
+        .side-nav-head {
+            flex: 0 0 auto;
+            min-height: 42px;
+            background: linear-gradient(180deg, var(--head-bg1), var(--head-bg2));
+            border-bottom: 2px solid rgba(255, 213, 75, 0.32);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 12px;
+            font-weight: 900;
+            font-size: 12.5px;
+            color: #eaf6ff;
+            white-space: nowrap;
+        }
+
+        .side-nav-head span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .side-nav-head .mini-btn {
+            flex: 0 0 auto;
+            width: 26px;
+            height: 26px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .side-nav-body {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .side-nav-body,
+        .side-nav-body::-webkit-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(73, 188, 255, .5) rgba(4, 20, 39, .35);
+        }
+
+        .snav-node {
+            margin: 1px 0;
+        }
+
+        .snav-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            padding: 6px 8px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #d6efff;
+            font-size: 12.5px;
+            text-align: left;
+            cursor: pointer;
+            line-height: 1.3;
+        }
+
+        .snav-row:hover {
+            background: rgba(73, 188, 255, 0.12);
+            border-color: rgba(87, 178, 255, 0.22);
+        }
+
+        .snav-row .snav-caret {
+            flex: 0 0 auto;
+            width: 14px;
+            display: inline-block;
+            color: #8ab0c8;
+            transition: transform 0.15s;
+        }
+
+        .snav-row .snav-caret.open {
+            transform: rotate(90deg);
+        }
+
+        .snav-row .snav-icon {
+            flex: 0 0 auto;
+        }
+
+        .snav-row .snav-label {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .snav-row.snav-leaf {
+            color: #bcd9ee;
+        }
+
+        .snav-row.snav-split {
+            padding: 0;
+            gap: 0;
+        }
+
+        .snav-caret-btn {
+            flex: 0 0 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 0;
+            color: #8ab0c8;
+            cursor: pointer;
+        }
+
+        .snav-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 8px 6px 0;
+            background: transparent;
+            border: 0;
+            color: #bcd9ee;
+            font-size: 12.5px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .snav-main:hover {
+            color: #ffe083;
+        }
+
+        .snav-children {
+            margin-left: 14px;
+            padding-left: 8px;
+            border-left: 1px dashed rgba(87, 178, 255, 0.2);
+            display: none;
+        }
+
+        .snav-children.open {
+            display: block;
+        }
+
+        @media (max-width: 700px) {
+            .side-nav {
+                width: 88vw;
+            }
+        }
+
+        .view-as-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border: 1px solid rgba(255, 213, 75, 0.4);
+            background: linear-gradient(180deg,
+                    rgba(255, 213, 75, 0.14),
+                    rgba(255, 213, 75, 0.04));
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            color: #ffe083;
+            font-weight: 800;
+            font-size: 13px;
+        }
+
+        /* TOPBAR */
+        .topbar-header {
+            display: grid;
+            grid-template-columns: minmax(220px, 1fr) auto;
+            gap: 16px;
+            align-items: center;
+            padding: 4px 8px 14px;
+            margin-bottom: 4px;
+        }
+
+        .brand {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .crest {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: #fff;
+            box-shadow: 0 0 24px rgba(255, 213, 75, 0.18);
+            flex: 0 0 auto;
+            overflow: hidden;
+        }
+
+        .crest img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .brand h1 {
+            margin: 0;
+            color: var(--gold);
+            font-size: 21px;
+            /* line-height 1.4 (thay vì 1.1): chữ hoa tiếng Việt có dấu (Ề, Ạ, Ộ...) cần
+               thêm khoảng trống phía trên để dấu không bị cắt mất trong line box. */
+            line-height: 1.4;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            text-shadow: 0 0 18px rgba(255, 213, 75, 0.22);
+        }
+
+        .brand .sub {
+            color: #dcefff;
+            font-size: 11.5px;
+            margin-top: 5px;
+            font-weight: 700;
+        }
+
+        .right-tools {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .rt-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, auto));
+            grid-auto-flow: row;
+            gap: 8px;
+        }
+
+        .theme-select {
+            border: 1px solid rgba(87, 178, 255, 0.34);
+            background: rgba(8, 34, 61, 0.8);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-weight: 800;
+            color: #d9efff;
+            cursor: pointer;
+            min-height: 42px;
+            outline: 0;
+        }
+
+        .logout {
+            border: 1px solid rgba(255, 93, 93, 0.45);
+            background: rgba(125, 22, 30, 0.65);
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-weight: 900;
+            color: #ff848a;
+            white-space: nowrap;
+            min-height: 42px;
+        }
+
+        .logout:hover {
+            filter: brightness(1.08);
+        }
+
+        .rt-account-col {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .clock-card {
+            border: 1px solid rgba(87, 178, 255, 0.25);
+            background: rgba(5, 24, 44, 0.78);
+            border-radius: 14px;
+            padding: 8px 12px;
+            text-align: right;
+            min-width: 170px;
+            line-height: 1.35;
+        }
+
+        .user-pill-wrap {
+            position: relative;
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            max-width: 360px;
+            border: 1px solid rgba(87, 178, 255, 0.34);
+            background: linear-gradient(180deg,
+                    rgba(8, 37, 67, 0.95),
+                    rgba(5, 21, 39, 0.95));
+            border-radius: 14px;
+            padding: 9px 12px;
+            cursor: pointer;
+        }
+
+        .user-menu {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 190px;
+            border: 1px solid rgba(87, 178, 255, 0.34);
+            background: linear-gradient(180deg,
+                    rgba(8, 37, 67, 0.98),
+                    rgba(5, 21, 39, 0.98));
+            border-radius: 12px;
+            padding: 6px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+            z-index: 120;
+        }
+
+        .user-menu.show {
+            display: flex;
+        }
+
+        .user-menu-item {
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: #d9efff;
+            font-weight: 700;
+            text-align: left;
+            padding: 9px 10px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .user-menu-item:hover {
+            background: rgba(73, 188, 255, 0.14);
+        }
+
+        .user-pill b {
+            display: block;
+        }
+
+        .user-pill small {
+            display: block;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        /* MODAL / OVERLAY / FORM (dùng chung cho modal "Chi tiết" #modal và modal "Đổi mật khẩu"
+           #pwModal — trước đây .modal/.overlay/.field/.primary/.close chưa có định nghĩa nền tảng
+           trong trang này nên #modal render không đúng vị trí; thêm ở đây để cả 2 modal hoạt động
+           đúng, đồng bộ theo 3 theme qua các rule html.theme-light/.theme-green đã có sẵn trong
+           theme.css). */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.56);
+            z-index: 190;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.18s;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 4vh 50%;
+            width: min(1040px, 94vw);
+            transform: translateX(-50%) scale(0.96);
+            background: linear-gradient(180deg, #08213b, #031120);
+            border: 1px solid rgba(87, 178, 255, 0.45);
+            border-radius: 18px;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
+            z-index: 210;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.18s;
+            display: flex;
+            flex-direction: column;
+            max-height: 92vh;
+            overflow: hidden;
+        }
+
+        .modal.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) scale(1);
+        }
+
+        .pw-modal {
+            width: min(420px, 94vw);
+        }
+
+        .modal-head {
+            padding: 16px;
+            border-bottom: 1px solid rgba(87, 178, 255, 0.22);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: start;
+        }
+
+        .modal-head h3 {
+            margin: 0;
+            line-height: 1.25;
+        }
+
+        .modal-body {
+            padding: 16px;
+            overflow: auto;
+            display: grid;
+            gap: 14px;
+        }
+
+        .close {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.08);
+            color: inherit;
+            font-size: 21px;
+            flex: 0 0 auto;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .field label {
+            display: block;
+            color: #cce7ff;
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            border: 1px solid rgba(87, 178, 255, 0.32);
+            background: #061528;
+            border-radius: 12px;
+            padding: 12px 14px;
+            outline: 0;
+            transition: 0.18s;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(255, 213, 75, 0.12);
+        }
+
+        .field-hint {
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        .primary {
+            border-radius: 12px;
+            background: linear-gradient(180deg, #126ad0, #0c4589);
+            border: 1px solid rgba(117, 190, 255, 0.52);
+            padding: 11px 15px;
+            font-weight: 900;
+            color: #fff;
+            box-shadow: 0 10px 26px rgba(0, 96, 220, 0.22);
+            white-space: normal;
+            overflow-wrap: anywhere;
+            text-align: center;
+        }
+
+        .primary:hover {
+            filter: brightness(1.08);
+        }
+
+        .danger {
+            color: #ff626b;
+        }
+
+        /* Ô mật khẩu có nút mắt xem/ẩn: input chừa chỗ bên phải cho nút, nút định vị tuyệt đối
+           trong khung input (không dùng input[type=text/password] toggle qua JS đổi type). */
+        .field-pw-wrap {
+            position: relative;
+        }
+
+        .field-pw-wrap input {
+            padding-right: 42px;
+        }
+
+        .field-pw-toggle {
+            position: absolute;
+            top: 50%;
+            right: 6px;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--muted);
+            font-size: 16px;
+        }
+        /* TOAST */
+        .toast {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            z-index: 200;
+            background: #06223f;
+            border: 1px solid rgba(87, 178, 255, 0.45);
+            border-radius: 12px;
+            padding: 12px 14px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+            transform: translateY(20px);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.2s;
+            max-width: 420px;
+            overflow-wrap: anywhere;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 1150px) {
+
+            .topbar,
+            .topbar-header {
+                grid-template-columns: 1fr;
+            }
+
+            .right-tools {
+                justify-content: flex-start;
+                row-gap: 8px;
+            }
+
+            /* Bung .rt-actions-grid + .rt-account-col thành các item ngang hàng của
+               .right-tools (thay vì 2 khối lớn xếp chồng riêng) để nút/pill/đăng xuất
+               tự xuống dòng gọn theo nội dung ở toàn bộ dải màn hình hẹp (≤1000px),
+               không chỉ riêng điện thoại nhỏ. */
+            .rt-actions-grid,
+            .rt-account-col {
+                display: contents;
+            }
+
+            .brand h1 {
+                font-size: 18px;
+            }
+        }
+
+        .grid [data-widget="axisDashboard"] {
+            height: 310px !important;
+        }
+
+        /* Kiểm đếm nhiệm vụ: khung cao cố định + cuộn nội bộ từng thẻ (giống Chỉ tiêu/Thông
+           báo), không auto-resize như Tổng quan. Breakpoint theo đúng mốc responsive nội bộ
+           của chính task-tally (1280px gộp lưới 2x2 → 1 cột, 900px cho cuộn thân trang).
+           Chiều cao mỗi mốc đo trực tiếp bằng cách bỏ mọi giới hạn overflow/height rồi đọc
+           scrollHeight thật của nội dung (2026-08), cộng thêm ~5% đệm cho dữ liệu thật dài
+           hơn dữ liệu mock — mục tiêu KHÔNG còn phải cuộn bên trong từng thẻ con nữa. */
+        .grid [data-widget="taskTally"] {
+            height: 1320px !important;
+        }
+
+        @media (max-width: 1280px) {
+            .grid [data-widget="taskTally"] {
+                height: 1900px !important;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .grid [data-widget="taskTally"] {
+                height: 2020px !important;
+            }
+        }
+
+        /* Mobile thực sự (điện thoại): nội dung (thanh bộ lọc + 6 thẻ KPI + 4 biểu đồ, đã
+           rút gọn theo media query riêng trong task-tally/styles.css) đo được ~2200px. */
+        @media (max-width: 600px) {
+            .grid [data-widget="taskTally"] {
+                height: 2280px !important;
+            }
+        }
+
+        /* Hàng 2: Notify IOC/CAD + Chỉ tiêu theo lĩnh vực nằm cùng hàng.
+           Chỉ xuống hàng ở màn hình thực sự hẹp (≤820px) — iPad (1024px) vẫn giữ 2 cột. */
+        .col {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* Trái: Chỉ tiêu (lưới 3 thẻ/hàng nên cần rộng hơn) · Phải: Notify (danh sách dọc, hẹp là đủ) */
+        .dash-row-2col {
+            display: grid;
+            grid-template-columns: minmax(0, 2.6fr) minmax(0, 1fr);
+            gap: 14px;
+            align-items: start;
+        }
+
+        /* minmax(0,…) + min-width:0 bắt buộc: iframe có intrinsic width 300px, nếu không
+           đặt sẽ ghim cột ở 300px và bóp cột còn lại xuống vài chục px. */
+        .dash-row-2col>[data-widget] {
+            min-width: 0;
+        }
+
+        @media (max-width: 1100px) {
+            .dash-row-2col {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            /* Mobile: đưa khối Thông báo lên trên khối Chỉ tiêu (DOM giữ nguyên thứ tự
+               Chỉ tiêu trước cho layout 2 cột ở màn rộng). */
+            .dash-row-2col [data-widget="notifications"] {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 1450px) {
+            .grid [data-widget="axisDashboard"] {
+                height: 310px !important;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .grid [data-widget="axisDashboard"] {
+                height: 540px !important;
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .grid [data-widget="axisDashboard"] {
+                height: 770px !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .app {
+                padding: 10px 10px 20px;
+            }
+
+            .crest {
+                width: 42px;
+                height: 42px;
+            }
+
+            .brand h1 {
+                font-size: 14.5px;
+            }
+
+            .brand .sub {
+                font-size: 10px;
+            }
+
+            .clock-card {
+                min-width: 0;
+                padding: 7px 10px;
+            }
+
+            .user-pill {
+                max-width: none;
+            }
+
+            .modal {
+                width: 98vw;
+            }
+
+            .modal-head,
+            .drawer .drawer-head {
+                padding: 12px;
+            }
+
+            .action-bar {
+                gap: 6px;
+            }
+
+            .action-bar button {
+                flex: 1 1 auto;
+                min-width: 120px;
+            }
+        }
+
+        @media print {
+
+            .login,
+            .right-tools,
+            .drawer,
+            .overlay,
+            .modal,
+            .toast {
+                display: none !important;
+            }
+
+            .app {
+                padding: 0;
+            }
+
+            .widget {
+                break-inside: avoid;
+            }
+        }
+
+        /* Styles dành cho iframe dashboard */
+        .grid iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            border-radius: 12px;
+        }
+
+        /* ===== AI Chatbot FAB (port từ src/components/AiChatbot) ===== */
+        @keyframes aiPulseGlow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 84, 166, 0.6), 0 8px 24px rgba(0, 84, 166, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 16px rgba(0, 84, 166, 0), 0 8px 24px rgba(0, 84, 166, 0.4);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 84, 166, 0), 0 8px 24px rgba(0, 84, 166, 0.4);
+            }
+        }
+
+        @keyframes aiWobble {
+
+            0%,
+            10%,
+            100% {
+                transform: rotate(0deg) scale(1);
+            }
+
+            2% {
+                transform: rotate(-10deg) scale(1.05);
+            }
+
+            4% {
+                transform: rotate(10deg) scale(1.05);
+            }
+
+            6% {
+                transform: rotate(-10deg) scale(1.05);
+            }
+
+            8% {
+                transform: rotate(10deg) scale(1.05);
+            }
+        }
+
+        @keyframes aiTooltipBounce {
+
+            0%,
+            100% {
+                transform: translateY(-50%) translateX(0);
+            }
+
+            50% {
+                transform: translateY(-50%) translateX(-6px);
+            }
+        }
+
+        #aiFabContainer {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        #aiFabContainer.hidden {
+            display: none !important;
+        }
+
+        #aiFabButton {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(135deg, #0054a6, #003d7a);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+            animation: aiPulseGlow 2.5s infinite, aiWobble 8s ease-in-out infinite;
+        }
+
+        #aiFabButton:hover {
+            background: linear-gradient(135deg, #003d7a, #002d5c);
+            transform: scale(1.15);
+            animation: none;
+            box-shadow: 0 12px 32px rgba(0, 84, 166, 0.6), 0 0 0 6px rgba(0, 84, 166, 0.15);
+        }
+
+        #aiFabButton svg {
+            width: 22px;
+            height: 22px;
+            display: block;
+            pointer-events: none;
+        }
+
+        #aiFabTooltip {
+            position: absolute;
+            right: 75px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #ffffff;
+            color: #0054a6;
+            padding: 8px 14px;
+            border-radius: 20px 20px 0 20px;
+            font-family: var(--font);
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05);
+            pointer-events: none;
+            animation: aiTooltipBounce 4s infinite;
+            opacity: 1;
+            transition: opacity 0.2s;
+        }
+
+        #aiFabTooltip.hidden-tooltip {
+            opacity: 0;
+        }
+
+        #aiFabCloseBtn {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff4d4f;
+            color: #fff;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            padding: 0;
+        }
+
+        #aiFabCloseBtn:hover {
+            background: #cf1322;
+        }
+
+        #aiFabCloseBtn svg {
+            width: 10px;
+            height: 10px;
+            display: block;
+            pointer-events: none;
+        }
+
+        #aiChatOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 8, 19, 0.55);
+            z-index: 10000;
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #aiChatOverlay.open {
+            display: flex;
+        }
+
+        #aiChatWindow {
+            width: calc(100vw - 20px);
+            height: calc(100vh - 20px);
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35), 0 4px 16px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #aiChatCloseBtn {
+            align-self: flex-end;
+            margin: 14px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(0, 0, 0, 0.35);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        #aiChatCloseBtn:hover {
+            background: rgba(0, 0, 0, 0.6);
+            border-color: rgba(255, 255, 255, 0.45);
+            transform: scale(1.08);
+        }
+
+        #aiChatCloseBtn svg {
+            width: 14px;
+            height: 14px;
+            display: block;
+            pointer-events: none;
+        }
+
+        #aiChatBody {
+            flex: 1;
+            min-height: 0;
+        }
+
+        #aiChatBody iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        #aiChatStatus {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-family: var(--font);
+            text-align: center;
+            padding: 24px;
+        }
+    </style>
+</head>
+
+<body class="app-bg-grid">
+    <main class="app" id="app">
+        <div class="top-header-overview">
+            <div class="topbar-header">
+                <div class="brand">
+                    <div class="crest"><img src="https://ioc-thanhuy.vercel.app/assets/images/images.png"
+                            alt="Logo IOC/CAD" /></div>
+                    <div class="truncate">
+                        <h1 id="appBrandTitle">
+                            TRUNG TÂM ĐIỀU HÀNH THÔNG MINH NGÀNH TỔ CHỨC XÂY DỰNG ĐẢNG
+                        </h1>
+                        <div class="sub truncate">
+                            Nền tảng giám sát · điều hành · giao nhận nhiệm vụ · dashboard
+                            theo phân quyền
+                        </div>
+                    </div>
+                </div>
+                <div class="right-tools">
+                    <div class="rt-actions-grid">
+                        <button class="ghost" onclick="toggleSideNav()">
+                            🗂️ Cơ cấu tổ chức
+                        </button>
+                        <button class="ghost" onclick="window.open('/calendar/', '_blank', 'noopener,noreferrer')">
+                            Lịch họp
+                        </button>
+                        <select id="themeSelect" class="theme-select" onchange="setTheme(this.value)"
+                            title="Đổi giao diện">
+                            <option value="dark">🌙 Chế độ tối</option>
+                            <option value="light">🔴 Chế độ Đỏ / Trắng</option>
+                            <option value="green">🟢 Chế độ Xanh / Trắng</option>
+                        </select>
+                    </div>
+                    <div class="rt-account-col">
+                        <div class="clock-card">
+                            <b id="clock">--:--:--</b><br /><span class="muted" id="dateText">--</span>
+                        </div>
+                        <div class="user-pill-wrap">
+                            <div class="user-pill" id="userPill" onclick="toggleUserMenu(event)">
+                                <div class="role-icon" id="currentIcon">🏢</div>
+                                <div class="truncate">
+                                    <b id="currentRoleName">--</b><small id="currentRoleDesc">--</small>
+                                </div>
+                            </div>
+                            <div class="user-menu" id="userMenu">
+                                <button class="user-menu-item" onclick="closeUserMenu(); openChangePasswordModal();">
+                                    🔑 Đổi mật khẩu
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="logout" onclick="logout()">Đăng xuất</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="view-as-banner hidden" id="viewAsBanner">
+            <span id="viewAsBannerText"></span><button class="ghost" onclick="returnToHomeScope()">
+                ← Quay lại phạm vi tài khoản gốc
+            </button>
+        </div>
+
+        <!-- DASHBOARD GRID -->
+        <div class="grid">
+            <div class="col">
+                <div data-widget="axisDashboard">
+                    <iframe id="iframe-tongquan" src="./tongquan/index.html" loading="lazy" title="Tổng quan"></iframe>
+                </div>
+                <div data-widget="taskTally" style="display:none">
+                    <iframe id="iframe-task-tally" src="./task-tally/index.html" loading="lazy"
+                        title="Kiểm đếm nhiệm vụ"></iframe>
+                </div>
+                <div class="dash-row-2col">
+                    <div data-widget="indicators">
+                        <iframe id="iframe-chitieu" src="./chitieu/index.html?defaultTab=van_phong_ban&hideFilters=1"
+                            loading="lazy" title="Chỉ tiêu"></iframe>
+                    </div>
+                    <div data-widget="notifications">
+                        <iframe id="iframe-noti" src="./noti/index.html" loading="lazy" title="Thông báo"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Lớp phủ dùng chung (drawer cấp 1 / modal cấp 2 / toast / customizer) -->
+    <div id="customizer" class="widget-customizer">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <b>Ẩn/hiện widget dashboard</b>
+            <button class="close" onclick="toggleCustomizer()">×</button>
+        </div>
+        <div class="muted" style="margin-top:6px;line-height:1.4">Cấu hình lưu riêng theo tài khoản đang đăng nhập.
+        </div>
+        <div class="custom-list" id="customList"></div>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="closeChangePasswordModal()"></div>
+
+    <section id="modal" class="modal">
+        <div class="modal-head">
+            <div>
+                <h3 id="modalTitle">Chi tiết</h3>
+                <div class="muted" id="modalSub"></div>
+            </div><button class="close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </section>
+
+    <!-- ========================= ĐỔI MẬT KHẨU ========================== -->
+    <section id="pwModal" class="modal pw-modal">
+        <div class="modal-head">
+            <div>
+                <h3>🔑 Đổi mật khẩu</h3>
+                <div class="muted">Cập nhật mật khẩu đăng nhập cho tài khoản hiện tại</div>
+            </div><button class="close" onclick="closeChangePasswordModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <form id="changePasswordForm" class="form-grid" onsubmit="return submitChangePassword(event)">
+                <div class="field">
+                    <label>Mật khẩu hiện tại</label>
+                    <div class="field-pw-wrap">
+                        <input type="password" id="pwCurrent" autocomplete="current-password" required />
+                        <button type="button" class="field-pw-toggle" onclick="togglePasswordField('pwCurrent', this)"
+                            title="Hiện mật khẩu" aria-label="Hiện/ẩn mật khẩu hiện tại"><svg class="pwi"
+                                viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                <path d="M6.61 6.61A18.5 18.5 0 0 0 1 12s4 8 11 8a9.26 9.26 0 0 0 5.39-1.61" />
+                                <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg></button>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Mật khẩu mới</label>
+                    <div class="field-pw-wrap">
+                        <input type="password" id="pwNew" autocomplete="new-password" minlength="8" required />
+                        <button type="button" class="field-pw-toggle" onclick="togglePasswordField('pwNew', this)"
+                            title="Hiện mật khẩu" aria-label="Hiện/ẩn mật khẩu mới"><svg class="pwi" viewBox="0 0 24 24"
+                                width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                <path d="M6.61 6.61A18.5 18.5 0 0 0 1 12s4 8 11 8a9.26 9.26 0 0 0 5.39-1.61" />
+                                <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg></button>
+                    </div>
+                    <div class="field-hint">Tối thiểu 8 ký tự, có ít nhất 1 chữ in hoa và 1 ký tự đặc biệt.</div>
+                </div>
+                <div class="field">
+                    <label>Xác nhận mật khẩu mới</label>
+                    <div class="field-pw-wrap">
+                        <input type="password" id="pwConfirm" autocomplete="new-password" minlength="8" required />
+                        <button type="button" class="field-pw-toggle" onclick="togglePasswordField('pwConfirm', this)"
+                            title="Hiện mật khẩu" aria-label="Hiện/ẩn xác nhận mật khẩu mới"><svg class="pwi"
+                                viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                                <path d="M6.61 6.61A18.5 18.5 0 0 0 1 12s4 8 11 8a9.26 9.26 0 0 0 5.39-1.61" />
+                                <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg></button>
+                    </div>
+                </div>
+                <div id="pwError" class="danger hidden" style="font-weight:700"></div>
+                <button type="submit" class="primary" id="pwSubmitBtn" style="width:100%">Xác nhận đổi mật khẩu</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- ========================= CƠ CẤU TỔ CHỨC ========================== -->
+    <aside class="side-nav collapsed" id="sideNav">
+        <div class="side-nav-head">
+            <span>🗂️ Cơ cấu tổ chức</span><button class="mini-btn" onclick="toggleSideNav()" id="sideNavToggle"
+                title="Đóng">
+                ×
+            </button>
+        </div>
+        <div style="padding: 8px 8px 0">
+            <input type="text" id="sideNavSearch" placeholder="Tìm đơn vị..." autocomplete="off"
+                oninput="filterSideNav(this.value)" style="
+                width: 100%;
+                border: 1px solid rgba(87, 178, 255, 0.32);
+                background: #061528;
+                border-radius: 10px;
+                padding: 8px 12px;
+                outline: 0;
+                color: #d0e8f8;
+                font-size: 12.5px;
+              " />
+        </div>
+        <div class="side-nav-body" id="sideNavBody"></div>
+    </aside>
+    <div id="toast" class="toast"></div>
+
+    <!-- ===== AI Chatbot FAB (port từ src/components/AiChatbot) ===== -->
+    <div id="aiFabContainer">
+        <div id="aiFabButton" role="button" tabindex="0" aria-label="Mở trợ lý AI" onclick="openAiChat()"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openAiChat();}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="10" rx="3" ry="3" />
+                <circle cx="12" cy="5" r="2" />
+                <line x1="12" y1="7" x2="12" y2="11" />
+                <circle cx="8" cy="16" r="1" fill="white" />
+                <circle cx="16" cy="16" r="1" fill="white" />
+                <line x1="1" y1="15" x2="3" y2="15" />
+                <line x1="21" y1="15" x2="23" y2="15" />
+            </svg>
+            <span id="aiFabTooltip">Trợ lý AI sẵn sàng!</span>
+            <!-- <button type="button" id="aiFabCloseBtn" aria-label="Ẩn trợ lý AI"
+                onclick="event.stopPropagation(); hideAiFab();">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button> -->
+        </div>
+    </div>
+
+    <div id="aiChatOverlay">
+        <div id="aiChatWindow">
+            <button type="button" id="aiChatCloseBtn" aria-label="Đóng trợ lý AI" onclick="closeAiChat()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+            <div id="aiChatBody"></div>
+        </div>
+    </div>
+
+    <script>
+        window.IOC_API_BASE = 'https://administrator.lifetex.vn:324';
+        window.IOC_API_KEY = 'dev-api-key-001';
+        window.XA_PHUONG = 'phuong_viet_hung';
+
+        /* Nút mắt trên các ô mật khẩu của modal Đổi mật khẩu: đổi type input giữa
+           password/text để xem/ẩn giá trị đang gõ, icon con mắt giữ nguyên - chỉ đổi màu/nền
+           (class is-active) để thể hiện trạng thái đang hiện mật khẩu. */
+        var EYE_ICON_OPEN = '<svg class="pwi" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+        var EYE_ICON_SLASH = '<svg class="pwi" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><path d="M6.61 6.61A18.5 18.5 0 0 0 1 12s4 8 11 8a9.26 9.26 0 0 0 5.39-1.61"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+        function togglePasswordField(inputId, btn) {
+            var input = document.getElementById(inputId);
+            if (!input) return;
+            var showing = input.type === 'text';
+            input.type = showing ? 'password' : 'text';
+            if (btn) {
+                btn.classList.toggle('is-active', !showing);
+                btn.title = showing ? 'Hiện mật khẩu' : 'Ẩn mật khẩu';
+                btn.innerHTML = showing ? EYE_ICON_SLASH : EYE_ICON_OPEN;
+            }
+        }
+        window.togglePasswordField = togglePasswordField;
+
+        /* ===== Btctw: overrides cho header/script.js (phải đặt TRƯỚC khi load) ===== */
+        window.BRAND_TITLE = 'TRUNG TÂM ĐIỀU HÀNH THÔNG MINH NGÀNH TỔ CHỨC XÂY DỰNG ĐẢNG';
+        window.DEFAULT_ACCOUNT_KEY = 'btctw';
+        /* Cây tổ chức Bộ Tư lệnh Thủ đô — PLACEHOLDER: user cần bổ sung dữ liệu thật */
+        window.IOC_ORG_TREE = [
+            { "id": 1, "parentId": null, "type": "BTCTW", "label": "Bộ Tư lệnh Thủ đô" },
+            { "id": 2, "parentId": 1, "type": "CQ", "label": "Cơ quan Bộ Tư lệnh" },
+            { "id": 3, "parentId": 2, "type": "VP", "label": "Văn phòng Bộ Tư lệnh" },
+            { "id": 4, "parentId": 2, "type": "PHONG", "label": "Phòng Tham mưu" },
+            { "id": 5, "parentId": 2, "type": "PHONG", "label": "Phòng Chính trị" },
+            { "id": 6, "parentId": 2, "type": "PHONG", "label": "Phòng Hậu cần - Kỹ thuật" },
+            { "id": 7, "parentId": 2, "type": "PHONG", "label": "Ban Tài chính" },
+            { "id": 8, "parentId": 1, "type": "DONVI", "label": "Các đơn vị trực thuộc" },
+            { "id": 9, "parentId": 8, "type": "DONVI", "label": "Trung đoàn 102" },
+            { "id": 10, "parentId": 8, "type": "DONVI", "label": "Trung đoàn 692" },
+            { "id": 11, "parentId": 8, "type": "DONVI", "label": "Trung đoàn 250" },
+            { "id": 12, "parentId": 8, "type": "DONVI", "label": "Tiểu đoàn trinh sát" },
+            { "id": 13, "parentId": 1, "type": "BOCHQS", "label": "Bộ CHQS quận, huyện, thị xã" },
+            { "id": 14, "parentId": 13, "type": "BOCHQS", "label": "Bộ CHQS quận Ba Đình" },
+            { "id": 15, "parentId": 13, "type": "BOCHQS", "label": "Bộ CHQS quận Hoàn Kiếm" },
+            { "id": 16, "parentId": 13, "type": "BOCHQS", "label": "Bộ CHQS quận Hai Bà Trưng" },
+            { "id": 17, "parentId": 13, "type": "BOCHQS", "label": "Bộ CHQS quận Đống Đa" },
+            { "id": 18, "parentId": 13, "type": "BOCHQS", "label": "Bộ CHQS quận Long Biên" },
+            { "id": 19, "parentId": 13, "type": "BOCHQS", "label": "Bộ CHQS quận Hà Đông" },
+            { "id": 20, "parentId": 13, "type": "BOCHQS", "label": "Bộ CHQS quận Nam Từ Liêm" },
+            { "id": 21, "parentId": 13, "type": "BOCHQS", "label": "Bộ CHQS quận Bắc Từ Liêm" },
+        ];
+
+        const THEME_STORAGE_KEY = 'px-ioc-theme';
+
+        function applyThemeToDocument(doc, theme) {
+            if (!doc || !doc.documentElement || !doc.body) return;
+            doc.documentElement.classList.remove('theme-light', 'theme-green');
+            doc.body.classList.remove('theme-light', 'theme-green');
+            doc.documentElement.removeAttribute('data-cms-theme');
+            doc.body.removeAttribute('data-cms-theme');
+
+            if (theme === 'light' || theme === 'green') {
+                doc.documentElement.classList.add('theme-' + theme);
+                doc.body.classList.add('theme-' + theme);
+                doc.documentElement.setAttribute('data-cms-theme', theme);
+                doc.body.setAttribute('data-cms-theme', theme);
+            }
+        }
+
+        function applyThemeToFrames(theme) {
+            document.querySelectorAll('iframe').forEach(function (iframe) {
+                try {
+                    applyThemeToDocument(iframe.contentDocument, theme);
+                    iframe.contentWindow.postMessage({ type: 'set_theme', theme: theme }, '*');
+                } catch (e) { }
+            });
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.classList.remove('theme-light', 'theme-green');
+            document.body.classList.remove('theme-light', 'theme-green');
+            document.documentElement.removeAttribute('data-cms-theme');
+            document.body.removeAttribute('data-cms-theme');
+
+            if (theme === 'light' || theme === 'green') {
+                document.documentElement.classList.add('theme-' + theme);
+                document.body.classList.add('theme-' + theme);
+                document.documentElement.setAttribute('data-cms-theme', theme);
+                document.body.setAttribute('data-cms-theme', theme);
+            }
+
+            const sel = document.getElementById('themeSelect');
+            if (sel) sel.value = theme;
+            applyThemeToFrames(theme);
+        }
+
+        function setTheme(theme) {
+            applyTheme(theme);
+            try { localStorage.setItem(THEME_STORAGE_KEY, theme); } catch (e) { }
+        }
+
+        function initTheme() {
+            let saved = null;
+            try { saved = localStorage.getItem(THEME_STORAGE_KEY); } catch (e) { }
+            applyTheme(saved === 'light' || saved === 'green' ? saved : 'dark');
+            document.querySelectorAll('iframe').forEach(function (iframe) {
+                iframe.addEventListener('load', function () {
+                    let current = 'dark';
+                    try { current = localStorage.getItem(THEME_STORAGE_KEY) || 'dark'; } catch (e) { }
+                    applyThemeToFrames(current === 'light' || current === 'green' ? current : 'dark');
+                });
+            });
+        }
+
+        function logout() {
+            try {
+                localStorage.removeItem('ioc_current_account');
+                ['account', 'access_token', 'id_token', 'userInfo', 'userTree', 'qlnv_access_token', 'qlnv_jwt_access_token'].forEach(function (key) {
+                    localStorage.removeItem(key);
+                    sessionStorage.removeItem(key);
+                });
+            } catch (e) { }
+            if (typeof toast === 'function') toast('Đã đăng xuất...');
+            setTimeout(function () {
+                var logoutUrl = '/logout/';
+                if (window.top) {
+                    window.top.location.href = logoutUrl;
+                } else {
+                    window.location.href = logoutUrl;
+                }
+            }, 300);
+        }
+
+        let expandedIframeCount = 0;
+        let savedParentScrollY = 0;
+        function lockParentScroll() {
+            savedParentScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+            document.documentElement.style.overflow = 'hidden';
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.top = (-savedParentScrollY) + 'px';
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+            document.body.style.width = '100%';
+        }
+        function unlockParentScroll() {
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            document.body.style.width = '';
+            window.scrollTo(0, savedParentScrollY);
+        }
+        window.addEventListener('message', function (e) {
+            if (!e.data || !e.data.type) return;
+            const iframe = Array.from(document.querySelectorAll('iframe')).find(iframe => iframe.contentWindow === e.source);
+            if (!iframe) return;
+
+            if (e.data.type === 'expand_iframe') {
+                const rect = iframe.getBoundingClientRect();
+                iframe.contentWindow.postMessage({
+                    type: 'set_widget_rect',
+                    top: rect.top,
+                    left: rect.left,
+                    width: rect.width,
+                    height: rect.height
+                }, '*');
+                iframe.classList.add('fullscreen-modal-mode');
+                expandedIframeCount++;
+                lockParentScroll();
+            } else if (e.data.type === 'collapse_iframe') {
+                iframe.classList.remove('fullscreen-modal-mode');
+                iframe.contentWindow.postMessage({ type: 'reset_widget_rect' }, '*');
+                expandedIframeCount = Math.max(0, expandedIframeCount - 1);
+                if (expandedIframeCount === 0) unlockParentScroll();
+            }
+        });
+
+        /* Auto-resize: chỉ áp dụng cho hàng Tổng quan (cao theo nội dung thật, không cắt).
+           Notify + Chỉ tiêu KHÔNG auto-resize: chiều cao do CSS quyết định theo breakpoint và
+           mỗi widget tự cuộn bên trong (widget-body có flex:1 + overflow-y:auto). Nếu đo rồi set
+           lại 2 widget đó, chiều cao chỉ tăng chứ không giảm được: iframe con set .widget cao
+           bằng đúng viewport iframe (--embedded-widget-height), nên contentH() luôn đọc lại chính
+           con số vừa gán ở lần apply() trước và khoá luôn ở mức cao nhất từng đạt được. */
+        function initWidgetAutoResize() {
+            const contentH = (f) => {
+                try {
+                    if (!f) return 0;
+                    const d = f.contentDocument;
+                    if (!d || !d.body) return 0;
+                    const app = d.getElementById('app') || d.querySelector('.app') || d.getElementById('roleScopeCards') || d.body;
+                    const widgetBody = d.querySelector('.widget-body');
+                    const widgetHead = d.querySelector('.widget-head');
+                    let trueHeight = 0;
+                    /* Chỉ cộng thêm headH+20 khi widget-body THẬT SỰ tràn (scrollHeight > clientHeight).
+                       Nhiều module set widget-body theo flex:1/min-height:100% để lấp đầy khung cha — lúc đó
+                       scrollHeight luôn đúng bằng chiều cao khung NGOÀI vừa được set ở lần apply() trước, nên
+                       nếu cứ cộng thêm headH+20 vào số đó rồi set ngược lại làm khung cha, mỗi lần apply() (gọi
+                       liên tục qua MutationObserver + setInterval) sẽ khiến khung phình cao thêm vô hạn dù nội
+                       dung không hề đổi. */
+                    if (widgetBody && widgetBody.scrollHeight > widgetBody.clientHeight) {
+                        const headH = widgetHead ? widgetHead.offsetHeight : 42;
+                        trueHeight = widgetBody.scrollHeight + headH + 20;
+                    }
+                    /* KHÔNG dùng d.documentElement.scrollHeight / d.body.scrollHeight: #modal, #drawer,
+                       #overlay... đều là position:fixed và là SIBLING của #app (không nằm trong #app), nhưng
+                       khi mở modal/drawer với nội dung dài (vd form "Giao nhiệm vụ IOC/CAD"), phần tử fixed đó
+                       có thể tràn ra ngoài viewport hiện tại của iframe khiến trình duyệt tính luôn phần tràn đó
+                       vào scrollHeight của toàn tài liệu. Vì apply() chỉ lấy Math.max nên chiều cao khung bị
+                       "chốt" luôn ở mức phồng lúc modal đang mở — đóng modal xong không co lại được nữa, để lại
+                       khoảng trắng rỗng bên dưới. app.offsetHeight/scrollHeight chỉ đo đúng nội dung widget thật
+                       (không gồm modal/drawer/overlay) nên không bị lỗi này. */
+                    return Math.max(app.offsetHeight || 0, app.scrollHeight || 0, trueHeight);
+                } catch (e) {
+                    console.error("Error resizing iframe:", e);
+                    return 0;
+                }
+            };
+            const groups = [
+                { min: 0, wrappers: ['[data-widget="axisDashboard"]'], iframes: ['iframe-tongquan'] }
+            ];
+            const apply = () => {
+                groups.forEach(g => {
+                    let h = g.min;
+                    g.iframes.forEach(id => { h = Math.max(h, contentH(document.getElementById(id))); });
+                    if (h <= 100) return;
+                    g.wrappers.forEach(sel => {
+                        const el = document.querySelector(sel);
+                        if (el) el.style.setProperty('height', h + 'px', 'important');
+                    });
+                });
+            };
+            document.querySelectorAll('iframe').forEach(f => {
+                f.addEventListener('load', () => {
+                    apply();
+                    let timer = null;
+                    const obs = new MutationObserver(() => {
+                        clearTimeout(timer);
+                        timer = setTimeout(apply, 200);
+                    });
+                    try {
+                        const d = f.contentDocument;
+                        obs.observe(d.body, { childList: true, subtree: true, attributes: true });
+                        obs.observe(d.documentElement, { attributes: true });
+                    } catch (e) { }
+                });
+            });
+            window.addEventListener('resize', apply);
+            // Bộ đồng bộ định kỳ: dữ liệu trong iframe có thể về sau khi load —
+            // cứ mỗi giây kiểm tra lại để 2 khối cùng hàng luôn bằng nhau.
+            setInterval(apply, 1000);
+        }
+        document.addEventListener('DOMContentLoaded', initWidgetAutoResize);
+
+        /* ===== Btctw: view-as + customizer hoạt động đầy đủ ===== */
+        function returnToHomeScope() {
+            var banner = document.getElementById('viewAsBanner');
+            if (banner) banner.classList.add('hidden');
+            window.__homeScope = null;
+            window.__viewingLabel = null;
+            window.__viewingIcon = null;
+            toast('Đã quay lại phạm vi tài khoản gốc.');
+        }
+
+        /* -- Widget customizer: Ẩn/hiện widget, lưu theo localStorage -- */
+        var CUSTOM_WIDGETS = [
+            ['axisDashboard', '[data-widget="axisDashboard"]', 'Dashboard xử lý (Tổng quan)'],
+            ['taskTally', '[data-widget="taskTally"]', 'Kiểm đếm nhiệm vụ'],
+            ['gis', '.gis-widget', 'Bản đồ GIS'],
+            ['notifications', '[data-widget="notifications"]', 'Thông báo'],
+            ['sources', '[data-widget="sources"]', 'Nguồn dữ liệu'],
+            ['indicators', '[data-widget="indicators"]', 'Chỉ tiêu'],
+        ];
+        function loadHiddenWidgets() {
+            try { return JSON.parse(localStorage.getItem('px-ioc-hidden-widgets') || '[]'); } catch (e) { return []; }
+        }
+        function saveHiddenWidgets(arr) {
+            try { localStorage.setItem('px-ioc-hidden-widgets', JSON.stringify(arr)); } catch (e) { }
+        }
+        function applyHiddenWidgets() {
+            var hidden = loadHiddenWidgets();
+            CUSTOM_WIDGETS.forEach(function (w) {
+                var el = document.querySelector(w[1]);
+                if (el) el.classList.toggle('hidden', hidden.indexOf(w[0]) >= 0);
+            });
+        }
+        function toggleWidgetVisibility(el) {
+            var key = el.getAttribute('data-widget-key');
+            var hidden = loadHiddenWidgets();
+            if (el.checked) hidden = hidden.filter(function (k) { return k !== key; });
+            else if (hidden.indexOf(key) < 0) hidden.push(key);
+            saveHiddenWidgets(hidden);
+            applyHiddenWidgets();
+            toast('Đã lưu cấu hình hiển thị.');
+        }
+        function renderCustomizer() {
+            var list = document.getElementById('customList');
+            if (!list) return;
+            var hidden = loadHiddenWidgets();
+            list.innerHTML = CUSTOM_WIDGETS.map(function (w) {
+                return '<label><input type="checkbox" data-widget-key="' + w[0] + '"' +
+                    (hidden.indexOf(w[0]) >= 0 ? '' : ' checked') +
+                    ' onchange="toggleWidgetVisibility(this)">' + w[2] + '</label>';
+            }).join('');
+        }
+        function loadSsoUserInfo() {
+            function updateUserName(givenName) {
+                if (!givenName) return;
+                var displayName = givenName;
+                if (typeof currentAccount !== 'undefined' && currentAccount) {
+                    currentAccount.title = displayName;
+                }
+                var roleNameEl = document.getElementById("currentRoleName");
+                if (roleNameEl) {
+                    roleNameEl.textContent = displayName;
+                }
+            }
+
+            function updateRoleDesc(desc) {
+                if (!desc) return;
+                if (typeof currentAccount !== 'undefined' && currentAccount) {
+                    currentAccount.subtitle = desc;
+                }
+                var roleDescEl = document.getElementById("currentRoleDesc");
+                if (roleDescEl) {
+                    roleDescEl.textContent = desc;
+                }
+            }
+
+            /* Base cua backend be_ioc_dash. Cau hinh qua window.API_BASE; khong set thi dung
+               chinh origin cua trang (theo domain, cong 443) — prefix /api-nest duoc reverse
+               proxy tra ve be_ioc_dash. KHONG hardcode hostname va KHONG hardcode cong. */
+            function iocResolveApiBase() {
+                var b = String(window.API_BASE || '').trim().replace(/\/+$/, '');
+                return b || location.origin;
+            }
+
+            /* GET /api/auth/user-info để lấy chức danh (job_title) và tên người dùng
+               (family_name + given_name) THẬT của tài khoản đang đăng nhập */
+            function loadIocUserInfo() {
+                fetch(iocResolveApiBase() + '/api-nest/auth/user-info', {
+                    method: 'GET',
+                    credentials: 'include',
+                    cache: 'no-store',
+                    headers: { Accept: '*/*', 'Accept-Language': 'vi' },
+                }).then(function (res) {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                }).then(function (info) {
+                    if (!info) return;
+                    if (info.job_title) {
+                        updateRoleDesc(info.job_title);
+                    } else if (info.TenDonVi) {
+                        updateRoleDesc(info.TenDonVi);
+                    }
+                    /* Họ (family_name) đứng trước tên (given_name) theo đúng thứ tự tên người Việt. */
+                    var fullName = [info.family_name, info.given_name].filter(Boolean).join(' ');
+                    if (fullName) updateUserName(fullName);
+                    applyTaskTallyVisibility();
+                }).catch(function (err) {
+                    console.error('loadIocUserInfo', err);
+                });
+            }
+
+            /* Khối "Kiểm đếm nhiệm vụ" hiển thị cho mọi tài khoản (không còn giới hạn
+               theo Vitri lãnh đạo Ban). Khối "Tổng quan" (axisDashboard) luôn ẩn đi để
+               nhường chỗ cho "Kiểm đếm nhiệm vụ".
+               PHẢI dùng setProperty(...,'important'): header/script.js nạp thêm
+               header/style.css + tongquan/style.css vào chính trang này (không chỉ
+               trong iframe), 2 file đó có sẵn rule ".grid [data-widget=axisDashboard]
+               {display:flex!important}" — nếu chỉ gán overviewEl.style.display='none'
+               (không !important) thì rule đó vẫn thắng, khối Tổng quan không ẩn được. */
+            function applyTaskTallyVisibility() {
+                var el = document.querySelector('[data-widget="taskTally"]');
+                if (el) el.style.display = '';
+
+                var overviewEl = document.querySelector('[data-widget="axisDashboard"]');
+                if (overviewEl) overviewEl.style.setProperty('display', 'none', 'important');
+            }
+
+            function doFetch() {
+                loadIocUserInfo();
+                try {
+                    var bData = (window.parent && window.parent.bootstrapData) || (window.top && window.top.bootstrapData) || window.bootstrapData;
+                    if (bData && bData.user) {
+                        var u = bData.user;
+                        var gName = [u.family_name, u.given_name].filter(Boolean).join(' ');
+                        if (gName) {
+                            updateUserName(gName);
+                        }
+                        if (u.job_title) {
+                            updateRoleDesc(u.job_title);
+                        }
+                    }
+                } catch (e) { }
+
+                fetch('/api/v1/me/')
+                    .then(function (res) { return res.json(); })
+                    .then(function (data) {
+                        if (data && data.result) {
+                            var u = data.result;
+                            var gName = [u.family_name, u.given_name].filter(Boolean).join(' ');
+                            if (gName) {
+                                updateUserName(gName);
+                            }
+                            if (u.job_title) {
+                                updateRoleDesc(u.job_title);
+                            }
+                        }
+                    })
+                    .catch(function (err) { });
+            }
+
+            doFetch();
+        }
+
+        /* ===== AI Chatbot: FAB kéo-thả + logic SSO iframe (port từ src/components/AiChatbot) ===== */
+        (function () {
+            var SSO_PORTAL_ORIGIN = 'https://ai.hanoi.dcs.vn';
+            var SSO_URL_CHATBOT = SSO_PORTAL_ORIGIN + '/sso?parent=' + encodeURIComponent(window.location.origin) + '&redirect=' + encodeURIComponent('/');
+
+            var fabContainer = document.getElementById('aiFabContainer');
+            var fabButton = document.getElementById('aiFabButton');
+            var fabTooltip = document.getElementById('aiFabTooltip');
+            var overlay = document.getElementById('aiChatOverlay');
+            var chatBody = document.getElementById('aiChatBody');
+            var iframeSent = false;
+            var isDragging = false;
+            var dragStart = null;
+
+            function accountFromAccessToken(accessToken) {
+                if (!accessToken || accessToken.split('.').length < 2) return '';
+                try {
+                    var encodedPayload = accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+                    while (encodedPayload.length % 4) encodedPayload += '=';
+                    var payload = JSON.parse(atob(encodedPayload));
+                    return payload.username || payload.preferred_username || payload.sub || payload.email || '';
+                } catch (e) {
+                    return '';
+                }
+            }
+
+            function resolveChatbotAuth() {
+                /* Đăng nhập thật của ứng dụng không lưu 'account'/'access_token' — nó lưu
+                   'userInfo' (JSON, có sub/username) + token dưới 'qlnv_access_token' hoặc
+                   'qlnv_jwt_access_token' (cùng chuỗi fallback với getIocToken() ở các iframe
+                   chỉ tiêu khác). Đọc đúng các key đó thay vì key không tồn tại. */
+                var storedToken = null, storedInfo = null;
+                try {
+                    storedToken = localStorage.getItem('access_token') ||
+                        localStorage.getItem('qlnv_jwt_access_token') ||
+                        localStorage.getItem('qlnv_access_token');
+                    storedInfo = localStorage.getItem('userInfo');
+                } catch (e) { }
+                if (!storedToken) return null;
+
+                var storedAccount = null;
+                if (storedInfo) {
+                    try {
+                        var info = JSON.parse(storedInfo);
+                        storedAccount = info.username || info.sub || info.email || null;
+                    } catch (e) { }
+                }
+                if (!storedAccount) {
+                    storedAccount = accountFromAccessToken(storedToken) || localStorage.getItem('account');
+                }
+                if (!storedAccount) return null;
+
+                return { account: storedAccount, accessToken: storedToken };
+            }
+
+            function renderChatAuthError() {
+                var error = document.createElement('div');
+                error.style.cssText = 'display:flex;align-items:center;justify-content:center;height:100%;padding:24px;text-align:center;color:#fecaca;background:#0b0f19;font:500 15px sans-serif;';
+                error.textContent = 'Phiên xác thực chatbot không hợp lệ. Vui lòng đăng xuất và đăng nhập lại.';
+                chatBody.appendChild(error);
+            }
+
+            function sendAuthToIframe(iframe, auth) {
+                if (iframeSent || !iframe.contentWindow) return;
+                iframeSent = true;
+                iframe.contentWindow.postMessage({
+                    type: 'SSO_AUTH_MESSAGE',
+                    data: { account: auth.account, access_token: auth.accessToken },
+                }, SSO_PORTAL_ORIGIN);
+            }
+
+            function buildChatIframe() {
+                iframeSent = false;
+                chatBody.innerHTML = '';
+                var auth = resolveChatbotAuth();
+                if (!auth) {
+                    renderChatAuthError();
+                    return;
+                }
+                var iframe = document.createElement('iframe');
+                iframe.id = 'ai-chatbot-sso';
+                iframe.title = 'Trợ lý AI';
+                iframe.src = SSO_URL_CHATBOT;
+                iframe.setAttribute('allow', 'autoplay; microphone; camera');
+                chatBody.appendChild(iframe);
+
+                var fallbackTimer = setTimeout(function () { sendAuthToIframe(iframe, auth); }, 3000);
+                function onReady(event) {
+                    if (event.origin !== SSO_PORTAL_ORIGIN) return;
+                    if (event.source !== iframe.contentWindow) return;
+                    if (!event.data || event.data.type !== 'SSO_IFRAME_READY') return;
+                    clearTimeout(fallbackTimer);
+                    window.removeEventListener('message', onReady);
+                    sendAuthToIframe(iframe, auth);
+                }
+                window.addEventListener('message', onReady);
+            }
+
+            window.openAiChat = function () {
+                if (isDragging) return;
+                fabTooltip.classList.add('hidden-tooltip');
+                overlay.classList.add('open');
+                buildChatIframe();
+            };
+
+            window.closeAiChat = function () {
+                overlay.classList.remove('open');
+                chatBody.innerHTML = '';
+            };
+
+            window.hideAiFab = function () {
+                fabContainer.classList.add('hidden');
+            };
+
+            overlay.addEventListener('click', function (e) {
+                if (e.target === overlay) window.closeAiChat();
+            });
+
+            // Kéo-thả FAB (giữ nguyên hành vi drag như bản React)
+            fabButton.addEventListener('mousedown', function (e) {
+                if (e.button !== 0) return;
+                if (e.target.closest('#aiFabCloseBtn')) return;
+
+                var rect = fabContainer.getBoundingClientRect();
+                dragStart = { x: e.clientX, y: e.clientY, origX: rect.left, origY: rect.top };
+                isDragging = false;
+
+                function onMove(ev) {
+                    if (!dragStart) return;
+                    var dx = ev.clientX - dragStart.x;
+                    var dy = ev.clientY - dragStart.y;
+                    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+                        isDragging = true;
+                        var x = Math.min(Math.max(dragStart.origX + dx, 0), window.innerWidth - 60);
+                        var y = Math.min(Math.max(dragStart.origY + dy, 0), window.innerHeight - 60);
+                        fabContainer.style.left = x + 'px';
+                        fabContainer.style.top = y + 'px';
+                        fabContainer.style.right = 'auto';
+                        fabContainer.style.bottom = 'auto';
+                    }
+                }
+                function onUp() {
+                    dragStart = null;
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                    setTimeout(function () { isDragging = false; }, 50);
+                }
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+            });
+        })();
+
+        document.addEventListener('DOMContentLoaded', function () {
+            initTheme();
+            applyHiddenWidgets();
+            renderCustomizer();
+            loadSsoUserInfo();
+        });
+        /* __boot của header/script.js gỡ class hidden khỏi mọi [data-widget] — áp lại sau khi boot xong */
+        window.addEventListener('load', function () {
+            applyHiddenWidgets();
+            renderCustomizer();
+            loadSsoUserInfo();
+        });
+    </script>
+    <script src="script.js"></script>
+    <script src="./header/script.js"></script>
+</body>
+
+</html>

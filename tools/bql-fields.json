@@ -1,0 +1,102 @@
+[
+ {
+  "eform": "Khu công nghiệp, khu chế xuất, khu kinh tế và Khu Công nghệ cao",
+  "fields": [
+   [
+    "Kỳ báo cáo",
+    "ky_bao_cao",
+    "Danh mục"
+   ],
+   [
+    "Năm",
+    "nam",
+    "Số"
+   ],
+   [
+    "Tháng",
+    "thang",
+    "Số"
+   ],
+   [
+    "Quý",
+    "quy",
+    "Danh mục"
+   ],
+   [
+    "Địa bàn",
+    "dia_ban",
+    "Danh mục"
+   ],
+   [
+    "Số doanh nghiệp đang hoạt động",
+    "so_doanh_nghiep_dang_hoat_dong",
+    "Số"
+   ],
+   [
+    "Tổng vốn đầu tư đăng ký (tỷ đồng)",
+    "tong_von_dau_tu_dang_ky_ty_dong",
+    "Số"
+   ],
+   [
+    "Số lao động đang làm việc",
+    "so_lao_dong_dang_lam_viec",
+    "Số"
+   ],
+   [
+    "Đối tác/nhà đầu tư chính",
+    "doi_tac_nha_dau_tu_chinh",
+    "Chữ"
+   ],
+   [
+    "Số lượng thành lập, điều chỉnh trong kỳ",
+    "so_luong_thanh_lap_dieu_chinh_trong_ky",
+    "Số"
+   ],
+   [
+    "Nội dung thành lập/điều chỉnh gần nhất",
+    "noi_dung_thanh_lap_dieu_chinh_gan_nhat",
+    "Chữ"
+   ],
+   [
+    "Số dự án thu hút đầu tư mới trong kỳ",
+    "so_du_an_thu_hut_dau_tu_moi_trong_ky",
+    "Số"
+   ],
+   [
+    "Tổng vốn thu hút đầu tư mới (tỷ đồng)",
+    "tong_von_thu_hut_dau_tu_moi_ty_dong",
+    "Số"
+   ],
+   [
+    "Tình hình đầu tư kết cấu hạ tầng",
+    "tinh_hinh_dau_tu_ket_cau_ha_tang",
+    "Chữ"
+   ],
+   [
+    "Vốn đầu tư hạ tầng trong kỳ (tỷ đồng)",
+    "von_dau_tu_ha_tang_trong_ky_ty_dong",
+    "Số"
+   ],
+   [
+    "Doanh thu sản xuất kinh doanh trong kỳ (tỷ đồng)",
+    "doanh_thu_san_xuat_kinh_doanh_trong_ky_ty_dong",
+    "Số"
+   ],
+   [
+    "Tình hình bảo vệ môi trường",
+    "tinh_hinh_bao_ve_moi_truong",
+    "Chữ"
+   ],
+   [
+    "Đạt chuẩn môi trường",
+    "dat_chuan_moi_truong",
+    "Chữ"
+   ],
+   [
+    "Ghi chú",
+    "ghi_chu",
+    "Chữ"
+   ]
+  ]
+ }
+]
