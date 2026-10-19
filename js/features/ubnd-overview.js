@@ -19,6 +19,9 @@ const UBND_OV_SHOW_COMPARE = false;
 const UBND_OV_FROM_CTM = true;
 let UBND_OV_GROUP = 'all';
 
+/* Sở Du lịch đã nhập vào Sở Văn hóa, Thể thao và Du lịch (cờ UBND_SAP_XEP_SO_2026, central-level.js): 'ubnd-dulich' vẫn để trong
+   nhóm dưới đây nhưng không còn trong danh mục sở nên tự rơi khỏi nhóm; ô số khách du lịch đọc dòng "dlTong" của thẻ sở gộp. */
+const UBND_OV_GOP_DL = typeof UBND_SAP_XEP_SO_2026 !== 'undefined' && UBND_SAP_XEP_SO_2026;
 const UBND_OV_GROUPS = [
   { id: 'kt', label: 'Kinh tế – Tài chính', ids: ['ubnd-taichinh', 'ubnd-congthuong', 'ubnd-dulich', 'ubnd-bqlkcnc'] },
   { id: 'vx', label: 'Văn hóa – Xã hội', ids: ['ubnd-gddt', 'ubnd-yte', 'ubnd-vhtt', 'ubnd-noivu', 'ubnd-dantoc-tongiao'] },
@@ -32,14 +35,14 @@ const UBND_OV_KPIS = [
   { cat: 'ubnd-hcc', line: 1, label: 'Nộp hồ sơ trực tuyến' },
   { cat: 'ubnd-congthuong', line: 0, m: 'xk', label: 'Kim ngạch xuất khẩu' },
   { cat: 'ubnd-congthuong', line: 2, m: 'bl', label: 'Bán lẻ hàng hóa và dịch vụ tiêu dùng' },
-  { cat: 'ubnd-dulich', line: 0, m: 'tong', label: 'Khách du lịch' },
+  UBND_OV_GOP_DL ? { cat: 'ubnd-vhtt', line: 4, m: 'dlTong', label: 'Khách du lịch' } : { cat: 'ubnd-dulich', line: 0, m: 'tong', label: 'Khách du lịch' },
   { cat: 'ubnd-yte', line: 0, m: 'bhR', label: 'Bao phủ bảo hiểm y tế' },
   { cat: 'ubnd-vpubnd', line: 0, m: 'vbR', label: 'Văn bản xử lý trên môi trường mạng' }
 ];
 /* Tên ngắn của sở ở ô số và thẻ nhóm. */
 const UBND_OV_SHORT = {
   'ubnd-taichinh': 'Sở Tài chính', 'ubnd-congthuong': 'Sở Công Thương', 'ubnd-dulich': 'Sở Du lịch', 'ubnd-bqlkcnc': 'Ban Quản lý KCNC và KCN',
-  'ubnd-gddt': 'Sở Giáo dục và Đào tạo', 'ubnd-yte': 'Sở Y tế', 'ubnd-vhtt': 'Sở Văn hóa và Thể thao', 'ubnd-noivu': 'Sở Nội vụ',
+  'ubnd-gddt': 'Sở Giáo dục và Đào tạo', 'ubnd-yte': 'Sở Y tế', 'ubnd-vhtt': UBND_OV_GOP_DL ? 'Sở Văn hóa, Thể thao và Du lịch' : 'Sở Văn hóa và Thể thao', 'ubnd-noivu': 'Sở Nội vụ',
   'ubnd-dantoc-tongiao': 'Sở Dân tộc và Tôn giáo', 'ubnd-hcc': 'TT Phục vụ hành chính công', 'ubnd-vpubnd': 'Văn phòng UBND Thành phố',
   'ubnd-khcn': 'Sở Khoa học và Công nghệ', 'ubnd-thanhtra': 'Thanh tra Thành phố', 'ubnd-xaydung': 'Sở Xây dựng', 'ubnd-nnmt': 'Sở Nông nghiệp và Môi trường'
 };

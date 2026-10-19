@@ -15,8 +15,14 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from doc_md import MdMirror  # bản .md song song, cùng nội dung với .docx
 from ctm_display import section as ctm_section  # phần "Cách hiển thị trên giao diện IOC", đọc từ cấu hình đang chạy
+import dl_chi_tieu_part as DLP  # 2 chỉ tiêu du lịch (Chỉ tiêu 7, 8) — dùng chung với tài liệu cũ của Sở Du lịch
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Sở Du lịch nhập vào Sở Văn hóa và Thể thao (Nghị quyết HĐND Thành phố 10/8/2026): theo đúng cờ UBND_SAP_XEP_SO_2026 của giao diện
+# (js/core/central-level.js). true = tài liệu Sở Văn hóa, Thể thao và Du lịch, 8 chỉ tiêu; false = tài liệu 6 chỉ tiêu như cũ.
+GOP = 'const UBND_SAP_XEP_SO_2026 = true' in open(os.path.join(ROOT, 'js', 'core', 'central-level.js'), encoding='utf-8').read()
+TEN_SO = 'Sở Văn hóa, Thể thao và Du lịch' if GOP else 'Sở Văn hóa và Thể thao'
+NCT = 8 if GOP else 6  # số chỉ tiêu
 FIELDS = json.load(open(os.path.join(ROOT, 'tools', 'vhtt-fields.json'), encoding='utf-8'))
 OUT = os.path.join(ROOT, 'docs', 'VHTT_SoVanHoaTheThao', 'VHTT_MO_TA_CHI_TIEU.docx')
 OUT_MD = OUT[:-5] + '.md'
@@ -194,7 +200,7 @@ def bottom_rule(p, color='1F3A5F', sz='8'):
 
 # ---------- Đầu trang, chân trang ----------
 hp = sec.header.paragraphs[0]; hp.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-r = hp.add_run('Sở Văn hóa và Thể thao · Mô tả chỉ tiêu trên IOC'); r.italic = True; r.font.size = Pt(10); r.font.color.rgb = GREY
+r = hp.add_run(TEN_SO + ' · Mô tả chỉ tiêu trên IOC'); r.italic = True; r.font.size = Pt(10); r.font.color.rgb = GREY
 bottom_rule(hp, 'A9B8CC', '4')
 fp = sec.footer.paragraphs[0]; fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
 for t in ('Trang ',):
@@ -211,16 +217,19 @@ p = para('THÀNH PHỐ HÀ NỘI', 13, WD_ALIGN_PARAGRAPH.CENTER, 0, bold=True)
 p = para('', after=0); p.alignment = WD_ALIGN_PARAGRAPH.CENTER; bottom_rule(p, '1F3A5F', '6'); p.paragraph_format.left_indent = Cm(5.5); p.paragraph_format.right_indent = Cm(5.5)
 for _ in range(4): doc.add_paragraph()
 p = para('TÀI LIỆU MÔ TẢ CHỈ TIÊU', 22, WD_ALIGN_PARAGRAPH.CENTER, 6, bold=True, color=NAVY)
-p = para('SỞ VĂN HÓA VÀ THỂ THAO', 20, WD_ALIGN_PARAGRAPH.CENTER, 14, bold=True, color=NAVY)
-p = para('Biểu đồ, trường dữ liệu và cách tính số liệu của 6 chỉ tiêu trên IOC', 14, WD_ALIGN_PARAGRAPH.CENTER, 4, italic=True, color=GREY)
-p = para('xây dựng từ 6 eform nhập liệu của Sở', 14, WD_ALIGN_PARAGRAPH.CENTER, 0, italic=True, color=GREY)
+p = para(TEN_SO.upper(), 20, WD_ALIGN_PARAGRAPH.CENTER, 14, bold=True, color=NAVY)
+p = para(f'Biểu đồ, trường dữ liệu và cách tính số liệu của {NCT} chỉ tiêu trên IOC', 14, WD_ALIGN_PARAGRAPH.CENTER, 4, italic=True, color=GREY)
+p = para(f'xây dựng từ {NCT} eform nhập liệu của Sở', 14, WD_ALIGN_PARAGRAPH.CENTER, 0, italic=True, color=GREY)
 for _ in range(6): doc.add_paragraph()
+NTR_DL = sum(len(e['fields']) for e in DLP.EF)
 info = [
-    ['Đơn vị', 'Sở Văn hóa và Thể thao Thành phố Hà Nội'],
-    ['Nguồn dữ liệu', 'File mô tả đầu vào eform, sheet "Sở VHTT": 6 eform, 152 trường nhập'],
-    ['Phạm vi', '6 chỉ tiêu, 22 biểu đồ, bảng 126 phường/xã'],
+    ['Đơn vị', TEN_SO + ' Thành phố Hà Nội'],
+    ['Nguồn dữ liệu', 'File mô tả đầu vào eform, sheet "Sở VHTT": 6 eform, 152 trường nhập'
+     + (f'; sheet "Sở Du lịch": 2 eform, {NTR_DL} trường nhập' if GOP else '')],
+    ['Phạm vi', f'{NCT} chỉ tiêu, {22 + (DLP.SO_BIEU_DO if GOP else 0)} biểu đồ, bảng 126 phường/xã'],
     ['Số liệu ví dụ', 'Số giả lập (chưa có số liệu thật), kỳ 9 tháng năm 2026'],
-    ['Phiên bản', '1.4 · ngày 13/10/2026 (theo phản hồi nhóm triển khai: chỉ dùng trường có trong eform — bỏ tách hoàn thành đúng hạn / chậm, bỏ so kế hoạch doanh thu năm)'],
+    ['Phiên bản', '2.0 · ngày 19/10/2026 (Sở Du lịch nhập vào Sở Văn hóa và Thể thao theo Nghị quyết HĐND Thành phố ngày 10/8/2026: thêm Chỉ tiêu 7 Khách du lịch, Chỉ tiêu 8 Doanh thu dịch vụ du lịch, chuyển nguyên từ tài liệu của Sở Du lịch)' if GOP else
+     '1.4 · ngày 13/10/2026 (theo phản hồi nhóm triển khai: chỉ dùng trường có trong eform — bỏ tách hoàn thành đúng hạn / chậm, bỏ so kế hoạch doanh thu năm)'],
 ]
 table(info, [4.2, 10.0], header=False, size=12, key_col=True)
 page_break()
@@ -233,7 +242,7 @@ page_break()
 # ======================================================= PHẦN I
 doc.add_heading('PHẦN I. QUY ƯỚC CHUNG', level=1)
 doc.add_heading('1. Mục đích tài liệu', level=2)
-para('Tài liệu mô tả cách IOC dựng 6 chỉ tiêu của Sở Văn hóa và Thể thao từ 6 eform nhập liệu: mỗi chỉ tiêu có những biểu đồ nào, dùng những trường nào của eform, mỗi trường dùng để làm gì, và mỗi con số được cộng, đếm, tính toán ra sao. Tên trường trong tài liệu viết đúng như tên trường trong file mô tả đầu vào eform để đội nhập liệu và đội kỹ thuật cùng đối chiếu.')
+para(f'Tài liệu mô tả cách IOC dựng {NCT} chỉ tiêu của {TEN_SO} từ {NCT} eform nhập liệu: mỗi chỉ tiêu có những biểu đồ nào, dùng những trường nào của eform, mỗi trường dùng để làm gì, và mỗi con số được cộng, đếm, tính toán ra sao. Tên trường trong tài liệu viết đúng như tên trường trong file mô tả đầu vào eform để đội nhập liệu và đội kỹ thuật cùng đối chiếu.')
 box(['Mọi con số ví dụ trong tài liệu là **số giả lập** dùng để dựng giao diện, đã được cộng kiểm cho khớp (tổng luôn bằng cộng các phần). Khi có số liệu thật, cách tính giữ nguyên, chỉ thay số.'], NOTE_FILL, 'Lưu ý: ')
 
 doc.add_heading('2. Kỳ báo cáo', level=2)
@@ -241,7 +250,7 @@ para('Mọi eform đều có 4 trường xác định kỳ: «Kỳ báo cáo» (
 table([
     ['Cách lấy', 'Áp dụng cho', 'Ý nghĩa'],
     ['**Bản mới nhất**', 'Chỉ tiêu 1, 2', 'Số trong eform đã là số tích lũy (tiến độ nhiệm vụ, vốn cả giai đoạn). Chỉ lấy bản báo cáo của kỳ đang xem, không cộng các kỳ với nhau.'],
-    ['**Cộng dồn**', 'Chỉ tiêu 3, 4, 5, 6', 'Mỗi bản ghi là một sự việc phát sinh trong kỳ (một hoạt động, một chương trình, một tin bài). Cộng tất cả bản ghi từ tháng 1 đến tháng đang xem (mặc định: 9 tháng năm 2026).'],
+    ['**Cộng dồn**', 'Chỉ tiêu 3, 4, 5, 6' + (', 7, 8' if GOP else ''),'Mỗi bản ghi là một sự việc phát sinh trong kỳ (một hoạt động, một chương trình, một tin bài). Cộng tất cả bản ghi từ tháng 1 đến tháng đang xem (mặc định: 9 tháng năm 2026).'],
 ], [3.2, 3.4, 9.4])
 
 doc.add_heading('3. Các phép tính dùng trong tài liệu', level=2)
@@ -267,7 +276,7 @@ table([
 ], [3.6, 12.4], key_col=True)
 para('Các trường không có vai trò trong biểu đồ (tên, mô tả, ghi chú, người nhập…) vẫn được lưu và hiện ở danh sách bản ghi chi tiết; tài liệu liệt kê ở cuối bảng trường của từng chỉ tiêu.', italic=True, color=GREY, size=12)
 
-doc.add_heading('5. Tổng hợp 6 chỉ tiêu', level=2)
+doc.add_heading(f'5. Tổng hợp {NCT} chỉ tiêu', level=2)
 table([
     ['#', 'Chỉ tiêu trên IOC', 'Eform nguồn', 'Kỳ hiển thị', 'Biểu đồ'],
     ['1', 'Tiến độ triển khai Chương trình hành động số 08-CT', 'Báo cáo tiến độ triển khai Chương trình hành động số 08-CT', 'Tháng 9/2026', '3'],
@@ -276,12 +285,17 @@ table([
     ['4', 'Doanh thu của các đơn vị nghệ thuật Thành phố quản lý', 'Doanh thu của các đơn vị nghệ thuật Thành phố quản lý', '9 tháng 2026', '4'],
     ['5', 'Số hoạt động nghệ thuật chuyên nghiệp', 'Eform Số hoạt động nghệ thuật chuyên nghiệp', '9 tháng 2026', '5'],
     ['6', 'Điểm thông tin báo chí, trang tin, mạng xã hội về Thành phố Hà Nội', 'Điểm thông tin báo chí, trang tin, mạng xã hội về Thành phố Hà Nội', '9 tháng 2026', '4'],
-], [0.8, 5.6, 5.6, 2.4, 1.6], size=10.5)
+] + ([[str(7 + i), r[0], r[1], '9 tháng 2026', r[3]] for i, r in enumerate(DLP.TONG_HOP)] if GOP else []), [0.8, 5.6, 5.6, 2.4, 1.6], size=10.5)
 para('Mỗi chỉ tiêu trên IOC gồm: 1 khối **thẻ số tổng hợp** và các **biểu đồ**; cách tính từng số chỉ trình bày trong tài liệu này, không hiện trên giao diện. Bên phải là bảng **126 phường/xã** (Phần III). Bấm vào một biểu đồ thì bảng số của chính biểu đồ đó hiện ở ô bên phải.')
+
+if GOP:
+    doc.add_heading('6. Hai chỉ tiêu du lịch', level=2)
+    para('Theo Nghị quyết HĐND Thành phố ngày 10/8/2026 về sắp xếp các sở, Sở Du lịch nhập vào Sở Văn hóa và Thể thao thành **Sở Văn hóa, Thể thao và Du lịch**. Hai chỉ tiêu theo 2 eform của Sở Du lịch trước đây chuyển nguyên vào tài liệu này thành **Chỉ tiêu 7** (khách du lịch) và **Chỉ tiêu 8** (doanh thu dịch vụ du lịch): trường dữ liệu, cách tính, con số giữ nguyên, chỉ đổi số thứ tự. Trên IOC, hai chỉ tiêu này nằm trong màn chi tiết của Sở, cùng bảng 126 phường/xã.')
+    para(f'«Đơn vị báo cáo» của hai eform du lịch gồm đúng **{DLP.NDV} phường/xã**; mỗi phường/xã báo cáo số khách, doanh thu tại các điểm du lịch trên địa bàn, theo từng «Loại điểm du lịch». Số toàn Thành phố là cộng 126 phường/xã. Vì mỗi bản ghi là lượt khách tại **một loại điểm du lịch của một phường/xã**, một khách đi nhiều điểm sẽ được đếm ở mỗi điểm: con số IOC cộng ra là **tổng lượt khách đến các điểm du lịch**, có thể lớn hơn số lượt khách du lịch đến Hà Nội theo phương pháp thống kê của ngành.')
 
 # ======================================================= PHẦN II
 page_break()
-doc.add_heading('PHẦN II. CHI TIẾT 6 CHỈ TIÊU', level=1)
+doc.add_heading(f'PHẦN II. CHI TIẾT {NCT} CHỈ TIÊU', level=1)
 SHOW_NOTE_BOX = False  # khối "Lưu ý, đề nghị Sở xác nhận" cuối mỗi chỉ tiêu — ẩn theo yêu cầu 14/10/2026
 para('Mỗi chỉ tiêu được trình bày theo cùng một khuôn: (1) Thông tin chung · (2) Trường dữ liệu sử dụng · (3) Thẻ số tổng hợp · (4) Từng biểu đồ' + (' · (5) Lưu ý, đề nghị Sở' if SHOW_NOTE_BOX else '') + '.', italic=True, color=GREY)
 
@@ -647,6 +661,12 @@ chart('6.4', 'Tin tiêu cực theo mức ưu tiên xử lý', 'Biểu đồ trò
 notes(['«Lĩnh vực» đang để kiểu Chữ; đề nghị đổi sang Danh mục để các tin cùng lĩnh vực được gom đúng một nhóm.',
        'Lượt xem, chia sẻ, bình luận, thích, tiếp cận là số tại lần cập nhật gần nhất của tin; IOC lấy số mới nhất, không cộng các lần cập nhật.'])
 
+# ---------------- CHỈ TIÊU 7, 8 (du lịch, chuyển từ tài liệu Sở Du lịch — tools/dl_chi_tieu_part.py)
+if GOP:
+    page_break()
+    DLP.write(lambda t, l: doc.add_heading(t, level=l), para, table, chart, kpi_table, info_table,
+              lambda rows: fields_table(rows, []), lambda ct, items: notes(items), page_break, a=7, muc_ky='Phần I, mục 2')
+
 # ======================================================= PHẦN III
 page_break()
 doc.add_heading('PHẦN III. BẢNG 126 PHƯỜNG/XÃ', level=1)
@@ -659,17 +679,22 @@ table([
     ['Doanh thu (tỷ đồng)', '4', '«Địa bàn»', 'TỔNG(«Tổng doanh thu (triệu đồng)») ÷ 1.000', '32,2'],
     ['Dự án 2026-2030', '2', '«Địa bàn»', 'TỔNG(«Số dự án theo NQ 80»)', '36'],
     ['Tin bài có gắn địa bàn', '6', '«Địa bàn»', 'ĐẾM(«Mã bản ghi»); tin nói về Thành phố chung không gắn phường/xã thì không vào bảng', '15.620'],
-], [3.7, 1.7, 3.0, 5.6, 2.0], size=10.5)
+] + ([
+    ['Lượt khách du lịch (nghìn lượt)', '7', '«Đơn vị báo cáo»', '(TỔNG(«Số lượt khách du lịch quốc tế») + TỔNG(«Số lượt khách du lịch nội địa»)) ÷ 1.000', DLP.nghin(DLP.K['tong'])],
+    ['Khách quốc tế (nghìn lượt)', '7', '«Đơn vị báo cáo»', 'TỔNG(«Số lượt khách du lịch quốc tế») ÷ 1.000', DLP.nghin(DLP.K['qt'])],
+    ['Tổng thu từ khách du lịch (tỷ đồng)', '8', '«Đơn vị báo cáo»', 'TỔNG(«Giá trị doanh thu (VND)») có «Loại doanh thu» = Tổng thu từ khách du lịch, ÷ 10⁹', DLP.ty(DLP.T['tong'])],
+    ['Lượt khách trên 1.000 dân', '7', '«Đơn vị báo cáo»', 'Lượt khách ÷ dân số của phường/xã × 1.000', '—'],
+] if GOP else []), [3.7, 1.7, 3.0, 5.6, 2.0], size=10.5)
 para('Bấm vào một biểu đồ bất kỳ ở cột trái thì ô bên phải đổi sang bảng số của chính biểu đồ đó; bấm nút "Danh sách 126 đơn vị" để quay lại bảng phường/xã.', italic=True, color=GREY, size=12)
 
 # ======================================================= PHỤ LỤC
 page_break()
 ctm_section(lambda t, l: doc.add_heading(t, level=l), para, lambda rows, w: table(rows, w, size=10), 'ubnd-vhtt',
-            'PHẦN IV. CÁCH HIỂN THỊ TRÊN GIAO DIỆN IOC', changes=['Theo phản hồi nhóm triển khai 13/10/2026: Chương trình 08-CT chia 4 nhóm tiến độ (gộp hoàn thành đúng hạn / chậm vì eform không có ngày hoàn thành thực tế), bỏ tỷ lệ đúng hạn; doanh thu nghệ thuật bỏ "so kế hoạch năm" và đường kế hoạch lũy kế (eform không có trường kế hoạch).', 'Doanh thu, chênh lệch thu – chi, ngân sách hỗ trợ của đơn vị nghệ thuật ghi **tỷ đồng, 1 số lẻ** ở mọi thẻ, biểu đồ, bảng (trước: triệu đồng); giá vé bình quân ghi **nghìn đồng**.', 'Lượt xem tin, bài ghi **nghìn lượt** (trước: triệu lượt); số tin, bài đếm bằng "tin bài".', 'Hai trường vốn giai đoạn 2026–2030 **nhập triệu đồng**, IOC chia 1.000 và hiển thị tỷ đồng (bản trả lời BA, mục 85; trước ghi "giả định là tỷ đồng").', 'Thẻ ở màn ngoài dùng một bộ nhãn rõ nghĩa, giống nhau ở tab UBND và tab "Tất cả"; tab UBND đọc đúng số của màn chi tiết, không tự tính lại.', 'Mọi mũi tên tăng/giảm ghi rõ mốc so sánh; chưa có số cùng kỳ thì ghi "Chưa có số cùng kỳ" thay cho mũi tên.', 'Tỷ lệ theo tháng/quý vẽ đường thay cho cột từ 0; bảng cơ cấu tối đa 6 phần chuyển sang thẻ cơ cấu; bỏ thẻ lặp đúng bộ số của thẻ khác.'])
+            'PHẦN IV. CÁCH HIỂN THỊ TRÊN GIAO DIỆN IOC', changes=(['Ngày 19/10/2026: Sở đổi tên thành Sở Văn hóa, Thể thao và Du lịch; màn chi tiết thêm 2 nhóm "Khách du lịch", "Doanh thu du lịch" và bảng 126 phường/xã của du lịch; hàng ô số chính giữ 8 ô (6 ô văn hóa, thể thao + tổng lượt khách, tổng thu du lịch); thẻ ở màn ngoài thêm dòng tổng lượt khách du lịch; thẻ riêng của Sở Du lịch bỏ khỏi màn ngoài.'] if GOP else []) + ['Theo phản hồi nhóm triển khai 13/10/2026: Chương trình 08-CT chia 4 nhóm tiến độ (gộp hoàn thành đúng hạn / chậm vì eform không có ngày hoàn thành thực tế), bỏ tỷ lệ đúng hạn; doanh thu nghệ thuật bỏ "so kế hoạch năm" và đường kế hoạch lũy kế (eform không có trường kế hoạch).', 'Doanh thu, chênh lệch thu – chi, ngân sách hỗ trợ của đơn vị nghệ thuật ghi **tỷ đồng, 1 số lẻ** ở mọi thẻ, biểu đồ, bảng (trước: triệu đồng); giá vé bình quân ghi **nghìn đồng**.', 'Lượt xem tin, bài ghi **nghìn lượt** (trước: triệu lượt); số tin, bài đếm bằng "tin bài".', 'Hai trường vốn giai đoạn 2026–2030 **nhập triệu đồng**, IOC chia 1.000 và hiển thị tỷ đồng (bản trả lời BA, mục 85; trước ghi "giả định là tỷ đồng").', 'Thẻ ở màn ngoài dùng một bộ nhãn rõ nghĩa, giống nhau ở tab UBND và tab "Tất cả"; tab UBND đọc đúng số của màn chi tiết, không tự tính lại.', 'Mọi mũi tên tăng/giảm ghi rõ mốc so sánh; chưa có số cùng kỳ thì ghi "Chưa có số cùng kỳ" thay cho mũi tên.', 'Tỷ lệ theo tháng/quý vẽ đường thay cho cột từ 0; bảng cơ cấu tối đa 6 phần chuyển sang thẻ cơ cấu; bỏ thẻ lặp đúng bộ số của thẻ khác.'])
 page_break()
 page_break()
-doc.add_heading('PHỤ LỤC. DANH SÁCH TRƯỜNG CỦA 6 EFORM', level=1)
-para('Trích nguyên từ file mô tả đầu vào eform, sheet "Sở VHTT". Cột "Dùng trên IOC" cho biết trường có tham gia tính toán biểu đồ / thẻ số hay không.')
+doc.add_heading(f'PHỤ LỤC. DANH SÁCH TRƯỜNG CỦA {NCT} EFORM', level=1)
+para('Trích nguyên từ file mô tả đầu vào eform, sheet "Sở VHTT"' + (' (eform 1 – 6) và sheet "Sở Du lịch" (eform 7, 8)' if GOP else '') + '. Cột "Dùng trên IOC" cho biết trường có tham gia tính toán biểu đồ / thẻ số hay không.')
 USED = {
     0: {'Kỳ báo cáo', 'Năm', 'Quý', 'Tháng', 'Chỉ tiêu / Nhiệm vụ', 'Đơn vị chủ trì', 'Thời gian hoàn thành theo Kế hoạch', 'Tiến độ thực hiện', 'Ngày cập nhật tiến độ'},
     1: {'Kỳ báo cáo', 'Năm', 'Quý', 'Tháng', 'Tên công trình', 'Số dự án theo NQ 80', 'Số dự án Thành phố đã bố trí vốn KH 2026-2030', 'Địa bàn', 'Tổng giai đoạn 2026-2030 theo NQ 80', 'KH ĐTC trung hạn 2026-2030 Thành phố đã bố trí', 'Tiến độ thực hiện'},
@@ -691,6 +716,17 @@ for i, e in enumerate(FIELDS):
     for j in range(1, len(rows)):  # mã trường dùng phông đơn cách
         for r in t.cell(j, 2).paragraphs[0].runs: r.font.name = 'Consolas'; r.font.size = Pt(8.5)
 print('Trường dùng trên IOC:', used_total, '/ 152')
+if GOP:
+    for i, e in enumerate(DLP.EF):
+        doc.add_heading(f'{7 + i}. {e["eform"]} ({len(e["fields"])} trường)', level=2)
+        rows, fills = [['#', 'Tên trường', 'Mã trường', 'Kiểu nhập', 'Dùng trên IOC']], {}
+        for j, f in enumerate(e['fields']):
+            u = f[0] in DLP.USED[i]
+            rows.append([str(j + 1), f[0], f[1], f[2] or '(chưa ghi)', 'Có' if u else '—'])
+            if u: fills[(j + 1, 4)] = 'E6F4EA'
+        t = table(rows, [0.8, 4.9, 6.5, 2.0, 1.8], size=10, fills=fills)
+        for j in range(1, len(rows)):
+            for r in t.cell(j, 2).paragraphs[0].runs: r.font.name = 'Consolas'; r.font.size = Pt(8.5)
 
 doc.save(OUT)
 MD.save(OUT_MD)

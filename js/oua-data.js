@@ -55,7 +55,7 @@ function ouaGenericOffices(axis, prefix){
 const ouaCityUnits = [
   ...ouaGenericOffices('DANG','ORG-TU'),
   ...ouaGenericOffices('HDND','ORG-HD'),
-  {axis:'UBND', code:'ORG-UB-VHTT', name:'Sở Văn hóa và Thể thao'},
+  {axis:'UBND', code:'ORG-UB-VHTT', name:(typeof ACCOUNT_SAP_XEP_SO_2026!=='undefined' && ACCOUNT_SAP_XEP_SO_2026) ? 'Sở Văn hóa, Thể thao và Du lịch' : 'Sở Văn hóa và Thể thao'},
   {axis:'UBND', code:'ORG-UB-GDDT', name:'Sở Giáo dục và Đào tạo'},
   {axis:'UBND', code:'ORG-UB-NNMT', name:'Sở Nông nghiệp và Môi trường'},
   {axis:'UBND', code:'ORG-UB-YTE', name:'Sở Y tế'},
@@ -73,7 +73,8 @@ const ouaCityUnits = [
   {axis:'UBND', code:'ORG-UB-VPUB', name:'Văn phòng UBND Thành phố Hà Nội'},
   {axis:'UBND', code:'ORG-UB-KCNC', name:'Ban Quản lý Khu công nghệ cao và khu công nghiệp'},
   ...ouaGenericOffices('MTTQ','ORG-MT')
-];
+/* Sở Du lịch, Sở Quy hoạch - Kiến trúc đã nhập sở khác (account-sap-xep.js): giữ dòng khai báo, chỉ lọc khỏi danh sách */
+].filter(u=>!(typeof ACCOUNT_SAP_XEP_SO_2026!=='undefined' && ACCOUNT_SAP_XEP_SO_2026 && ['ORG-UB-DL','ORG-UB-QHKT'].includes(u.code)));
 const ouaWardNames = ['Phường Ba Đình','Phường Bạch Mai','Phường Bồ Đề','Phường Chương Mỹ','Phường Cầu Giấy','Phường Cửa Nam','Phường Dương Nội','Phường Giảng Võ','Phường Hai Bà Trưng','Phường Hoàn Kiếm','Phường Hoàng Liệt','Phường Hoàng Mai','Phường Hà Đông','Phường Hồng Hà','Phường Khương Đình','Phường Kim Liên','Phường Kiến Hưng','Phường Long Biên','Phường Láng','Phường Lĩnh Nam','Phường Nghĩa Đô','Phường Ngọc Hà','Phường Phú Diễn','Phường Phú Lương','Phường Phú Thượng','Phường Phúc Lợi','Phường Phương Liệt','Phường Sơn Tây','Phường Thanh Liệt','Phường Thanh Xuân','Phường Thượng Cát','Phường Tây Hồ','Phường Tây Mỗ','Phường Tây Tựu','Phường Tùng Thiện','Phường Tương Mai','Phường Từ Liêm','Phường Việt Hưng','Phường Văn Miếu - Quốc Tử Giám','Phường Vĩnh Hưng','Phường Vĩnh Tuy','Phường Xuân Phương','Phường Xuân Đỉnh','Phường Yên Hòa','Phường Yên Nghĩa','Phường Yên Sở','Phường Ô Chợ Dừa','Phường Đông Ngạc','Phường Đại Mỗ','Phường Định Công','Phường Đống Đa','Xã An Khánh','Xã Ba Vì','Xã Bát Tràng','Xã Bình Minh','Xã Bất Bạt','Xã Chuyên Mỹ','Xã Chương Dương','Xã Cổ Đô','Xã Dân Hòa','Xã Dương Hòa','Xã Gia Lâm','Xã Hoài Đức','Xã Hát Môn','Xã Hòa Lạc','Xã Hòa Phú','Xã Hòa Xá','Xã Hưng Đạo','Xã Hương Sơn','Xã Hạ Bằng','Xã Hồng Sơn','Xã Hồng Vân','Xã Kim Anh','Xã Kiều Phú','Xã Liên Minh','Xã Minh Châu','Xã Mê Linh','Xã Mỹ Đức','Xã Nam Phù','Xã Ngọc Hồi','Xã Nội Bài','Xã Phù Đổng','Xã Phú Cát','Xã Phú Nghĩa','Xã Phú Xuyên','Xã Phúc Lộc','Xã Phúc Sơn','Xã Phúc Thịnh','Xã Phúc Thọ','Xã Phượng Dực','Xã Quang Minh','Xã Quảng Bị','Xã Quảng Oai','Xã Quốc Oai','Xã Suối Hai','Xã Sóc Sơn','Xã Sơn Đồng','Xã Tam Hưng','Xã Thanh Oai','Xã Thanh Trì','Xã Thiên Lộc','Xã Thuận An','Xã Thư Lâm','Xã Thường Tín','Xã Thượng Phúc','Xã Thạch Thất','Xã Tiến Thắng','Xã Trung Giã','Xã Trần Phú','Xã Tây Phương','Xã Vân Đình','Xã Vĩnh Thanh','Xã Vật Lại','Xã Xuân Mai','Xã Yên Bài','Xã Yên Lãng','Xã Yên Xuân','Xã Ô Diên','Xã Đa Phúc','Xã Đan Phượng','Xã Đoài Phương','Xã Đông Anh','Xã Đại Thanh','Xã Đại Xuyên','Xã Ứng Hòa','Xã Ứng Thiên'];
 
 let ouaOrgRows = null;

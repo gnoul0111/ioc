@@ -985,6 +985,18 @@
  {id:'ubnd-bqlkcnc',name:'Ban Quản lý Khu công nghệ cao và khu công nghiệp thành phố',field:'Khu công nghệ cao - KCN',desc:'3 chỉ tiêu theo eform "Khu công nghiệp, khu chế xuất, khu kinh tế và Khu Công nghệ cao" của Ban: doanh nghiệp, vốn đầu tư đăng ký và lao động; thu hút đầu tư, thành lập và điều chỉnh; đầu tư hạ tầng, sản xuất kinh doanh và bảo vệ môi trường. Số liệu giả lập.',types:['Eform'],bql:true,items:BQL_ITEMS}
  ]
  };
+ /* Sắp xếp sở theo bộ máy mới (anh yêu cầu 15/10/2026): Sở Du lịch nhập vào Sở Văn hóa và Thể thao thành "Sở Văn hóa,
+ Thể thao và Du lịch" (2 chỉ tiêu du lịch gộp vào thẻ, chi tiết của sở này — ctm-so.js); Sở Quy hoạch - Kiến trúc không
+ còn nên ẩn thẻ. Khai báo 2 sở cũ ở trên GIỮ NGUYÊN; đặt UBND_SAP_XEP_SO_2026 = false là hiện lại như cũ. */
+ const UBND_SAP_XEP_SO_2026 = true;
+ const UBND_SO_DA_NHAP = ['ubnd-dulich','ubnd-quyhoach-kientruc'];
+ if(UBND_SAP_XEP_SO_2026){
+ const vh=categorySeed.UBND.find(c=>c.id==='ubnd-vhtt');
+ if(vh) Object.assign(vh,{name:'Sở Văn hóa, Thể thao và Du lịch',field:'Văn hóa - Thể thao - Du lịch',
+ desc:'8 chỉ tiêu theo eform của Sở: tiến độ Chương trình 08-CT, dự án đầu tư 2026-2030, hoạt động nghệ thuật và người tham gia, doanh thu đơn vị nghệ thuật, hoạt động nghệ thuật chuyên nghiệp, thông tin báo chí – mạng xã hội, khách du lịch nội địa và quốc tế, doanh thu dịch vụ du lịch. Số liệu giả lập.',
+ items:VHTT_ITEMS.concat(DL_ITEMS)});
+ categorySeed.UBND=categorySeed.UBND.filter(c=>!UBND_SO_DA_NHAP.includes(c.id));
+ }
 
  /* Chỉ tiêu "Theo dõi nhiệm vụ"/tổng hợp xã-phường là số liệu gộp của cả trục, không đại diện cho 1 phòng/ban
  cụ thể — loại khỏi cây "Cơ cấu tổ chức" và màn chọn tài khoản phòng/ban cấp Thành phố. */
@@ -1065,10 +1077,10 @@
  TW_MTTQ:['Tổng hợp chương trình giám sát, phản biện xã hội','Theo dõi vận động Quỹ "Vì người nghèo" Trung ương','Tổng hợp ý kiến, kiến nghị cử tri toàn quốc','Chuẩn bị nội dung hội nghị Ủy ban Trung ương MTTQ','Theo dõi hoạt động các tổ chức chính trị - xã hội thành viên','Tổng hợp kết quả hiệp thương, phối hợp thống nhất hành động']
  };
  const fieldPool = {
- DANG:['Điều hành – chỉ đạo','Tổ chức cán bộ (Ban Tổ chức)','Kiểm tra – giám sát (UBKT)','Nội chính – tiếp công dân','Tuyên giáo – dân vận','Nghị quyết 57-NQ/TW','Văn bản điều hành','Cháy nổ','An toàn thực phẩm','Trật tự đô thị','Vệ sinh môi trường','Úng ngập đô thị','Văn hóa - thể thao','Giáo dục đào tạo','Nông nghiệp','Y tế','Tài chính','Nội vụ','Tư pháp','Công thương','Xây dựng','Khoa học công nghệ','Dân tộc tôn giáo','Du lịch','Quy hoạch kiến trúc','Khu công nghiệp'],
- HDND:['Điều hành kỳ họp','Theo dõi nghị quyết','Giám sát chuyên đề','Cử tri – kiến nghị','Cháy nổ','An toàn thực phẩm','Trật tự đô thị','Vệ sinh môi trường','Úng ngập đô thị','Văn hóa - thể thao','Giáo dục đào tạo','Nông nghiệp','Y tế','Tài chính','Nội vụ','Tư pháp','Công thương','Xây dựng','Khoa học công nghệ','Dân tộc tôn giáo','Du lịch','Quy hoạch kiến trúc','Khu công nghiệp'],
- UBND:['Giáo dục và Đào tạo','Nông nghiệp và Môi trường','Y tế','Hành chính công','Tài chính – ngân sách','Nội vụ','Kinh tế – xã hội','Văn bản điều hành','Cháy nổ','An toàn thực phẩm','Trật tự đô thị','Vệ sinh môi trường','Úng ngập đô thị','Văn hóa - thể thao','Giáo dục đào tạo','Nông nghiệp','Tài chính','Tư pháp','Công thương','Xây dựng','Khoa học công nghệ','Dân tộc tôn giáo','Du lịch','Quy hoạch kiến trúc','Khu công nghiệp'],
- MTTQ:['Phản biện xã hội','Quỹ vì người nghèo','Quỹ biển đảo','Tặng quà Tết','Đoàn thể chính trị - xã hội','Cháy nổ','An toàn thực phẩm','Trật tự đô thị','Vệ sinh môi trường','Úng ngập đô thị','Văn hóa - thể thao','Giáo dục đào tạo','Nông nghiệp','Y tế','Tài chính','Nội vụ','Tư pháp','Công thương','Xây dựng','Khoa học công nghệ','Dân tộc tôn giáo','Du lịch','Quy hoạch kiến trúc','Khu công nghiệp'],
+ DANG:['Điều hành – chỉ đạo','Tổ chức cán bộ (Ban Tổ chức)','Kiểm tra – giám sát (UBKT)','Nội chính – tiếp công dân','Tuyên giáo – dân vận','Nghị quyết 57-NQ/TW','Văn bản điều hành','Cháy nổ','An toàn thực phẩm','Trật tự đô thị','Vệ sinh môi trường','Úng ngập đô thị','Văn hóa - thể thao - du lịch','Giáo dục đào tạo','Nông nghiệp','Y tế','Tài chính','Nội vụ','Tư pháp','Công thương','Xây dựng','Khoa học công nghệ','Dân tộc tôn giáo','Khu công nghiệp'],
+ HDND:['Điều hành kỳ họp','Theo dõi nghị quyết','Giám sát chuyên đề','Cử tri – kiến nghị','Cháy nổ','An toàn thực phẩm','Trật tự đô thị','Vệ sinh môi trường','Úng ngập đô thị','Văn hóa - thể thao - du lịch','Giáo dục đào tạo','Nông nghiệp','Y tế','Tài chính','Nội vụ','Tư pháp','Công thương','Xây dựng','Khoa học công nghệ','Dân tộc tôn giáo','Khu công nghiệp'],
+ UBND:['Giáo dục và Đào tạo','Nông nghiệp và Môi trường','Y tế','Hành chính công','Tài chính – ngân sách','Nội vụ','Kinh tế – xã hội','Văn bản điều hành','Cháy nổ','An toàn thực phẩm','Trật tự đô thị','Vệ sinh môi trường','Úng ngập đô thị','Văn hóa - thể thao - du lịch','Giáo dục đào tạo','Nông nghiệp','Tài chính','Tư pháp','Công thương','Xây dựng','Khoa học công nghệ','Dân tộc tôn giáo','Khu công nghiệp'],
+ MTTQ:['Phản biện xã hội','Quỹ vì người nghèo','Quỹ biển đảo','Tặng quà Tết','Đoàn thể chính trị - xã hội','Cháy nổ','An toàn thực phẩm','Trật tự đô thị','Vệ sinh môi trường','Úng ngập đô thị','Văn hóa - thể thao - du lịch','Giáo dục đào tạo','Nông nghiệp','Y tế','Tài chính','Nội vụ','Tư pháp','Công thương','Xây dựng','Khoa học công nghệ','Dân tộc tôn giáo','Khu công nghiệp'],
  TW_CTN:['Đặc xá - ân giảm','Khen thưởng Nhà nước','Đối ngoại - lễ tân','Đơn thư công dân','Quốc phòng, an ninh quốc gia','Văn bản trình ký'],
  TW_DANG:['Tổ chức - cán bộ','Đào tạo bồi dưỡng','Bảo vệ chính trị nội bộ','Kiểm tra giám sát','Văn phòng ban','Công tác đảng vụ'],
  TW_QH:['Xây dựng pháp luật','Giám sát tối cao','Kiến nghị cử tri','Ngân sách nhà nước','Đối ngoại Quốc hội','Kỳ họp Quốc hội'],
