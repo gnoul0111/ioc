@@ -13,7 +13,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EF = json.load(open(os.path.join(ROOT, 'tools', 'snv-fields.json'), encoding='utf-8'))
 OUT = os.path.join(ROOT, 'docs', 'SNV_SoNoiVu', 'SNV_MO_TA_CHI_TIEU.docx')
 _JS = ("const fs=require('fs'),vm=require('vm');const c={};vm.createContext(c);"
-       "vm.runInContext(fs.readFileSync('js/core/snv-config.js','utf8')+';this.S=SNV_SUM;this.D=SNV_UNITS.reduce((a,u)=>a+u.dan,0);',c);"
+       "vm.runInContext(fs.readFileSync('js/core/xa-dan-so.js','utf8')+fs.readFileSync('js/core/snv-config.js','utf8')+';this.S=SNV_SUM;this.D=SNV_UNITS.reduce((a,u)=>a+u.dan,0);',c);"
        "process.stdout.write(JSON.stringify({S:c.S,D:c.D}));")
 _R = json.loads(subprocess.run(['node', '-e', _JS], cwd=ROOT, capture_output=True, check=True).stdout.decode('utf-8'))
 S, DAN = _R['S'], _R['D']
@@ -49,7 +49,7 @@ table([
     ['Nguồn dữ liệu', f'File mô tả đầu vào eform, sheet "Sở Nội vụ": 2 eform, {len(EA["fields"]) + len(EB["fields"])} trường nhập'],
     ['Phạm vi', '4 chỉ tiêu, 13 biểu đồ, bảng 126 phường/xã; giữ 5 chỉ tiêu số liệu thật đã có'],
     ['Số liệu ví dụ', 'Số giả lập đặt theo số liệu đã công bố của Hà Nội, kỳ tháng 9/2026'],
-    ['Phiên bản', '1.2 · ngày 13/10/2026 (theo phản hồi nhóm triển khai khi nối eform thật: thêm quy ước xử lý dữ liệu eform — khóa bản ghi, cách lấy theo kỳ, chỉ hiện số có trường trong eform)'],
+    ['Phiên bản', '1.3 · ngày 20/10/2026 (số giả lập dân số từng phường/xã lấy đúng dân số thật theo phương án sắp xếp đơn vị hành chính cấp xã năm 2025, tổng 8.818.383 người, để mẫu số tỷ lệ khớp cột Dân số của bảng 126 phường/xã). Bản 1.2 · ngày 13/10/2026: thêm quy ước xử lý dữ liệu eform — khóa bản ghi, cách lấy theo kỳ, chỉ hiện số có trường trong eform'],
 ], [4.2, 10.0], header=False, size=12, key_col=True)
 k.page_break()
 k.toc()

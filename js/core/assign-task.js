@@ -140,7 +140,7 @@
  } else toast('Lĩnh vực/loại văn bản này đã có trong danh sách.');
  document.getElementById(dropdownId).classList.add('hidden');
  }
- const ASSIGN_FIELD_OPTIONS=['Cháy nổ','An toàn thực phẩm','Trật tự đô thị','Vệ sinh môi trường','Úng ngập đô thị','Văn hóa - thể thao','Giáo dục đào tạo','Nông nghiệp','Y tế','Tài chính','Nội vụ','Tư pháp','Công thương','Xây dựng','Khoa học công nghệ','Dân tộc tôn giáo','Du lịch','Quy hoạch kiến trúc','Khu công nghiệp','Khác'];
+ const ASSIGN_FIELD_OPTIONS=['Cháy nổ','An toàn thực phẩm','Trật tự đô thị','Vệ sinh môi trường','Úng ngập đô thị','Văn hóa - thể thao - du lịch','Giáo dục đào tạo','Nông nghiệp','Y tế','Tài chính','Nội vụ','Tư pháp','Công thương','Xây dựng','Khoa học công nghệ','Dân tộc tôn giáo','Khu công nghiệp','Khác'];
  function assFieldOptions(){return ASSIGN_FIELD_OPTIONS}
  function openAssFieldDropdown(){const input=document.getElementById('assFieldInput');renderComboList('assFieldInput','assFieldDropdown',assFieldOptions,'px-ioc-custom-fields-'+document.getElementById('assRole').value,'');input.select()}
  function filterAssField(){renderComboList('assFieldInput','assFieldDropdown',assFieldOptions,'px-ioc-custom-fields-'+document.getElementById('assRole').value,document.getElementById('assFieldInput').value)}

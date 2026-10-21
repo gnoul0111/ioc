@@ -47,7 +47,13 @@
 .stc-root.ctm-root .stc-gl .stc-dl{white-space:normal;flex-wrap:wrap;justify-content:flex-end;row-gap:1px;text-align:right;max-width:100%;line-height:1.25}
 .stc-root.ctm-root .stc-gl .stc-dl .stc-ref{flex-basis:100%;font-size:11px}
 .stc-root.ctm-root .stc-kpi .stc-dl{white-space:normal;flex-wrap:wrap;line-height:1.3}
-.stc-root svg.ctm-line{width:100%;height:auto;max-height:280px;display:block}
+/* thẻ gọn (nhóm chỉ một chỉ tiêu): đứng cạnh biểu đồ theo tỷ lệ 1:2; số kỳ so sánh ghi bằng chữ thay cho thanh nhắc lại số (H14) */
+.stc-root .ctm-g12{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:16px}
+@media(max-width:1000px){.stc-root .ctm-g12{grid-template-columns:minmax(0,1fr)}}
+.stc-root .ctm-cmpline{margin-top:12px;padding-top:10px;border-top:1px solid var(--line);font-size:12.5px;color:var(--mute)}
+.stc-root .ctm-cmprates{margin-top:12px;padding-top:4px;border-top:1px solid var(--line)}
+.stc-root.ctm-root .ctm-cmprates .sgd-rt{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) 64px auto}
+.stc-root .ctm-cmpline b{color:var(--ink2);font-weight:700;font-variant-numeric:tabular-nums}
 .stc-root .stc-pg .ctm-pgdl{font-size:11.5px;font-weight:600;margin-left:6px}
 .stc-root .stc-pg .ctm-pgdl .stc-dl{font-size:11.5px}
 

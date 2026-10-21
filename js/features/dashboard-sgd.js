@@ -450,28 +450,14 @@ function sgdWaterfall(T, node) {
 }
 function sgdTrend(T, node) {
   if (node.now == null) return null;
-  const y = T.n.y, pts = [];
+  const y = T.n.y, rate = sgdIsRate(node), dd = rate ? 1 : 0, pts = [];
   for (let i = 0; i < 5; i++) {
     const yy = y - 4 + i;
-    const v = yy === y ? node.now : yy === T.n.py ? node.prev : null;
-    pts.push({ i: i, y: yy, v: v });
+    pts.push({ l: yy + '–' + String(yy + 1).slice(2), v: yy === y ? node.now : yy === T.n.py ? node.prev : null, on: yy === y });
   }
-  const has = pts.filter((p) => p.v != null);
-  if (has.length < 2) return null;
-  const vs = has.map((p) => p.v), mn = Math.min(...vs), mx = Math.max(...vs);
-  const span = (mx - mn) || Math.max(mx, 1) * 0.2, lo = Math.max(0, mn - span * 0.8), hi = mx + span * 0.5;
-  const yOf = (v) => 30 + (1 - (v - lo) / (hi - lo)) * 160, xOf = (i) => 70 + i * 105, rate = sgdIsRate(node), dd = rate ? 1 : 0;
-  let s = '<svg viewBox="0 0 560 250" style="width:100%;height:auto;display:block" role="img" aria-label="Xu hướng theo năm học"><g stroke="var(--line)" stroke-width="1">';
-  [hi, (lo + hi) / 2, lo].forEach((v) => { s += '<line x1="70" y1="' + yOf(v).toFixed(1) + '" x2="530" y2="' + yOf(v).toFixed(1) + '"/>'; });
-  s += '</g>';
-  [hi, (lo + hi) / 2, lo].forEach((v) => { s += '<text class="stc-ax" x="60" y="' + (yOf(v) + 4).toFixed(1) + '" text-anchor="end">' + sgdFmt(v, dd) + '</text>'; });
-  for (let k = 0; k < has.length - 1; k++) s += '<line x1="' + xOf(has[k].i) + '" y1="' + yOf(has[k].v).toFixed(1) + '" x2="' + xOf(has[k + 1].i) + '" y2="' + yOf(has[k + 1].v).toFixed(1) + '" stroke="var(--ink2)" stroke-width="2" stroke-linecap="round"/>';
-  pts.forEach((p) => {
-    if (p.v == null) s += '<circle cx="' + xOf(p.i) + '" cy="190" r="3.5" fill="none" stroke="var(--mute)" stroke-width="1.5"/>';
-    else s += '<circle cx="' + xOf(p.i) + '" cy="' + yOf(p.v).toFixed(1) + '" r="7" fill="' + (p.y === y ? 'var(--s1)' : 'var(--prev)') + '" stroke="var(--card)" stroke-width="2"/><text class="stc-vl" x="' + xOf(p.i) + '" y="' + (yOf(p.v) - 14).toFixed(1) + '" text-anchor="middle">' + sgdFmt(p.v, dd) + (rate ? '%' : '') + '</text>';
-    s += '<text class="stc-ax" x="' + xOf(p.i) + '" y="214" text-anchor="middle">' + p.y + '–' + String(p.y + 1).slice(2) + '</text>';
-  });
-  return s + '</svg>';
+  if (pts.filter((p) => p.v != null).length < 2) return null;
+  /* biểu đồ đường dùng chung (js/core/line-chart.js); năm học chưa có số: vòng rỗng ở đáy, không nội suy */
+  return lcBox(pts, { fmt: (v) => sgdFmt(v, dd) + (rate ? '%' : ''), fmtAx: (v, A) => sgdFmt(v, A.dec) + (rate ? '%' : ''), pct: rate, zero: true, ghost: true, gap: true, line: 'var(--ink2)', dot: 'var(--prev)', dotOn: 'var(--s1)' }).html;
 }
 function sgdInherit(T, x, key) { let m = x; while (m) { if (m[key]) return m[key]; m = T.parentOf[m.id]; } return ''; }
 function sgdRawOf(T, x) {
@@ -523,8 +509,9 @@ function sgdScreenDetail() {
   else h += '<div class="stc-card"><div class="stc-ch" style="margin-bottom:10px"><div><h3 class="stc-ct">Số liệu gốc từ API</h3><div class="stc-cs">' + sgdE(node.label) + '</div></div></div><div class="sgd-rawh"><span>Endpoint</span><span>Trường dữ liệu</span><span>Lọc</span><span>Giá trị</span></div>' +
     rows.map((r) => '<div class="sgd-raw"><span class="sgd-mono">' + sgdE(r.ep) + '</span><span class="sgd-mono">' + sgdE(r.field) + '</span><span>' + sgdE(r.filt) + '</span><span>' + r.val + '</span></div>').join('') +
     '<div class="stc-hint" style="margin-top:12px">' + (node.kind === 'rate' ? 'Mỗi dòng là tổng số học sinh mắc bệnh, cộng từ các trường; tỷ lệ tính ở form.' : 'Mỗi dòng là tổng cộng từ bản ghi các trường (số giả lập). Bấm "Theo 126 phường/xã" để xem theo từng đơn vị.') + '</div></div></div>';
-  /* Khối Cách tính ẨN theo cờ chung SHOW_FORMULA_BOX (dashboard-vhtt.js): cách tính để trong tài liệu mô tả, không hiện trên giao diện */
-  if (typeof SHOW_FORMULA_BOX === 'undefined' || SHOW_FORMULA_BOX) h += '<div class="stc-card"><div class="stc-ch" style="margin-bottom:10px"><div><h3 class="stc-ct">Cách tính · ' + sgdE(node.label) + '</h3><div class="stc-cs">Công thức tính từ số liệu của các trường, không có số nào tự đặt</div></div></div><div class="stc-fl">' +
+  /* Khối Cách tính ẨN theo cờ chung SHOW_FORMULA_BOX (dashboard-vhtt.js): cách tính để trong tài liệu mô tả, không hiện trên giao diện.
+     Không có cờ (trang độc lập không nạp dashboard-vhtt.js) cũng ẩn — chỉ hiện khi SHOW_FORMULA_BOX = true */
+  if (typeof SHOW_FORMULA_BOX !== 'undefined' && SHOW_FORMULA_BOX) h += '<div class="stc-card"><div class="stc-ch" style="margin-bottom:10px"><div><h3 class="stc-ct">Cách tính · ' + sgdE(node.label) + '</h3><div class="stc-cs">Công thức tính từ số liệu của các trường, không có số nào tự đặt</div></div></div><div class="stc-fl">' +
     sgdFormulas(T, node).map((t) => '<div class="stc-note" style="padding:9px 12px;font-size:12.5px">' + sgdE(t) + '</div>').join('') + '</div></div>';
   h += '</div><div class="stc-pn"><button type="button" class="stc-btn" onclick="sgdStep(-1)">‹ ' + sgdE(prevI.label) + '</button><button type="button" class="stc-btn" onclick="sgdStep(1)">' + sgdE(nextI.label) + ' ›</button></div>';
   return h + sgdFoot();
@@ -706,6 +693,7 @@ function sgdRerender(resetScroll) {
   let html;
   try { html = sgdScreenHtml(); } catch (e) { console.error(e); html = sgdEmpty('Không dựng được màn hình', 'Có lỗi khi tính số liệu giả lập: ' + (e && e.message ? e.message : e)); }
   body.innerHTML = '<div class="stc-root sgd-root stc-wrap">' + html + '</div>' + sgdTasksHtml();
+  if (typeof lcFit === 'function') lcFit(body);
   body.scrollTop = resetScroll ? 0 : top;
   if (SGD_UI.focusQ) {
     const inp = body.querySelector('#sgdQ');
@@ -726,6 +714,8 @@ function sgdOpenForm(itemIndex, role) {
   SGD_UI.open = true;
   sgdRerender(true);
   if (typeof openModal === 'function') openModal();
+  /* lần dựng đầu popup còn ẩn: vẽ lại biểu đồ đường khi popup đã hiện */
+  if (typeof lcFit === 'function') lcFit(document.getElementById('modalBody'));
 }
 function sgdClose() { SGD_UI.open = false; if (typeof closeModal === 'function') closeModal(); }
 function sgdGo(screen, arg) { SGD_UI.dd = null; SGD_UI.pick = null; SGD_UI.screen = screen; if (screen === 'group' && arg) SGD_UI.group = arg; sgdRerender(true); }

@@ -269,7 +269,7 @@
  if(catId==='ubnd-vhtt' && typeof initVhttCharts==='function') initVhttCharts();
  if(catId==='ubnd-vpubnd' && typeof initVpubCharts==='function') initVpubCharts();
  if(catId==='ubnd-bqlkcnc' && typeof initBqlCharts==='function') initBqlCharts();
- if(catId==='ubnd-dulich' && typeof initDlCharts==='function') initDlCharts();
+ if((catId==='ubnd-dulich' || (catId==='ubnd-vhtt' && typeof UBND_SAP_XEP_SO_2026!=='undefined' && UBND_SAP_XEP_SO_2026)) && typeof initDlCharts==='function') initDlCharts();
  if(catId==='ubnd-dantoc-tongiao' && typeof initDttgCharts==='function') initDttgCharts();
  if(catId==='ubnd-thanhtra' && typeof initTtraCharts==='function') initTtraCharts();
  if(catId==='ubnd-khcn' && typeof initKhcnCharts==='function') initKhcnCharts();

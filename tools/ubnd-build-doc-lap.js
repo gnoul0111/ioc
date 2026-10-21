@@ -27,7 +27,7 @@ if (!m) throw new Error('Không tìm thấy gdUnitData trong dashboard-education
 const units = 'const gdUnitData=[' + m[1] + '\n];';
 
 /* 3. Cấu hình số liệu các sở (thứ tự như demo_ioc.html) */
-const CONFIGS = ['stc-config', 'sgd-config', 'hcc-config', 'vhtt-config', 'vpub-config', 'bql-config', 'dl-config', 'dttg-config',
+const CONFIGS = ['xa-dan-so', 'stc-config', 'sgd-config', 'hcc-config', 'vhtt-config', 'vpub-config', 'bql-config', 'dl-config', 'dttg-config',
   'ttra-config', 'khcn-config', 'nnmt-config', 'sct-config', 'sxd-config', 'snv-config', 'syt-config'].map((f) => 'js/core/' + f + '.js');
 
 /* 4. Danh sách 18 đơn vị trục UBND: cắt đoạn UBND:[...] của categorySeed rồi chạy trong vm cùng cấu hình các sở */
@@ -36,13 +36,18 @@ const u0 = cl.indexOf('\n UBND:[', cl.indexOf('const categorySeed = {'));
 const u1 = cl.indexOf('\n };', u0);
 if (u0 < 0 || u1 < 0) throw new Error('Không tìm thấy UBND:[...] trong central-level.js');
 const ubndSrc = cl.slice(u0 + '\n UBND:'.length, u1).trim();
+/* Sắp xếp sở theo bộ máy mới (cờ UBND_SAP_XEP_SO_2026 ngay sau categorySeed): chạy nguyên đoạn đó trên danh sách vừa cắt */
+const x0 = cl.indexOf(' const UBND_SAP_XEP_SO_2026'), x1 = cl.indexOf('\n }', cl.indexOf('if(UBND_SAP_XEP_SO_2026){', x0));
+if (x0 < 0 || x1 < 0) throw new Error('Không tìm thấy đoạn UBND_SAP_XEP_SO_2026 trong central-level.js');
+const sapXepSrc = cl.slice(x0, x1 + 3);
 const ctx = { console: console, window: {}, document: { addEventListener() {} }, localStorage: { getItem() { return null; }, setItem() {} }, location: { search: '' } };
 ctx.globalThis = ctx;
 vm.createContext(ctx);
 vm.runInContext(CONFIGS.map(read).join('\n;\n') +
   '\n;function P(dim,items){return {dim,type:"bar",items:items.map(x=>({label:x[0],value:x[1]}))};}' +
   '\nfunction S(dim,items){return {dim,type:"stat",items:items.map(x=>({label:x[0],value:x[1]}))};}' +
-  '\nglobalThis.__cats = ' + ubndSrc + ';', ctx);
+  '\nglobalThis.__cats = ' + ubndSrc + ';' +
+  '\nvar categorySeed = { UBND: globalThis.__cats };\n' + sapXepSrc + '\nglobalThis.__cats = categorySeed.UBND; globalThis.__sapXep = UBND_SAP_XEP_SO_2026;', ctx);
 const cats = ctx.__cats.map((c) => ({ id: c.id, name: c.name, desc: c.desc, types: c.types || [], noItems: !!c.noItems, items: (c.items || []).map((it) => [it[0]]) }));
 if (cats.length < 10) throw new Error('Danh sách đơn vị UBND bất thường: ' + cats.length);
 
@@ -59,6 +64,7 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 ${read('js/core/modal-drawer-toast.js').split('\n').filter((l) => /^\s*(const INDICATOR_ENTRY_URL|function openIndicatorEntrySystem|function indicatorEntryBtnHtml)/.test(l)).map((l) => l.trim()).join('\n')}
 const currentRole='UBND';
 const currentXaId=null;
+const UBND_SAP_XEP_SO_2026=${ctx.__sapXep};
 const UBND_CATS=${JSON.stringify(cats)};
 function categorySeedForRole(r){ return r==='UBND' ? UBND_CATS : []; }
 function openCategoryDetail(role, catId, itemIndex){
@@ -103,7 +109,7 @@ const js = frameJs + '\n\n/* ===== gdUnitData (từ js/features/dashboard-educat
   part('js/features/sgd-data.js') + part('js/features/dashboard-sgd.js') +
   part('js/features/hcc-data.js') + part('js/features/dashboard-hcc.js') +
   part('js/features/ubnd-overview.js') +
-  part('js/core/ctm-xa.js') + part('js/features/ctm-engine.js') + part('js/features/ctm-so.js');
+  part('js/core/line-chart.js') + part('js/core/ctm-xa.js') + part('js/features/ctm-engine.js') + part('js/features/ctm-so.js');
 if (/<\/script/i.test(js) || /<\/style/i.test(css)) throw new Error('Mã nhúng chứa thẻ đóng </script> hoặc </style>');
 
 const built = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });

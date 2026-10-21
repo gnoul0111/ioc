@@ -55,7 +55,7 @@ function ouaGenericOffices(axis, prefix){
 const ouaCityUnits = [
   ...ouaGenericOffices('DANG','ORG-TU'),
   ...ouaGenericOffices('HDND','ORG-HD'),
-  {axis:'UBND', code:'ORG-UB-VHTT', name:'Sở Văn hóa và Thể thao'},
+  {axis:'UBND', code:'ORG-UB-VHTT', name:(typeof ACCOUNT_SAP_XEP_SO_2026!=='undefined' && ACCOUNT_SAP_XEP_SO_2026) ? 'Sở Văn hóa, Thể thao và Du lịch' : 'Sở Văn hóa và Thể thao'},
   {axis:'UBND', code:'ORG-UB-GDDT', name:'Sở Giáo dục và Đào tạo'},
   {axis:'UBND', code:'ORG-UB-NNMT', name:'Sở Nông nghiệp và Môi trường'},
   {axis:'UBND', code:'ORG-UB-YTE', name:'Sở Y tế'},
@@ -73,7 +73,8 @@ const ouaCityUnits = [
   {axis:'UBND', code:'ORG-UB-VPUB', name:'Văn phòng UBND Thành phố Hà Nội'},
   {axis:'UBND', code:'ORG-UB-KCNC', name:'Ban Quản lý Khu công nghệ cao và khu công nghiệp'},
   ...ouaGenericOffices('MTTQ','ORG-MT')
-];
+/* Sở Du lịch, Sở Quy hoạch - Kiến trúc đã nhập sở khác (account-sap-xep.js): giữ dòng khai báo, chỉ lọc khỏi danh sách */
+].filter(u=>!(typeof ACCOUNT_SAP_XEP_SO_2026!=='undefined' && ACCOUNT_SAP_XEP_SO_2026 && ['ORG-UB-DL','ORG-UB-QHKT'].includes(u.code)));
 const ouaWardNames = ['Phường Ba Đình','Phường Bạch Mai','Phường Bồ Đề','Phường Chương Mỹ','Phường Cầu Giấy','Phường Cửa Nam','Phường Dương Nội','Phường Giảng Võ','Phường Hai Bà Trưng','Phường Hoàn Kiếm','Phường Hoàng Liệt','Phường Hoàng Mai','Phường Hà Đông','Phường Hồng Hà','Phường Khương Đình','Phường Kim Liên','Phường Kiến Hưng','Phường Long Biên','Phường Láng','Phường Lĩnh Nam','Phường Nghĩa Đô','Phường Ngọc Hà','Phường Phú Diễn','Phường Phú Lương','Phường Phú Thượng','Phường Phúc Lợi','Phường Phương Liệt','Phường Sơn Tây','Phường Thanh Liệt','Phường Thanh Xuân','Phường Thượng Cát','Phường Tây Hồ','Phường Tây Mỗ','Phường Tây Tựu','Phường Tùng Thiện','Phường Tương Mai','Phường Từ Liêm','Phường Việt Hưng','Phường Văn Miếu - Quốc Tử Giám','Phường Vĩnh Hưng','Phường Vĩnh Tuy','Phường Xuân Phương','Phường Xuân Đỉnh','Phường Yên Hòa','Phường Yên Nghĩa','Phường Yên Sở','Phường Ô Chợ Dừa','Phường Đông Ngạc','Phường Đại Mỗ','Phường Định Công','Phường Đống Đa','Xã An Khánh','Xã Ba Vì','Xã Bát Tràng','Xã Bình Minh','Xã Bất Bạt','Xã Chuyên Mỹ','Xã Chương Dương','Xã Cổ Đô','Xã Dân Hòa','Xã Dương Hòa','Xã Gia Lâm','Xã Hoài Đức','Xã Hát Môn','Xã Hòa Lạc','Xã Hòa Phú','Xã Hòa Xá','Xã Hưng Đạo','Xã Hương Sơn','Xã Hạ Bằng','Xã Hồng Sơn','Xã Hồng Vân','Xã Kim Anh','Xã Kiều Phú','Xã Liên Minh','Xã Minh Châu','Xã Mê Linh','Xã Mỹ Đức','Xã Nam Phù','Xã Ngọc Hồi','Xã Nội Bài','Xã Phù Đổng','Xã Phú Cát','Xã Phú Nghĩa','Xã Phú Xuyên','Xã Phúc Lộc','Xã Phúc Sơn','Xã Phúc Thịnh','Xã Phúc Thọ','Xã Phượng Dực','Xã Quang Minh','Xã Quảng Bị','Xã Quảng Oai','Xã Quốc Oai','Xã Suối Hai','Xã Sóc Sơn','Xã Sơn Đồng','Xã Tam Hưng','Xã Thanh Oai','Xã Thanh Trì','Xã Thiên Lộc','Xã Thuận An','Xã Thư Lâm','Xã Thường Tín','Xã Thượng Phúc','Xã Thạch Thất','Xã Tiến Thắng','Xã Trung Giã','Xã Trần Phú','Xã Tây Phương','Xã Vân Đình','Xã Vĩnh Thanh','Xã Vật Lại','Xã Xuân Mai','Xã Yên Bài','Xã Yên Lãng','Xã Yên Xuân','Xã Ô Diên','Xã Đa Phúc','Xã Đan Phượng','Xã Đoài Phương','Xã Đông Anh','Xã Đại Thanh','Xã Đại Xuyên','Xã Ứng Hòa','Xã Ứng Thiên'];
 
 let ouaOrgRows = null;
@@ -407,10 +408,26 @@ function ouaInferAxisFromName(name){
   if(/MTTQ/i.test(name)) return 'MTTQ';
   return null;
 }
+/* Tên xã/phường của 1 đơn vị — tên đơn vị cấp xã viết thường ("HĐND phường Định Công", "Đảng ủy xã An Khánh")
+   nên regex không phân biệt hoa thường, loại "Xã hội" như OUA_WARD_NAME_RE. Trả về "xã An Khánh"/"phường Láng". */
+const OUA_WARD_IN_NAME_RE = /(?:^|\s)((?:phường|xã)\s(?!hội).+)$/i;
+function ouaWardFromOrgName(name){
+  const m = (name||'').match(OUA_WARD_IN_NAME_RE);
+  if(!m) return null;
+  // Dữ liệu gốc lẫn 2 kiểu bỏ dấu ("Hoà"/"Hòa") giữa trục Đảng và 3 trục còn lại — gộp về kiểu "Hòa" để 1 xã không thành 2.
+  const OLD_TONE = {'oà':'òa','oá':'óa','oả':'ỏa','oã':'õa','oạ':'ọa','oè':'òe','oé':'óe','oẻ':'ỏe','oẽ':'õe','oẹ':'ọe'};
+  const w = m[1].normalize('NFC').replace(/o[àáảãạèéẻẽẹ](?!\p{L})/gu, s=>OLD_TONE[s]||s); // chỉ cuối âm tiết, không đụng "Đoài", "Khoái"
+  return w.charAt(0).toLowerCase() + w.slice(1);
+}
 function ouaBuildRealData(){
   const rows = [], users = [];
-  function walk(node, parentAxis, parentName){
+  function walk(node, parentAxis, parentName, parentWard, parentSo){
     const axis = ouaInferAxisFromName(node.name) || parentAxis || null;
+    // Chỉ nhận xã/phường ở đơn vị nằm ngay dưới nút gom "… Xã, Phường" — tránh nhầm "Trường PTCS Xã Đàn",
+    // "Phòng Ngân sách cấp xã", "Chi nhánh thị xã Sơn Tây" trong khối Sở.
+    // Nút gom: "HĐND Xã, Phường", "MTTQ Xã, Phường", "Xã, Phường" (UBND), "Đảng bộ trực thuộc" (Đảng ủy xã/phường).
+    const ward = parentWard || (/Xã,\s*Phường|Đảng bộ trực thuộc/i.test(parentName||'') ? ouaWardFromOrgName(node.name) : null);
+    const soName = parentSo || (parentName === 'Sở ngành' ? node.name : null); // con trực tiếp của nút gom "Sở ngành" (gồm cả Ban QL, Thanh tra…)
     rows.push({
       id: node.id, name: node.name, path: node.path, level: node.level,
       parentId: node.parent_id, parentName: parentName || null, axis,
@@ -421,10 +438,10 @@ function ouaBuildRealData(){
         id: u.egov_user_id, name: u.name, label: u.label, email: u.email,
         position: u.position, positionLevel: u.position_level,
         jobTitle: u.job_title, jobTitleLevel: u.job_title_level,
-        orgId: node.id, orgName: node.name, orgPath: node.path, level: node.level, axis
+        orgId: node.id, orgName: node.name, orgPath: node.path, level: node.level, axis, ward, soName
       });
     });
-    (node.children||[]).forEach(c=>walk(c, axis, node.name));
+    (node.children||[]).forEach(c=>walk(c, axis, node.name, ward, soName));
   }
   if(typeof OUA_ACCOUNT_DATA !== 'undefined' && OUA_ACCOUNT_DATA){
     walk(OUA_ACCOUNT_DATA, null, null);
@@ -489,6 +506,10 @@ function ouaComputeAdminKpis(){
 }
 function ouaRenderAdminOverview(){
   if(!ouaRealUserRows) ouaBuildRealData();
+  const v1 = document.getElementById('ouaAdminV1'), v2 = document.getElementById('ouaAdminV2');
+  if(v1) v1.style.display = OUA_ADMIN_TONG_V2 ? 'none' : '';
+  if(v2) v2.style.display = OUA_ADMIN_TONG_V2 ? '' : 'none';
+  if(OUA_ADMIN_TONG_V2 && v2){ ouaAdmRender(); return; }
   const kpi = ouaComputeAdminKpis();
   const set=(id,val)=>{const el=document.getElementById(id); if(el) el.textContent = val.toLocaleString('vi-VN');};
   set('ouaKpiAdminTotal', kpi.total);
@@ -609,6 +630,298 @@ function ouaRevokeAdmin(id){
   ouaRevokedAdminIds.add(id);
   ouaFilterAdminUsers();
   ouaToast('Đã gỡ quyền admin (demo, chưa ghi backend).');
+}
+
+/* ===== Quản trị Tổng v2 (2026-10-19) — làm lại theo ảnh màn "Phân Quyền Quản Trị Hệ Thống" anh gửi:
+   6 ô KPI (tổng + 4 trục + Quản trị địa bàn), khối cấu hình hình thức phân quyền + nút gán hàng loạt, tab 4 trục,
+   bảng toàn bộ người dùng trong phạm vi (không chỉ ứng viên lãnh đạo như bản cũ).
+   Bản cũ (8 ô KPI, #ouaAdminV1) giữ nguyên, ẩn bằng cờ OUA_ADMIN_TONG_V2.
+   Quyền Quản trị vẫn là dữ liệu DEMO: mồi ban đầu suy từ chức vụ (ouaIsAdminCandidate), gán/gỡ chỉ trong phiên. */
+const OUA_ADMIN_TONG_V2 = true;
+const OUA_ADM_MODES = {
+  diaban:{label:'Quản trị địa bàn', icon:'🏘️', who:'người dùng địa bàn',
+    info:'<b>Quyền Quản trị địa bàn:</b> Cán bộ được cấp sẽ có toàn quyền quản trị, xem và điều hành tất cả các trục <b>(Đảng ủy, HĐND, UBND, MTTQ)</b> trên phạm vi địa bàn của tài khoản (xã, phường hoặc cấp thành phố).'},
+  axis:{label:'Quản trị trục', icon:'🚩', who:'người dùng',
+    info:'<b>Quyền Quản trị trục:</b> Cán bộ được cấp sẽ quản trị người dùng, đơn vị và dữ liệu của <b>một trục công tác</b> (Đảng ủy, HĐND, UBND hoặc MTTQ) mà tài khoản đang thuộc, trên phạm vi toàn thành phố.'},
+  so:{label:'Quản trị Sở/Ngành', icon:'📘', who:'người dùng khối Sở/Ngành',
+    info:'<b>Quyền Quản trị Sở/Ngành:</b> Cán bộ được cấp sẽ quản trị người dùng và dữ liệu của Sở/Ngành mình cùng các đơn vị trực thuộc.'}
+};
+const OUA_ADM_AXES = {
+  DANG:{name:'Đảng ủy', icon:'🚩', color:'#ff5e7a'},
+  HDND:{name:'HĐND', icon:'🏛️', color:'#f7b500'},
+  UBND:{name:'UBND', icon:'🏢', color:'#14c38e'},
+  MTTQ:{name:'MTTQ', icon:'🤝', color:'#8a7cff'}
+};
+const OUA_ADM_AVATAR_COLORS = ['#3b6fd6','#6c5ce7','#0f9d8a','#d97706','#c2410c','#2563eb','#7c3aed','#0891b2'];
+const ouaAdmGrants = {diaban:new Map(), axis:new Map(), so:new Map()}; // id người dùng -> phạm vi (tên xã / mã trục / tên Sở)
+const ouaAdmSelected = new Set();
+let ouaAdmSeeded = false, ouaAdmTab = 'all', ouaAdmGrantFilter = 'all', ouaAdmLimit = 200, ouaAdmUserMap = null;
+function ouaAdmScopeOf(mode, u){ return mode==='diaban' ? u.ward : mode==='axis' ? u.axis : u.soName; }
+function ouaAdmMode(){ const v = document.getElementById('ouaAdmModeSel')?.value; return OUA_ADM_MODES[v] ? v : 'diaban'; }
+function ouaAdmUser(id){
+  if(!ouaAdmUserMap || ouaAdmUserMap.src !== ouaRealUserRows){ ouaAdmUserMap = new Map(ouaRealUserRows.map(u=>[u.id,u])); ouaAdmUserMap.src = ouaRealUserRows; }
+  return ouaAdmUserMap.get(id);
+}
+/* Mồi quyền ban đầu (demo): mỗi xã/phường 1 Quản trị địa bàn (ưu tiên người trục Đảng ủy), mỗi trục 2 Quản trị trục
+   cấp Thành phố, mỗi Sở 1 Quản trị Sở — lấy người đầu tiên có chức vụ lãnh đạo trong phạm vi đó. */
+function ouaAdmSeed(){
+  if(ouaAdmSeeded || !ouaRealUserRows) return;
+  /* Quản trị địa bàn: 1 người/xã, trục ưu tiên xoay vòng Đảng ủy → UBND → HĐND → MTTQ theo thứ tự xã, để 4 ô KPI trục
+     đều có số (bản đầu dồn hết vào Đảng ủy, 3 ô còn lại = 0 trông như lỗi). Xã không có ứng viên ở trục đến lượt thì lấy trục khác. */
+  const AX_ROT = ['DANG','UBND','HDND','MTTQ'];
+  const wardOrder = [...new Set(ouaRealUserRows.map(u=>u.ward).filter(Boolean))];
+  const wardPref = {}; wardOrder.forEach((w,i)=>wardPref[w] = AX_ROT[i % AX_ROT.length]);
+  const wardRows = [...ouaRealUserRows].sort((a,b)=>(a.axis===wardPref[a.ward]?0:1)-(b.axis===wardPref[b.ward]?0:1));
+  const seed = (mode, perScope, rows, extra) => {
+    const cnt = {};
+    rows.forEach(u=>{
+      const s = ouaAdmScopeOf(mode, u);
+      if(!s || !ouaIsAdminCandidate(u) || (extra && !extra(u)) || (cnt[s]||0) >= perScope) return;
+      cnt[s] = (cnt[s]||0) + 1;
+      ouaAdmGrants[mode].set(u.id, s);
+    });
+  };
+  seed('diaban', 1, wardRows);
+  seed('axis', 2, ouaRealUserRows, u=>!u.ward && !u.soName);
+  seed('so', 1, ouaRealUserRows);
+  ouaAdmSeeded = true;
+}
+function ouaAdmPopulation(mode){ return ouaRealUserRows.filter(u=>!!ouaAdmScopeOf(mode, u)); }
+function ouaAdmRender(){
+  if(!ouaRealUserRows) ouaBuildRealData();
+  ouaAdmSeed();
+  ouaAdmModeChanged(true);
+}
+/* Ô KPI (chốt lại 2026-10-19 theo anh):
+   - Tổng người dùng = đúng số tài khoản đang có trong danh sách bên dưới (= tab "Tất cả", đã áp ô tìm kiếm).
+   - 4 ô trục = số tài khoản ĐÃ CÓ quyền Quản trị (theo hình thức đang chọn) thuộc trục đó.
+   - Ô hình thức (⭐) = tổng tài khoản Quản trị; ô "Không phải Quản trị" = phần còn lại → Tổng = ⭐ + Không phải. */
+function ouaAdmRenderKpis(mode, pop){
+  const m = OUA_ADM_MODES[mode], grants = ouaAdmGrants[mode];
+  const set = (id, html)=>{ const el = document.getElementById(id); if(el) el.innerHTML = html; };
+  const n = v => v.toLocaleString('vi-VN');
+  let admins = 0;
+  Object.keys(OUA_ADM_AXES).forEach(ax=>{
+    const users = pop.filter(u=>u.axis===ax);
+    const axAdmins = users.filter(u=>grants.has(u.id)).length;
+    set('ouaAdmKpi_'+ax, n(axAdmins));
+    set('ouaAdmKpiHint_'+ax, `Quản trị · trên ${n(users.length)} tài khoản`);
+  });
+  pop.forEach(u=>{ if(grants.has(u.id)) admins++; });
+  set('ouaAdmKpiTotal', n(pop.length));
+  set('ouaAdmKpiTotalHint', `${m.who.charAt(0).toUpperCase() + m.who.slice(1)} · 4 trục`);
+  set('ouaAdmKpiDiaBan', n(admins));
+  set('ouaAdmKpiGrantLbl', `⭐ ${m.label}`);
+  set('ouaAdmKpiGrantHint', 'Tổng tài khoản đã cấp quyền');
+  set('ouaAdmKpiNonAdmin', n(pop.length - admins));
+  set('ouaAdmKpiNonAdminHint', 'Chưa được cấp ' + m.label);
+}
+/* Đổi hình thức phân quyền: cập nhật khối giải thích + nhãn nút gán, bỏ chọn (người đã tick có thể nằm ngoài phạm vi mới). */
+function ouaAdmModeChanged(keepSelection){
+  const m = OUA_ADM_MODES[ouaAdmMode()];
+  const info = document.getElementById('ouaAdmInfoText'); if(info) info.innerHTML = m.info;
+  ['ouaAdmGrantedChip','ouaAdmUngrantedChip'].forEach((id,i)=>{ const el = document.getElementById(id); if(el) el.textContent = (i ? 'Chưa có quyền ' : 'Đã có quyền ') + m.label; });
+  if(!keepSelection) ouaAdmSelected.clear();
+  ouaAdmFilter(true);
+}
+function ouaAdmSetTab(tab){ ouaAdmTab = tab; ouaAdmSyncFilterUi(); ouaAdmFilter(true); }
+function ouaAdmSetGrantFilter(f){ ouaAdmGrantFilter = f; ouaAdmSyncFilterUi(); ouaAdmFilter(true); }
+/* Bấm ô KPI = lọc bảng đúng tập ô đó đang đếm: Tổng → tất cả; ô trục → Quản trị của trục; ⭐ → mọi Quản trị;
+   "Không phải Quản trị" → người chưa được cấp quyền. */
+function ouaAdmKpiClick(k){
+  if(k==='all'){ ouaAdmTab = 'all'; ouaAdmGrantFilter = 'all'; }
+  else if(k==='granted' || k==='ungranted'){ ouaAdmTab = 'all'; ouaAdmGrantFilter = k; }
+  else { ouaAdmTab = k; ouaAdmGrantFilter = 'granted'; }
+  ouaAdmSyncFilterUi();
+  ouaAdmFilter(true);
+}
+function ouaAdmSyncFilterUi(){
+  const t = ouaAdmTab, f = ouaAdmGrantFilter;
+  const kpi = f==='all' ? (t==='all' ? 'all' : null) : t==='all' ? f : (f==='granted' ? t : null);
+  document.querySelectorAll('#ouaAdminV2 .oua-adm-tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===t));
+  document.querySelectorAll('#ouaAdminV2 .oua-adm-chipf').forEach(b=>b.classList.toggle('active', b.dataset.f===f));
+  document.querySelectorAll('#ouaAdminV2 .oua-adm-kpi[data-kpi]').forEach(b=>b.classList.toggle('active', b.dataset.kpi===kpi));
+}
+/* 2026-10-19: anh yêu cầu bảng hiện ĐỦ mọi tài khoản trong phạm vi (bỏ giới hạn 200 dòng + nút "Xem thêm").
+   Đặt cờ về false để quay lại kiểu 200 dòng/lần. Danh sách dài (tới 12.576 người) nên nạp dần OUA_ADM_CHUNK dòng khi cuộn tới. */
+const OUA_ADM_SHOW_ALL = true;
+const OUA_ADM_CHUNK = 400;
+function ouaAdmMore(){ ouaAdmLimit += 200; ouaAdmFilter(false); }
+let ouaAdmShown = [], ouaAdmRenderToken = 0;
+/* skipRows: chỉ cập nhật số liệu (KPI, tab, dòng tổng), giữ nguyên các dòng đã vẽ — dùng khi gán/gỡ quyền để
+   không vẽ lại cả nghìn dòng và không làm nhảy vị trí cuộn. */
+function ouaAdmFilter(resetLimit, skipRows){
+  if(!ouaRealUserRows) return;
+  if(resetLimit) ouaAdmLimit = 200;
+  const mode = ouaAdmMode(), grants = ouaAdmGrants[mode];
+  const q = (document.getElementById('ouaAdmSearch')?.value || '').trim().toLowerCase();
+  let pop = ouaAdmPopulation(mode);
+  if(q) pop = pop.filter(u => [u.name, u.email, u.label, u.orgName, u.ward, u.soName].some(s=>(s||'').toLowerCase().includes(q)));
+  ouaAdmRenderKpis(mode, pop);
+  const counts = {all:pop.length}; Object.keys(OUA_ADM_AXES).forEach(a=>counts[a]=0);
+  pop.forEach(u=>{ if(counts[u.axis]!=null) counts[u.axis]++; });
+  Object.keys(counts).forEach(k=>{ const el = document.getElementById('ouaAdmTabCnt_'+k); if(el) el.textContent = counts[k].toLocaleString('vi-VN'); });
+  let list = ouaAdmTab==='all' ? pop : pop.filter(u=>u.axis===ouaAdmTab);
+  if(ouaAdmGrantFilter==='granted') list = list.filter(u=>grants.has(u.id));
+  if(ouaAdmGrantFilter==='ungranted') list = list.filter(u=>!grants.has(u.id));
+  const adminCount = list.filter(u=>grants.has(u.id)).length; // đếm sau bộ lọc quyền để khớp các dòng đang hiện
+  const ordered = ouaAdmTab==='all' ? ouaInterleaveByAxis(list) : list;
+  const shown = OUA_ADM_SHOW_ALL ? ordered : ordered.slice(0, ouaAdmLimit);
+  if(!skipRows) ouaAdmShown = shown;
+  const sum = document.getElementById('ouaAdmSummary');
+  if(sum) sum.innerHTML = `Hiển thị <b>${list.length.toLocaleString('vi-VN')}</b> ${OUA_ADM_MODES[mode].who} · <b class="oua-adm-accent">${adminCount.toLocaleString('vi-VN')}</b> Quản trị`
+    + (list.length > shown.length ? ` <span class="oua-adm-dim">(đang hiện ${shown.length.toLocaleString('vi-VN')} dòng đầu)</span>` : '');
+  const more = document.getElementById('ouaAdmMoreWrap');
+  if(more) more.innerHTML = list.length > shown.length ? `<button class="btn ghost" onclick="ouaAdmMore()">Xem thêm ${Math.min(200, list.length-shown.length).toLocaleString('vi-VN')} người · còn ${(list.length-shown.length).toLocaleString('vi-VN')}</button>` : '';
+  if(!skipRows) ouaAdmRenderRows(ouaAdmShown);
+  ouaAdmRefreshActionBar();
+}
+function ouaAdmUsername(u){ return String(u.label||'').split(' - ')[0] || ''; }
+function ouaAdmAvatar(u){
+  const name = (u.name||'?').trim();
+  const color = OUA_ADM_AVATAR_COLORS[Math.abs(Number(u.id)||name.length) % OUA_ADM_AVATAR_COLORS.length];
+  return `<span class="oua-adm-av" style="background:${color}">${name.charAt(0).toUpperCase()}</span>`;
+}
+function ouaAdmGrantChips(u, chipClass){
+  const out = [];
+  Object.keys(OUA_ADM_MODES).forEach(mode=>{
+    const s = ouaAdmGrants[mode].get(u.id);
+    if(!s) return;
+    const text = mode==='diaban' ? 'Quản trị địa bàn' : mode==='axis' ? 'Quản trị trục ' + (OUA_ADM_AXES[s]?.name || '') : 'Quản trị ' + s;
+    out.push(`<span class="${chipClass}" title="${mode==='diaban' ? 'Phạm vi: '+s : ''}">${text}<button type="button" onclick="ouaAdmRevoke('${mode}', ${u.id})" title="Gỡ quyền">×</button></span>`);
+  });
+  return out.length ? out.join('') : '<span class="oua-adm-none">Chưa cấp Quản trị</span>';
+}
+function ouaAdmOrgTag(u){
+  const ax = OUA_ADM_AXES[u.axis];
+  const so = u.soName && u.soName !== u.orgName ? ` <span class="so">· ${u.soName}</span>` : '';
+  return `<span class="oua-adm-org">${u.orgName||'—'}${so}${u.position ? ` <span class="pos">${u.position}</span>` : ''}${ax ? ` <span class="ax" style="color:${ax.color}">· ${ax.name}</span>` : ''}</span>`;
+}
+const ouaAdmPlace = u => u.ward || 'Thành phố Hà Nội';
+function ouaAdmRowHtml(u){
+  const checked = ouaAdmSelected.has(u.id) ? 'checked' : '';
+  const uname = ouaAdmUsername(u);
+  return `<tr class="${checked?'oua-adm-sel':''}">
+      <td class="oua-td-check"><input type="checkbox" class="oua-adm-check" data-id="${u.id}" ${checked} onchange="ouaAdmToggle(${u.id}, this.checked)"></td>
+      <td><div class="oua-adm-user">${ouaAdmAvatar(u)}<div><b>${u.name||'—'}</b><small>${uname ? `<span class="uname">@${uname}</span> · ` : ''}${u.email||''}</small></div></div></td>
+      <td><span class="oua-adm-place" title="${ouaAdmPlace(u)}">📍 ${ouaAdmPlace(u)}</span></td>
+      <td>${ouaAdmOrgTag(u)}</td>
+      <td>${ouaAdmGrantChips(u, 'oua-adm-grant')}</td>
+    </tr>`;
+}
+function ouaAdmCardHtml(u){
+  const granted = Object.keys(OUA_ADM_MODES).some(m=>ouaAdmGrants[m].has(u.id));
+  const checked = ouaAdmSelected.has(u.id) ? 'checked' : '';
+  const uname = ouaAdmUsername(u);
+  return `<div class="oua-m-card ${granted?'green':'blue'}" style="position:relative">
+      <label style="position:absolute;top:var(--m-sp-4);right:var(--m-sp-4)"><input type="checkbox" class="oua-adm-check" data-id="${u.id}" ${checked} onchange="ouaAdmToggle(${u.id}, this.checked)"></label>
+      <div class="oua-adm-user" style="padding-right:28px">${ouaAdmAvatar(u)}<div><div class="oua-m-card-title">${u.name||'—'}</div><div class="oua-m-card-sub">${uname ? '@'+uname : (u.email||'—')}</div></div></div>
+      <div class="oua-m-card-chips">
+        <span class="oua-m-chip violet">📍 ${ouaAdmPlace(u)}</span>
+        <span class="oua-m-chip ghost wrap">${u.orgName||'—'}${u.position ? ' · '+u.position : ''}</span>
+      </div>
+      <div class="oua-m-card-actions" style="justify-content:flex-end;flex-wrap:wrap">${ouaAdmGrantChips(u, 'oua-m-chip green oua-adm-mgrant')}</div>
+    </div>`;
+}
+/* Thẻ mobile chỉ vẽ khi màn hẹp (desktop không cần, đỡ gấp đôi số phần tử); đổi khổ màn thì vẽ lại. */
+const ouaAdmMobileMq = window.matchMedia ? window.matchMedia('(max-width:760px)') : null;
+if(ouaAdmMobileMq && ouaAdmMobileMq.addEventListener) ouaAdmMobileMq.addEventListener('change', ()=>{ if(document.getElementById('ouaAdmTbody')?.childElementCount) ouaAdmRenderRows(ouaAdmShown); });
+function ouaAdmRenderRows(list){
+  const tbody = document.getElementById('ouaAdmTbody');
+  const cardsEl = document.getElementById('ouaAdmCardsMobile');
+  if(!tbody) return;
+  const token = ++ouaAdmRenderToken;
+  const all = document.getElementById('ouaAdmSelectAll');
+  if(all) all.checked = list.length > 0 && list.every(u=>ouaAdmSelected.has(u.id));
+  if(!list.length){
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty">Không có người dùng phù hợp.</div></td></tr>';
+    if(cardsEl) cardsEl.innerHTML = '<div class="empty">Không có người dùng phù hợp.</div>';
+    return;
+  }
+  const mobile = !!(ouaAdmMobileMq && ouaAdmMobileMq.matches);
+  tbody.innerHTML = list.slice(0, OUA_ADM_CHUNK).map(ouaAdmRowHtml).join('');
+  if(cardsEl) cardsEl.innerHTML = mobile ? list.slice(0, OUA_ADM_CHUNK).map(ouaAdmCardHtml).join('') : '';
+  /* Cuộn tới đâu nạp tới đó: mốc #ouaAdmMoreWrap (ngay dưới bảng) lọt vào vùng nhìn + 1500px thì nối thêm 1 đợt.
+     Vẽ liền một mạch 12.576 dòng mất 8–15 giây (đo 2026-10-19, bảng phải tính lại bố cục mỗi lần nối). */
+  let i = OUA_ADM_CHUNK;
+  const sentinel = document.getElementById('ouaAdmMoreWrap');
+  const step = ()=>{
+    if(token !== ouaAdmRenderToken || i >= list.length) return false; // đã có lượt vẽ mới (đổi tab/tìm kiếm) thì dừng lượt cũ
+    const part = list.slice(i, i + OUA_ADM_CHUNK);
+    tbody.insertAdjacentHTML('beforeend', part.map(ouaAdmRowHtml).join(''));
+    if(cardsEl && mobile) cardsEl.insertAdjacentHTML('beforeend', part.map(ouaAdmCardHtml).join(''));
+    i += OUA_ADM_CHUNK;
+    return i < list.length;
+  };
+  if(ouaAdmObserver){ ouaAdmObserver.disconnect(); ouaAdmObserver = null; }
+  if(!sentinel || typeof IntersectionObserver === 'undefined'){ (function loop(){ if(step()) setTimeout(loop, 0); })(); return; }
+  ouaAdmObserver = new IntersectionObserver(entries=>{
+    if(!entries.some(e=>e.isIntersecting)) return;
+    if(!step()){ ouaAdmObserver.disconnect(); ouaAdmObserver = null; return; }
+    // mốc vẫn còn trong vùng nạp (màn cao / cuộn nhanh) thì nạp tiếp, không đợi sự kiện cuộn kế tiếp
+    ouaAdmObserver.unobserve(sentinel); ouaAdmObserver.observe(sentinel);
+  }, {rootMargin:'0px 0px 1500px 0px'});
+  ouaAdmObserver.observe(sentinel);
+}
+let ouaAdmObserver = null;
+/* Vá tại chỗ ô tick + ô quyền của các dòng có id trong ids (không vẽ lại cả bảng). */
+function ouaAdmPatchRows(ids){
+  ids.forEach(id=>{
+    const u = ouaAdmUser(id); if(!u) return;
+    document.querySelectorAll(`#ouaAdminV2 .oua-adm-check[data-id="${id}"]`).forEach(cb=>{
+      const card = cb.closest('.oua-m-card');
+      if(card){ card.outerHTML = ouaAdmCardHtml(u); return; }
+      cb.checked = ouaAdmSelected.has(id);
+      const tr = cb.closest('tr');
+      if(tr){ tr.classList.toggle('oua-adm-sel', cb.checked); tr.lastElementChild.innerHTML = ouaAdmGrantChips(u, 'oua-adm-grant'); }
+    });
+  });
+}
+function ouaAdmToggle(id, checked){
+  if(checked) ouaAdmSelected.add(id); else ouaAdmSelected.delete(id);
+  document.querySelectorAll(`#ouaAdminV2 .oua-adm-check[data-id="${id}"]`).forEach(cb=>{ cb.checked = checked; cb.closest('tr')?.classList.toggle('oua-adm-sel', checked); });
+  const all = document.getElementById('ouaAdmSelectAll');
+  if(all) all.checked = ouaAdmShown.length > 0 && ouaAdmShown.every(u=>ouaAdmSelected.has(u.id));
+  ouaAdmRefreshActionBar();
+}
+function ouaAdmToggleAll(checked){
+  ouaAdmShown.forEach(u=>{ if(checked) ouaAdmSelected.add(u.id); else ouaAdmSelected.delete(u.id); });
+  document.querySelectorAll('#ouaAdminV2 .oua-adm-check').forEach(cb=>{ cb.checked = checked; cb.closest('tr')?.classList.toggle('oua-adm-sel', checked); });
+  const all = document.getElementById('ouaAdmSelectAll'); if(all) all.checked = checked;
+  ouaAdmRefreshActionBar();
+}
+function ouaAdmClearSelection(){ ouaAdmToggleAll(false); ouaAdmSelected.clear(); ouaAdmRefreshActionBar(); }
+function ouaAdmRefreshActionBar(){
+  const n = ouaAdmSelected.size, m = OUA_ADM_MODES[ouaAdmMode()];
+  const txt = document.getElementById('ouaAdmActionText');
+  if(txt) txt.innerHTML = n ? `✅ Đã chọn <b>${n.toLocaleString('vi-VN')}</b> người dùng · <a class="link" onclick="ouaAdmClearSelection()">Bỏ chọn</a>` : '👉 Hãy tick chọn các người dùng trong bảng bên dưới để cấp quyền';
+  const btn = document.getElementById('ouaAdmAssignBtn');
+  if(btn){ btn.disabled = !n; btn.textContent = `Gán ${m.label}` + (n ? ` (${n.toLocaleString('vi-VN')})` : ''); }
+}
+function ouaAdmAssign(){
+  const mode = ouaAdmMode();
+  let added = 0, skipped = 0;
+  ouaAdmSelected.forEach(id=>{
+    const u = ouaAdmUser(id), s = u && ouaAdmScopeOf(mode, u);
+    if(!s){ skipped++; return; }
+    if(!ouaAdmGrants[mode].has(id)) added++;
+    ouaAdmGrants[mode].set(id, s);
+  });
+  const ids = [...ouaAdmSelected];
+  ouaAdmSelected.clear();
+  ouaAdmAfterGrantChange(ids);
+  ouaToast(`Đã gán ${OUA_ADM_MODES[mode].label} cho ${added.toLocaleString('vi-VN')} người` + (skipped ? `, bỏ qua ${skipped} người ngoài phạm vi` : '') + ' (demo, chưa ghi hệ thống).');
+}
+/* Sau khi gán/gỡ: đang xem "Tất cả quyền" thì vá tại chỗ (giữ vị trí cuộn), đang lọc đã/chưa có quyền thì lọc lại. */
+function ouaAdmAfterGrantChange(ids){
+  const all = document.getElementById('ouaAdmSelectAll'); if(all) all.checked = false;
+  if(ouaAdmGrantFilter==='all'){ ouaAdmPatchRows(ids); ouaAdmFilter(false, true); }
+  else ouaAdmFilter(false);
+}
+function ouaAdmRevoke(mode, id){
+  ouaAdmGrants[mode].delete(id);
+  ouaAdmAfterGrantChange([id]);
+  ouaToast(`Đã gỡ ${OUA_ADM_MODES[mode].label} (demo, chưa ghi hệ thống).`);
 }
 
 /* ===== Quản lý người dùng (Phase 3) — bảng data-driven từ ouaRealUserRows (Phase 1), thay 3 dòng viết cứng
@@ -1388,7 +1701,7 @@ editScopeModal:{title:'Chỉnh phạm vi dữ liệu người dùng',body:`<div 
 };
 /* Bảng tra cứu pageId -> {menu, title} — thêm nhóm menu mới chỉ cần thêm entry ở đây, không sửa ouaGoPage(). */
 const ouaPageMeta = {
-  'admin-overview': {menu:'admin-overview', title:'Admin Tổng'},
+  'admin-overview': {menu:'admin-overview', title:'Quản trị Tổng'},
   'org-list': {menu:'org-list', title:'Quản lý đơn vị'},
   'org-detail': {menu:'org-list', title:'Quản lý đơn vị'},
   'user-list': {menu:'user-list', title:'Quản lý người dùng'},

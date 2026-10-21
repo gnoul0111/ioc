@@ -14,7 +14,8 @@ const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const escFn = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 
 const SO_CFG = ['vhtt', 'vpub', 'bql', 'dl', 'dttg', 'ttra', 'khcn', 'nnmt', 'sct', 'sxd', 'snv', 'syt'].map((s) => 'js/core/' + s + '-config.js');
-const FILES = SO_CFG.concat(['js/core/hcc-config.js', 'js/features/hcc-data.js', 'js/core/ctm-xa.js', 'js/features/ctm-engine.js', 'js/features/ctm-mttq.js', 'js/features/ctm-dang.js', 'js/features/ctm-hdnd.js', 'js/features/ctm-all.js', 'js/features/ctm-xa-units.js', 'js/features/ctm-so.js']);
+SO_CFG.unshift('js/core/xa-dan-so.js');
+const FILES = SO_CFG.concat(['js/core/hcc-config.js', 'js/features/hcc-data.js', 'js/core/ctm-xa.js', 'js/core/line-chart.js', 'js/features/ctm-engine.js', 'js/features/ctm-mttq.js', 'js/features/ctm-dang.js', 'js/features/ctm-hdnd.js', 'js/features/ctm-all.js', 'js/features/ctm-xa-units.js', 'js/features/ctm-so.js']);
 const ctx = vm.createContext({ console, Math, Number, String, Object, Array, JSON, isFinite, Date, esc: escFn, document: {} });
 /* Số hồ sơ theo xã, phường của TT Phục vụ HCC cần danh sách 126 đơn vị (gdUnitData của dashboard-education.js, file đó cần DOM nên chỉ lấy mảng) */
 const eduM = read('js/features/dashboard-education.js').match(/const gdUnitData=\[([\s\S]*?)\n\s*\];/);
@@ -172,7 +173,7 @@ console.log('== 12 sở theo eform: mọi chỉ tiêu có số, khớp cấu hì
     /* mỗi thẻ riêng của nhóm dựng ra có nội dung (không phải ô trống vì sai tên trường) */
     (sp.groups || []).forEach((g) => {
       const h = run('CTM_UI.id=' + JSON.stringify(id) + ';CTM_UI.period="ky";CTM_UI.screen="group";CTM_UI.group=' + JSON.stringify(g.id) + ';ctmScreenHtml(CTM_SPECS[CTM_UI.id])');
-      const nCards = (h.match(/class="stc-card"/g) || []).length, want = g.rows.reduce((s, r) => s + r.length, 0);
+      const nCards = (h.match(/class="stc-card[" ]/g) || []).length, want = g.rows.reduce((s, r) => s + r.length, 0);
       ok(nCards === want, id + ' nhóm ' + g.id + ': dựng đủ ' + want + ' thẻ (' + nCards + ')');
       ok(!/<tbody><\/tbody>|<div class="sgd-cc"><\/div>/.test(h), id + ' nhóm ' + g.id + ': không có bảng, biểu đồ rỗng');
     });

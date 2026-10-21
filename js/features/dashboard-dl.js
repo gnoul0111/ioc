@@ -45,6 +45,9 @@
  }
  const DL_BUILDERS={khach:dlKhachHtml,doanhThu:dlDoanhThuHtml};
  if(typeof CUSTOM_CAT_ITEM_BUILDERS!=='undefined') CUSTOM_CAT_ITEM_BUILDERS['ubnd-dulich']=DL_CT.map(c=>DL_BUILDERS[c.key]);
+ /* Sở Du lịch đã nhập vào Sở Văn hóa, Thể thao và Du lịch (cờ UBND_SAP_XEP_SO_2026): 2 khối du lịch nối sau 6 khối của sở này */
+ if(typeof CUSTOM_CAT_ITEM_BUILDERS!=='undefined' && typeof UBND_SAP_XEP_SO_2026!=='undefined' && UBND_SAP_XEP_SO_2026 && CUSTOM_CAT_ITEM_BUILDERS['ubnd-vhtt'])
+ CUSTOM_CAT_ITEM_BUILDERS['ubnd-vhtt']=CUSTOM_CAT_ITEM_BUILDERS['ubnd-vhtt'].concat(CUSTOM_CAT_ITEM_BUILDERS['ubnd-dulich']);
 
  /* ---------- Biểu đồ (vẽ bằng vhttBar/vhttDonut, instance lưu chung trong vhttChartInstances với id bắt đầu "dl") ---------- */
  function initDlCharts(){

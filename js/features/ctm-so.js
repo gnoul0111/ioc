@@ -56,8 +56,12 @@ function ctmSo(def) {
     if (u0 === '%') cards.push({ type: 'rates', t: g.label, items: pct });
     else {
       /* kế hoạch (cờ 'p') không vẽ thành thanh ngang hàng với số thực hiện (quy tắc H13) */
-      cards.push({ type: 'cmp', t: g.cmpT || g.label, big: L[0], items: L.filter((k) => metrics[k] && metrics[k].u === u0 && !metrics[k].plan).slice(0, 4), xa: g.xa, hint: g.hint });
-      if (pct.length) cards.push({ type: 'rates', t: g.ratesT || 'Tỷ lệ', items: pct });
+      /* dupWith: thẻ cơ cấu của nhóm — các phần đã có ở đó thì thẻ so sánh chỉ giữ số lớn (quy tắc H13, H14);
+         chỉ một tỷ lệ thì ghi ngay trong thẻ so sánh thay vì một thẻ "Tỷ lệ" riêng chỉ có một thanh */
+      const oneRate = pct.filter((k) => !metrics[k].plan).length === 1;
+      cards.push({ type: 'cmp', t: g.cmpT || g.label, big: L[0], items: L.filter((k) => metrics[k] && metrics[k].u === u0 && !metrics[k].plan).slice(0, 4), xa: g.xa, hint: g.hint,
+        rates: oneRate ? pct : null, dupWith: (g.cards || []).filter((c) => c.type === 'shares') });
+      if (pct.length && !oneRate) cards.push({ type: 'rates', t: g.ratesT || 'Tỷ lệ', items: pct });
     }
     (g.cards || []).forEach((c) => cards.push(c));
     const rows = [];
@@ -94,7 +98,8 @@ const CTM_SO_M9 = (typeof VHTT_MONTHS !== 'undefined' ? VHTT_MONTHS : ['T1', 'T2
 const ctmSoZip = (labels, vals) => (labels || []).map((l, i) => [ctmLb(l), vals ? vals[i] : null]);
 
 /* ============================== SỞ VĂN HÓA VÀ THỂ THAO ============================== */
-ctmSo({
+/* Từ 15/10/2026 là "Sở Văn hóa, Thể thao và Du lịch": khai báo này đăng ký lại ở cuối mục Sở Du lịch, gộp thêm 2 chỉ tiêu du lịch. */
+const CTM_SO_VHTT_DEF = {
   id: 'ubnd-vhtt', name: 'Sở Văn hóa và Thể thao', ky: VHTT_KY,
   m: {
     ctTong: ['Nhiệm vụ Chương trình hành động 08-CT', 'nhiệm vụ', 0, () => VHTT_SUM.ct08.tong, null, 'n', 'Tổng số nhiệm vụ'],
@@ -179,7 +184,8 @@ ctmSo({
         { type: 'list', t: 'Theo lĩnh vực', head: ['Lĩnh vực', 'Tin bài'], rows: () => VHTT_DATA.bc.linhVuc.map((r) => [r[0], r[1]]) }
       ] }
   ]
-});
+};
+ctmSo(CTM_SO_VHTT_DEF);
 
 /* ============================== VĂN PHÒNG UBND THÀNH PHỐ ============================== */
 ctmSo({
@@ -321,7 +327,7 @@ ctmSo({
 });
 
 /* ============================== SỞ DU LỊCH ============================== */
-ctmSo({
+const CTM_SO_DL_DEF = {
   id: 'ubnd-dulich', name: 'Sở Du lịch', ky: DL_KY,
   m: {
     /* lượt khách: một đơn vị nghìn lượt ở mọi chỗ — ô số, thẻ, biểu đồ tháng, bảng, bảng xã (quy tắc H2, H3; chốt 12/10/2026) */
@@ -363,7 +369,28 @@ ctmSo({
       { id: 'kpc', l: 'Lượt khách trên 1.000 dân', u: 'lượt', d: 0, f: (s, u) => (s.qt + s.nd) / u.ds * 1000 }
     ]
   }
-});
+};
+ctmSo(CTM_SO_DL_DEF);
+
+/* Sở Du lịch đã nhập vào Sở Văn hóa và Thể thao (cờ UBND_SAP_XEP_SO_2026, central-level.js): đăng ký lại 'ubnd-vhtt' gồm
+   6 nhóm văn hóa, thể thao + 2 nhóm du lịch. Khóa chỉ tiêu, mã nhóm du lịch thêm tiền tố "dl" để không trùng (cả hai sở đều có
+   khóa "dt"); số, cách tính, bảng 126 xã, phường giữ nguyên của cấu hình Du lịch. Thẻ ngoài thêm dòng tổng lượt khách. */
+function ctmSoGopDl(V, L) {
+  const k = (x) => 'dl' + x.charAt(0).toUpperCase() + x.slice(1), mk = (x) => (Array.isArray(x) ? [k(x[0])].concat(x.slice(1)) : k(x));
+  const m = Object.assign({}, V.m), cardL = Object.assign({}, V.cardL);
+  Object.keys(L.m).forEach((x) => { m[k(x)] = L.m[x]; });
+  Object.keys(L.cardL || {}).forEach((x) => { cardL[k(x)] = L.cardL[x]; });
+  return Object.assign({}, V, {
+    name: 'Sở Văn hóa, Thể thao và Du lịch', m: m,
+    /* tối đa 8 ô số chính (quy tắc chung): 6 ô văn hóa, thể thao + 2 ô du lịch; các số bỏ ra vẫn có trong nhóm của nó */
+    kpis: [['ctR', 'Chương trình hành động 08-CT'], ['da', 'giai đoạn 2026–2030'], ['nguoi', 'hoạt động nghệ thuật'], ['dt', 'đơn vị nghệ thuật Thành phố'], ['ntcn', 'Liên hoan, Hội diễn, Hội thi'], ['bc', 'báo chí, mạng xã hội']]
+      .concat(L.kpis.filter((x) => ['tong', 'dt'].indexOf(x[0]) >= 0).map(mk)),
+    card: V.card.concat(['dlTong']), cardL: cardL,
+    groups: V.groups.concat(L.groups.map((g) => Object.assign({}, g, { id: 'dl' + g.id, lines: g.lines.map(k) }))),
+    xa: L.xa
+  });
+}
+if (typeof UBND_SAP_XEP_SO_2026 !== 'undefined' && UBND_SAP_XEP_SO_2026) ctmSo(ctmSoGopDl(CTM_SO_VHTT_DEF, CTM_SO_DL_DEF));
 
 /* ============================== SỞ DÂN TỘC VÀ TÔN GIÁO ============================== */
 ctmSo({

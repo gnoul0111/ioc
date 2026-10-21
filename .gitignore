@@ -52,3 +52,6 @@ next-env.d.ts
 !/docs/CHUNG/README_DEPLOY_IOC.md
 # tài liệu hệ thống của đối tác (DVC Hà Nội)
 /api/HCC_NEW/
+
+# file rác Python tự sinh
+__pycache__/

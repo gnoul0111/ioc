@@ -462,28 +462,17 @@ function hccWaterfall(T, node) {
 }
 /* Xu hướng 6 quý của một thẻ: tính lại cây cho từng kỳ (số thật của từng kỳ, không nội suy). */
 function hccTrend(T, node) {
-  const pts = HCC_PERIODS.slice().reverse().map((per, i) => {
+  const pts = HCC_PERIODS.slice().reverse().map((per) => {
     const C = hccCityP(per.id); let v = null;
     if (C) { const t = hccEvalTree(T.spec, C, null); const f = (x) => (x.id === node.id ? x : (x.kids || []).reduce((a, k) => a || f(k), null)); const m = f(t); v = m ? m.now : null; }
-    return { i: i, id: per.id, v: v };
+    return { l: hccPeriodShort(per.id), v: v, on: per.id === HCC_UI.period };
   });
-  const has = pts.filter((p) => p.v != null);
-  if (has.length < 2) return null;
-  const vs = has.map((p) => p.v), mn = Math.min(...vs), mx = Math.max(...vs);
-  const span = (mx - mn) || Math.max(mx, 1) * 0.2, lo = Math.max(0, mn - span * 0.8), hi = mx + span * 0.5;
-  const yOf = (v) => 30 + (1 - (v - lo) / (hi - lo)) * 160, xOf = (i) => 64 + i * 92;
+  if (pts.filter((p) => p.v != null).length < 2) return null;
   const short = (v) => (Math.abs(v) >= 1e6 ? hccFmt(v / 1e6, 2) + ' tr' : Math.abs(v) >= 1e4 ? hccFmt(v / 1000, 1) + ' N' : hccFmt(v));
-  let s = '<svg viewBox="0 0 560 250" style="width:100%;height:auto;display:block" role="img" aria-label="Xu hướng 6 quý"><g stroke="var(--line)" stroke-width="1">';
-  [hi, (lo + hi) / 2, lo].forEach((v) => { s += '<line x1="64" y1="' + yOf(v).toFixed(1) + '" x2="534" y2="' + yOf(v).toFixed(1) + '"/>'; });
-  s += '</g>';
-  [hi, (lo + hi) / 2, lo].forEach((v) => { s += '<text class="stc-ax" x="56" y="' + (yOf(v) + 4).toFixed(1) + '" text-anchor="end">' + short(v) + '</text>'; });
-  for (let k = 0; k < has.length - 1; k++) s += '<line x1="' + xOf(has[k].i) + '" y1="' + yOf(has[k].v).toFixed(1) + '" x2="' + xOf(has[k + 1].i) + '" y2="' + yOf(has[k + 1].v).toFixed(1) + '" stroke="var(--ink2)" stroke-width="2" stroke-linecap="round"/>';
-  pts.forEach((p) => {
-    const on = p.id === HCC_UI.period;
-    if (p.v != null) s += '<circle cx="' + xOf(p.i) + '" cy="' + yOf(p.v).toFixed(1) + '" r="' + (on ? 7 : 5) + '" fill="' + (on ? 'var(--s1)' : 'var(--prev)') + '" stroke="var(--card)" stroke-width="2"/><text class="stc-vl" x="' + xOf(p.i) + '" y="' + (yOf(p.v) - 13).toFixed(1) + '" text-anchor="middle">' + short(p.v) + '</text>';
-    s += '<text class="stc-ax" x="' + xOf(p.i) + '" y="214" text-anchor="middle">' + hccPeriodShort(p.id) + '</text>';
-  });
-  return s + '</svg>';
+  /* nhãn trục cùng một đơn vị (tr hoặc N) cho mọi vạch, số lẻ theo bước chia */
+  const ax = (v, A) => { const k = A.hi >= 1e6 ? 1e6 : A.hi >= 1e4 ? 1e3 : 1, sd = String(+(A.step / k).toFixed(6)).split('.')[1]; return hccFmt(v / k, sd ? Math.min(3, sd.length) : 0) + (k === 1e6 ? ' tr' : k === 1e3 ? ' N' : ''); };
+  /* biểu đồ đường dùng chung (js/core/line-chart.js): trục chia số tròn, nhãn số tránh đường */
+  return lcBox(pts, { fmt: short, fmtAx: ax, zero: true, line: 'var(--ink2)', dot: 'var(--prev)', dotOn: 'var(--s1)' }).html;
 }
 function hccInherit(T, x, key) { let m = x; while (m) { if (m[key]) return m[key]; m = T.parentOf[m.id]; } return ''; }
 function hccRawOf(T, x) {
@@ -536,8 +525,9 @@ function hccScreenDetail() {
   else h += '<div class="stc-card"><div class="stc-ch" style="margin-bottom:10px"><div><h3 class="stc-ct">Số liệu gốc từ API</h3><div class="stc-cs">' + hccE(node.label) + '</div></div></div><div class="sgd-rawh"><span>Endpoint</span><span>Trường dữ liệu</span><span>Lọc</span><span>Giá trị</span></div>' +
     rows.map((r) => '<div class="sgd-raw"><span class="sgd-mono">' + hccE(r.ep) + '</span><span class="sgd-mono">' + hccE(r.field) + '</span><span>' + hccE(r.filt) + '</span><span>' + r.val + '</span></div>').join('') +
     '<div class="stc-hint" style="margin-top:12px">' + (T.spec.cityOnly ? 'Số của nút gốc, không cộng các đơn vị con (số giả lập).' : 'Mỗi dòng là tổng cộng từ các đơn vị lá (số giả lập). Bấm "Theo đơn vị" để xem từng đơn vị.') + '</div></div></div>';
-  /* Khối Cách tính ẨN theo cờ chung SHOW_FORMULA_BOX (dashboard-vhtt.js): cách tính để trong tài liệu mô tả, không hiện trên giao diện */
-  if (typeof SHOW_FORMULA_BOX === 'undefined' || SHOW_FORMULA_BOX) h += '<div class="stc-card"><div class="stc-ch" style="margin-bottom:10px"><div><h3 class="stc-ct">Cách tính · ' + hccE(node.label) + '</h3><div class="stc-cs">Công thức tính từ số liệu gốc, không có số nào tự đặt</div></div></div><div class="stc-fl">' +
+  /* Khối Cách tính ẨN theo cờ chung SHOW_FORMULA_BOX (dashboard-vhtt.js): cách tính để trong tài liệu mô tả, không hiện trên giao diện.
+     Không có cờ (trang độc lập không nạp dashboard-vhtt.js) cũng ẩn — chỉ hiện khi SHOW_FORMULA_BOX = true */
+  if (typeof SHOW_FORMULA_BOX !== 'undefined' && SHOW_FORMULA_BOX) h += '<div class="stc-card"><div class="stc-ch" style="margin-bottom:10px"><div><h3 class="stc-ct">Cách tính · ' + hccE(node.label) + '</h3><div class="stc-cs">Công thức tính từ số liệu gốc, không có số nào tự đặt</div></div></div><div class="stc-fl">' +
     hccFormulas(T, node).map((t) => '<div class="stc-note" style="padding:9px 12px;font-size:12.5px">' + hccE(t) + '</div>').join('') + '</div></div>';
   h += '</div><div class="stc-pn"><button type="button" class="stc-btn" onclick="hccStep(-1)">‹ ' + hccE(prevI.label) + '</button><button type="button" class="stc-btn" onclick="hccStep(1)">' + hccE(nextI.label) + ' ›</button></div>';
   return h + hccFoot();
@@ -739,6 +729,7 @@ function hccRerender(resetScroll) {
   let html;
   try { html = hccScreenHtml(); } catch (e) { console.error(e); html = hccEmpty('Không dựng được màn hình', 'Có lỗi khi tính số liệu giả lập: ' + (e && e.message ? e.message : e)); }
   body.innerHTML = '<div class="stc-root hcc-root stc-wrap">' + html + '</div>' + hccTasksHtml();
+  if (typeof lcFit === 'function') lcFit(body);
   body.scrollTop = resetScroll ? 0 : top;
   if (HCC_UI.focusQ) {
     const inp = body.querySelector('#hccQ');
@@ -759,6 +750,8 @@ function hccOpenForm(itemIndex, role) {
   HCC_UI.open = true;
   hccRerender(true);
   if (typeof openModal === 'function') openModal();
+  /* lần dựng đầu popup còn ẩn: vẽ lại biểu đồ đường khi popup đã hiện */
+  if (typeof lcFit === 'function') lcFit(document.getElementById('modalBody'));
 }
 function hccClose() { HCC_UI.open = false; if (typeof closeModal === 'function') closeModal(); }
 function hccGo(screen, arg) { HCC_UI.dd = null; HCC_UI.pick = null; HCC_UI.screen = screen; if (screen === 'group' && arg) HCC_UI.group = arg; hccRerender(true); }

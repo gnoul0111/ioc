@@ -59,7 +59,8 @@ const SNV_M = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 const SNV_UNITS = SNV_DV.map((ten) => {
   const R = (k) => snvR(ten, k), ph = ten.indexOf('Phường') === 0, kcn = SNV_KCN.indexOf(ten) >= 0, tt = SNV_TT.indexOf(ten) >= 0, xa = SNV_XA_XA.indexOf(ten) >= 0;
   const cl = (v, a, b) => Math.max(a, Math.min(b, v));
-  const dan = Math.round((ph ? 82000 : 58000) * (0.6 + 0.8 * R('ds')) / 100) * 100;
+  /* dân số thật của phường/xã (js/core/xa-dan-so.js); thiếu file thì về số băm cũ */
+  const dan = (typeof xaDanSoThat === 'function' && xaDanSoThat(ten)) || Math.round((ph ? 82000 : 58000) * (0.6 + 0.8 * R('ds')) / 100) * 100;
   const llld = Math.round(dan * (0.55 + 0.03 * R('ll')));
   /* ---- 1. bảo hiểm: tỷ lệ tham gia tăng dần từ T1 đến T9 ---- */
   const bhxh9 = cl((ph ? 0.585 : 0.468) + 0.11 * (R('bx') - 0.5) + (kcn ? 0.09 : 0) + (tt ? 0.05 : 0) - (xa ? 0.08 : 0), 0.3, 0.8);

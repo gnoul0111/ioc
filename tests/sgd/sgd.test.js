@@ -14,7 +14,7 @@ const edu = read('js/features/dashboard-education.js');
 const m = edu.match(/const gdUnitData=\[([\s\S]*?)\n\s*\];/);
 const ctx = vm.createContext({ console, Math, Number, String, Object, Array, JSON, isFinite, Date, esc: escFn, document: {} });
 vm.runInContext('const gdUnitData=[' + m[1] + '];', ctx);
-['js/core/sgd-config.js', 'js/features/sgd-data.js', 'js/features/dashboard-sgd.js'].forEach((f) => vm.runInContext(read(f), ctx, { filename: f }));
+['js/core/line-chart.js', 'js/core/sgd-config.js', 'js/features/sgd-data.js', 'js/features/dashboard-sgd.js'].forEach((f) => vm.runInContext(read(f), ctx, { filename: f }));
 const run = (code) => vm.runInContext(code, ctx);
 
 let pass = 0, fail = 0;

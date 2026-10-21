@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const part = (file) => '\n/* ===== ' + file + ' ===== */\n' + read(file);
 const css = frameCss + part('css/stc.css') + part('css/sgd.css') + part('css/hcc.css');
 const js = frameJs + '\n\n/* ===== gdUnitData (từ js/features/dashboard-education.js) ===== */\n' + units +
-  part('js/core/hcc-config.js') + part('js/features/hcc-data.js') + part('js/features/dashboard-hcc.js');
+  part('js/core/line-chart.js') + part('js/core/hcc-config.js') + part('js/features/hcc-data.js') + part('js/features/dashboard-hcc.js');
 if (/<\/script/i.test(js) || /<\/style/i.test(css)) throw new Error('Mã nhúng chứa thẻ đóng </script> hoặc </style>');
 
 const built = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });

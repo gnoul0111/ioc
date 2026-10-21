@@ -6,12 +6,16 @@ const fs = require('fs'), vm = require('vm'), path = require('path');
 const root = path.resolve(__dirname, '..');
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const SO = ['vhtt', 'vpub', 'bql', 'dl', 'dttg', 'ttra', 'khcn', 'nnmt', 'sct', 'sxd', 'snv', 'syt'].map((s) => 'js/core/' + s + '-config.js');
+SO.unshift('js/core/xa-dan-so.js');
 const FILES = SO.concat(['js/core/hcc-config.js', 'js/features/hcc-data.js', 'js/core/ctm-xa.js', 'js/features/ctm-engine.js', 'js/features/ctm-mttq.js', 'js/features/ctm-dang.js',
   'js/features/ctm-hdnd.js', 'js/features/ctm-all.js', 'js/features/ctm-xa-units.js', 'js/features/ctm-so.js']);
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 const ctx = vm.createContext({ console, Math, Number, String, Object, Array, JSON, isFinite, Date, esc, document: {} });
 const edu = read('js/features/dashboard-education.js').match(/const gdUnitData=\[([\s\S]*?)\n\s*\];/);
 vm.runInContext('const gdUnitData=[' + edu[1] + '];', ctx);
+/* cờ sắp xếp sở (Sở Du lịch nhập vào Sở VH, TT và DL) lấy đúng giá trị đang đặt trong central-level.js */
+const sapXep = /const UBND_SAP_XEP_SO_2026 = (true|false)/.exec(read('js/core/central-level.js'));
+vm.runInContext('var UBND_SAP_XEP_SO_2026 = ' + (sapXep ? sapXep[1] : 'false') + ';', ctx);
 FILES.forEach((f) => vm.runInContext(read(f), ctx, { filename: f }));
 vm.runInContext('var currentXaId=null;function wardNames(){return gdUnitData.map(function(u){return u[0]})}', ctx);
 const run = (c) => vm.runInContext(c, ctx);

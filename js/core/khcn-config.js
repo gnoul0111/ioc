@@ -50,7 +50,8 @@ const KHCN_DV = [
 const KHCN_XA_XA = ['Xã Ba Vì', 'Xã Yên Bài', 'Xã Suối Hai', 'Xã Bất Bạt', 'Xã Yên Xuân', 'Xã Mỹ Đức', 'Xã Hương Sơn', 'Xã Phú Cát', 'Xã Trần Phú',
   'Xã Minh Châu', 'Xã Cổ Đô', 'Xã Hồng Sơn', 'Xã Phúc Sơn', 'Xã Đại Xuyên', 'Xã Chuyên Mỹ'];
 /* dân số giả lập: Hà Nội ~ 8,7 triệu người / 126 đơn vị; phường đông hơn xã */
-function khcnDanSo(n) { return Math.round((n.indexOf('Phường') === 0 ? 82000 : 58000) * (0.6 + 0.8 * khcnR(n, 'ds')) / 100) * 100; }
+/* dân số thật của phường/xã (js/core/xa-dan-so.js); thiếu file thì về số băm cũ */
+function khcnDanSo(n) { return (typeof xaDanSoThat === 'function' && xaDanSoThat(n)) || Math.round((n.indexOf('Phường') === 0 ? 82000 : 58000) * (0.6 + 0.8 * khcnR(n, 'ds')) / 100) * 100; }
 /* "hạng" số hóa của đơn vị trong [0, 1]: phường trung tâm cao, xã xa thấp */
 function khcnHang(n) { return Math.max(0, Math.min(1, (n.indexOf('Phường') === 0 ? 0.68 : 0.42) + 0.3 * khcnR(n, 'hg') - (KHCN_XA_XA.indexOf(n) >= 0 ? 0.25 : 0))); }
 const KHCN_CO_KHONG = ['Có', 'Không'];
