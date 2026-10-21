@@ -656,7 +656,13 @@ const OUA_ADM_AVATAR_COLORS = ['#3b6fd6','#6c5ce7','#0f9d8a','#d97706','#c2410c'
 const ouaAdmGrants = {diaban:new Map(), axis:new Map(), so:new Map()}; // id người dùng -> phạm vi (tên xã / mã trục / tên Sở)
 const ouaAdmSelected = new Set();
 let ouaAdmSeeded = false, ouaAdmTab = 'all', ouaAdmGrantFilter = 'all', ouaAdmLimit = 200, ouaAdmUserMap = null;
-function ouaAdmScopeOf(mode, u){ return mode==='diaban' ? u.ward : mode==='axis' ? u.axis : u.soName; }
+/* 2026-10-21 (anh yêu cầu): màn hiện ĐỦ mọi tài khoản (12.577 = khớp màn Quản lý người dùng), không lọc theo hình
+   thức phân quyền nữa; tab trục = người ĐÃ có Quản trị của trục đó, thêm tab "Không phải Quản trị". Tài khoản không
+   thuộc xã/phường (cấp Thành phố + khối Sở) có địa bàn "Thành phố Hà Nội". Đặt false để quay về bản 2026-10-19
+   (danh sách chỉ người trong phạm vi hình thức đang chọn, tab trục = toàn bộ người của trục, có 3 chip lọc quyền). */
+const OUA_ADM_FULL_POP = true;
+const OUA_ADM_CITY = 'Thành phố Hà Nội';
+function ouaAdmScopeOf(mode, u){ return mode==='diaban' ? (u.ward || (OUA_ADM_FULL_POP ? OUA_ADM_CITY : null)) : mode==='axis' ? u.axis : u.soName; }
 function ouaAdmMode(){ const v = document.getElementById('ouaAdmModeSel')?.value; return OUA_ADM_MODES[v] ? v : 'diaban'; }
 function ouaAdmUser(id){
   if(!ouaAdmUserMap || ouaAdmUserMap.src !== ouaRealUserRows){ ouaAdmUserMap = new Map(ouaRealUserRows.map(u=>[u.id,u])); ouaAdmUserMap.src = ouaRealUserRows; }
@@ -686,7 +692,7 @@ function ouaAdmSeed(){
   seed('so', 1, ouaRealUserRows);
   ouaAdmSeeded = true;
 }
-function ouaAdmPopulation(mode){ return ouaRealUserRows.filter(u=>!!ouaAdmScopeOf(mode, u)); }
+function ouaAdmPopulation(mode){ return OUA_ADM_FULL_POP ? ouaRealUserRows : ouaRealUserRows.filter(u=>!!ouaAdmScopeOf(mode, u)); }
 function ouaAdmRender(){
   if(!ouaRealUserRows) ouaBuildRealData();
   ouaAdmSeed();
@@ -696,21 +702,35 @@ function ouaAdmRender(){
    - Tổng người dùng = đúng số tài khoản đang có trong danh sách bên dưới (= tab "Tất cả", đã áp ô tìm kiếm).
    - 4 ô trục = số tài khoản ĐÃ CÓ quyền Quản trị (theo hình thức đang chọn) thuộc trục đó.
    - Ô hình thức (⭐) = tổng tài khoản Quản trị; ô "Không phải Quản trị" = phần còn lại → Tổng = ⭐ + Không phải. */
+/* Bản đủ tài khoản (2026-10-21, anh chốt): "là Quản trị" = có BẤT KỲ quyền nào trong 3 hình thức, không chỉ hình
+   thức đang chọn — tránh người có Quản trị trục vẫn nằm ở tab "Không phải Quản trị" khi đang chọn Quản trị địa bàn.
+   Hình thức đang chọn chỉ còn quyết định loại quyền được gán khi bấm nút. */
+function ouaAdmIsAdmin(u){ return Object.keys(OUA_ADM_MODES).some(m=>ouaAdmGrants[m].has(u.id)); }
+function ouaAdmIsAdminFn(mode){ const grants = ouaAdmGrants[mode]; return OUA_ADM_FULL_POP ? ouaAdmIsAdmin : u=>grants.has(u.id); }
 function ouaAdmRenderKpis(mode, pop){
-  const m = OUA_ADM_MODES[mode], grants = ouaAdmGrants[mode];
+  const m = OUA_ADM_MODES[mode], isAdm = ouaAdmIsAdminFn(mode);
   const set = (id, html)=>{ const el = document.getElementById(id); if(el) el.innerHTML = html; };
   const n = v => v.toLocaleString('vi-VN');
   let admins = 0;
   Object.keys(OUA_ADM_AXES).forEach(ax=>{
     const users = pop.filter(u=>u.axis===ax);
-    const axAdmins = users.filter(u=>grants.has(u.id)).length;
+    const axAdmins = users.filter(isAdm).length;
     set('ouaAdmKpi_'+ax, n(axAdmins));
     set('ouaAdmKpiHint_'+ax, `Quản trị · trên ${n(users.length)} tài khoản`);
   });
-  pop.forEach(u=>{ if(grants.has(u.id)) admins++; });
+  pop.forEach(u=>{ if(isAdm(u)) admins++; });
   set('ouaAdmKpiTotal', n(pop.length));
-  set('ouaAdmKpiTotalHint', `${m.who.charAt(0).toUpperCase() + m.who.slice(1)} · 4 trục`);
+  set('ouaAdmKpiTotalHint', OUA_ADM_FULL_POP ? 'Toàn bộ tài khoản hệ thống' : `${m.who.charAt(0).toUpperCase() + m.who.slice(1)} · 4 trục`);
   set('ouaAdmKpiDiaBan', n(admins));
+  if(OUA_ADM_FULL_POP){
+    // Dòng phụ tách theo hình thức; 1 người có thể có nhiều loại quyền nên 3 số cộng lại có thể lớn hơn số lớn.
+    const by = k => pop.filter(u=>ouaAdmGrants[k].has(u.id)).length;
+    set('ouaAdmKpiGrantLbl', '⭐ Tài khoản Quản trị');
+    set('ouaAdmKpiGrantHint', `Địa bàn ${n(by('diaban'))} · Trục ${n(by('axis'))} · Sở ${n(by('so'))}`);
+    set('ouaAdmKpiNonAdmin', n(pop.length - admins));
+    set('ouaAdmKpiNonAdminHint', 'Chưa được cấp quyền Quản trị nào');
+    return;
+  }
   set('ouaAdmKpiGrantLbl', `⭐ ${m.label}`);
   set('ouaAdmKpiGrantHint', 'Tổng tài khoản đã cấp quyền');
   set('ouaAdmKpiNonAdmin', n(pop.length - admins));
@@ -721,10 +741,17 @@ function ouaAdmModeChanged(keepSelection){
   const m = OUA_ADM_MODES[ouaAdmMode()];
   const info = document.getElementById('ouaAdmInfoText'); if(info) info.innerHTML = m.info;
   ['ouaAdmGrantedChip','ouaAdmUngrantedChip'].forEach((id,i)=>{ const el = document.getElementById(id); if(el) el.textContent = (i ? 'Chưa có quyền ' : 'Đã có quyền ') + m.label; });
+  // Bản đủ tài khoản: 3 chip lọc quyền trùng với tab nên ẩn; tab "Không phải Quản trị" chỉ có ở bản này.
+  document.querySelectorAll('#ouaAdminV2 .oua-adm-chips').forEach(el=>el.style.display = OUA_ADM_FULL_POP ? 'none' : '');
+  document.querySelectorAll('#ouaAdminV2 .oua-adm-tab[data-tab="non"]').forEach(el=>el.style.display = OUA_ADM_FULL_POP ? '' : 'none');
   if(!keepSelection) ouaAdmSelected.clear();
   ouaAdmFilter(true);
 }
-function ouaAdmSetTab(tab){ ouaAdmTab = tab; ouaAdmSyncFilterUi(); ouaAdmFilter(true); }
+/* Bản đủ tài khoản: tab = đúng tập ô KPI cùng tên (tab trục → Quản trị của trục, "non" → chưa có Quản trị). */
+function ouaAdmSetTab(tab){
+  if(OUA_ADM_FULL_POP){ ouaAdmKpiClick(tab==='non' ? 'ungranted' : tab); return; }
+  ouaAdmTab = tab; ouaAdmSyncFilterUi(); ouaAdmFilter(true);
+}
 function ouaAdmSetGrantFilter(f){ ouaAdmGrantFilter = f; ouaAdmSyncFilterUi(); ouaAdmFilter(true); }
 /* Bấm ô KPI = lọc bảng đúng tập ô đó đang đếm: Tổng → tất cả; ô trục → Quản trị của trục; ⭐ → mọi Quản trị;
    "Không phải Quản trị" → người chưa được cấp quyền. */
@@ -738,7 +765,8 @@ function ouaAdmKpiClick(k){
 function ouaAdmSyncFilterUi(){
   const t = ouaAdmTab, f = ouaAdmGrantFilter;
   const kpi = f==='all' ? (t==='all' ? 'all' : null) : t==='all' ? f : (f==='granted' ? t : null);
-  document.querySelectorAll('#ouaAdminV2 .oua-adm-tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===t));
+  const activeTab = !OUA_ADM_FULL_POP ? t : kpi==='ungranted' ? 'non' : kpi==='granted' ? null : kpi;
+  document.querySelectorAll('#ouaAdminV2 .oua-adm-tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===activeTab));
   document.querySelectorAll('#ouaAdminV2 .oua-adm-chipf').forEach(b=>b.classList.toggle('active', b.dataset.f===f));
   document.querySelectorAll('#ouaAdminV2 .oua-adm-kpi[data-kpi]').forEach(b=>b.classList.toggle('active', b.dataset.kpi===kpi));
 }
@@ -753,23 +781,24 @@ let ouaAdmShown = [], ouaAdmRenderToken = 0;
 function ouaAdmFilter(resetLimit, skipRows){
   if(!ouaRealUserRows) return;
   if(resetLimit) ouaAdmLimit = 200;
-  const mode = ouaAdmMode(), grants = ouaAdmGrants[mode];
+  const mode = ouaAdmMode(), isAdm = ouaAdmIsAdminFn(mode);
   const q = (document.getElementById('ouaAdmSearch')?.value || '').trim().toLowerCase();
   let pop = ouaAdmPopulation(mode);
   if(q) pop = pop.filter(u => [u.name, u.email, u.label, u.orgName, u.ward, u.soName].some(s=>(s||'').toLowerCase().includes(q)));
   ouaAdmRenderKpis(mode, pop);
-  const counts = {all:pop.length}; Object.keys(OUA_ADM_AXES).forEach(a=>counts[a]=0);
-  pop.forEach(u=>{ if(counts[u.axis]!=null) counts[u.axis]++; });
+  const counts = {all:pop.length, non:0}; Object.keys(OUA_ADM_AXES).forEach(a=>counts[a]=0);
+  if(OUA_ADM_FULL_POP) pop.forEach(u=>{ if(!isAdm(u)) counts.non++; else if(counts[u.axis]!=null) counts[u.axis]++; });
+  else pop.forEach(u=>{ if(counts[u.axis]!=null) counts[u.axis]++; });
   Object.keys(counts).forEach(k=>{ const el = document.getElementById('ouaAdmTabCnt_'+k); if(el) el.textContent = counts[k].toLocaleString('vi-VN'); });
   let list = ouaAdmTab==='all' ? pop : pop.filter(u=>u.axis===ouaAdmTab);
-  if(ouaAdmGrantFilter==='granted') list = list.filter(u=>grants.has(u.id));
-  if(ouaAdmGrantFilter==='ungranted') list = list.filter(u=>!grants.has(u.id));
-  const adminCount = list.filter(u=>grants.has(u.id)).length; // đếm sau bộ lọc quyền để khớp các dòng đang hiện
+  if(ouaAdmGrantFilter==='granted') list = list.filter(isAdm);
+  if(ouaAdmGrantFilter==='ungranted') list = list.filter(u=>!isAdm(u));
+  const adminCount = list.filter(isAdm).length; // đếm sau bộ lọc quyền để khớp các dòng đang hiện
   const ordered = ouaAdmTab==='all' ? ouaInterleaveByAxis(list) : list;
   const shown = OUA_ADM_SHOW_ALL ? ordered : ordered.slice(0, ouaAdmLimit);
   if(!skipRows) ouaAdmShown = shown;
   const sum = document.getElementById('ouaAdmSummary');
-  if(sum) sum.innerHTML = `Hiển thị <b>${list.length.toLocaleString('vi-VN')}</b> ${OUA_ADM_MODES[mode].who} · <b class="oua-adm-accent">${adminCount.toLocaleString('vi-VN')}</b> Quản trị`
+  if(sum) sum.innerHTML = `Hiển thị <b>${list.length.toLocaleString('vi-VN')}</b> ${OUA_ADM_FULL_POP ? 'tài khoản' : OUA_ADM_MODES[mode].who} · <b class="oua-adm-accent">${adminCount.toLocaleString('vi-VN')}</b> Quản trị`
     + (list.length > shown.length ? ` <span class="oua-adm-dim">(đang hiện ${shown.length.toLocaleString('vi-VN')} dòng đầu)</span>` : '');
   const more = document.getElementById('ouaAdmMoreWrap');
   if(more) more.innerHTML = list.length > shown.length ? `<button class="btn ghost" onclick="ouaAdmMore()">Xem thêm ${Math.min(200, list.length-shown.length).toLocaleString('vi-VN')} người · còn ${(list.length-shown.length).toLocaleString('vi-VN')}</button>` : '';
