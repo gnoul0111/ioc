@@ -63,8 +63,10 @@ const SYT_UNITS = SYT_DV.map((ten) => {
   const R = (k) => sytR(ten, k), ph = ten.indexOf('Phường') === 0, xa = SYT_XA_XA.indexOf(ten) >= 0;
   const cl = (v, a, b) => Math.max(a, Math.min(b, v));
   /* cùng khóa băm với khcn/snv-config.js để dân số và số thôn khớp giữa các sở (nhân hệ số gồm người tạm trú) */
-  const dan = Math.round((ph ? 82000 : 58000) * (0.6 + 0.8 * R('ds')) / 100) * 100;
-  const danTT = Math.round(dan * (ph ? 1.04 : 1.015));
+  /* dân số thật của phường/xã (js/core/xa-dan-so.js) — cột Dân số bảng 126 xã khớp mẫu số tỷ lệ; thiếu file thì về số băm cũ */
+  const dan = (typeof xaDanSoThat === 'function' && xaDanSoThat(ten)) || Math.round((ph ? 82000 : 58000) * (0.6 + 0.8 * R('ds')) / 100) * 100;
+  /* số băm cũ cộng thêm người tạm trú; dân số thật dùng nguyên số để mẫu số tỷ lệ đúng bằng cột Dân số của bảng 126 xã */
+  const danTT = typeof xaDanSoThat === 'function' && xaDanSoThat(ten) ? dan : Math.round(dan * (ph ? 1.04 : 1.015));
   const soThon = Math.round((ph ? 22 : 30) + 18 * R('th'));
   /* 2. BHYT: phường thấp hơn (lao động tự do, người tạm trú), xã miền núi cao (ngân sách hỗ trợ) */
   const bhyt9 = cl((ph ? 0.957 : 0.968) + 0.016 * (R('bh') - 0.5) + (xa ? 0.018 : 0), 0.93, 0.995);

@@ -12,7 +12,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EF = json.load(open(os.path.join(ROOT, 'tools', 'syt-fields.json'), encoding='utf-8'))
 OUT = os.path.join(ROOT, 'docs', 'SYT_SoYTe', 'SYT_MO_TA_CHI_TIEU.docx')
 _JS = ("const fs=require('fs'),vm=require('vm');const c={};vm.createContext(c);"
-       "vm.runInContext(fs.readFileSync('js/core/syt-config.js','utf8')+';this.S=SYT_SUM;this.N=SYT_NGO_DOC;this.B=SYT_BENH;',c);"
+       "vm.runInContext(fs.readFileSync('js/core/xa-dan-so.js','utf8')+fs.readFileSync('js/core/syt-config.js','utf8')+';this.S=SYT_SUM;this.N=SYT_NGO_DOC;this.B=SYT_BENH;',c);"
        "process.stdout.write(JSON.stringify({S:c.S,N:c.N,B:c.B}));")
 _R = json.loads(subprocess.run(['node', '-e', _JS], cwd=ROOT, capture_output=True, check=True).stdout.decode('utf-8'))
 S, NGO, BENH = _R['S'], _R['N'], _R['B']
@@ -48,7 +48,7 @@ table([
     ['Nguồn dữ liệu', f'File mô tả đầu vào eform, sheet "Sở Y tế": 4 eform, {sum(len(e["fields"]) for e in EF)} trường nhập'],
     ['Phạm vi', '4 chỉ tiêu, 12 biểu đồ, bảng 126 phường/xã'],
     ['Số liệu ví dụ', 'Số giả lập đặt theo số liệu đã công bố của Hà Nội, kỳ tháng 9/2026'],
-    ['Phiên bản', '1.2 · ngày 13/10/2026 (theo phản hồi nhóm triển khai khi nối eform thật: thêm quy ước xử lý dữ liệu eform — khóa bản ghi, cách lấy theo kỳ, chỉ hiện số có trường trong eform)'],
+    ['Phiên bản', '1.3 · ngày 20/10/2026 (số giả lập dân số từng phường/xã lấy đúng dân số thật theo phương án sắp xếp đơn vị hành chính cấp xã năm 2025, tổng 8.818.383 người, để mẫu số tỷ lệ khớp cột Dân số của bảng 126 phường/xã). Bản 1.2 · ngày 13/10/2026: thêm quy ước xử lý dữ liệu eform — khóa bản ghi, cách lấy theo kỳ, chỉ hiện số có trường trong eform'],
 ], [4.2, 10.0], header=False, size=12, key_col=True)
 k.page_break()
 k.toc()

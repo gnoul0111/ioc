@@ -33,6 +33,8 @@ const CTM_UI = { open: false, id: null, role: null, screen: 'home', group: null,
   xa: { ind: null, f: 'all', q: '', sel: null, anim: false, order: [] } };
 const CTM_OV_PICK = {};
 const CTM_CACHE = {};
+/* số lớn đã hiện trong màn đang dựng ("số|đơn vị") — thẻ sau không ghi lại tổng trùng (quy tắc H14); đặt lại mỗi lần dựng màn nhóm */
+let CTM_SHOWN = {};
 const CTM_PAL = ['var(--s1)', 'var(--s3)', 'var(--s4)', 'var(--s2)', 'var(--s5)', 'var(--prev)'];
 
 function ctmRegister(spec) { if (spec && spec.id) { CTM_SPECS[spec.id] = spec; Object.keys(CTM_CACHE).forEach((k) => { if (k.indexOf(spec.id + '|') === 0) delete CTM_CACHE[k]; }); } return spec; }
@@ -52,14 +54,17 @@ function ctmNote(html) { return '<div class="stc-note"><svg width="16" height="1
 function ctmEmpty(title, text) { return '<div class="stc-empty"><b>' + ctmE(title) + '</b><span style="font-size:12px;max-width:420px">' + ctmE(text) + '</span></div>'; }
 const CTM_ICON_DL = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>';
 
-/* Mũi tên tăng/giảm — cùng quy ước Sở GD&ĐT / Trung tâm HCC: inv = giảm là tốt; neutral = màu trung tính; rate = chênh điểm %. */
+/* Mũi tên tăng/giảm — cùng quy ước Sở GD&ĐT / Trung tâm HCC: inv = giảm là tốt; neutral = màu trung tính; rate = chênh điểm %.
+   Chênh điểm % ghi cùng số lẻ với tỷ lệ (o.d, tối thiểu 1 — quy tắc H5), để chênh dưới 0,05 điểm không hiện thành "Không đổi";
+   o.eq: chữ khi bằng nhau (so với mức Thành phố là "Bằng mức TP", không phải "Không đổi"). */
 function ctmDl(now, prev, o) {
   o = o || {};
   if (now == null || prev == null || !isFinite(now) || !isFinite(prev) || (!o.rate && !prev)) return '<span class="stc-dl na">' + ctmE(o.na || 'Chưa có kỳ so sánh') + '</span>';
-  const v = o.rate ? now - prev : (now / prev - 1) * 100, r = Math.round(v * 10) / 10;
+  const dd = o.rate ? Math.max(1, o.d || 1) : 1, k = Math.pow(10, dd);
+  const v = o.rate ? now - prev : (now / prev - 1) * 100, r = Math.round(v * k) / k;
   let c = r > 0 ? 'up' : r < 0 ? 'down' : 'flat';
   if (c !== 'flat') { if (o.inv) c += r > 0 ? ' bad' : ' good'; else if (o.neutral) c += ' n'; }
-  const txt = c === 'flat' ? 'Không đổi' : ctmF(Math.abs(v), 1) + (o.rate ? ' điểm %' : '%');
+  const txt = c === 'flat' ? (o.eq || 'Không đổi') : ctmF(Math.abs(v), dd) + (o.rate ? ' điểm %' : '%');
   const tip = (o.ref ? o.ref.charAt(0).toUpperCase() + o.ref.slice(1) + ': ' : '') + ctmF(prev, o.d || 0) + ' → ' + ctmF(now, o.d || 0) + '. ' + (o.inv ? 'Chỉ tiêu này giảm là tốt.' : o.neutral ? 'Tăng hay giảm không tự thân tốt/xấu nên để màu trung tính.' : 'Chỉ tiêu này tăng là tốt.');
   return '<span class="stc-dl ' + c + '" title="' + ctmE(tip) + '">' + txt + (o.ref ? ' <span class="stc-ref">' + ctmE(o.ref) + '</span>' : '') + '</span>';
 }
@@ -211,7 +216,7 @@ function ctmXaCard(spec, onclick) {
 }
 function ctmCard(o) {
   const title = o.xa ? '<button type="button" class="sgd-ctl" onclick="ctmXa(' + ctmJs(o.xa) + ')" title="Xem theo 126 xã, phường">' + ctmE(o.t) + '</button>' : '<h3 class="stc-ct">' + ctmE(o.t) + '</h3>';
-  return '<div class="stc-card"><div class="stc-ch"><div>' + title + '<div class="stc-cs">' + ctmE(o.s || '') + '</div></div>' + (o.r || '') + '</div>' + o.b + '</div>';
+  return '<div class="stc-card' + (o.cls ? ' ' + o.cls : '') + '"><div class="stc-ch"><div>' + title + '<div class="stc-cs">' + ctmE(o.s || '') + '</div></div>' + (o.r || '') + '</div>' + o.b + '</div>';
 }
 function ctmBig(v, unit, dl) { return '<div class="stc-bigrow"><div class="stc-big">' + v + (unit ? '<small>' + ctmE(unit) + '</small>' : '') + '</div>' + (dl || '') + '</div>'; }
 function ctmLegend(spec, n) { return '<div class="stc-lg"><span><i style="background:var(--s1)"></i>' + ctmE(ctmPLabel(spec, n.p)) + '</span>' + (n.pp != null ? '<span><i style="background:var(--prev)"></i>' + ctmE(ctmPLabel(spec, n.pp)) + '</span>' : '') + '</div>'; }
@@ -224,35 +229,19 @@ function ctmPg(label, small, pct, color, val, dl) {
   return '<div class="stc-pg"><div class="stc-row"><span class="stc-nm">' + ctmE(label) + (small ? '<small>' + ctmE(small) + '</small>' : '') + '</span><span class="stc-pv">' + (val != null ? val : ctmF(pct, 1) + '%') + (dl ? ' <span class="ctm-pgdl">' + dl + '</span>' : '') + '</span></div><div class="stc-trk"><div class="stc-fill" style="width:' + Math.max(pct > 0 ? 1 : 0, Math.min(100, pct || 0)).toFixed(1) + '%;background:' + (color || 'var(--s1)') + '"></div></div></div>';
 }
 /* Biểu đồ đường (quy tắc H13): tỷ lệ, bình quân, chỉ số, số ít thay đổi — trục KHÔNG bắt đầu từ 0, ghi mức đầu trục; điểm "on" tô đậm.
+   Vẽ bằng bộ dùng chung js/core/line-chart.js (trục chia số tròn, nhãn số tránh đường, vẽ lại theo bề rộng thật của thẻ).
    pts: [{ l: nhãn trục, v: số | null, on }], o: { d, pct, ref: số mốc (VD 100 cho chỉ số), refL: chữ của mốc } */
 function ctmLineSvg(pts, o) {
   o = o || {};
   const ok = pts.filter((p) => p.v != null && isFinite(p.v));
   if (ok.length < 2) return '<div class="stc-hint">Chưa đủ số liệu để vẽ xu hướng.</div>';
-  const vs = ok.map((p) => p.v).concat(o.ref != null ? [o.ref] : []);
-  let mn = Math.min.apply(null, vs), mx = Math.max.apply(null, vs);
-  const span = (mx - mn) || Math.max(Math.abs(mx), 1) * 0.1;
-  let lo = mn - span * 0.6, hi = mx + span * 0.5;
-  if (o.pct) { lo = Math.max(0, lo); hi = Math.min(100, hi); if (hi <= lo) hi = lo + 1; }
-  const W = 560, H = 220, x0 = 62, x1 = W - 24, y0 = 26, y1 = 172, N = pts.length;
-  const xOf = (i) => (N === 1 ? (x0 + x1) / 2 : x0 + (x1 - x0) * i / (N - 1)), yOf = (v) => y0 + (1 - (v - lo) / (hi - lo)) * (y1 - y0);
-  const d = o.d == null ? 1 : o.d, f = (v) => ctmF(v, d) + (o.pct ? '%' : '');
-  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="ctm-line" role="img" aria-label="Xu hướng"><g stroke="var(--line)" stroke-width="1">';
-  [hi, (hi + lo) / 2, lo].forEach((v) => { s += '<line x1="' + x0 + '" y1="' + yOf(v).toFixed(1) + '" x2="' + x1 + '" y2="' + yOf(v).toFixed(1) + '"/>'; });
-  s += '</g>';
-  [hi, (hi + lo) / 2, lo].forEach((v) => { s += '<text class="stc-ax" x="' + (x0 - 8) + '" y="' + (yOf(v) + 4).toFixed(1) + '" text-anchor="end">' + ctmE(f(v)) + '</text>'; });
-  if (o.ref != null) s += '<line x1="' + x0 + '" y1="' + yOf(o.ref).toFixed(1) + '" x2="' + x1 + '" y2="' + yOf(o.ref).toFixed(1) + '" stroke="var(--ink2)" stroke-dasharray="5 4" stroke-width="1.5"/><text class="stc-ax" x="' + (x0 + 6) + '" y="' + (yOf(o.ref) + 14).toFixed(1) + '" text-anchor="start">' + ctmE(o.refL || ('mốc ' + ctmF(o.ref, 0))) + '</text>';
-  let path = '';
-  pts.forEach((p, i) => { if (p.v == null) return; path += (path ? ' L' : 'M') + xOf(i).toFixed(1) + ' ' + yOf(p.v).toFixed(1); });
-  s += '<path d="' + path + '" fill="none" stroke="var(--s1)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>';
-  pts.forEach((p, i) => {
-    if (p.v == null) return;
-    s += '<circle cx="' + xOf(i).toFixed(1) + '" cy="' + yOf(p.v).toFixed(1) + '" r="' + (p.on ? 6 : 4) + '" fill="' + (p.on ? 'var(--s1)' : 'var(--card)') + '" stroke="var(--s1)" stroke-width="2"/>' +
-      '<text class="stc-vl" x="' + xOf(i).toFixed(1) + '" y="' + (yOf(p.v) - 11).toFixed(1) + '" text-anchor="middle">' + ctmE(f(p.v)) + '</text>';
-  });
-  pts.forEach((p, i) => { s += '<text class="stc-ax" x="' + xOf(i).toFixed(1) + '" y="' + (y1 + 22) + '" text-anchor="middle">' + ctmE(p.l) + '</text>'; });
-  return s + '</svg><div class="stc-hint">Trục dọc bắt đầu từ ' + ctmE(f(lo)) + ', không từ 0, để thấy rõ thay đổi.' + (o.hint ? ' ' + o.hint : '') + '</div>';
+  const d = o.d == null ? 1 : o.d;
+  const R = lcBox(pts, { fmt: (v) => ctmF(v, d) + (o.pct ? '%' : ''), pct: !!o.pct, ref: o.ref == null ? null : o.ref, cls: 'ctm-line' });
+  return R.html + '<div class="stc-hint">Trục dọc bắt đầu từ ' + ctmE(R.fa(R.A.lo)) + ', không từ 0, để thấy rõ thay đổi.' +
+    (o.ref != null ? ' Đường nét đứt là ' + ctmE(o.refL || ('mốc ' + ctmF(o.ref, 0))) + '.' : '') + (o.hint ? ' ' + o.hint : '') + '</div>';
 }
+/* Sau khi dựng màn: vẽ lại mọi biểu đồ đường theo bề rộng thật của khung */
+function ctmFitLines(root) { if (typeof lcFit === 'function') lcFit(root); }
 /* Chỉ tiêu nên vẽ đường thay cho cột: tỷ lệ, bình quân, chỉ số, hoặc số tại thời điểm thay đổi dưới 5% qua các kỳ */
 function ctmLineFor(m, vals) {
   if (m.u === '%' || /trên [\d.]+ (dân|hộ)|bình quân|chỉ số/i.test(String(m.l || '') + ' ' + String(m.short || '')) || /\//.test(m.u || '')) return true;
@@ -265,6 +254,19 @@ function ctmLineFor(m, vals) {
 function ctmLb(x) { return Array.isArray(x) ? x[0] : x && typeof x === 'object' ? (x.l || x.label || '') : x; }
 function ctmText(f, a, b, c) { try { return typeof f === 'function' ? f(a, b, c) || '' : f || ''; } catch (e) { return ''; } }
 
+/* Các dòng tỷ lệ (thanh 0–100%); chỉ tiêu giao (m.plan) là vạch mốc trên thanh thực hiện đứng trước nó (quy tắc H13) */
+function ctmRateRows(spec, keys, n) {
+  const all = keys || [], shown = all.filter((k) => !ctmM(spec, k).plan);
+  const markOf = (k) => { const j = all.indexOf(k), nx = all[j + 1]; return nx && ctmM(spec, nx).plan ? nx : null; };
+  return shown.map((k, i) => {
+    const m = ctmM(spec, k), v = ctmV(spec, k, n.D), mk = markOf(k), mv = mk ? ctmV(spec, mk, n.D) : null, mm = mk ? ctmM(spec, mk) : null;
+    const mark = mv != null ? '<b class="ctm-mk" style="left:' + Math.max(0, Math.min(100, mv)).toFixed(2) + '%" title="' + ctmE((mm.short || mm.l) + ': ' + ctmF(mv, mm.d == null ? 1 : mm.d) + '%') + '"></b>' : '';
+    const note = mv != null ? '<small class="ctm-mkl">' + ctmE((mm.short || mm.l) + ' ' + ctmF(mv, mm.d == null ? 1 : mm.d) + '%' + (v != null ? (v >= mv ? ' · đạt' : ' · chưa đạt') : '')) + '</small>' : '';
+    /* thanh từ 0 đến 100: tỷ lệ ghi %, điểm (thang 100) ghi "điểm" */
+    const suf = m.u === '%' || !m.u ? '%' : ' ' + m.u;
+    return '<div class="sgd-rt"' + (i ? '' : ' style="border-top:0"') + '><span class="sgd-nm">' + ctmE(m.short || m.l) + note + '</span><span class="sgd-tk ctm-tkm"><i style="width:' + Math.max(0, Math.min(100, v || 0)).toFixed(1) + '%;background:' + (m.inv ? 'var(--s2)' : 'var(--s1)') + '"></i>' + mark + '</span><span class="sgd-r">' + ctmF(v, m.d == null ? 1 : m.d) + ctmE(suf) + '</span>' + ctmDlM(spec, k, n) + '</div>';
+  }).join('');
+}
 /* Thẻ trong màn nhóm */
 function ctmCardHtml(spec, c, n) {
   const sub = c.s != null ? ctmText(c.s, n.D, n.P, n) : null;
@@ -280,14 +282,31 @@ function ctmCardHtml(spec, c, n) {
     const hint = ctmText(c.hint, n.D, n.P, n);
     if (hint) b += '<div class="stc-hint">' + hint + '</div>';
     /* thanh thứ hai là kỳ so sánh của chính các chỉ tiêu trong thẻ (cùng kỳ năm trước hoặc kỳ liền trước) */
-    const rowKeys = c.noBig ? items.filter((k) => k !== big) : items;
+    let rowKeys = c.noBig ? items.filter((k) => k !== big) : items;
+    /* các phần đã có ở thẻ cơ cấu của nhóm (c.dupWith) thì không vẽ lại thành thanh cạnh tổng (quy tắc H13, H14): chỉ giữ số lớn */
+    if (c.dupWith && c.dupWith.length && !c.noBig) {
+      const seen = {};
+      c.dupWith.forEach((x) => { let r = []; try { r = (x.items || x.rows)(n.D) || []; } catch (e) { r = []; } r.forEach((y) => { seen[ctmF(Number(y[1]), x.d || 0)] = 1; }); });
+      const rest = rowKeys.filter((k) => k !== big), dup = rest.filter((k) => seen[ctmFmtM(spec, k, ctmV(spec, k, n.D))]);
+      if (rest.length && dup.length * 2 >= rest.length) rowKeys = [big];
+    }
     const cid = ctmCmpPid(spec, rowKeys, n);
-    const lg = '<div class="stc-lg"><span><i style="background:var(--s1)"></i>' + ctmE(ctmPLabel(spec, n.p)) + '</span>' + (cid != null ? '<span><i style="background:var(--prev)"></i>' + ctmE(ctmCmpLabel(spec, cid, n)) + '</span>' : '') + '</div>';
-    b += lg + rowKeys.map((k, i) => { const m = ctmM(spec, k); return ctmCmpRow(m.short || m.l, ctmV(spec, k, n.D), ctmPrevV(spec, k, n), mx, m.d, ctmDlM(spec, k, n), i === 0); }).join('');
+    /* chỉ một chỉ tiêu và đó chính là số lớn: không vẽ thêm thanh nhắc lại số (quy tắc H14) — thẻ gọn, ghi số kỳ so sánh bằng chữ */
+    const compact = rowKeys.length === 1 && rowKeys[0] === big;
+    if (compact) {
+      const pv = ctmPrevV(spec, big, n);
+      if (pv != null && cid != null) b += '<div class="ctm-cmpline">' + ctmE(ctmCmpLabel(spec, cid, n)) + ': <b>' + ctmFmtM(spec, big, pv) + '</b>' + (ctmUnit(spec, big) ? ' ' + ctmE(ctmUnit(spec, big)) : '') + '</div>';
+    } else {
+      const lg = '<div class="stc-lg"><span><i style="background:var(--s1)"></i>' + ctmE(ctmPLabel(spec, n.p)) + '</span>' + (cid != null ? '<span><i style="background:var(--prev)"></i>' + ctmE(ctmCmpLabel(spec, cid, n)) + '</span>' : '') + '</div>';
+      b += lg + rowKeys.map((k, i) => { const m = ctmM(spec, k); return ctmCmpRow(m.short || m.l, ctmV(spec, k, n.D), ctmPrevV(spec, k, n), mx, m.d, ctmDlM(spec, k, n), i === 0); }).join('');
+    }
+    CTM_SHOWN[ctmFmtM(spec, big, ctmV(spec, big, n.D)) + '|' + ctmUnit(spec, big)] = 1;
+    /* một tỷ lệ của nhóm ghi ngay trong thẻ (thay cho thẻ Tỷ lệ riêng chỉ có một thanh) */
+    if (c.rates && c.rates.length) b += '<div class="ctm-cmprates">' + ctmRateRows(spec, c.rates, n) + '</div>';
     if (monthK.length) b += '<div class="stc-hint" style="margin-top:10px">' + monthK.map((k) => { const m = ctmM(spec, k); return ctmE((m.short || m.l) + ': ' + ctmFmtM(spec, k, ctmV(spec, k, n.D)) + (ctmUnit(spec, k) ? ' ' + ctmUnit(spec, k) : '')); }).join(' · ') + ' (số riêng một tháng, không cộng vào số trên).</div>';
     const unit = mb.u === '%' ? '%' : mb.u;
     const sAll = ctmSub(spec, n, unit, rowKeys) + (rowKeys.some((k) => ctmM(spec, k).ck) && cid == null ? ' · lũy kế từ đầu năm' : '');
-    return ctmCard({ t: c.t, s: sub != null ? sub : sAll, xa: c.xa, b: b });
+    return ctmCard({ t: c.t, s: sub != null ? sub : sAll, xa: c.xa, b: b, cls: compact ? 'ctm-compact' : '' });
   }
   if (c.type === 'cols') {
     const per = spec.periods.slice().reverse(), m1 = ctmM(spec, c.m), m2 = c.m2 ? ctmM(spec, c.m2) : null;
@@ -328,7 +347,10 @@ function ctmCardHtml(spec, c, n) {
   if (c.type === 'parts') {
     const tot = ctmV(spec, c.total, n.D), mt = ctmM(spec, c.total);
     const parts = c.parts.map((k, i) => ({ k: k, m: ctmM(spec, k), v: ctmV(spec, k, n.D) || 0, c: CTM_PAL[i % CTM_PAL.length] }));
-    let b = ctmBig(ctmFmtM(spec, c.total, tot), ctmUnit(spec, c.total), ctmDlM(spec, c.total, n, true));
+    /* tổng đã là số lớn của thẻ trước trong cùng màn thì không ghi lại (quy tắc H14) */
+    const kT = ctmFmtM(spec, c.total, tot) + '|' + ctmUnit(spec, c.total);
+    let b = CTM_SHOWN[kT] ? '' : ctmBig(ctmFmtM(spec, c.total, tot), ctmUnit(spec, c.total), ctmDlM(spec, c.total, n, true));
+    CTM_SHOWN[kT] = 1;
     b += '<div class="stc-stack">' + parts.map((p) => '<i style="flex:' + Math.max(0, p.v) + ';background:' + p.c + '" title="' + ctmE(p.m.short || p.m.l) + '"></i>').join('') + '</div>';
     /* thẻ cơ cấu chuẩn: mỗi phần có tỷ trọng và mức thay đổi so với kỳ so sánh (thay cho bảng — quy tắc H15) */
     b += parts.map((p) => ctmPg(p.m.short || p.m.l, ctmFmtM(spec, p.k, p.v) + (p.m.u && p.m.u !== '%' ? ' ' + p.m.u : ''), tot ? p.v / tot * 100 : 0, p.c, null, ctmDlM(spec, p.k, n))).join('');
@@ -348,17 +370,8 @@ function ctmCardHtml(spec, c, n) {
     return ctmCard({ t: (noRank ? (c.t && !/thấp nhất/i.test(c.t) ? c.t : 'Nhiều nhất: ' + I.l) : c.t || (low ? 'Thấp nhất: ' : 'Cao nhất: ') + I.l), s: sub != null ? sub : (c.n || 10) + ' xã, phường · ' + ctmPLabel(spec, n.p) + ' · ' + I.u, xa: I.id, b: b });
   }
   if (c.type === 'rates') {
-    /* chỉ tiêu giao (m.plan) không thành thanh riêng mà là vạch mốc trên thanh thực hiện đứng trước nó (quy tắc H13) */
-    const all = c.items || [], shown = all.filter((k) => !ctmM(spec, k).plan);
-    const markOf = (k) => { const j = all.indexOf(k), nx = all[j + 1]; return nx && ctmM(spec, nx).plan ? nx : null; };
-    const b = shown.map((k, i) => {
-      const m = ctmM(spec, k), v = ctmV(spec, k, n.D), mk = markOf(k), mv = mk ? ctmV(spec, mk, n.D) : null, mm = mk ? ctmM(spec, mk) : null;
-      const mark = mv != null ? '<b class="ctm-mk" style="left:' + Math.max(0, Math.min(100, mv)).toFixed(2) + '%" title="' + ctmE((mm.short || mm.l) + ': ' + ctmF(mv, mm.d == null ? 1 : mm.d) + '%') + '"></b>' : '';
-      const note = mv != null ? '<small class="ctm-mkl">' + ctmE((mm.short || mm.l) + ' ' + ctmF(mv, mm.d == null ? 1 : mm.d) + '%' + (v != null ? (v >= mv ? ' · đạt' : ' · chưa đạt') : '')) + '</small>' : '';
-      /* thanh từ 0 đến 100: tỷ lệ ghi %, điểm (thang 100) ghi "điểm" */
-      const suf = m.u === '%' || !m.u ? '%' : ' ' + m.u;
-      return '<div class="sgd-rt"' + (i ? '' : ' style="border-top:0"') + '><span class="sgd-nm">' + ctmE(m.short || m.l) + note + '</span><span class="sgd-tk ctm-tkm"><i style="width:' + Math.max(0, Math.min(100, v || 0)).toFixed(1) + '%;background:' + (m.inv ? 'var(--s2)' : 'var(--s1)') + '"></i>' + mark + '</span><span class="sgd-r">' + ctmF(v, m.d == null ? 1 : m.d) + ctmE(suf) + '</span>' + ctmDlM(spec, k, n) + '</div>';
-    }).join('');
+    const shown = (c.items || []).filter((k) => !ctmM(spec, k).plan);
+    const b = ctmRateRows(spec, c.items, n);
     const hint = ctmText(c.hint, n.D, n.P, n);
     return ctmCard({ t: c.t, s: sub != null ? sub : ctmSub(spec, n, '%', shown), xa: c.xa, b: b + (hint ? '<div class="stc-hint" style="margin-top:10px">' + hint + '</div>' : '') });
   }
@@ -383,7 +396,7 @@ function ctmCardHtml(spec, c, n) {
       /* dãy thứ hai là kế hoạch: vẽ vạch kế hoạch trên cột, không vẽ thành cột thứ hai (quy tắc H13) */
       const plan = v2 && (c.plan || /kế hoạch/i.test(c.l2 || ''));
       const top2 = v2 ? Math.max(top, Math.max.apply(null, v2.map((v) => Math.abs(v || 0)))) : top;
-      const b = '<div class="sgd-cc">' + rows.map((v, i) => '<div class="sgd-col"><span class="sgd-cv">' + ctmF(v, c.d || 0) + '</span><div class="sgd-pair' + (plan ? ' ctm-planwrap' : '') + '"><div class="sgd-b1 ctm-cb" style="height:' + (Math.abs(v || 0) / top2 * 150).toFixed(0) + 'px;' + (i === rows.length - 1 ? '' : 'opacity:.6') + '"></div>' +
+      const b = '<div class="sgd-cc">' + rows.map((v, i) => '<div class="sgd-col"><span class="sgd-cv">' + ctmF(v, c.d || 0) + '</span><div class="sgd-pair' + (plan ? ' ctm-planwrap" style="height:' + Math.max(Math.abs(v || 0) / top2 * 150, Math.abs(v2[i] || 0) / top2 * 150 + 10).toFixed(0) + 'px' : '') + '"><div class="sgd-b1 ctm-cb" style="height:' + (Math.abs(v || 0) / top2 * 150).toFixed(0) + 'px;' + (i === rows.length - 1 ? '' : 'opacity:.6') + '"></div>' +
         (v2 && plan ? '<div class="ctm-plan" style="bottom:' + (Math.abs(v2[i] || 0) / top2 * 150).toFixed(0) + 'px" title="' + ctmE((c.l2 || 'Kế hoạch') + ': ' + ctmF(v2[i], c.d || 0)) + '"></div>' : v2 ? '<div class="sgd-b0" style="height:' + (Math.abs(v2[i] || 0) / top2 * 150).toFixed(0) + 'px"></div>' : '') + '</div></div>').join('') + '</div><div class="sgd-ccl">' + (labels || []).map((l) => '<span>' + ctmE(l) + '</span>').join('') + '</div>' +
         '<div class="stc-lg"><span><i style="background:var(--s1)"></i>' + ctmE(c.l1 || c.t) + (c.u ? ' (' + ctmE(c.u) + ', số trên cột)' : '') + '</span>' + (v2 ? (plan ? '<span><i class="ctm-plani"></i>' + ctmE(c.l2 || 'Kế hoạch') + ' (vạch)</span>' : '<span><i style="background:var(--prev)"></i>' + ctmE(c.l2 || '') + '</span>') : '') + '</div>';
       return ctmCard({ t: c.t, s: sub != null ? sub : ctmPLabel(spec, n.p) + (c.u ? ' · ' + c.u : ''), xa: c.xa, b: b + hintH });
@@ -392,7 +405,10 @@ function ctmCardHtml(spec, c, n) {
       const tot = rows.reduce((s, r) => s + (Number(r[1]) || 0), 0), pct = c.u === '%';
       /* c.semantic: phần tử mang màu riêng ở ô thứ 3 (mức cảnh báo Xanh/Vàng/Cam/Đỏ…) — màu phải khớp tên, không lấy theo thứ tự */
       const col = (r, i) => (c.semantic && r[2]) || CTM_PAL[i % CTM_PAL.length];
-      let b = c.noTotal ? '' : ctmBig(ctmF(c.total != null ? ctmText(c.total, n.D) : tot, c.d || 0), c.u || '');
+      const tTxt = ctmF(c.total != null ? ctmText(c.total, n.D) : tot, c.d || 0), kT = tTxt + '|' + (c.u || '');
+      /* tổng trùng số lớn đã hiện ở thẻ trước trong cùng màn: không ghi lại (quy tắc H14) */
+      let b = c.noTotal || CTM_SHOWN[kT] ? '' : ctmBig(tTxt, c.u || '');
+      CTM_SHOWN[kT] = 1;
       if (!pct) b += '<div class="stc-stack">' + rows.map((r, i) => '<i style="flex:' + Math.max(0, Number(r[1]) || 0) + ';background:' + col(r, i) + '" title="' + ctmE(ctmLb(r[0])) + '"></i>').join('') + '</div>';
       b += rows.map((r, i) => ctmPg(ctmLb(r[0]), pct ? '' : ctmF(r[1], c.d || 0) + (c.u ? ' ' + c.u : ''), pct ? Number(r[1]) : (tot ? (Number(r[1]) || 0) / tot * 100 : 0), col(r, i), pct ? ctmF(r[1], c.d == null ? 1 : c.d) + '%' : null)).join('');
       return ctmCard({ t: c.t, s: sub != null ? sub : ctmPLabel(spec, n.p) + (c.u && !pct ? ' · ' + c.u : ''), xa: c.xa, b: b + hintH });
@@ -440,7 +456,12 @@ function ctmAutoRows(spec, g) {
   rows.push(r1);
   comps.forEach((p) => extra.push(p));
   if (table) extra.push(table);
-  if (g.rates || (u0 !== '%' && pct.length)) extra.push({ type: 'rates', t: (g.rates && g.rates[1]) || 'Tỷ lệ', items: (g.rates && g.rates[0]) || pct });
+  if (g.rates || (u0 !== '%' && pct.length)) {
+    const rItems = (g.rates && g.rates[0]) || pct;
+    /* chỉ một tỷ lệ: ghi ngay trong thẻ so sánh, không tách thẻ "Tỷ lệ" một dòng đứng cạnh thẻ dài (bỏ trống gần hết thẻ) */
+    if (cmp && rItems.filter((k) => !ctmM(spec, k).plan).length === 1) cmp.rates = rItems;
+    else extra.push({ type: 'rates', t: (g.rates && g.rates[1]) || 'Tỷ lệ', items: rItems });
+  }
   if (g.top && spec.xa) extra.push({ type: 'top', ind: g.top, n: 10 });
   for (let i = 0; i < extra.length; i += 2) {
     const pair = extra.slice(i, i + 2);
@@ -468,6 +489,7 @@ function ctmCountWord(k) { return ['Không', 'Một', 'Hai', 'Ba', 'Bốn', 'Nă
 function ctmScreenGroup(spec) {
   const G = spec.groups || [], gi = Math.max(0, G.findIndex((g) => g.id === CTM_UI.group)), g = G[gi];
   const n = ctmNP(spec);
+  CTM_SHOWN = {};
   let h = ctmHeader(spec, 'home');
   if (g.note) h += '<div style="margin:-4px 0 14px" class="stc-hint">' + ctmE(ctmText(g.note, n.D, n.P, n)) + '</div>';
   let ri = 0;
@@ -475,7 +497,8 @@ function ctmScreenGroup(spec) {
     /* thẻ không có gì để vẽ (VD biểu đồ mọi kỳ bằng nhau) thì bỏ, hàng còn lại tự giãn */
     const cards = row.map((c) => ({ c: c, h: ctmCardHtml(spec, c, n) })).filter((x) => x.h);
     if (!cards.length) return;
-    const cls = cards.length === 1 ? '' : cards.length === 3 ? 'stc-g3' : (cards[0].c && cards[0].c.wide ? 'stc-g21' : 'stc-g2');
+    /* thẻ gọn (một chỉ tiêu) đứng cạnh biểu đồ theo tỷ lệ 1:2 thay vì chia đôi, để thẻ không bỏ trống nửa dưới */
+    const cls = cards.length === 1 ? '' : cards.length === 3 ? 'stc-g3' : cards.length === 2 && cards[0].h.indexOf('ctm-compact') >= 0 ? 'ctm-g12' : (cards[0].c && cards[0].c.wide ? 'stc-g21' : 'stc-g2');
     const inner = cards.map((x) => x.h).join('');
     h += cls ? '<div class="' + cls + (ri ? ' stc-mt' : '') + '">' + inner + '</div>' : '<div' + (ri ? ' class="stc-mt"' : '') + '>' + inner + '</div>';
     ri++;
@@ -547,7 +570,7 @@ function ctmScreenXa(spec) {
   const head = '<div class="sgd-xt-row sgd-xt-head ctm-xr"><span>' + (noRank ? 'Thứ tự' : 'Hạng') + '</span><span>Xã, phường</span><span class="sgd-num">Dân số</span><span class="sgd-num">' + ctmE(I.u === '%' ? 'Tỷ lệ' : 'Giá trị') + '</span><span class="sgd-num">' + lastH + '</span></div>';
   const body = list.map((r) => {
     const v = ctmXaVal(I, r), rk = ctmXaRank(I, rows, r);
-    const last = v == null ? '—' : ctmXaSmall(I, r) ? '<span class="stc-dl na">Mẫu nhỏ</span>' : I.tot ? (tp ? ctmF(v / tp * 100, 1) + '%' : '—') : ctmDl(v, tp, { rate: I.u === '%', inv: low, neutral: noRank, d: I.d });
+    const last = v == null ? '—' : ctmXaSmall(I, r) ? '<span class="stc-dl na">Mẫu nhỏ</span>' : I.tot ? (tp ? ctmF(v / tp * 100, 1) + '%' : '—') : ctmDl(v, tp, { rate: I.u === '%', inv: low, neutral: noRank, d: I.d, eq: 'Bằng mức TP' });
     const on = (here && r === here) || X.sel === r.u.name;
     return '<div class="sgd-xt-row ctm-xr' + (on ? ' on' : '') + '"><span class="sgd-no">' + (rk || '—') + '</span><button type="button" class="sgd-xbtn" onclick="ctmXaSel(' + ctmJs(r.u.name) + ')"><i class="ctm-pk ' + (r.u.k === 'P' ? 'p' : 'x') + '">' + (r.u.k === 'P' ? 'P' : 'X') + '</i>' + ctmE(r.u.short) + '</button><span class="sgd-num sgd-mute">' + ctmF(r.u.ds) + '</span><span class="sgd-num sgd-strong">' + ctmF(v, I.d) + '</span><span class="sgd-num">' + last + '</span></div>';
   }).join('') || '<div class="sgd-xt-row"><span class="sgd-mute">Không có xã, phường phù hợp bộ lọc.</span></div>';
@@ -606,6 +629,7 @@ function ctmRerender(resetScroll, force) {
   let html;
   try { html = ctmScreenHtml(spec); } catch (e) { if (typeof console !== 'undefined') console.error(e); html = ctmEmpty('Không dựng được màn hình', 'Có lỗi khi tính số liệu: ' + (e && e.message ? e.message : e)); }
   body.innerHTML = '<div class="stc-root sgd-root ctm-root stc-wrap">' + html + '</div>' + ctmTasksHtml(spec);
+  ctmFitLines(body);
   body.scrollTop = resetScroll ? 0 : top;
   CTM_UI.xa.anim = false;
   if (CTM_UI.focusQ) {
@@ -638,6 +662,8 @@ function ctmOpenForm(catId, itemIndex, role) {
   CTM_UI.open = true;
   ctmRerender(true, true);
   if (typeof openModal === 'function') openModal();
+  /* lần dựng đầu popup còn ẩn nên chưa đo được bề rộng: vẽ lại biểu đồ đường khi popup đã hiện */
+  ctmFitLines(document.getElementById('modalBody'));
 }
 function ctmClose() { CTM_UI.open = false; if (typeof closeModal === 'function') closeModal(); }
 function ctmGo(screen, arg) { CTM_UI.dd = null; CTM_UI.xa.sel = null; CTM_UI.screen = screen; if (screen === 'group' && arg) CTM_UI.group = arg; ctmRerender(true); }

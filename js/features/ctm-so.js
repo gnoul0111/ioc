@@ -56,8 +56,12 @@ function ctmSo(def) {
     if (u0 === '%') cards.push({ type: 'rates', t: g.label, items: pct });
     else {
       /* kế hoạch (cờ 'p') không vẽ thành thanh ngang hàng với số thực hiện (quy tắc H13) */
-      cards.push({ type: 'cmp', t: g.cmpT || g.label, big: L[0], items: L.filter((k) => metrics[k] && metrics[k].u === u0 && !metrics[k].plan).slice(0, 4), xa: g.xa, hint: g.hint });
-      if (pct.length) cards.push({ type: 'rates', t: g.ratesT || 'Tỷ lệ', items: pct });
+      /* dupWith: thẻ cơ cấu của nhóm — các phần đã có ở đó thì thẻ so sánh chỉ giữ số lớn (quy tắc H13, H14);
+         chỉ một tỷ lệ thì ghi ngay trong thẻ so sánh thay vì một thẻ "Tỷ lệ" riêng chỉ có một thanh */
+      const oneRate = pct.filter((k) => !metrics[k].plan).length === 1;
+      cards.push({ type: 'cmp', t: g.cmpT || g.label, big: L[0], items: L.filter((k) => metrics[k] && metrics[k].u === u0 && !metrics[k].plan).slice(0, 4), xa: g.xa, hint: g.hint,
+        rates: oneRate ? pct : null, dupWith: (g.cards || []).filter((c) => c.type === 'shares') });
+      if (pct.length && !oneRate) cards.push({ type: 'rates', t: g.ratesT || 'Tỷ lệ', items: pct });
     }
     (g.cards || []).forEach((c) => cards.push(c));
     const rows = [];

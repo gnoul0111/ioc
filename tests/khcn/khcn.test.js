@@ -4,7 +4,7 @@ const fs = require('fs'), path = require('path'), vm = require('vm');
 const root = path.resolve(__dirname, '../..');
 const ctx = {};
 vm.createContext(ctx);
-vm.runInContext(fs.readFileSync(path.join(root, 'js/core/khcn-config.js'), 'utf8') + fs.readFileSync(path.join(root, 'js/core/vpub-config.js'), 'utf8') +
+vm.runInContext(fs.readFileSync(path.join(root, 'js/core/xa-dan-so.js'), 'utf8') + fs.readFileSync(path.join(root, 'js/core/khcn-config.js'), 'utf8') + fs.readFileSync(path.join(root, 'js/core/vpub-config.js'), 'utf8') +
   '\n;this.S=KHCN_SUM;this.CT=KHCN_CT;this.IT=KHCN_ITEMS;this.U=KHCN_UNITS;this.DV=KHCN_DV;this.VDV=VPUB_DV;', ctx);
 const { S, CT, IT, U, DV, VDV } = ctx;
 let pass = 0, fail = 0;

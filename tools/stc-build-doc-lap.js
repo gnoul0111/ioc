@@ -16,11 +16,12 @@ const c0 = html.indexOf(cssMark), c1 = html.indexOf('</style>', c0);
 if (c0 < 0 || c1 < 0) throw new Error('Không tìm thấy phần CSS nhúng trong trang độc lập');
 
 /* 2. JS: từ mốc file đầu tiên đến </script> cuối */
-const jsMark = '/* ===== js\\core\\stc-config.js ===== */';
-const j0 = html.indexOf(jsMark), j1 = html.lastIndexOf('</script>');
+/* mốc là file nhúng đầu tiên còn có trong trang (line-chart.js từ 20/10/2026, trước đó là stc-config.js) — lấy mốc sớm nhất để không nhúng trùng */
+const jsMarks = ['/* ===== js\\core\\line-chart.js ===== */', '/* ===== js\\core\\stc-config.js ===== */'];
+const j0 = Math.min.apply(null, jsMarks.map((m) => html.indexOf(m)).filter((i) => i >= 0).concat([Infinity])), j1 = html.lastIndexOf('</script>');
 if (j0 < 0 || j1 < j0) throw new Error('Không tìm thấy phần JS nhúng trong trang độc lập');
 
-const files = ['js\\core\\stc-config.js', 'js\\data\\stc-snapshot.js', 'js\\features\\stc-demo-data.js', 'js\\features\\stc-data.js', 'js\\features\\dashboard-stc.js'];
+const files = ['js\\core\\line-chart.js', 'js\\core\\stc-config.js', 'js\\data\\stc-snapshot.js', 'js\\features\\stc-demo-data.js', 'js\\features\\stc-data.js', 'js\\features\\dashboard-stc.js'];
 const js = files.map((f) => '/* ===== ' + f + ' ===== */\n' + read(f.replace(/\\/g, '/')).replace(/\s+$/, '') + '\n').join('\n');
 const css = read('css/stc.css').replace(/\s+$/, '') + '\n\n';
 if (/<\/script/i.test(js) || /<\/style/i.test(css)) throw new Error('Mã nhúng chứa thẻ đóng </script> hoặc </style>');

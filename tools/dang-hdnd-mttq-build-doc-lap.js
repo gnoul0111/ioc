@@ -113,7 +113,7 @@ html.theme-light .uo-search,html.theme-green .uo-search{background:#fff;border-c
 `;
 const css = frameCss + part('css/stc.css') + part('css/sgd.css') + part('css/ubnd-overview.css') + part('css/ctm.css') + extraCss;
 /* Nhúng đủ 3 file khai báo ở mọi bản (thứ tự như demo_ioc.html) — các file có thể dùng chung hàm của nhau */
-const ctmJsSrc = part('js/core/ctm-xa.js') + part('js/features/ctm-engine.js') +
+const ctmJsSrc = part('js/core/line-chart.js') + part('js/core/ctm-xa.js') + part('js/features/ctm-engine.js') +
   part('js/features/ctm-mttq.js') + part('js/features/ctm-dang.js') + part('js/features/ctm-hdnd.js');
 if (/<\/script/i.test(ctmJsSrc) || /<\/style/i.test(css)) throw new Error('Mã nhúng chứa thẻ đóng </script> hoặc </style>');
 

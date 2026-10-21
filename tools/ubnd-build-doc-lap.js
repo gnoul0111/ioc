@@ -27,7 +27,7 @@ if (!m) throw new Error('Không tìm thấy gdUnitData trong dashboard-education
 const units = 'const gdUnitData=[' + m[1] + '\n];';
 
 /* 3. Cấu hình số liệu các sở (thứ tự như demo_ioc.html) */
-const CONFIGS = ['stc-config', 'sgd-config', 'hcc-config', 'vhtt-config', 'vpub-config', 'bql-config', 'dl-config', 'dttg-config',
+const CONFIGS = ['xa-dan-so', 'stc-config', 'sgd-config', 'hcc-config', 'vhtt-config', 'vpub-config', 'bql-config', 'dl-config', 'dttg-config',
   'ttra-config', 'khcn-config', 'nnmt-config', 'sct-config', 'sxd-config', 'snv-config', 'syt-config'].map((f) => 'js/core/' + f + '.js');
 
 /* 4. Danh sách 18 đơn vị trục UBND: cắt đoạn UBND:[...] của categorySeed rồi chạy trong vm cùng cấu hình các sở */
@@ -109,7 +109,7 @@ const js = frameJs + '\n\n/* ===== gdUnitData (từ js/features/dashboard-educat
   part('js/features/sgd-data.js') + part('js/features/dashboard-sgd.js') +
   part('js/features/hcc-data.js') + part('js/features/dashboard-hcc.js') +
   part('js/features/ubnd-overview.js') +
-  part('js/core/ctm-xa.js') + part('js/features/ctm-engine.js') + part('js/features/ctm-so.js');
+  part('js/core/line-chart.js') + part('js/core/ctm-xa.js') + part('js/features/ctm-engine.js') + part('js/features/ctm-so.js');
 if (/<\/script/i.test(js) || /<\/style/i.test(css)) throw new Error('Mã nhúng chứa thẻ đóng </script> hoặc </style>');
 
 const built = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });

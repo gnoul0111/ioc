@@ -394,7 +394,12 @@ html.theme-light .stc-root{--accent:#9d151c;--btn:#9d151c;--chip:rgba(157,21,28,
 }
 .stc-root svg .stc-ax{fill:var(--mute);font-family:'Be Vietnam Pro',system-ui,sans-serif;font-size:10.5px;font-weight:500}
 .stc-root svg .stc-vl{fill:var(--ink);font-family:'Be Vietnam Pro',system-ui,sans-serif;font-size:12px;font-weight:700}
+/* biểu đồ đường dùng chung (js/core/line-chart.js): lcFit vẽ lại theo bề rộng thật (1 đơn vị SVG = 1px); max-height chỉ chặn bản 560 lúc chưa đo */
+.stc-root .lc-box{width:100%;min-width:0}
+.stc-root svg.lc{width:100%;height:auto;max-height:300px;display:block}
 .stc-root button.stc-kpi,.stc-root button.stc-gcard{display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch}
+/* dòng "Xem nhóm … ›" luôn ở đáy thẻ, các thẻ cùng hàng thẳng hàng dù số dòng chỉ tiêu khác nhau */
+.stc-root button.stc-gcard .stc-gmore{margin-top:auto;padding-top:10px}
 .stc-root button.stc-oc-card{display:block}
 .stc-root .stc-rawrow span:nth-child(2),.stc-root .stc-rawh span:nth-child(2){text-align:left}
 .stc-root .stc-nodata{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-radius:12px;border:1px dashed var(--line);background:var(--card2);color:var(--ink2);font-size:12.5px;line-height:1.5;margin-bottom:12px}

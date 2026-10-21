@@ -13,7 +13,7 @@ function makeCtx(demo) {
   vm.runInContext(read('js\\core\\stc-config.js').replace('const STC_DEMO_DEFAULT = true;', 'const STC_DEMO_DEFAULT = false;'), ctx, { filename: 'stc-config.js' });
   vm.runInContext(read('js\\data\\stc-snapshot.js'), ctx, { filename: 'stc-snapshot.js' });
   if (demo) vm.runInContext(read('js\\features\\stc-demo-data.js'), ctx, { filename: 'demo' });
-  ['js\\features\\stc-data.js', 'js\\features\\dashboard-stc.js'].forEach((f) => vm.runInContext(read(f), ctx, { filename: f }));
+  ['js\\core\\line-chart.js', 'js\\features\\stc-data.js', 'js\\features\\dashboard-stc.js'].forEach((f) => vm.runInContext(read(f), ctx, { filename: f }));
   return ctx;
 }
 let pass = 0, failn = 0;
@@ -47,10 +47,11 @@ ok(balanced(h), 'trang chủ: thẻ div cân bằng');
 ['ns', 'dt', 'sx', 'vm'].forEach((g) => {
   const gh = html(c, 'group', 'STC_UI.group=' + JSON.stringify(g));
   ok(balanced(gh), 'nhóm ' + g + ': div cân bằng');
-  ok(/Chưa có số liệu từ Sở Tài chính|Số liệu thật từ API/.test(gh), 'nhóm ' + g + ': có trạng thái/nhãn dữ liệu');
+  ok(/Chưa có số liệu từ Sở Tài chính|Số liệu thật/.test(gh), 'nhóm ' + g + ': có trạng thái/nhãn dữ liệu');
+  ok(!/API|stc-tool.js/.test(gh), 'nhóm ' + g + ': không hiện chữ API, lệnh kỹ thuật');
 });
 const dt = html(c, 'group', 'STC_UI.group="dt"');
-ok(/Số liệu thật từ API/.test(dt), 'nhóm Đầu tư: dự án trọng điểm có nhãn "Số liệu thật từ API"');
+ok(/Số liệu thật</.test(dt) && !/từ API/.test(dt), 'nhóm Đầu tư: dự án trọng điểm có nhãn "Số liệu thật" (không ghi API)');
 ok(/50%/.test(dt) && /45%/.test(dt) && /30%/.test(dt) && /20%/.test(dt) && /10%/.test(dt), 'dự án trọng điểm hiện 50/45/30/20/10 %');
 ok(!/chậm tiến độ|đúng tiến độ"/.test(dt.replace(/không gắn nhãn[^.]*\./, '')), 'không gắn nhãn chậm/đúng tiến độ');
 const ns = html(c, 'group', 'STC_UI.group="ns"');
@@ -59,12 +60,14 @@ ok(!/class="stc-donut|<circle class="stc-seg"/.test(ns), 'không vẽ biểu đ�
 for (let i = 0; i < 13; i++) {
   const d = html(c, 'detail', 'STC_UI.ind=STC_INDICATORS[' + i + '].id;STC_UI.pick=null;');
   ok(balanced(d), 'chi tiết #' + i + ': div cân bằng');
-  ok(/Số liệu gốc từ API/.test(d) && /Cách tính/.test(d), 'chi tiết #' + i + ': có số liệu gốc và cách tính');
+  ok(/Số liệu (gốc từ API|thành phần)/.test(d) && !/Cách tính ·/.test(d), 'chi tiết #' + i + ': có số liệu thành phần, không hiện khối Cách tính (cách tính để trong tài liệu)');
+  ok(!/<span>chiTieu<\/span>|<span>giaTri<\/span>/.test(d), 'chi tiết #' + i + ': không hiện tên trường kỹ thuật');
+  ok(!/API|[A-Z]{3,}_[A-Z_]{3,}/.test(d), 'chi tiết #' + i + ': không hiện chữ API, mã kỹ thuật' + ((d.match(/.{0,60}API.{0,40}/) || [''])[0] ? ' — ' + d.match(/.{0,60}API.{0,40}/)[0] : ''));
 }
 const dda = html(c, 'detail', 'STC_UI.ind="da";STC_UI.pick=null;');
 ok(/stc-oc-card/.test(dda) && /Xu hướng theo quý/.test(dda), 'chi tiết dự án trọng điểm: có sơ đồ thẻ');
 const dnp = html(c, 'detail', 'STC_UI.ind="chi";STC_UI.pick=null;');
-ok(/Chưa có số liệu từ Sở Tài chính/.test(dnp) && /giaTri/.test(dnp), 'chi tiết chi NS (toàn 0): báo chưa có số, vẫn hiện dòng API gốc');
+ok(/Chưa có số liệu từ Sở Tài chính/.test(dnp) && /Giá trị/.test(dnp), 'chi tiết chi NS (toàn 0): báo chưa có số, vẫn hiện bảng số liệu thành phần');
 run(c, 'STC_UI.period=3;');
 h = html(c, 'home');
 ok(/Chưa có bản chụp số liệu cho Quý 3\/2026/.test(h), 'kỳ chưa có bản chụp: hiện thông báo rõ');
@@ -121,9 +124,11 @@ for (let i = 0; i < 13; i++) {
 let dc = html(c, 'detail', 'STC_UI.ind="chi";STC_UI.pick=null;');
 ok(/stc-wf/.test(dc) && /\+2\.700/.test(dc) && /\+1\.300/.test(dc) && /\+418/.test(dc), 'chi: cầu nối có các bậc +2.700 / +1.300 / +418');
 ok(/24\.100/.test(dc) && /28\.600/.test(dc), 'chi: cầu nối có 2 tổng');
-dc = html(c, 'detail', 'STC_UI.ind="chi";STC_UI.pick="chi_dt";');
+/* công thức chỉ để trong tài liệu: bật tạm khối Cách tính để kiểm công thức, kiểm xong tắt */
+dc = html(c, 'detail', 'var SHOW_FORMULA_BOX=true;STC_UI.ind="chi";STC_UI.pick="chi_dt";');
 ok(/Đóng góp vào mức tăng = \(11\.200 − 8\.500\) ÷ 24\.100 = 11,2 điểm %/.test(dc), 'chi_dt: đóng góp 11,2 điểm %');
 ok(/Tỷ trọng = 11\.200 ÷ 28\.600 = 39,2%/.test(dc), 'chi_dt: tỷ trọng 39,2%');
+vm.runInContext('SHOW_FORMULA_BOX = false;', c);
 ok(/sel/.test(dc), 'chi_dt: thẻ được chọn có viền');
 dc = html(c, 'detail', 'STC_UI.ind="xnk";STC_UI.pick=null;');
 ok(/Bấm thẻ Xuất khẩu hoặc Nhập khẩu/.test(dc), 'XNK: chưa chọn thì cầu nối nhắc chọn XK/NK');

@@ -157,8 +157,8 @@ html.theme-light .xa-pick option,html.theme-light .xa-pick optgroup,html.theme-g
 `;
 const css = frameCss + part('css/stc.css') + part('css/sgd.css') + part('css/ubnd-overview.css') + part('css/ctm.css') + extraCss;
 /* Thứ tự như demo_ioc.html: số Sở Y tế, HCC trước; rồi khuôn chỉ tiêu mới; đơn vị cấp Thành phố trước đơn vị cấp xã */
-const ctmJsSrc = part('js/core/syt-config.js') + part('js/core/hcc-config.js') + part('js/features/hcc-data.js') +
-  part('js/core/ctm-xa.js') + part('js/features/ctm-engine.js') +
+const ctmJsSrc = part('js/core/xa-dan-so.js') + part('js/core/syt-config.js') + part('js/core/hcc-config.js') + part('js/features/hcc-data.js') +
+  part('js/core/line-chart.js') + part('js/core/ctm-xa.js') + part('js/features/ctm-engine.js') +
   part('js/features/ctm-mttq.js') + part('js/features/ctm-dang.js') + part('js/features/ctm-hdnd.js') + part('js/features/ctm-xa-units.js');
 if (/<\/script/i.test(ctmJsSrc) || /<\/style/i.test(css)) throw new Error('Mã nhúng chứa thẻ đóng </script> hoặc </style>');
 
