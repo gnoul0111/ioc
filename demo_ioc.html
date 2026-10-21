@@ -402,7 +402,7 @@
   <aside class="sidebar" id="ouaSidebar">
     <div class="brand"><div class="logo">IOC</div><div><div class="brand-title">Cài đặt hệ thống</div><div class="brand-sub">Quản trị nền tảng IOC/CAD</div></div><button type="button" class="oua-sidebar-close" onclick="ouaToggleMobileSidebar(false)" aria-label="Đóng menu">✕</button></div>
     <div class="menu-title">Danh mục quản trị</div>
-    <button class="nav active" data-page="admin-overview"><span>⚙️</span><span><b>Admin Tổng</b><small>Quản trị admin theo địa bàn và 4 trục</small></span></button>
+    <button class="nav active" data-page="admin-overview"><span>⚙️</span><span><b>Quản trị Tổng</b><small>Phân quyền quản trị theo địa bàn và 4 trục</small></span></button>
     <button class="nav" data-page="org-list"><span>🏛️</span><span><b>Quản lý đơn vị</b><small>Đơn vị, cây tổ chức, đơn vị trực thuộc</small></span></button>
     <button class="nav" data-page="user-list"><span>👤</span><span><b>Quản lý người dùng</b><small>Tài khoản, role module, phạm vi dữ liệu</small></span></button>
     <button class="nav" data-page="login-log"><span>🕒</span><span><b>Nhật ký đăng nhập</b><small>Lượt đăng nhập của mọi tài khoản, thành công/thất bại</small></span></button>
@@ -420,16 +420,67 @@
     <div class="topbar" style="display:flex;justify-content:space-between;align-items:center;gap:16px">
       <div style="display:flex;align-items:center;gap:10px;min-width:0">
         <button type="button" class="oua-hamburger" onclick="ouaToggleMobileSidebar(true)" aria-label="Mở menu"><span></span><span></span><span></span></button>
-        <div style="min-width:0"><div class="crumb">Cài đặt hệ thống / Quản trị IOC-CAD</div><h1 id="pageTitle">Admin Tổng</h1></div>
+        <div style="min-width:0"><div class="crumb">Cài đặt hệ thống / Quản trị IOC-CAD</div><h1 id="pageTitle">Quản trị Tổng</h1></div>
       </div>
       <div id="ouaTopbarAvatar" style="display:flex;align-items:center;gap:10px;flex-shrink:0">
         <div class="oua-avatar" style="background:#3b6fd6">I</div>
-        <div><b>ioc_mbfs</b> <span class="pill violet">Admin toàn cục</span><div class="muted">Quản trị toàn cục</div></div>
+        <div><b>ioc_mbfs</b> <span class="pill violet">Admin toàn cục</span><div class="muted">Thành phố Hà Nội</div></div>
       </div>
     </div>
 
     <section id="admin-overview" class="page active">
-      <div class="panel">
+      <!-- Quản trị Tổng v2 (2026-10-19) — bản cũ ở #ouaAdminV1 bên dưới, ẩn bằng cờ OUA_ADMIN_TONG_V2 trong js/oua-data.js -->
+      <div id="ouaAdminV2" class="oua-adm">
+        <div class="oua-adm-head">
+          <div>
+            <div class="crumb">Cài đặt hệ thống / Phân quyền quản trị</div>
+            <h2>Phân Quyền Quản Trị Hệ Thống</h2>
+            <span class="oua-adm-scope">📍 Địa bàn: Thành phố Hà Nội</span>
+          </div>
+          <button class="btn" onclick="ouaBuildRealData();ouaRenderAdminOverview();ouaToast('Đã làm mới dữ liệu.')">↻ Làm mới dữ liệu</button>
+        </div>
+        <div class="oua-adm-kpis">
+          <button type="button" class="oua-adm-kpi active" data-kpi="all" onclick="ouaAdmKpiClick('all')" style="--ax:#3ec1ff"><span class="lbl">👥 Tổng người dùng</span><span class="val" id="ouaAdmKpiTotal">–</span><span class="sub" id="ouaAdmKpiTotalHint"></span></button>
+          <button type="button" class="oua-adm-kpi" data-kpi="DANG" onclick="ouaAdmKpiClick('DANG')" style="--ax:#ff5e7a"><span class="lbl">🚩 Đảng ủy</span><span class="val" id="ouaAdmKpi_DANG">–</span><span class="sub" id="ouaAdmKpiHint_DANG"></span></button>
+          <button type="button" class="oua-adm-kpi" data-kpi="HDND" onclick="ouaAdmKpiClick('HDND')" style="--ax:#f7b500"><span class="lbl">🏛️ HĐND</span><span class="val" id="ouaAdmKpi_HDND">–</span><span class="sub" id="ouaAdmKpiHint_HDND"></span></button>
+          <button type="button" class="oua-adm-kpi" data-kpi="UBND" onclick="ouaAdmKpiClick('UBND')" style="--ax:#14c38e"><span class="lbl">🏢 UBND</span><span class="val" id="ouaAdmKpi_UBND">–</span><span class="sub" id="ouaAdmKpiHint_UBND"></span></button>
+          <button type="button" class="oua-adm-kpi" data-kpi="MTTQ" onclick="ouaAdmKpiClick('MTTQ')" style="--ax:#8a7cff"><span class="lbl">🤝 MTTQ</span><span class="val" id="ouaAdmKpi_MTTQ">–</span><span class="sub" id="ouaAdmKpiHint_MTTQ"></span></button>
+          <button type="button" class="oua-adm-kpi accent" data-kpi="granted" onclick="ouaAdmKpiClick('granted')" style="--ax:#14c38e" title="Xem danh sách người đã được cấp quyền"><span class="lbl" id="ouaAdmKpiGrantLbl">⭐ Quản trị địa bàn</span><span class="val" id="ouaAdmKpiDiaBan">–</span><span class="sub" id="ouaAdmKpiGrantHint"></span></button>
+          <button type="button" class="oua-adm-kpi muted-kpi" data-kpi="ungranted" onclick="ouaAdmKpiClick('ungranted')" style="--ax:#a8bfda" title="Xem danh sách người chưa được cấp quyền"><span class="lbl">👤 Không phải Quản trị</span><span class="val" id="ouaAdmKpiNonAdmin">–</span><span class="sub" id="ouaAdmKpiNonAdminHint"></span></button>
+        </div>
+        <div class="panel oua-adm-config">
+          <div class="oua-adm-config-head">
+            <div class="oua-adm-config-title"><span class="oua-adm-shield">🛡️</span><div><h3>Cấu Hình Quyền Cấp Cho Người Dùng</h3><p>Chọn hình thức quản trị toàn diện hoặc phân quyền theo từng khối chuyên trách</p></div></div>
+            <div class="oua-adm-mode"><label>Hình thức phân quyền:</label><div class="field"><select id="ouaAdmModeSel" onchange="ouaAdmModeChanged()"><option value="diaban">🏘️ Quản trị địa bàn</option><option value="axis">🚩 Quản trị trục</option><option value="so">📘 Quản trị Sở/Ngành</option></select></div></div>
+          </div>
+          <div class="oua-adm-info"><span class="oua-adm-info-ic">i</span><div id="ouaAdmInfoText"></div></div>
+          <div class="oua-adm-actionbar"><span id="ouaAdmActionText">👉 Hãy tick chọn các người dùng trong bảng bên dưới để cấp quyền</span><button class="btn primary" id="ouaAdmAssignBtn" disabled onclick="ouaAdmAssign()">Gán Quản trị địa bàn</button></div>
+        </div>
+        <div class="panel oua-adm-list">
+          <div class="oua-adm-tabbar">
+            <div class="oua-adm-tabs">
+              <button type="button" class="oua-adm-tab active" data-tab="all" onclick="ouaAdmSetTab('all')">Tất cả <span class="cnt" id="ouaAdmTabCnt_all">0</span></button>
+              <button type="button" class="oua-adm-tab" data-tab="DANG" onclick="ouaAdmSetTab('DANG')">Đảng ủy <span class="cnt" id="ouaAdmTabCnt_DANG">0</span></button>
+              <button type="button" class="oua-adm-tab" data-tab="HDND" onclick="ouaAdmSetTab('HDND')">HĐND <span class="cnt" id="ouaAdmTabCnt_HDND">0</span></button>
+              <button type="button" class="oua-adm-tab" data-tab="UBND" onclick="ouaAdmSetTab('UBND')">UBND <span class="cnt" id="ouaAdmTabCnt_UBND">0</span></button>
+              <button type="button" class="oua-adm-tab" data-tab="MTTQ" onclick="ouaAdmSetTab('MTTQ')">MTTQ <span class="cnt" id="ouaAdmTabCnt_MTTQ">0</span></button>
+            </div>
+            <div class="field oua-adm-search">🔎 <input id="ouaAdmSearch" placeholder="Tìm theo họ tên, email, đơn vị..." oninput="ouaAdmFilter(true)"></div>
+          </div>
+          <div class="oua-adm-sumrow">
+            <div id="ouaAdmSummary" class="muted"></div>
+            <div class="oua-adm-chips">
+              <button type="button" class="oua-adm-chipf active" data-f="all" onclick="ouaAdmSetGrantFilter('all')">Tất cả quyền</button>
+              <button type="button" class="oua-adm-chipf" data-f="ungranted" id="ouaAdmUngrantedChip" onclick="ouaAdmSetGrantFilter('ungranted')">Chưa có quyền Quản trị</button>
+              <button type="button" class="oua-adm-chipf" data-f="granted" id="ouaAdmGrantedChip" onclick="ouaAdmSetGrantFilter('granted')">Đã có quyền Quản trị</button>
+            </div>
+          </div>
+          <table class="oua-table-v2 oua-adm-table"><thead><tr><th style="width:44px"><input type="checkbox" id="ouaAdmSelectAll" onchange="ouaAdmToggleAll(this.checked)" title="Chọn tất cả dòng đang hiện"></th><th>Người dùng</th><th>Địa bàn</th><th>Đơn vị / Trục công tác</th><th style="white-space:nowrap">Quyền Quản trị hiện tại</th></tr></thead><tbody id="ouaAdmTbody"></tbody></table>
+          <div class="oua-cards-mobile" id="ouaAdmCardsMobile"></div>
+          <div class="oua-adm-more" id="ouaAdmMoreWrap"></div>
+        </div>
+      </div>
+      <div class="panel" id="ouaAdminV1" style="display:none">
         <div class="head"><div><h2>Phân Quyền Quản Trị Hệ Thống</h2><p>Tổng hợp số lượng admin theo 4 trục (Đảng ủy/HĐND/UBND/MTTQ), khối Trung ương và theo Sở/địa bàn — tính từ dữ liệu người dùng thật (BKAV CBCCVC). Đây là số liệu suy luận demo dựa trên chức vụ, chưa phải quyền RBAC thật.</p></div><div class="actions"><button class="btn" onclick="ouaBuildRealData();ouaRenderAdminOverview();ouaToast('Đã làm mới dữ liệu.')">↻ Làm mới dữ liệu</button></div></div>
         <div class="pill violet" style="margin-bottom:14px">📍 Toàn hệ thống (Global Scope)</div>
         <div class="oua-stats oua-stats-4">
