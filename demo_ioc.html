@@ -42,6 +42,7 @@
  <link rel="stylesheet" href="css/ctm.css?v=20261014" />
  <link rel="stylesheet" href="css/oua.css" />
  <link rel="stylesheet" href="css/oua-login-log.css?v=20261013" />
+ <link rel="stylesheet" href="css/oua-data-sources.css?v=20261022" />
  <link rel="stylesheet" href="css/login-history.css?v=20261009c" />
  <!-- CSS bổ sung cho "Cài đặt cây thư mục" (Phase 7, kéo-thả) — để riêng thay vì sửa vào css/oua.css (1 dòng minified) cho an toàn, vẫn scoped dưới #ouaScreen. -->
  <style>
@@ -405,11 +406,12 @@
     <button class="nav active" data-page="admin-overview"><span>⚙️</span><span><b>Quản trị Tổng</b><small>Phân quyền quản trị theo địa bàn và 4 trục</small></span></button>
     <button class="nav" data-page="org-list"><span>🏛️</span><span><b>Quản lý đơn vị</b><small>Đơn vị, cây tổ chức, đơn vị trực thuộc</small></span></button>
     <button class="nav" data-page="user-list"><span>👤</span><span><b>Quản lý người dùng</b><small>Tài khoản, role module, phạm vi dữ liệu</small></span></button>
-    <button class="nav" data-page="login-log"><span>🕒</span><span><b>Nhật ký đăng nhập</b><small>Lượt đăng nhập của mọi tài khoản, thành công/thất bại</small></span></button>
+    <button class="nav" data-page="source-admin"><span>🔌</span><span><b>Quản trị nguồn dữ liệu</b><small>Kết nối, lịch đồng bộ và độ tin cậy của nguồn dữ liệu</small></span></button>
     <button class="nav" data-page="field-settings"><span>🏷️</span><span><b>Cài đặt lĩnh vực</b><small>Danh mục lĩnh vực của đơn vị, thêm/sửa theo nhu cầu</small></span></button>
+    <button class="nav" data-page="tree-settings"><span>🌳</span><span><b>Cài đặt cây thư mục</b><small>Cấu hình cây đơn vị tùy biến, tách khỏi Xã/Phường</small></span></button>
     <button class="nav" data-page="org-grouping"><span>📁</span><span><b>Phân nhóm đơn vị</b><small>Gán tay nhóm TP/Sở/Xã-Phường/BTCTW cho từng đơn vị</small></span></button>
     <button class="nav" data-page="indicator-mapping"><span>📊</span><span><b>Cấu hình chỉ tiêu đơn vị</b><small>Sửa id_url_chỉ_tiêu của từng đơn vị trong user-tree</small></span></button>
-    <button class="nav" data-page="tree-settings"><span>🌳</span><span><b>Cài đặt cây thư mục</b><small>Cấu hình cây đơn vị tùy biến, tách khỏi Xã/Phường</small></span></button>
+    <button class="nav" data-page="login-log"><span>🕒</span><span><b>Nhật ký đăng nhập</b><small>Lượt đăng nhập của mọi tài khoản, thành công/thất bại</small></span></button>
     <div class="oua-sidebar-footer" id="ouaSidebarFooter">
       <div class="oua-avatar" style="background:#3b6fd6">I</div>
       <div class="oua-sidebar-footer-info"><b>ioc_mbfs</b><span class="pill violet">Admin toàn cục</span></div>
@@ -684,6 +686,7 @@
     </section>
 
     <section id="login-log" class="page"><div class="panel" id="ollRoot"></div></section>
+    <section id="source-admin" class="page"><div class="panel" id="odsRoot"></div></section>
 
     <section id="tree-settings" class="page">
       <div class="panel">
@@ -731,6 +734,7 @@
 <script src="js/core/login-log-data.js?v=20261014"></script>
  <script src="js/oua-data.js"></script>
  <script src="js/oua-login-log.js?v=20261014"></script>
+ <script src="js/oua-data-sources.js?v=20261022"></script>
 
  <main id="app" class="app hidden">
  <div class="app-main">
@@ -1063,7 +1067,7 @@
  <script src="js/core/assign-task.js"></script>
  <script src="js/core/unit-picker.js"></script>
  <script src="js/core/coordination-tree.js"></script>
- <script src="js/core/data-sources.js"></script>
+ <script src="js/core/data-sources.js?v=20261022"></script>
  <script src="js/core/notify.js"></script>
  <script src="js/core/task-scope.js"></script>
  <script src="js/core/audit-log.js"></script>
