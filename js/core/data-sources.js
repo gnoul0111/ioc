@@ -1,11 +1,12 @@
  /* ============================== NGUỒN DỮ LIỆU & CẬP NHẬT ============================== */
+ /* synced = số dòng đã đồng bộ trong kỳ (màn quản trị "Quản trị nguồn dữ liệu", js/oua-data-sources.js). */
  const sourceDefs = [
- {key:'api',icon:'',name:'API realtime',desc:'Một cửa, văn bản, DVC quốc gia, đồng bộ nhiệm vụ',count:'98%',mode:'API Gateway / Webhook',freq:'Realtime / mỗi 1 phút',owner:'Văn phòng UBND phường',offset:3*60*1000+28*1000,quality:'99,1%',rows:642,status:'ok'},
- {key:'excel',icon:'',name:'Excel import',desc:'Báo cáo chuyên môn, đoàn thể, mẫu khảo sát xã/phường',count:'42 file',mode:'Import Excel có kiểm tra schema',freq:'Khi phát sinh / cuối ngày',owner:'Cán bộ tổng hợp IOC',offset:2*60*60*1000+16*60*1000,quality:'96,4%',rows:187,status:'late'},
- {key:'db',icon:'',name:'CSDL chuyên ngành',desc:'Tài chính, giáo dục, nội vụ, đô thị, GPMB, văn hóa',count:'12 nguồn',mode:'Adapter / ETL delta',freq:'15 phút / theo lịch',owner:'Đơn vị chuyên môn',offset:18*60*1000+15*1000,quality:'98,7%',rows:1248,status:'ok'},
- {key:'docs',icon:'',name:'Văn bản/PDF',desc:'Nghị quyết, kết luận, minh chứng, phụ lục, hồ sơ số hóa',count:'165',mode:'DMS / OCR chỉ mục',freq:'Ngày / khi phát hành',owner:'Văn phòng Đảng ủy-HĐND-UBND',offset:26*60*60*1000+8*60*1000,quality:'94,8%',rows:305,status:'stale'},
- {key:'alert',icon:'',name:'Cảnh báo IOC',desc:'Điểm nghẽn, cháy nổ, quá hạn, sắp hạn, lịch họp cần nhắc',count:'27',mode:'Rule engine',freq:'Realtime / sự kiện',owner:'Trực IOC/CAD',offset:46*1000,quality:'99,6%',rows:189,status:'ok'},
- {key:'calendar',icon:'',name:'Lịch công tác/kỳ họp',desc:'Lịch Đảng ủy, HĐND, UBND, MTTQ; nhắc họp vai trò thư ký',count:'41 lịch',mode:'Calendar API / nhập nhanh',freq:'Ngay khi phát sinh',owner:'Văn phòng phường',offset:12*60*1000+5*1000,quality:'97,9%',rows:59,status:'ok'}
+ {key:'api',icon:'',name:'API realtime',desc:'Một cửa, văn bản, DVC quốc gia, đồng bộ nhiệm vụ',count:'98%',mode:'API Gateway / Webhook',freq:'Realtime / mỗi 1 phút',owner:'Văn phòng UBND phường',offset:3*60*1000+28*1000,quality:'99,1%',rows:642,synced:629,status:'ok'},
+ {key:'excel',icon:'',name:'Excel import',desc:'Báo cáo chuyên môn, đoàn thể, mẫu khảo sát xã/phường',count:'42 file',mode:'Import Excel có kiểm tra schema',freq:'Khi phát sinh / cuối ngày',owner:'Cán bộ tổng hợp IOC',offset:2*60*60*1000+16*60*1000,quality:'96,4%',rows:187,synced:172,status:'late'},
+ {key:'db',icon:'',name:'CSDL chuyên ngành',desc:'Tài chính, giáo dục, nội vụ, đô thị, GPMB, văn hóa',count:'12 nguồn',mode:'Adapter / ETL delta',freq:'15 phút / theo lịch',owner:'Đơn vị chuyên môn',offset:18*60*1000+15*1000,quality:'98,7%',rows:1248,synced:1236,status:'ok'},
+ {key:'docs',icon:'',name:'Văn bản/PDF',desc:'Nghị quyết, kết luận, minh chứng, phụ lục, hồ sơ số hóa',count:'165',mode:'DMS / OCR chỉ mục',freq:'Ngày / khi phát hành',owner:'Văn phòng Đảng ủy-HĐND-UBND',offset:26*60*60*1000+8*60*1000,quality:'94,8%',rows:305,synced:140,status:'stale'},
+ {key:'alert',icon:'',name:'Cảnh báo IOC',desc:'Điểm nghẽn, cháy nổ, quá hạn, sắp hạn, lịch họp cần nhắc',count:'27',mode:'Rule engine',freq:'Realtime / sự kiện',owner:'Trực IOC/CAD',offset:46*1000,quality:'99,6%',rows:189,synced:189,status:'ok'},
+ {key:'calendar',icon:'',name:'Lịch công tác/kỳ họp',desc:'Lịch Đảng ủy, HĐND, UBND, MTTQ; nhắc họp và kỳ họp',count:'41 lịch',mode:'API lịch công tác',freq:'30 phút / theo lịch',owner:'Văn phòng phường',offset:30*60*1000+12*1000,quality:'99,0%',rows:41,synced:41,status:'ok'}
  ];
  const bootTime = Date.now();
  function sourceAt(s){return bootTime - s.offset}

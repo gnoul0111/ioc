@@ -1739,7 +1739,8 @@ const ouaPageMeta = {
   'org-grouping': {menu:'org-grouping', title:'Phân nhóm đơn vị'},
   'indicator-mapping': {menu:'indicator-mapping', title:'Cấu hình chỉ tiêu đơn vị'},
   'tree-settings': {menu:'tree-settings', title:'Cài đặt cây thư mục'},
-  'login-log': {menu:'login-log', title:'Nhật ký đăng nhập'}
+  'login-log': {menu:'login-log', title:'Nhật ký đăng nhập'},
+  'source-admin': {menu:'source-admin', title:'Quản trị nguồn dữ liệu'}
 };
 function ouaGoPage(id){
   const root=document.getElementById('ouaScreen');
@@ -1759,6 +1760,7 @@ function ouaGoPage(id){
   if(id==='indicator-mapping') ouaFilterIndicatorList();
   if(id==='tree-settings') ouaInitTreeSettings();
   if(id==='login-log' && typeof ollOpen==='function') ollOpen(); // js/oua-login-log.js
+  if(id==='source-admin' && typeof odsOpen==='function') odsOpen(); // js/oua-data-sources.js
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function ouaGoDetail(id){ouaGoPage(id)}
@@ -1767,7 +1769,7 @@ document.querySelectorAll('#ouaScreen .tabs .tab').forEach(t=>t.onclick=()=>{let
 /* ouaActiveModalKey theo dõi modal đang mở để ouaConfirmModal() có thể định tuyến sang xử lý riêng (vd tạo đơn
    vị mới cần đọc input thật và đẩy vào ouaOrgRows) thay vì luôn hiện toast chung chung như trước. */
 let ouaActiveModalKey = null;
-function ouaOpenModal(key){ouaActiveModalKey=key;let c=ouaModalContent[key]||{title:'Thông báo',body:'Chức năng đang được mô tả cho Dev.'};let body=c.dynamic==='orgTree'?ouaBuildOrgTreeHtml():(c.dynamic==='indicatorAddForm'?ouaBuildIndicatorAddFormHtml():c.body);document.getElementById('ouaModalTitle').innerHTML=c.title;document.getElementById('ouaModalBody').innerHTML=body;document.getElementById('ouaModalRoot').classList.add('show')}
+function ouaOpenModal(key){ouaActiveModalKey=key;const okBtn=document.querySelector('#ouaModalRoot .modal-footer .btn.primary');if(okBtn)okBtn.textContent='Xác nhận';let c=ouaModalContent[key]||{title:'Thông báo',body:'Chức năng đang được mô tả cho Dev.'};let body=c.dynamic==='orgTree'?ouaBuildOrgTreeHtml():(c.dynamic==='indicatorAddForm'?ouaBuildIndicatorAddFormHtml():c.body);document.getElementById('ouaModalTitle').innerHTML=c.title;document.getElementById('ouaModalBody').innerHTML=body;document.getElementById('ouaModalRoot').classList.add('show')}
 function ouaCloseModal(){document.getElementById('ouaModalRoot').classList.remove('show')}
 function ouaConfirmModal(){
   if(ouaActiveModalKey==='addOrgRealModal'){ ouaSubmitNewOrg(); return; }
@@ -1778,6 +1780,7 @@ function ouaConfirmModal(){
   if(ouaActiveModalKey==='addIndicatorMappingModal'){ ouaSubmitIndicatorMapping(); return; }
   if(ouaActiveModalKey==='editIndicatorModal'){ ouaSubmitEditIndicator(); return; }
   if(ouaActiveModalKey==='addVirtualFolderModal'){ ouaSubmitVirtualFolder(); return; }
+  if(ouaActiveModalKey==='odsDetail'){ odsSaveConfig(); return; } // js/oua-data-sources.js
   ouaCloseModal();
   ouaToast('Đã ghi nhận thao tác mẫu. Dev cần gắn API thật theo SRS.');
 }
