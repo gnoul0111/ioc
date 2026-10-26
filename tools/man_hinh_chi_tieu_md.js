@@ -521,6 +521,44 @@ const OWN = {
     dataFiles: ['js/core/hcc-config.js', 'js/features/hcc-data.js']
   }
 };
+/* mục "Cách so sánh" của 3 form riêng — cùng ý với tài liệu mô tả / đặc tả của đơn vị và code mũi tên (stcDlOne, hccDl, sgdDl) */
+function cmpOwn(p) {
+  const tinh = (rows) => table(['Kiểu chỉ tiêu', 'Mức thay đổi', 'Ghi trên màn'], rows);
+  const mau = (giam, trung) => '- **Màu**: chỉ tiêu tăng là tốt thì tăng tô xanh, giảm tô đỏ; ' + (giam ? 'chỉ tiêu giảm là tốt (' + giam + ') thì ngược lại; ' : '') + 'chỉ tiêu trung tính (' + trung + ') tô xám. Mức đổi làm tròn bằng 0 ghi "Không đổi".\n';
+  if (p === 'stc') {
+    const P = E('stcPeriods')(), d = E('stcDefaultPeriod')(), q = (x) => 'Q' + x.period + '/' + x.year;
+    const pq = d && E('stcPrevQ')(d.year, d.period), coPq = pq && P.some((x) => x.year === pq.year && x.period === pq.period);
+    let h = 'Màn có **hai cách so**, ghi thành hai cột **"So kỳ trước"** và **"So cùng kỳ"** ở ô số chính, các dòng của thẻ nhóm ở Trang chủ và các bảng thành phần; ở số lớn đầu thẻ biểu đồ và màn Chi tiết, mức đổi ghi liền sau số kèm chữ "so kỳ trước" / "so cùng kỳ".\n\n';
+    h += table(['Cách so', 'Mốc so sánh', 'Số của mốc lấy từ đâu'], [
+      ['So kỳ trước', '**Quý liền trước** (Q2/2026 so Q1/2026; Q1/2026 so Q4/2025)', 'Số "kỳ này" trong bản chụp của quý liền trước. API không có cột này; chưa nạp bản chụp quý đó thì để trống'],
+      ['So cùng kỳ', '**Cùng quý năm trước** (Q1/2026 so Q1/2025)', 'Lần lượt: dòng "Kỳ trước" của API (thực chất mang quý cùng kỳ năm trước); bản chụp cùng quý năm trước; suy ra từ chỉ số so cùng kỳ của API (giả định chỉ số lấy 100 làm mốc)']]);
+    h += '\n**Cách tính mức thay đổi**:\n\n' + tinh([
+      ['Số đếm, số tiền (cộng được)', 'So kỳ trước: (kỳ này ÷ quý trước − 1) × 100. So cùng kỳ: (kỳ này ÷ cùng kỳ − 1) × 100, hoặc chỉ số so cùng kỳ − 100', '%'],
+      ['Tỷ lệ % (tiến độ dự án trọng điểm)', 'Kỳ này − kỳ so sánh', 'điểm %'],
+      ['Chỉ số lấy cùng kỳ năm trước = 100 (IIP, CPI, giá vàng, giá đô la Mỹ)', 'So kỳ trước: chỉ số kỳ này − chỉ số quý trước. So cùng kỳ: chỉ số − 100', 'So kỳ trước: điểm; so cùng kỳ: %']]);
+    h += '\n' + mau(null, 'chi ngân sách địa phương, nhập khẩu, chỉ số giá');
+    h += '- **Ô "—"**: không tính được thì hiện "—"; rê chuột vào thấy lý do ("Chưa có số liệu của quý liền trước nên chưa so được" / "Nguồn số liệu chưa có số cùng kỳ năm trước cho mục này").\n';
+    h += '- **Rê chuột lên mức đổi**: thấy mốc (quý nào), phép tính với số hai kỳ, ý nghĩa màu.\n';
+    /* quý nào trong danh sách có số của quý liền trước thì mới so kỳ trước được */
+    const soDuoc = P.filter((x) => { const y = E('stcPrevQ')(x.year, x.period); return P.some((z) => z.year === y.year && z.period === y.period); });
+    if (d) h += '- **Kỳ mặc định ' + q(d) + '**: các quý có số liệu là ' + P.map(q).join(', ') + '. ' + (coPq ? 'Quý liền trước ' + q(pq) + ' có số nên cột "So kỳ trước" tính được.' : 'Chưa có số của quý liền trước (' + q(pq) + ') nên cột **"So kỳ trước" hiện "—" ở mọi chỉ tiêu**' + (soDuoc.length ? '; chọn ' + soDuoc.map((x) => q(x) + ' (so ' + q(E('stcPrevQ')(x.year, x.period)) + ')').join(', ') + ' thì cột này có số.' : '; nạp thêm số của quý liền trước thì cột này mới có số.')) + '\n';
+    return h + '\nCông thức chi tiết: docs/STC_SoTaiChinh/STC_DAC_TA.md, mục 5 "Quy tắc tính toán".\n\n';
+  }
+  const hcc = p === 'hcc', P = hcc ? E('HCC_PERIODS') : E('SGD_YEARS');
+  const moc = hcc ? '**quý liền trước** (Quý 2/2026 so Quý 1/2026)' : '**năm học liền trước** (2025–2026 so 2024–2025)';
+  const chu = hcc ? 'so kỳ trước' : 'so năm trước';
+  let h = 'Màn có **một cách so**: so với ' + moc + '. Kỳ chọn được: ' + (hcc ? P.map((x) => 'Quý ' + x.q + '/' + x.y).join(', ') : P.map((y) => y + '–' + (y + 1)).join(', ')) + '; chọn kỳ sớm nhất thì không có mốc nên không hiện mũi tên' + (hcc ? '' : ' (ô đầu màn theo phường, xã ghi "Chưa có năm học so sánh")') + '.\n\n';
+  h += '- **Ở đâu**: ô số chính, các dòng thẻ nhóm, số lớn đầu thẻ biểu đồ (kèm chữ "' + chu + '" và số của mốc trong ngoặc), cột "' + (hcc ? 'So kỳ trước' : 'So năm trước') + '" trong các bảng, bảng Số liệu thành phần, cầu nối tăng giảm' + (hcc ? '' : ', vạch mốc năm trước trên thanh tỷ lệ (phòng học kiên cố, cận thị)') + '.\n\n';
+  const nay = hcc ? 'kỳ này' : 'năm nay', truoc = hcc ? 'kỳ trước' : 'năm trước';
+  h += '**Cách tính mức thay đổi**:\n\n' + tinh([
+    ['Số đếm (' + (hcc ? 'hồ sơ, lượt đánh giá, tài khoản, thủ tục' : 'trường, học sinh, giáo viên, phòng học') + ')', '(' + nay + ' ÷ ' + truoc + ' − 1) × 100', '%'],
+    ['Tỷ lệ (' + (hcc ? 'nộp trực tuyến, đúng hạn, số hóa, thanh toán trực tuyến, hài lòng' : 'cận thị, phòng học kiên cố') + '…)', 'Tỷ lệ ' + nay + ' − tỷ lệ ' + truoc, 'điểm % (ví dụ ' + (hcc ? '92,1% lên 92,9%' : '24,1% lên 24,9%') + ' là tăng 0,8 điểm %, không phải 0,8%)']]
+    .concat(hcc ? [] : [['Sĩ số bình quân, học sinh / giáo viên', 'Số năm nay − số năm trước', 'số thường, không ghi đơn vị']]));
+  h += '\n' + mau(hcc ? 'hồ sơ trễ hạn, tồn, không hài lòng' : 'tỷ lệ cận thị, phòng học tạm', hcc ? 'hồ sơ tiếp nhận mới…' : 'trường ngoài công lập, học sinh diện chính sách, sĩ số bình quân, học sinh / giáo viên');
+  h += '- **Thiếu số của mốc**: không hiện mũi tên (để trống).\n- **Rê chuột lên mũi tên**: thấy cách tính, số ' + (hcc ? 'kỳ trước' : 'năm trước') + ' và ' + (hcc ? 'kỳ này' : 'năm nay') + ', ý nghĩa màu.\n';
+  h += '- **Màn theo ' + (hcc ? 'đơn vị' : '126 phường, xã') + '**: mỗi dòng có cột "' + (hcc ? 'So kỳ trước' : 'So năm trước') + '" của đơn vị đó và một cột so với Thành phố: chỉ tiêu số đếm ghi **"Tỷ trọng TP"** (phần của đơn vị trong tổng Thành phố), chỉ tiêu tỷ lệ ghi **"So với TP"** (cao hơn / thấp hơn mức Thành phố, tỷ lệ tính bằng điểm %).\n';
+  return h + '\nCông thức chi tiết: ' + (hcc ? 'docs/HCC_TrungTamHCC/HCC_MO_TA_CHI_TIEU.md' : 'docs/SGD_SoGiaoDuc/SGD_MO_TA_CHI_TIEU.md, SGD_DAC_TA_KY_THUAT.md') + '.\n\n';
+}
 function screenOf(p, screen, extra) { try { return run(OWN[p].UI + '.open=true;' + OWN[p].UI + '.screen=' + JSON.stringify(screen) + ';' + (extra || '') + p + 'ScreenHtml()'); } catch (e) { return ''; } }
 function metaOf(p) { try { return run(p + 'ScreenMeta()'); } catch (e) { return {}; } }
 function ownDoc(p) {
@@ -529,7 +567,9 @@ function ownDoc(p) {
   let h = '# ' + O.ten + ' — TÀI LIỆU MÀN HÌNH CHỈ TIÊU\n\n';
   h += '- **Phiên bản**: ' + VER + ' · ngày ' + NGAY + ' · sinh từ code bằng `node tools/man_hinh_chi_tieu_md.js` (dựng thật từng màn trong môi trường node rồi đọc ô số, thẻ; cây chỉ tiêu, giả định đọc từ cấu hình)\n';
   h += '- **Phạm vi**: màn chỉ tiêu cấp Thành phố của ' + cat.name + ' (trục UBND). Đơn vị này dùng **form riêng** (không dùng khuôn chung của các sở eform), cùng bộ giao diện với Sở Tài chính / Sở GD&ĐT / TT Phục vụ HCC.\n\n';
-  h += '## Mục lục\n\n1. Tổng quan\n2. Tài khoản và cách mở\n3. Màn Trang chủ\n4. Các màn nhóm\n5. Màn Chi tiết theo cấp bậc\n' + (X ? '6. Màn theo đơn vị / phường, xã\n' : '') + '7. Nguồn số liệu, giả định và cách giả lập\n8. File code liên quan\n\n';
+  /* số mục sau mục 5 đổi theo việc có màn theo đơn vị hay không (Sở Tài chính không có) */
+  const nX = 6, nCmp = X ? 7 : 6, nSrc = nCmp + 1, nFile = nCmp + 2;
+  h += '## Mục lục\n\n1. Tổng quan\n2. Tài khoản và cách mở\n3. Màn Trang chủ\n4. Các màn nhóm\n5. Màn Chi tiết theo cấp bậc\n' + (X ? nX + '. Màn theo đơn vị / phường, xã\n' : '') + nCmp + '. Cách so sánh\n' + nSrc + '. Nguồn số liệu, giả định và cách giả lập\n' + nFile + '. File code liên quan\n\n';
   h += '## 1. Tổng quan\n\nMô tả trong danh mục lĩnh vực: _' + (cat.desc || '') + '_\n\n';
   /* trang chủ — Sở Tài chính chọn kỳ khi mở popup: đặt kỳ mặc định như stcOpenForm (kỳ gần nhất có bản chụp) */
   run(O.UI + '.open=true;');
@@ -563,15 +603,16 @@ function ownDoc(p) {
   /* màn xã / đơn vị */
   if (X) {
     const xh = screenOf(p, 'xa');
-    h += '## 6. Màn theo ' + (p === 'hcc' ? 'đơn vị (' + (E('HCC_SO').length + 126) + ' đơn vị: ' + E('HCC_SO').length + ' sở, ngành và 126 phường, xã)' : '126 phường, xã') + '\n\n';
+    h += '## ' + nX + '. Màn theo ' + (p === 'hcc' ? 'đơn vị (' + (E('HCC_SO').length + 126) + ' đơn vị: ' + E('HCC_SO').length + ' sở, ngành và 126 phường, xã)' : '126 phường, xã') + '\n\n';
     h += 'Cột trái: danh sách chỉ tiêu; bên phải: các ô mức chung Thành phố, cao nhất, thấp nhất, số đơn vị kém hơn mức Thành phố; bộ lọc ' + (p === 'hcc' ? '(sở, ngành / phường / xã)' : '(phường / xã)') + ', ô tìm, bảng xếp hạng (cột hạng, tên, số, so mức Thành phố). Bấm tên mở **khung hồ sơ** trượt từ phải: mọi chỉ tiêu của đơn vị kèm hạng' + (p === 'hcc' ? ', danh sách hồ sơ trễ hạn / đang xử lý trễ hạn, thủ tục chưa trực tuyến toàn trình (mẫu)' : ', danh sách trường của phường, xã (tên mẫu)') + '.\n\n';
     h += 'Ô ở đầu màn (chỉ tiêu đầu tiên): ' + [...xh.matchAll(/<div class="stc-mchip">([\s\S]*?)<\/div><\/div>/g)].map((m) => strip(m[1])).slice(0, 4).join(' · ') + '\n\n';
     h += table(['Chỉ tiêu', 'Đơn vị', 'Kiểu', 'Chiều'], X.map((I) => [I.label || I.l, I.unit || (I.pct ? '%' : I.u || ''), I.type === 'count' ? 'Số đếm — cột "Tỷ trọng"' : I.type === 'ratio' ? 'Tỷ lệ / bình quân — xếp hạng' : (I.type || ''), I.better === 'none' ? 'trung tính' : I.better === 'low' || I.inv ? 'thấp là tốt' : 'cao là tốt']));
     if (p === 'hcc') h += '\nNgưỡng xếp hạng: đơn vị có mẫu số dưới ngưỡng (`HCC_XA_MIN_DEN` = ' + E('HCC_XA_MIN_DEN') + ' hồ sơ; riêng tỷ lệ không hài lòng 50, chỉ tiêu thủ tục 0) vẫn hiện số nhưng không xếp hạng, nằm cuối bảng.\n';
     h += '\n';
   }
+  h += '## ' + nCmp + '. Cách so sánh\n\n' + cmpOwn(p);
   /* nguồn, giả định */
-  h += '## 7. Nguồn số liệu, giả định và cách giả lập\n\n';
+  h += '## ' + nSrc + '. Nguồn số liệu, giả định và cách giả lập\n\n';
   if (p === 'hcc') h += '**Lưu ý nguồn**: API "hcc_tkpro" ghi trong chú thích code đã **dừng từ 01/10/2026**; nguồn thay thế là API dịch vụ công Hà Nội (dichvucong.hanoi.gov.vn, trả theo từng hồ sơ, theo mã đơn vị H26.x, dữ liệu từ 07/2025) — tài liệu nguồn ở thư mục HCC_NEW/ (đặc tả, Mã định danh 632 đơn vị). Màn vẫn dùng **số giả lập** của hcc-data.js cho đến khi nối nguồn mới; danh sách 15 sở có hồ sơ (HCC_SO) đã theo Mã định danh, số của sở = mã sở cộng các đơn vị trực thuộc.\n\n';
   O.dataFiles.forEach((f) => { h += '### ' + f + '\n\n' + quote(headerComment(f)) + '\n'; });
   if (p === 'stc') {
@@ -588,7 +629,7 @@ function ownDoc(p) {
     h += table(['Khóa', 'Giá trị'], Object.keys(TG).slice(0, 80).map((k) => [code(k), JSON.stringify(TG[k]).replace(/,/g, ', ')]));
     h += '\n';
   }
-  h += '## 8. File code liên quan\n\n' + table(['File', 'Vai trò'], O.files.concat([['js/features/ubnd-overview.js', 'Thẻ đơn vị ở màn tổng quan UBND (đọc số qua hàm của form riêng)'], ['js/core/line-chart.js', 'Biểu đồ đường "Xu hướng"']]));
+  h += '## ' + nFile + '. File code liên quan\n\n' + table(['File', 'Vai trò'], O.files.concat([['js/features/ubnd-overview.js', 'Thẻ đơn vị ở màn tổng quan UBND (đọc số qua hàm của form riêng)'], ['js/core/line-chart.js', 'Biểu đồ đường "Xu hướng"']]));
   return h;
 }
 

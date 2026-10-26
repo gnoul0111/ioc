@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<link rel="preload" as="image" fetchpriority="high" href="https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/export?bbox=11768696.6,2385596.4,11790960.5,2405315.9&bboxSR=3857&imageSR=3857&size=1400,1240&format=jpg&f=image">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GIS IOC – Demo Điểm nghẽn + CAD điều hành</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#050d1f;--p1:#07122a;--p2:#0a1a38;--p3:#0d2146;--bd:#1f3a68;--bd2:#284878;--tx:#e8eefb;--mu:#9fb2d4;--sel:#12306a;--ac:#f5b82e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--tx);font:13px/1.4 'Be Vietnam Pro',system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.app{min-height:100vh;padding:14px;display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:14px}
+.card{border:1px solid var(--bd2);border-radius:16px;overflow:hidden;background:var(--p1);display:flex;flex-direction:column;min-width:0}
+.hd{min-height:52px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:linear-gradient(90deg,#7d1420,#b01c2c);color:#fff;font-weight:700;font-size:15px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--bd2);background:var(--p3);font-size:12px;font-weight:500}
+.hd .chip{background:#5c0f18;border-color:#d9505e;color:#fff}
+.tb{padding:10px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--bd)}
+.mut{color:var(--mu)}
+.body{display:grid;grid-template-columns:minmax(0,1fr) 380px;flex:1;min-height:640px}
+.map{position:relative;overflow:hidden;background:#141b12;min-height:520px}
+.mz{position:absolute;inset:0;transition:transform .3s}
+.mz svg{position:absolute;inset:0;width:100%;height:100%}
+.zc{position:absolute;top:14px;right:14px;display:flex;flex-direction:column;border:1px solid #284878;border-radius:10px;overflow:hidden;background:#0a1a38}
+.zc button{width:40px;height:40px;border:0;background:transparent;color:#fff;font-size:18px;font-weight:700}
+.zc button+button{border-top:1px solid #284878}
+.mb{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:8px;white-space:nowrap;color:#e8eefb}
+.mb div,.mb button{height:40px;padding:0 14px;border-radius:10px;border:1px solid #284878;background:#0a1a38;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600}
+.lg{position:absolute;left:12px;top:12px;max-width:260px;padding:8px 12px;border-radius:8px;background:rgba(10,26,56,.9);border:1px solid #284878;color:#d5deef;font-size:11px}
+.co{position:absolute;left:0;bottom:0;padding:4px 10px;font-size:10.5px;color:#d5deef;background:rgba(5,13,31,.85);border-top-right-radius:6px}
+.mk{cursor:pointer;transition:opacity .3s}
+.mk.full{opacity:.45}
+.pulse{fill:none;stroke:#f5b82e;stroke-width:2;transform-box:fill-box;transform-origin:center;animation:pl 1.4s ease-out infinite}
+@keyframes pl{from{transform:scale(1);opacity:.9}to{transform:scale(2.2);opacity:0}}
+.ln{stroke-dasharray:5 4;animation:dash 1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-18}}
+@media (prefers-reduced-motion:reduce){.pulse,.ln{animation:none}.mz{transition:none}}
+.side{border-left:1px solid var(--bd);background:var(--p2);display:flex;flex-direction:column;min-height:0;max-height:calc(100vh - 140px)}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid var(--bd)}
+.tab{height:48px;border:0;background:transparent;color:var(--mu);font-weight:600;box-shadow:inset 0 -3px 0 transparent}
+.tab[aria-selected="true"]{background:var(--sel);color:var(--tx);font-weight:700;box-shadow:inset 0 -3px 0 var(--ac)}
+.bdg{margin-left:6px;border:1px solid var(--bd2);border-radius:999px;padding:0 8px;font-size:11px}
+.tab[aria-selected="true"] .bdg{background:var(--ac);color:#2a1c00;border-color:var(--ac)}
+.pn{padding:14px;overflow:auto;flex:1;min-height:0}
+.lb{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--mu);margin:0 0 8px}
+.fcs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.fc{display:inline-flex;align-items:center;gap:8px;min-height:34px;padding:0 6px 0 12px;border-radius:999px;border:1px solid;background:var(--p2);font-size:12px;font-weight:600}
+.fc b{min-width:22px;height:22px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;color:#06112a}
+.fc[aria-pressed="false"]{opacity:.4}
+.lh{padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--mu);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);background:var(--p3)}
+.row{display:grid;grid-template-columns:10px 1fr auto;gap:12px;align-items:center;width:100%;padding:12px 14px;border:0;border-bottom:1px solid var(--bd);background:transparent;text-align:left}
+.row.sel{background:var(--sel);box-shadow:inset 3px 0 0 var(--ac)}
+.row .n{font-weight:600;font-size:13px}.row .s{font-size:11.5px;color:var(--mu)}
+.dot{width:10px;height:10px;border-radius:50%}
+.tag{font-size:11px;font-weight:600;border-radius:999px;padding:2px 9px;border:1px solid;white-space:nowrap}
+.pri{color:#ff8b96;border-color:#ff5d6c}.ok{color:#2fbf72;border-color:#34d27b}
+.ft{padding:12px 14px;border-top:1px solid var(--bd);background:var(--p3);display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.btn{min-height:44px;padding:0 16px;border:0;border-radius:10px;background:var(--ac);color:#2a1c00;font-weight:700}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.s{min-height:34px;padding:0 12px;border-radius:8px;font-size:12px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:10px;border:1px solid var(--bd2);background:var(--p2);margin-bottom:14px}
+.seg button{min-height:36px;border:0;border-radius:7px;background:transparent;color:var(--mu);font-weight:600;font-size:12px}
+.seg button[aria-pressed="true"]{background:var(--ac);color:#2a1c00;font-weight:700}
+.inc{border:1px solid var(--ac);border-radius:12px;background:var(--sel);padding:12px 14px;margin-bottom:14px}
+.u{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--p3);border:1px dashed var(--mu);margin-bottom:6px}
+.u.done{border:1px solid #34d27b}
+.u .n{font-weight:600}.u .s{font-size:11.5px;color:var(--mu)}
+.tri{width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid #34d27b}
+.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1.4fr;gap:5px;align-items:center;font-size:11px;text-align:center;margin-top:6px}
+.flow span{border:1px solid var(--bd2);border-radius:8px;padding:5px 3px;background:var(--p3)}
+.tk{border:1px solid var(--bd2);border-radius:10px;padding:8px 10px;margin-bottom:8px;background:var(--p3)}
+.lgrow{display:grid;grid-template-columns:62px 1fr;gap:8px;margin-bottom:6px;font-size:12.5px}
+.ncard{border:1px solid var(--bd);border-radius:12px;background:var(--p2);padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;margin-bottom:10px}
+.ncard .n{font-weight:600}.ncard .s{font-size:11.5px;color:var(--mu)}
+.ncard .btn{grid-row:1/span 2;grid-column:2;color:#2a1c00}
+.src{font-size:10.5px;font-weight:700;color:#5aa2ff;border:1px solid #3a67b0;border-radius:999px;padding:1px 8px;margin-left:6px}
+.nt{display:flex;gap:6px;padding:10px 14px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.nt button{min-height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--bd2);background:var(--p3);font-size:12px;font-weight:500}
+.nt button[aria-selected="true"]{background:var(--sel);border-color:var(--ac)}
+.rt{display:flex;flex-direction:column}
+@media (max-width:1180px){.app{grid-template-columns:1fr}.side{max-height:none}}
+@media (max-width:820px){.body{grid-template-columns:1fr}.side{border-left:0;border-top:1px solid var(--bd)}.map{min-height:420px}.mb{flex-wrap:wrap;justify-content:center;white-space:normal}}
+.fcs{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.fc{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:40px;padding:0 14px;border-radius:10px;font-size:13px}
+.fc b{min-width:0;height:auto;border-radius:0;display:inline;color:inherit;font-size:13px}
+.ur{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--bd)}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:4px;font-size:11.5px;margin:4px 0 8px}
+.chain span{border:1px solid var(--bd2);border-radius:8px;padding:4px 8px;background:var(--p3)}
+.chain .ya{border-color:#f5b82e;color:#f5b82e;background:transparent}
+.tkt{padding:14px 0;border-top:1px solid var(--bd)}
+.th{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:4px;font-size:14px}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.steps span{font-size:10.5px;text-align:center;padding:6px 2px;border-radius:6px;border:1px solid var(--bd2);color:var(--mu);transition:background .4s}
+.steps .on{background:#22c55e;border-color:#22c55e;color:#06210f;font-weight:600}
+.hint{font-size:12px;color:var(--mu);margin:-6px 0 12px}
+.grp{padding:14px 0 6px;border-top:1px solid var(--bd);margin-top:10px}
+.cand{padding:12px 0}.cand+.cand{border-top:1px dashed var(--bd)}
+.ch{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px}
+.sc{color:#22c55e;font-weight:700;font-size:20px}
+.bar{height:5px;border-radius:3px;background:var(--bd);margin:8px 0 12px;overflow:hidden}
+.bar i{display:block;height:100%;background:#22c55e;border-radius:3px}
+.alt{min-height:40px;padding:0 16px;border-radius:8px;border:1px solid var(--bd2);background:transparent;color:var(--tx);font-weight:500}
+.mut b{color:var(--tx)}
+.cfgsec{border:1px solid var(--bd);border-radius:12px;padding:12px;margin:0 0 12px;background:var(--p1)}
+.cfgsec h3{font-size:13px;margin:0 0 10px;color:#ffd34d}
+.cfgfield{display:flex;flex-direction:column;gap:5px;margin:0 0 10px}
+.cfgfield label{font-size:11px;color:var(--mu);font-weight:600}
+.cfgfield input,.cfgfield select,.cfgfield textarea,.cmd textarea,.subreason{width:100%;background:#06132b;border:1px solid var(--bd2);border-radius:8px;color:var(--tx);padding:9px;font:inherit}
+.cfgfield textarea,.cmd textarea{resize:vertical;min-height:72px}
+.subbox{padding:10px;border:1px solid var(--ac);border-radius:10px;margin-top:8px}
+.subbox label{display:block;font-size:11px;color:var(--mu);margin:6px 0}
+
+.cmd{border:1px dashed #f5b82e;border-radius:12px;padding:12px 14px;margin:10px 0 14px;line-height:1.5}
+.cmd .btn{margin-top:10px}
+.pv{border:1px dashed var(--bd2);border-radius:12px;padding:12px 14px;margin:8px 0 6px}
+.tl{margin-top:12px}
+.tn{display:grid;grid-template-columns:20px 1fr;gap:10px;padding-bottom:14px;position:relative}
+.tn:last-child{padding-bottom:0}
+.tn:not(:last-child)::before{content:"";position:absolute;left:9px;top:22px;bottom:2px;width:2px;background:var(--bd2)}
+.tn.done:not(:last-child)::before{background:#22c55e}
+.tn i{width:20px;height:20px;border-radius:50%;border:2px solid var(--bd2);background:var(--p2);display:flex;align-items:center;justify-content:center;font-size:11px;font-style:normal;font-weight:700}
+.tn.done i{background:#22c55e;border-color:#22c55e;color:#06210f}
+.tn.done i::after{content:"\2713"}
+.tn.cur i{border-color:#f5b82e;background:rgba(245,184,46,.2);animation:cur 1.2s ease-in-out infinite}
+@keyframes cur{50%{box-shadow:0 0 0 5px rgba(245,184,46,.25)}}
+.tt{display:flex;justify-content:space-between;gap:8px;font-weight:600;font-size:13px}
+.tn.wait .tt{color:var(--mu)}
+.ta{font-weight:400;font-size:11px;color:var(--mu);white-space:nowrap}
+.td{font-size:12px;color:var(--mu);margin-top:1px}
+@media (prefers-reduced-motion:reduce){.tn.cur i{animation:none}}
+.mz canvas,.mz img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.bk{transform-box:fill-box;transform-origin:center;animation:bk 1.3s ease-out infinite}
+@keyframes bk{0%{transform:scale(1);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+.fl{animation:fl 1.3s ease-in-out infinite}
+@keyframes fl{0%,100%{opacity:.04}45%{opacity:.5}}
+@media (prefers-reduced-motion:reduce){.bk{animation:none;opacity:0}.fl{animation:none;opacity:.2}}
+.stl{display:flex;flex-direction:column;gap:6px}
+.sr{display:flex;align-items:center;gap:10px;padding:8px 12px;border:1px solid;border-radius:8px;font-size:13px}
+.sr .dot{flex:none}
+.map{cursor:default}
+#popw{position:absolute;inset:0;pointer-events:none;z-index:5}
+.pop{position:absolute;pointer-events:auto;width:340px;max-width:calc(100% - 16px);padding:14px 16px 16px;background:#071a38;border:1px solid #2a6fb0;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+.pop .x{position:absolute;top:6px;right:8px;border:0;background:transparent;color:var(--mu);font-size:14px;width:28px;height:28px}
+.pop .pt{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:700;color:#ffd34d;margin-bottom:10px}
+.pop .bx{border:1px solid #1f6a9a;border-radius:12px;background:#0a2347;padding:10px 12px;line-height:1.6;margin-bottom:6px}
+.pop p{margin:10px 0 0;color:#cfe0ff}
+.pop .pill{display:inline-block;margin:14px 0 10px;padding:4px 14px;border:1px solid;border-radius:999px;font-weight:700}
+.pop .pb{display:flex;gap:8px;flex-wrap:wrap}
+.pop .ar{position:absolute;width:16px;height:16px;background:#071a38;border:1px solid #2a6fb0;transform:rotate(45deg)}
+.pop .ar.b{bottom:-9px;border-top:0;border-left:0}.pop .ar.t{top:-9px;border-bottom:0;border-right:0}
+</style>
+</head>
+<body>
+<div class="app">
+<section class="card">
+<header class="hd"><span>BẢN ĐỒ GIS – Thành phố Hà Nội · 5 nhóm điểm nghẽn</span>
+<span style="display:flex;gap:8px"><button class="chip" data-act="reset">↺ Làm lại demo</button></span></header>
+<div class="tb"><span class="mut" style="font-size:12px">● GIS trực tuyến</span><span class="chip">Cấp: Thành phố</span><span class="chip">Khoanh vùng</span><span class="chip">Xóa vùng</span><span class="chip">+ Báo cáo mới</span></div>
+<div class="body">
+<div class="map" data-act="mapclick">
+<div class="mz" id="mz">
+<canvas id="bg" width="1400" height="1240" aria-hidden="true"></canvas>
+<img id="sat" alt="" aria-hidden="true" loading="eager" fetchpriority="high" decoding="async" referrerpolicy="no-referrer" src="https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/export?bbox=11768696.6,2385596.4,11790960.5,2405315.9&bboxSR=3857&imageSR=3857&size=1400,1240&format=jpg&f=image" onerror="this.remove()">
+<svg id="svg" viewBox="0 0 700 620" preserveAspectRatio="xMidYMid slice" role="group" aria-label="Bản đồ vệ tinh Hà Nội với các điểm nghẽn">
+<rect width="700" height="620" fill="#050d1f" fill-opacity=".3"/><path d="M600 620 L640 565 L700 540 V620Z" fill="#06142e" stroke="#2a7fd0" stroke-width="1.5"/>
+<g id="dists"></g><g id="lines"></g><g id="units"></g><g id="mks"></g>
+</svg>
+</div>
+<div class="zc"><button data-act="zin" aria-label="Phóng to">+</button><button data-act="zout" aria-label="Thu nhỏ">−</button></div>
+<div class="mb"><div>Vùng giám sát (tự khoanh) <span class="tag" style="border-color:#284878">00</span></div><button>△ Khoanh vùng</button></div>
+<div id="popw"></div>
+<div class="co">21.0300, 105.8200 • Z13</div>
+</div>
+<aside class="side">
+<div class="tabs" role="tablist"><button class="tab" role="tab" data-act="tab" data-t="hot" id="t1"></button><button class="tab" role="tab" data-act="tab" data-t="cad" id="t2"></button><button class="tab" role="tab" data-act="tab" data-t="config" id="t3">Cấu hình</button></div>
+<div id="pnl" style="display:flex;flex-direction:column;flex:1;min-height:0"></div>
+</aside>
+</div>
+</section>
+<aside class="card">
+<header class="hd">Notify IOC/CAD cần xử lý</header>
+<div class="nt" role="tablist"><button role="tab" data-act="nt" data-t="urg" style="color:#ff8b96;border-color:#ff5d6c;font-weight:600">Khẩn cấp <span id="urgn" style="background:#ff5d6c;color:#fff;border-radius:999px;padding:0 7px;font-size:11px;margin-left:4px">0</span></button><button role="tab" data-act="nt" data-t="gis">GIS/Camera AI</button><button role="tab" data-act="nt" data-t="doc">Văn bản</button><button role="tab" data-act="nt" data-t="okr">OKR/KPI</button></div>
+<div id="nty" style="padding:12px 14px;overflow:auto"></div>
+</aside>
+</div>
+<script>
+const CATS={urban:{n:'Trật tự đô thị',c:'#4f9dff',g:1,i:'work'},traffic:{n:'Ùn tắc giao thông',c:'#f5b82e',g:1,i:'car'},env:{n:'Vệ sinh môi trường',c:'#34d27b',g:1,i:'bin'},food:{n:'An toàn thực phẩm',c:'#a58bff',g:1,i:'noent'},flood:{n:'Ngập úng đô thị',c:'#38d0ef',g:1,i:'wave'},fire:{n:'Cháy nổ',c:'#ff5d6c',g:2,i:'fire'},disaster:{n:'Thiên tai',c:'#ff9a4d',g:2,i:'tri'},security:{n:'An ninh, trật tự',c:'#ff6f9c',g:2,i:'noent'},social:{n:'Sự cố xã hội',c:'#a58bff',g:2,i:'tri'}};
+const UN={fire:['PCCC&CNCH','Công an','Y tế','Điện lực'],security:['Công an','Cảnh sát cơ động','Y tế','UBND phường'],traffic:['CSGT','Công an','Điện lực','Giao thông'],flood:['Thoát nước','UBND phường','Điện lực','Y tế'],env:['URENCO','UBND phường','Công an','Y tế'],food:['Liên ngành ATTP','Quản lý thị trường','Công an','Y tế'],urban:['Đội TTĐT','Công an','UBND phường','Điện lực'],disaster:['Ban chỉ huy PCTT','UBND phường','Cứu hộ','Y tế'],social:['Công an','UBND phường','Y tế','Điện lực']};
+const OFF=[[-44,-30],[46,-26],[-6,46],[-50,26]];
+const DST=[['Đông Anh',230,30,190,100],['Cầu Giấy',60,170,130,120],['Ba Đình',210,170,110,110],['Hoàn Kiếm',335,185,110,100],['Long Biên',470,170,130,140],['Đống Đa',180,300,140,100],['Hà Đông',40,330,125,150],['Gia Lâm',470,350,150,130]];
+const STEPS=['TP ban hành','Xã/phường nhận','Đơn vị nhận','Tại hiện trường','Hoàn thành'];
+const MT={manual:'Cán bộ CAD phát lệnh',semi:'Cán bộ duyệt, hệ thống phát lệnh',auto:'Hệ thống tự động phát lệnh'};
+const HINT={manual:'Cán bộ CAD tự chọn và chỉ đạo từng đơn vị.',semi:'Hệ thống chấm điểm, đề xuất đơn vị chính và phối hợp; cán bộ xác nhận để phát lệnh.',auto:'Hệ thống tự phát lệnh theo điểm xếp hạng, không cần xác nhận.'};
+const INC=[
+{id:1,n:'Cháy nhà dân, ngõ Đội Cấn',a:'P. Đội Cấn, Ba Đình',q:'Q. Ba Đình',c:'fire',r:6,p:1,s:'GIS',x:327,y:293},
+{id:2,n:'Cháy kho xưởng, xã Đông Hội',a:'Xã Đông Hội, Đông Anh',q:'H. Đông Anh',c:'fire',r:4,s:'GIS',x:543,y:44},
+{id:3,n:'Ẩu đả nơi công cộng · CAM-014',a:'P. Dịch Vọng, Cầu Giấy',q:'Q. Cầu Giấy',c:'security',r:1,s:'Camera AI',x:250,y:293},
+{id:4,n:'Ùn tắc nút Ngã Tư Sở',a:'P. Ngã Tư Sở, Đống Đa',q:'Q. Đống Đa',c:'traffic',r:3,s:'GIS',x:349,y:397},
+{id:5,n:'Ngập sâu đường Nguyễn Xiển',a:'P. Phú La, Hà Đông',q:'Q. Hà Đông',c:'flood',r:5,p:1,s:'GIS',x:200,y:554},
+{id:6,n:'Rác tồn đọng chợ Long Biên',a:'P. Long Biên, Long Biên',q:'Q. Long Biên',c:'env',r:2,s:'GIS',x:486,y:258},
+{id:7,n:'Nghi vi phạm ATTP, phố Cầu Giấy',a:'P. Quan Hoa, Cầu Giấy',q:'Q. Cầu Giấy',c:'food',r:1,s:'GIS',x:294,y:280},
+{id:8,n:'Lấn chiếm vỉa hè phố Hàng Bông',a:'P. Hàng Bông, Hoàn Kiếm',q:'Q. Hoàn Kiếm',c:'urban',r:2,s:'GIS',x:438,y:316}];
+const DOCS=[['Theo dõi, đôn đốc nhiệm vụ Chính phủ, Thủ tướng giao #7','Các bộ, cơ quan ngang bộ','Quá hạn 1 ngày'],['Rà soát, tổng hợp hồ sơ đặc xá, ân giảm #1','Văn phòng Chủ tịch nước · 22/10','Mới'],['Chuẩn bị nội dung giao ban Lãnh đạo Ban #41','Cục Bảo vệ chính trị nội bộ','Mới']];
+const OKR=[['Thời gian xử lý sự cố trung bình ≤ 30 phút','KPI IOC Thành phố','Đang theo dõi'],['Tỷ lệ phản ánh được chỉ đạo trong 15 phút ≥ 90%','OKR Quý 4','Đang theo dõi']];
+(function(){const c=document.getElementById('bg'),x=c.getContext('2d');x.scale(2,2);let sd=11;const R=()=>(sd=sd*16807%2147483647)/2147483647,E=(px,py,cx,cy,rx,ry,w)=>w*Math.exp(-(((px-cx)/rx)**2+((py-cy)/ry)**2)),D=(p,q)=>Math.max(E(p,q,380,270,200,150,1),E(p,q,110,250,90,110,.8),E(p,q,110,400,80,70,.7),E(p,q,300,80,70,50,.55),E(p,q,560,250,60,80,.5));
+x.fillStyle='#1d2619';x.fillRect(0,0,700,620);
+for(let i=0;i<320;i++){x.fillStyle=`hsla(${70+R()*40},${14+R()*14}%,${10+R()*10}%,.55)`;x.fillRect(R()*700,R()*620,15+R()*55,10+R()*40)}
+const g=x.createRadialGradient(380,270,10,380,270,210);g.addColorStop(0,'rgba(95,88,78,.55)');g.addColorStop(1,'rgba(95,88,78,0)');x.fillStyle=g;x.fillRect(0,0,700,620);
+for(let i=0;i<16000;i++){const p=R()*700,q=R()*620;if(R()<D(p,q)){x.fillStyle=`hsla(${25+R()*25},${6+R()*10}%,${26+R()*24}%,.85)`;x.fillRect(p,q,1.5+R()*4,1.5+R()*3.5)}}
+x.lineWidth=.5;x.strokeStyle='rgba(185,175,155,.18)';for(let i=0;i<1600;i++){const p=R()*700,q=R()*620;if(R()<D(p,q)){const h=R()<.5,l=8+R()*22;x.beginPath();x.moveTo(p,q);x.lineTo(p+(h?l:0),q+(h?0:l));x.stroke()}}
+for(let i=0;i<46;i++){const a=R()*6.283,r1=10+R()*60,r2=r1+90+R()*170;x.strokeStyle=`rgba(200,190,170,${.12+R()*.2})`;x.lineWidth=.6+R()*.9;x.beginPath();x.moveTo(380+Math.cos(a)*r1,270+Math.sin(a)*r1*.8);x.lineTo(380+Math.cos(a)*r2,270+Math.sin(a)*r2*.8);x.stroke()}
+[80,140,205].forEach(r=>{x.strokeStyle='rgba(215,205,185,.38)';x.lineWidth=1.6;x.beginPath();x.ellipse(380,270,r*1.2,r*.95,-.1,0,6.283);x.stroke()});
+const rv=()=>{x.beginPath();x.moveTo(415,-10);x.bezierCurveTo(470,60,480,150,478,230);x.bezierCurveTo(476,310,520,400,540,470);x.bezierCurveTo(555,530,545,580,530,630)};
+[[48,'#2c2a20'],[38,'#7a6f50'],[26,'#5a5b45']].forEach(([w,s])=>{x.strokeStyle=s;x.lineWidth=w;rv();x.stroke()});
+x.fillStyle='#8a7d5a';[[478,100,8,22],[494,300,7,26],[522,420,9,20]].forEach(([a,b,rx,ry])=>{x.beginPath();x.ellipse(a,b,rx,ry,.1,0,6.283);x.fill()});
+x.lineWidth=2;x.strokeStyle='#4b5a4d';x.fillStyle='#2f4137';[[330,165,38,24,.3],[345,172,24,18,-.4],[400,262,6,8,0],[250,420,14,8,.2],[180,345,10,6,0],[420,470,20,12,.5]].forEach(([a,b,rx,ry,o])=>{x.beginPath();x.ellipse(a,b,rx,ry,o,0,6.283);x.fill();x.stroke()});
+for(let i=0;i<9000;i++){x.fillStyle=R()<.5?'rgba(255,255,255,.05)':'rgba(0,0,0,.1)';x.fillRect(R()*700,R()*620,.8,.8)}})();
+let S;
+const sc={};
+const $=id=>document.getElementById(id);
+const now=()=>new Date().toLocaleTimeString('vi-VN',{hour12:false});
+function log(t){S.log.unshift([now(),t])}
+function init(){if(S)clearInterval(S.timer);S={cl:{},pick:{},who:{},sel:null,tab:'hot',mode:'manual',nt:'urg',off:{},done:{},chk:{},tk:[],log:[],z:1,timer:null,pop:null,cmdText:{},sub:{},subReason:{},cfg:{autoLevel:3,confidence:85,countdown:20,mode:'semi'},cfgView:'list',configs:[],activeCfg:null};try{S.configs=JSON.parse(localStorage.getItem('iocCadConfigs')||'[]');S.log=JSON.parse(localStorage.getItem('iocCadConfigLog')||'[]')}catch(e){}$('mz').style.transform='scale(1)';log('IOC Thành phố sẵn sàng, theo dõi 8 điểm nghẽn trên toàn TP');const sd=(id,ks,p)=>{ks.forEach(k=>dispatch(id,k));S.tk.filter(x=>x.id===id).forEach(x=>{x.p=p;x.hold=p<5;x.at=Array(p).fill(now())})};sd(3,[0],3);sd(4,[0,1],2);sd(6,[0,1,2,3],5);sd(8,[0,1,2,3],5);render()}
+const dn=i=>i.q.replace(/^(Q\.|H\.)\s*/,'');
+const wd=i=>i.a.split(',')[0];
+const ub=i=>{const w=wd(i);return w.startsWith('Xã')?'UBND xã '+w.replace(/^Xã\s*/,''):'UBND phường '+w.replace(/^P\.\s*/,'')};
+const NB={'Ba Đình':['Cầu Giấy','Đông Anh','Đống Đa','Hoàn Kiếm','Long Biên'],'Đông Anh':['Long Biên','Ba Đình','Cầu Giấy','Hoàn Kiếm'],'Cầu Giấy':['Ba Đình','Đống Đa','Hà Đông','Đông Anh'],'Đống Đa':['Hoàn Kiếm','Ba Đình','Cầu Giấy','Hà Đông'],'Hà Đông':['Đống Đa','Cầu Giấy','Ba Đình','Hoàn Kiếm'],'Long Biên':['Hoàn Kiếm','Ba Đình','Đông Anh','Đống Đa'],'Hoàn Kiếm':['Ba Đình','Đống Đa','Long Biên','Cầu Giấy']};
+function cands(i,k){const n=UN[i.c][k],h=dn(i),nb=NB[h],L=nb.length;const a=[{full:n+' '+h,h:1,d:(0.3+((i.id*3+k*7)%20)/10).toFixed(1),sc:99-((i.id*3+k*5)%7)}];[0,1].forEach(j=>a.push({full:n+' '+nb[(k+j)%L],h:0,d:(4.5+((i.id*5+k*3+j*7)%110)/10).toFixed(1),sc:49-((i.id*7+k*5+j*9)%22)}));a.forEach(x=>x.eta=Math.max(1,Math.round(x.d*2)));return a.sort((p,q)=>q.sc-p.sc)}
+const pk=(id,k)=>(S.pick[id]&&S.pick[id][k])||0;
+const units=i=>UN[i.c].map((n,k)=>{const c=cands(i,k)[0];return {n,full:c.full,d:c.d,sc:c.sc,role:k?'Đơn vị phối hợp':'Đơn vị chính'}});
+const st=i=>{const d=(S.done[i.id]||[]).length;return d===0?0:d>=4?2:1};
+const STC={y:['#f5b82e','Chưa xử lý (<5 phản ánh)'],r:['#ff5d6c','Chưa xử lý (≥5 phản ánh)'],b:['#4f9dff','Đang xử lý'],g:['#34d27b','Đã xử lý']};
+const sk=i=>{const s=st(i);return s===2?'g':s===1?'b':i.r>=5?'r':'y'};
+const statusTag=i=>{const s=st(i),color=s===2?'#34d27b':s===1?'#4f9dff':i.r>=5?'#ff5d6c':'#f5b82e',label=s===2?'Đã xử lý':s===1?'Đang xử lý':'Chưa xử lý';return `<span class="tag" style="color:${color};border-color:${color}">${label}</span>`};
+const priorityTag=i=>i.p&&st(i)<2?'<span class="tag pri">Ưu tiên</span>':'';
+function ico(k,c){const T='<path d="M0 -8 L9 6.5 H-9Z" fill="#ffd23f" stroke="#e5262e" stroke-width="1.7" stroke-linejoin="round"/>';
+if(k==='fire')return '<path d="M0 -8 C3 -4 6 -1 6 3 A6 6 0 0 1 -6 3 C-6 0 -4 -2 -3 -5 C-1.5 -4 -.5 -6 0 -8Z" fill="#ff7a2f"/><path d="M0 -1 C2 1 3 2.5 3 4 A3 3 0 0 1 -3 4 C-3 2.5 -1 1.5 0 -1Z" fill="#ffd23f"/>';
+if(k==='noent')return '<circle r="7" fill="#fff" stroke="#e5262e" stroke-width="1.8"/><rect x="-3.5" y="-2.5" width="7" height="5" rx="1" fill="#111"/><path d="M-5 5L5 -5" stroke="#e5262e" stroke-width="1.8"/>';
+const g={work:'<circle cx="-1.5" cy="-.5" r="1.2" fill="#111"/><path d="M-1.5 .7V3.6M-1.5 1.6L1.4 3M3.6 0L1.2 4.6" stroke="#111" stroke-width="1.1" fill="none"/>',car:'<rect x="-4.5" y="0" width="9" height="3" rx="1" fill="#111"/><path d="M-3 0L-2 -2.4H2L3 0Z" fill="#111"/><circle cx="-2.5" cy="3.3" r="1" fill="#ffd23f" stroke="#111" stroke-width=".8"/><circle cx="2.5" cy="3.3" r="1" fill="#ffd23f" stroke="#111" stroke-width=".8"/>',bin:'<rect x="-2.8" y="0" width="5.6" height="4.6" fill="#111"/><rect x="-3.5" y="-1.5" width="7" height="1.3" fill="#111"/>',wave:'<path d="M-4.5 0q1.1-1.4 2.25 0t2.25 0 2.25 0 2.25 0M-4.5 3q1.1-1.4 2.25 0t2.25 0 2.25 0 2.25 0" stroke="#111" stroke-width="1.1" fill="none"/>'}[k]||'<rect x="-.8" y="-2.5" width="1.6" height="4" fill="#111"/><circle cy="3.2" r=".9" fill="#111"/>';
+return T+g}
+function select(id,tab,pop){S.sel=id;S.pop=pop?id:null;if(tab)S.tab=tab;if(!S.chk[id])S.chk[id]=[1,1,1,1];render();if(tab==='cad'&&S.mode==='auto'&&st(INC.find(x=>x.id===id))<2)autoRun(id)}
+function dispatch(id,k,j=0){const i=INC.find(x=>x.id===id),d=S.done[id]=S.done[id]||[];if(d.includes(k))return;d.push(k);S.tk.forEach(x=>{if(x.id===id)delete x.hold});const u=cands(i,k)[j],no=101+S.tk.length;S.who[id+'-'+k]=u.full;S.tk.push({no,id,u:u.full,m:S.mode,p:1,at:[now()]});log(`Phát phiếu lệnh #${no}: ${u.full} → ${i.n}`);if(d.length===4)log(`Hoàn tất chỉ đạo: ${i.n}`)}
+function autoRun(id){clearInterval(S.timer);const i=INC.find(x=>x.id===id);log(`Chế độ tự động: điều đơn vị cho ${i.n}`);let k=0;S.timer=setInterval(()=>{while(k<4&&(S.done[id]||[]).includes(k))k++;if(k>=4){clearInterval(S.timer);render();return}dispatch(id,k);k++;render()},900);render()}
+setInterval(()=>{let ch=0;S.tk.forEach(t=>{if(t.p<5&&!t.hold){t.p++;t.at[t.p-1]=now();ch=1;if(t.p===5){log('Hoàn thành, báo cáo kèm ảnh về IOC TP');const inc=INC.find(x=>x.id===t.id);if(st(inc)===2&&S.tk.filter(y=>y.id===t.id).every(y=>y.p===5)&&!S.cl[t.id]){S.cl[t.id]=Date.now();setTimeout(render,8100);log(`Đóng ca “${inc.n}”, lưu nhật ký`)}}}});if(ch)render()},1600);
+document.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b||b.tagName==='INPUT')return;const a=b.dataset.act,id=+b.dataset.id;
+if(a==='sel')select(id,0,1);else if(a==='go')select(id,'cad');else if(a==='tab'){S.tab=b.dataset.t;render()}
+else if(a==='mode'){S.mode=b.dataset.m;log('Chế độ chỉ đạo: <b>'+b.textContent+'</b>');render();if(S.mode==='auto'&&S.sel&&S.tab==='cad'&&st(INC.find(x=>x.id===S.sel))<2)autoRun(S.sel)}
+else if(a==='f'){S.off[b.dataset.c]=!S.off[b.dataset.c];render()}
+else if(a==='disp'){dispatch(S.sel,+b.dataset.k,+b.dataset.j||0);render()}
+ else if(a==='pickunit'){const key=S.sel+'-'+b.dataset.k;S.sub[key]=+b.dataset.j;if(+b.dataset.j===0)delete S.subReason[key];render()}
+ else if(a==='newcfg'){S.cfgView='new';S.cfgDraft=null;render()}else if(a==='cfgback'){S.cfgView='list';render()}else if(a==='editcfg'){const c=S.configs[+b.dataset.cfg];if(c?.locked){alert('Cấu hình đã khóa, chỉ xem được.');return}S.cfgView='edit';S.cfgEditing=+b.dataset.cfg;S.cfgDraft={...c};render()}else if(a==='applycfg'){const c=S.configs[+b.dataset.cfg];if(c.locked){alert('Cấu hình đã khóa, không thể áp dụng.');return}S.configs.forEach(x=>x.active=false);c.active=true;S.cfg={...S.cfg,autoLevel:c.autoLevel,confidence:c.confidence,countdown:c.countdown,mode:c.mode};log('Áp dụng cấu hình: '+c.name);try{localStorage.setItem('iocCadConfigs',JSON.stringify(S.configs));localStorage.setItem('iocCadConfigLog',JSON.stringify(S.log.filter(x=>/cấu hình/i.test(x[1])).slice(0,100)))}catch(e){}render()}else if(a==='lockcfg'){const n=+b.dataset.cfg,c=S.configs[n];if(!c)return;if(c.active){if(!confirm('Cấu hình đang áp dụng. Khóa sẽ ngừng áp dụng cấu hình này. Tiếp tục?'))return;c.active=false}c.locked=true;log('Đã khóa cấu hình “'+c.name+'”; giữ lại để bảo toàn lịch sử điểm nghẽn đã sử dụng cấu hình này.');try{localStorage.setItem('iocCadConfigs',JSON.stringify(S.configs));localStorage.setItem('iocCadConfigLog',JSON.stringify(S.log.filter(x=>/cấu hình/i.test(x[1])).slice(0,100)))}catch(e){}render()}else if(a==='unlockcfg'){const c=S.configs[+b.dataset.cfg];if(!c)return;c.locked=false;log('Đã mở khóa cấu hình “'+c.name+'”; chưa tự động áp dụng.');try{localStorage.setItem('iocCadConfigs',JSON.stringify(S.configs));localStorage.setItem('iocCadConfigLog',JSON.stringify(S.log.filter(x=>/cấu hình/i.test(x[1])).slice(0,100)))}catch(e){}render()}else if(a==='savecfg'){const v=id=>$(id)?.value;const c={name:v('cfgName')||'Cấu hình AI CAD',mode:v('cfgMode'),autoLevel:+v('cfgAutoLevel'),confidence:85,countdown:+v('cfgCountdown'),active:true,locked:false,group:v('cfgGroup'),keywords:v('cfgKeywords'),mainUnit:v('cfgMainUnit'),coUnit:v('cfgCoUnit'),sla:+v('cfgSla'),priority:+v('cfgPriority'),reports:+v('cfgReports'),window:+v('cfgWindow'),escalation:v('cfgEscalation'),allowAuto:!!$('cfgAllowAuto')?.checked,unitStrategy:v('cfgUnitStrategy')};if(S.cfgView==='edit'&&S.cfgEditing!==undefined){if(S.configs[S.cfgEditing]?.locked){alert('Cấu hình đã khóa, không thể chỉnh sửa.');return}S.configs[S.cfgEditing]={...S.configs[S.cfgEditing],...c,locked:false}}else S.configs.push(c);const activeIndex=(S.cfgView==='edit'&&S.cfgEditing!==undefined)?S.cfgEditing:S.configs.length-1;S.configs.forEach((x,n)=>x.active=n===activeIndex);S.configs[activeIndex].active=true;try{localStorage.setItem('iocCadConfigs',JSON.stringify(S.configs))}catch(e){}S.cfg.autoLevel=c.autoLevel;S.cfg.confidence=c.confidence;S.cfg.countdown=c.countdown;S.cfg.mode=c.mode;log('Đã lưu cấu hình AI CAD “'+c.name+'”: chế độ '+c.mode+', ngưỡng tự động mức '+c.autoLevel+', tin cậy '+c.confidence+'%');S.cfgView='list';S.cfgEditing=undefined;try{localStorage.setItem('iocCadConfigs',JSON.stringify(S.configs));localStorage.setItem('iocCadConfigLog',JSON.stringify(S.log.filter(x=>/cấu hình/i.test(x[1])).slice(0,100)))}catch(e){}render()}
+else if(a==='alt'){const p=S.pick[S.sel]=S.pick[S.sel]||[0,0,0,0];p[+b.dataset.k]=+b.dataset.j;render()}
+else if(a==='send'){if(S.mode==='auto')autoRun(S.sel);else{const i=INC.find(x=>x.id===S.sel);const ks=[0,1,2,3].filter(k=>S.mode!=='semi'||S.chk[S.sel][k]);const bad=ks.find(k=>S.sub[S.sel+'-'+k]!==undefined&&S.sub[S.sel+'-'+k]!==0&&!(S.subReason[S.sel+'-'+k]||'').trim());if(bad!==undefined){alert('Vui lòng nhập lý do khi chọn đơn vị thay thế ('+UN[i.c][bad]+').');return}[0,1,2,3].forEach(k=>{if(ks.includes(k)){const key=S.sel+'-'+k;dispatch(S.sel,k,S.mode==='manual'?pk(S.sel,k):(S.sub[key]!==undefined?S.sub[key]:0));if(S.sub[key]!==undefined&&S.sub[key]!==0)log('Thay đơn vị '+UN[i.c][k]+'; lý do: '+S.subReason[key])}});render()}}
+else if(a==='cancel'){clearInterval(S.timer);const ci=INC.find(x=>x.id===S.sel);log('Hủy đề xuất đơn vị: '+ci.n);S.sel=null;render()}
+else if(a==='approve'){const i=INC.find(x=>x.id===S.sel);const bad=[0,1,2,3].find(k=>S.sub[S.sel+'-'+k]!==undefined&&S.sub[S.sel+'-'+k]!==0&&!(S.subReason[S.sel+'-'+k]||'').trim());if(bad!==undefined){alert('Vui lòng nhập lý do khi chọn đơn vị thay thế ('+UN[i.c][bad]+').');return}log('Lệnh bán tự động đã được trực ban chỉnh sửa/xác nhận: '+(S.cmdText[S.sel]||i.n));[0,1,2,3].forEach(k=>{const key=S.sel+'-'+k;dispatch(S.sel,k,S.sub[key]!==undefined?S.sub[key]:0);if(S.sub[key]!==undefined&&S.sub[key]!==0)log('Thay đơn vị '+UN[i.c][k]+'; lý do: '+S.subReason[key])});render()}
+else if(a==='nt'){S.nt=b.dataset.t;render()}
+else if(a==='zin'){S.z=Math.min(1.8,S.z+.3);$('mz').style.transform=`scale(${S.z})`;if(S.pop)render()}
+else if(a==='zout'){S.z=Math.max(1,S.z-.3);$('mz').style.transform=`scale(${S.z})`;if(S.pop)render()}
+else if(a==='reset')init();else if(a==='mapclick'){if(S.pop){S.pop=null;render()}}else if(a==='close'){S.pop=null;render()}else if(a==='share'){log('Chia sẻ thông tin điểm nghẽn: '+INC.find(x=>x.id===S.pop).n);render()}else if(a==='detail')select(S.pop,'cad')});
+document.addEventListener('input',e=>{if(e.target.dataset.act==='cmdtext'){S.cmdText[+e.target.dataset.id]=e.target.value}else if(e.target.dataset.act==='subreason'){S.subReason[S.sel+'-'+e.target.dataset.k]=e.target.value}});
+ document.addEventListener('change',e=>{if(e.target.dataset.act==='chk'){S.chk[S.sel][+e.target.dataset.k]=e.target.checked?1:0;render()}});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('g[data-act]')){e.preventDefault();select(+e.target.dataset.id,0,1)}});
+function tl(a){return `<div class="tl">${a.map(x=>`<div class="tn ${x.s}"><i></i><div><div class="tt"><span>${x.t}</span>${x.at?`<span class="ta">${x.at}</span>`:''}</div><div class="td">${x.d}</div></div></div>`).join('')}</div>`}
+function stg(t,n){const sx=k=>t.p>k?'done':t.p===k?'cur':'wait',at=k=>t.p>k?(t.at[k]||''):'';return [
+{t:'Thành phố Hà Nội',d:`Ban hành phiếu lệnh #${t.no}`,s:sx(0),at:at(0)},
+{t:ub(n),d:'Tiếp nhận và chuyển xuống đơn vị',s:sx(1),at:at(1)},
+{t:t.u,d:'Đơn vị tiếp nhận · nhận lệnh, điều lực lượng',s:sx(2),at:at(2)},
+{t:'Hiện trường: '+n.n,d:n.a+' · lực lượng có mặt xử lý',s:sx(3),at:at(3)},
+{t:'Hoàn thành',d:'Báo cáo kèm ảnh về IOC Thành phố',s:sx(4),at:at(4)}]}
+function prev(i){if(!i)return '';const d=S.done[i.id]||[],rem=[0,1,2,3].filter(k=>!d.includes(k));if(!rem.length)return '';const us=rem.map(k=>cands(i,k)[S.mode==='manual'?pk(i.id,k):0].full);return `<div class="pv"><div class="th"><b>Dự kiến luồng chỉ đạo</b><span class="tag" style="border-color:var(--bd2);color:var(--mu)">Chưa phát</span></div><div class="mut" style="font-size:12px">${i.n}</div>${tl([{t:'Thành phố Hà Nội',d:'Ban hành phiếu lệnh',s:'wait'},{t:ub(i),d:'Tiếp nhận và chuyển xuống '+rem.length+' đơn vị',s:'wait'},{t:'Đơn vị tiếp nhận ('+rem.length+')',d:us.join(' · '),s:'wait'},{t:'Hiện trường: '+i.n,d:i.a,s:'wait'}])}</div>`}
+function cmd(i,d){const left=[0,1,2,3].filter(k=>!d.includes(k));const def=`Đề nghị ${ub(i)} chỉ đạo ${cands(i,0)[0].full} xử lý “${i.n}” tại ${wd(i)}, hoàn thành trong ${i.p?5:15} phút, báo cáo về IOC Thành phố.`;if(S.cmdText[i.id]===undefined)S.cmdText[i.id]=def;return `<div class="cmd"><b>Lệnh soạn sẵn (có thể chỉnh sửa):</b><textarea data-act="cmdtext" data-id="${i.id}" aria-label="Nội dung lệnh soạn sẵn">${S.cmdText[i.id]}</textarea>${left.length?'<div><button class="btn" data-act="approve">Duyệt và phát lệnh</button></div>':'<div style="margin-top:8px;color:#22c55e;font-weight:600">✓ Lệnh đã được duyệt và phát đi.</div>'}</div>`}
+function grps(i,d){const semi=S.mode==='semi';return UN[i.c].map((n,k)=>k).sort((a,b)=>(a===0?-1:b===0?1:0)||cands(i,b)[0].sc-cands(i,a)[0].sc||a-b).map(k=>{const n=UN[i.c][k],cs=cands(i,k),p=(S.mode==='semi'&&S.sub[i.id+'-'+k]!==undefined?S.sub[i.id+'-'+k]:pk(i.id,k)),dd=d.includes(k);return `<div class="grp"><div class="mut" style="font-size:13px;margin-bottom:6px">${k?'Đơn vị phối hợp':'Đơn vị chính'}: <b style="color:var(--tx)">${n}</b></div>`+(dd?`<div class="cand"><div class="ch"><b>${S.who[i.id+'-'+k]}</b><span class="tag ok">Đã giao</span></div><div class="mut" style="font-size:12px">Đã chỉ đạo · đang di chuyển</div></div>`:cs.map((c,j)=>`<div class="cand"><div class="ch"><b>${j+1}. ${c.full}</b><span class="sc">${c.sc}</span></div><div class="mut" style="font-size:12px">${c.d} km · ETA ${c.eta} phút · ${c.h?'đúng địa bàn':'ngoài địa bàn'}${semi?' · '+(c.sc<=30?'đang bận':'đang rảnh'):''}</div><div class="bar"><i style="width:${c.sc}%"></i></div>${semi?`<button class="${j===p?'btn':'alt'} s" data-act="pickunit" data-k="${k}" data-j="${j}">${j===p?'Đơn vị đề xuất':'Chọn thay thế'}</button>${S.sub[i.id+'-'+k]===j&&j!==0?`<div class="subbox"><label>Đơn vị thay thế đã chọn: ${c.full}</label><label for="reason-${k}">Lý do thay thế (bắt buộc)</label><input class="subreason" id="reason-${k}" data-act="subreason" data-k="${k}" placeholder="Nhập lý do thay thế..." value="${S.subReason[i.id+'-'+k]||''}"></div>`:''}`:j===p?`<button class="btn" data-act="disp" data-k="${k}" data-j="${j}">Chỉ đạo đơn vị này</button>`:`<button class="alt" data-act="alt" data-k="${k}" data-j="${j}">Chọn thay thế</button>`}</div>`).join(''))+'</div>'}).join('')}
+const lvl=i=>i.r>=5?'Nghiêm trọng':i.r>=3?'Trung bình':'Nhẹ',hm=d=>d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',hour12:false})+' 22/10/2026';
+function popHtml(i){const q=sk(i),c=STC[q][0],t0=new Date(2026,9,22,7+i.id*2,(i.id*17)%60),t1=new Date(t0.getTime()+(i.r>=5?5:15)*60000),sx=q==='g'?'Đã xử lý':q==='b'?'Đang xử lý':'Chưa xử lý';
+return `<div class="pop" id="pop" data-act="pop" role="dialog" aria-label="${i.n}"><button class="x" data-act="close" aria-label="Đóng">✕</button><div class="pt"><svg width="28" height="28" viewBox="-10 -10 20 20" aria-hidden="true">${ico(CATS[i.c].i,CATS[i.c].c)}</svg>${CATS[i.c].n}</div><div class="bx"><div>Nội dung phản ánh</div><div>${i.n}</div><div>Mức độ: ${lvl(i)} · ${i.r} phản ánh · ${sx}</div></div><p>Vị trí: ${i.a}, ${i.q}, Hà Nội</p><p>Nguồn phản ánh: ${i.s}</p><p>Số lượng phản ánh: ${i.r}</p><p>Mức ưu tiên: ${i.r>=5?'Khẩn cấp':i.r>=3?'Cao':'Thường'} · ${lvl(i)}</p><p>Đơn vị chịu trách nhiệm: ${cands(i,0)[0].full}</p><p>Thời gian tiếp nhận: ${hm(t0)}</p>${q==='g'?'<p style="color:#34d27b">Sẽ tự ẩn khỏi bản đồ sau ít phút</p>':q==='r'?'<p style="color:#ff8b96">Ưu tiên cao · SLA 5 phút</p>':''}<span class="pill" style="color:${c};border-color:${c};background:${c}22">${sx}</span><div class="pb"><button class="alt" data-act="share">🔗 Chia sẻ</button><button class="alt" data-act="detail">Xem chi tiết đầy đủ</button></div><i class="ar"></i></div>`}
+function render(){
+document.querySelectorAll('[data-sc]').forEach(e=>sc[e.dataset.sc]=e.scrollTop);
+const open=INC.filter(i=>st(i)<2).length,ncad=S.tk.length;
+$('t1').innerHTML=`Điểm nghẽn<span class="bdg">${open}</span>`;$('t2').innerHTML=`CAD<span class="bdg">${ncad}</span>`;$('t3').innerHTML='Cấu hình';
+['t1','t2','t3'].forEach((t,k)=>$(t).setAttribute('aria-selected',String(S.tab===(['hot','cad','config'][k]))));
+let m='',l='',u='';
+INC.filter(i=>!S.off[i.c]&&!(S.cl[i.id]&&Date.now()-S.cl[i.id]>8000&&S.sel!==i.id)).forEach(i=>{const c=CATS[i.c].c,s=st(i),k=STC[sk(i)][0],dl=-((i.id*.37)%1.3).toFixed(2),sl=S.sel===i.id;
+m+=`<g class="mk" data-act="sel" data-id="${i.id}" tabindex="0" role="button" aria-label="${i.n}" transform="translate(${i.x} ${i.y})"><circle class="bk" r="15" fill="none" stroke="${k}" stroke-width="2.5" style="animation-delay:${dl}s"/><circle class="fl" r="22" fill="${k}" style="animation-delay:${dl}s"/>${sl?'<circle r="21" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="3 3"/>':''}<circle r="15" fill="#0b1a33" fill-opacity=".92" stroke="${k}" stroke-width="${sl?4:3}"/><g transform="scale(1.15)">${ico(CATS[i.c].i,c)}</g></g>`;
+const d=S.done[i.id]||[];
+if(S.sel===i.id)units(i).forEach((_,k)=>{const x=i.x+OFF[k][0],y=i.y+OFF[k][1],dd=d.includes(k);
+l+=`<line class="ln" x1="${x}" y1="${y}" x2="${i.x}" y2="${i.y}" stroke="#34d27b" stroke-width="2" stroke-opacity=".95"/>`;
+u+=`<g transform="translate(${x} ${y})"><path d="M0 -7 L8 6 H-8Z" fill="#0b1a33" stroke="#34d27b" stroke-width="2.2" stroke-linejoin="round"/></g>`})});
+$('mks').innerHTML=m;$('lines').innerHTML=l;$('units').innerHTML=u;
+const pi=S.pop?INC.find(x=>x.id===S.pop):null;$('popw').innerHTML=pi&&!S.off[pi.c]?popHtml(pi):'';
+const pe=$('pop');if(pe){const mp=document.querySelector('.map'),W=mp.clientWidth,H=mp.clientHeight,s=Math.max(W/700,H/620),px=W/2+((W-700*s)/2+pi.x*s-W/2)*S.z,py=H/2+((H-620*s)/2+pi.y*s-H/2)*S.z,w=pe.offsetWidth,h=pe.offsetHeight,l=Math.min(Math.max(8,px-w/2),W-w-8),up=py-26-h>8,a=pe.querySelector('.ar');pe.style.left=l+'px';pe.style.top=(up?py-26-h:Math.max(8,Math.min(py+26,H-h-8)))+'px';a.className='ar '+(up?'b':'t');a.style.left=Math.min(Math.max(14,px-l-8),w-30)+'px'}
+let h='';
+if(S.tab==='config'){
+ if(S.cfgView==='list'){const cfgs=S.configs;h=`<div class="pn"><div class="th"><div><div class="lb">CẤU HÌNH AI CAD</div><p class="mut" style="margin:4px 0 0">Danh sách cấu hình đã lưu và nhật ký thay đổi.</p></div><button class="btn" data-act="newcfg">+ Thêm mới</button></div>${cfgs.length?cfgs.map((c,n)=>`<section class="cfgsec"><div class="th"><b>${c.name}</b><span class="tag ${c.locked?'':c.active?'ok':''}">${c.locked?'Đã khóa':c.active?'Đang áp dụng':'Đã lưu'}</span></div><div class="mut" style="font-size:12px">Chế độ: ${c.mode} · Ngưỡng tự động: mức ${c.autoLevel} · Ngưỡng tăng mức: ${c.reports||5} PA / ${c.window||10} phút</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${c.locked?'<button class="alt s" disabled>Đã khóa · chỉ xem</button>':`<button class="alt s" data-act="editcfg" data-cfg="${n}">Xem / chỉnh sửa</button><button class="alt s" data-act="applycfg" data-cfg="${n}">Áp dụng</button><button class="alt s" data-act="lockcfg" data-cfg="${n}">Khóa cấu hình</button>`}${c.locked?`<button class="alt s" data-act="unlockcfg" data-cfg="${n}">Mở khóa</button>`:''}</div>${c.locked?'<div class="mut" style="font-size:11px;margin-top:6px">Cấu hình được giữ lại để bảo toàn lịch sử tham chiếu; không thể áp dụng hoặc chỉnh sửa khi khóa.</div>':''}</section>`).join(''):'<div class="cfgsec mut">Chưa có cấu hình nào được lưu. Bấm “Thêm mới” để tạo cấu hình đầu tiên.</div>'}<section class="cfgsec"><h3>Nhật ký cấu hình</h3>${S.log.filter(x=>/cấu hình/i.test(x[1])).slice(0,12).map(x=>`<div class="mut" style="font-size:12px;padding:7px 0;border-bottom:1px solid var(--bd)">${x[0]} · ${x[1]}</div>`).join('')||'<div class="mut" style="font-size:12px">Chưa có lịch sử thay đổi cấu hình.</div>'}</section><div class="mut" style="font-size:11px">Bản demo: dữ liệu cấu hình lưu trong phiên trình duyệt, chưa đồng bộ máy chủ.</div></div>`;}else{
+ h=`<div class="pn"><div class="th"><div class="lb">${S.cfgView==='edit'?'CHỈNH SỬA CẤU HÌNH':'THÊM CẤU HÌNH AI CAD'}</div><button class="alt s" data-act="cfgback">← Danh sách</button></div><div class="cfgfield"><label>Tên cấu hình</label><input id="cfgName" value="${S.cfgDraft?.name||'Cấu hình AI CAD mới'}"></div><p class="mut" style="margin-top:0">Thiết lập cách AI nhận diện điểm nghẽn, tính ưu tiên và đề xuất/phát lệnh.</p>
+ <section class="cfgsec"><h3>1. Danh mục điểm nghẽn</h3><div class="cfgfield"><label>Nhóm sự cố</label><select id="cfgGroup"><option>Cháy nổ</option><option>An ninh, trật tự</option><option>Thiên tai</option><option>Ùn tắc giao thông</option><option>Ngập úng đô thị</option><option>Trật tự đô thị</option><option>Vệ sinh môi trường</option><option>An toàn thực phẩm</option><option>Sự cố xã hội</option></select></div><div class="cfgfield"><label>Tình huống / từ khóa AI nhận diện</label><textarea id="cfgKeywords">${S.cfgDraft?.keywords||'cháy, khói, lửa, nổ'}</textarea></div><div class="cfgfield"><label>Đơn vị chính mặc định</label><input id="cfgMainUnit" value="${S.cfgDraft?.mainUnit||'PCCC&CNCH'}"></div><div class="cfgfield"><label>Đơn vị phối hợp mặc định</label><input id="cfgCoUnit" value="${S.cfgDraft?.coUnit||'Công an, Y tế, Điện lực'}"></div><div class="cfgfield"><label>SLA xác nhận (phút)</label><input id="cfgSla" type="number" min="1" value="${S.cfgDraft?.sla||3}"></div><label><input id="cfgAllowAuto" type="checkbox" checked> Cho phép chế độ tự động</label></section>
+ <section class="cfgsec"><h3>2. Mức độ ưu tiên & dấu hiệu tăng nặng</h3><div class="cfgfield"><label>Mức ưu tiên mặc định</label><select id="cfgPriority"><option value="1">1 · Thấp</option><option value="2">2 · Trung bình</option><option value="3" selected>3 · Cao</option><option value="4">4 · Khẩn cấp</option></select></div><div class="cfgfield"><label>Ngưỡng số PA để tăng mức (trong cửa sổ theo dõi)</label><input id="cfgReports" type="number" min="1" value="${S.cfgDraft?.reports||5}"><div class="mut" style="font-size:12px;line-height:1.6">Khi số phản ánh liên quan cùng điểm nghẽn đạt ngưỡng này trong khoảng thời gian bên dưới, AI đánh dấu để đánh giá lại mức ưu tiên. Chỉ số lượng phản ánh không tự động chứng minh sự cố nghiêm trọng hơn.</div></div><div class="cfgfield"><label>Thời gian tổng hợp phản ánh (phút)</label><input id="cfgWindow" type="number" min="1" value="${S.cfgDraft?.window||10}"></div><div class="cfgfield"><label>Dấu hiệu tăng mức cần theo dõi</label><textarea id="cfgEscalation">${S.cfgDraft?.escalation||"Nguy cơ đến tính mạng; cháy lan; nhiều người bị thương/mắc kẹt; ảnh hưởng nhiều khu vực; tình hình xấu đi theo cập nhật mới"}</textarea></div><div class="mut" style="font-size:12px;line-height:1.7"><b>AI tự ước lượng độ tin cậy</b> từ mức khớp mô tả với loại sự cố, độ rõ ràng của nội dung, sự nhất quán giữa các phản ánh và bằng chứng từ nguồn tích hợp. Không yêu cầu người cấu hình nhập điểm tin cậy. Khi dữ liệu mơ hồ hoặc nguồn mâu thuẫn, AI chỉ đề xuất xác minh; không tự nâng mức. Số phản ánh là tín hiệu cần chú ý, không tự chứng minh sự cố nghiêm trọng hơn.</div></section>
+ <section class="cfgsec"><h3>3. Kịch bản điều hành CAD</h3><div class="cfgfield"><label>Chế độ mặc định</label><select id="cfgMode"><option value="manual">Thủ công</option><option value="semi" selected>Bán tự động</option><option value="auto">Tự động</option></select></div><div class="cfgfield"><label>Từ mức ưu tiên nào được tự động</label><select id="cfgAutoLevel"><option value="2">Từ mức 2</option><option value="3" selected>Từ mức 3</option><option value="4">Chỉ mức 4</option></select></div><div class="cfgfield"><label>Thời gian đếm ngược trước khi phát lệnh (giây)</label><input id="cfgCountdown" type="number" min="0" value="${S.cfgDraft?.countdown??20}"></div><div class="cfgfield"><label>Cách chọn đơn vị</label><select id="cfgUnitStrategy"><option>Top 1 mỗi lực lượng theo điểm CAD</option><option>Chọn đơn vị kế tiếp nếu từ chối/quá hạn</option></select></div><div class="mut" style="font-size:12px;line-height:1.7">Tự động chỉ chạy khi đạt ngưỡng ưu tiên, tình huống cho phép, độ tin cậy AI đạt ngưỡng và đủ đơn vị khả dụng. Nếu thiếu điều kiện, chuyển sang bán tự động.</div></section>
+ <button class="btn" data-act="savecfg" style="width:100%">Lưu cấu hình</button><div class="mut" style="font-size:11px;margin-top:8px">Bản demo: cấu hình minh họa, chưa kết nối máy chủ AI/CAD.</div></div>`;}
+ }else if(S.tab==='hot'){
+const chip=g=>Object.keys(CATS).filter(k=>CATS[k].g===g).map(k=>{const n=INC.filter(i=>i.c===k&&st(i)<2).length,c=CATS[k].c;return `<button class="fc" data-act="f" data-c="${k}" aria-pressed="${!S.off[k]}" style="border:1px solid ${c};color:${c}"><svg width="22" height="22" viewBox="-10 -10 20 20" aria-hidden="true">${ico(CATS[k].i,c)}</svg><span>${CATS[k].n}</span><b>${n}</b></button>`}).join('');
+const rows=INC.filter(i=>!S.off[i.c]).sort((a,b)=>st(a)-st(b)||(b.p||0)-(a.p||0)).map(i=>`<button class="row ${S.sel===i.id?'sel':''}" data-act="sel" data-id="${i.id}"><span class="dot" style="background:${CATS[i.c].c}"></span><span><div class="n">${i.n}</div><div class="s">${i.a} · ${i.r} phản ánh</div></span><span style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">${priorityTag(i)}${statusTag(i)}</span></button>`).join('');
+const lgd=Object.keys(STC).map(q=>{const c=STC[q][0],n=INC.filter(i=>sk(i)===q).length;return `<div class="sr" style="background:${c}1f;border-color:${c}66"><span class="dot" style="background:${c}"></span><span>${STC[q][1]}</span><b style="margin-left:auto">${n}</b></div>`}).join('');
+const si=INC.find(x=>x.id===S.sel);
+h=`<div class="pn" data-sc="p" style="padding:0"><div style="padding:14px 14px 0"><div class="lb">5 ĐIỂM NGHẼN</div><div class="fcs">${chip(1)}</div><div class="lb">NHÓM SỰ CỐ</div><div class="fcs">${chip(2)}</div><div class="lb">TRẠNG THÁI XỬ LÝ</div><div class="stl">${lgd}</div><div class="mut" style="margin:12px 0 14px;line-height:1.7">${INC.length} điểm nghẽn · ${INC.filter(i=>i.r>=5&&st(i)<2).length} sự cố khẩn cấp<br>0 vùng giám sát</div></div><div class="lh">ĐANG MỞ TRÊN TOÀN TP · ${open}</div>${rows}</div>`}
+else{
+const i=INC.find(x=>x.id===S.sel),M=[['manual','Thủ công'],['semi','Bán tự động'],['auto','Tự động']];
+h=`<div class="pn" data-sc="p"><div class="seg">${M.map(x=>`<button data-act="mode" data-m="${x[0]}" aria-pressed="${S.mode===x[0]}">${x[1]}</button>`).join('')}</div>${S.mode!=='auto'?'':'<div class="hint">'+HINT[S.mode]+'</div>'}`;
+if(!i)h+='<p class="mut">Chọn một điểm nghẽn trên bản đồ hoặc ở panel Notify để CAD đề xuất đơn vị địa phương xử lý.</p>';
+else{const d=S.done[i.id]||[],un=units(i);
+h+=`<div style="font-weight:700;font-size:14px">${i.n}</div><div class="mut" style="margin:2px 0 8px">${CATS[i.c].n} · ${i.a} · ${i.p?'SLA 5 phút · tự nâng ưu tiên (≥5 phản ánh)':'SLA 15 phút'}</div><div class="chain"><span>TP Hà Nội</span>›<span>${ub(i)}</span>›<span class="ya">${d.includes(0)?S.who[i.id+'-0']:'Đơn vị xử lý'}</span></div>`+(S.mode==='semi'?cmd(i,d):'');
+h+=S.mode!=='auto'?grps(i,d):un.map((x,k)=>{const dd=d.includes(k);let ctl;if(dd)ctl='<span class="tag ok">Đã giao</span>';else if(S.mode==='manual')ctl=`<button class="btn s" data-act="disp" data-k="${k}">Chỉ đạo</button>`;else if(S.mode==='semi')ctl=`<input type="checkbox" data-act="chk" data-k="${k}" aria-label="Chọn ${x.full}" ${S.chk[i.id][k]?'checked':''} ${k===0?'disabled':''} style="width:20px;height:20px">`;else ctl='<span class="tag" style="border-color:var(--bd2);color:var(--mu)">Tự động</span>';
+return `<div class="ur"><div><div>${x.role}: <b>${x.n}</b></div><div class="mut" style="font-size:12px">${dd?'Đã chỉ đạo '+x.full:'Đề xuất '+x.full+' · điểm '+x.sc+' · cách '+x.d+' km'}</div></div>${ctl}</div>`}).join('');
+}
+h+='<div style="border-top:1px solid var(--bd);margin-top:6px"></div>';
+h+=prev(i)+(S.tk.length?S.tk.map(t=>{const n=INC.find(x=>x.id===t.id),cl=t.p===5;return `<div class="tkt"><div class="th"><b>#${t.no} ${t.u}</b><span class="tag ${cl?'ok':''}" ${cl?'':'style="color:#f5b82e;border-color:#f5b82e"'}>${cl?'Đã đóng':'Đang xử lý'}</span></div><div class="mut" style="font-size:12px">${n.n} · ${MT[t.m]}</div>${tl(stg(t,n))}</div>`}).join(''):(prev(i)?'':'<p class="mut" style="margin:8px 0 0">Chưa có phiếu lệnh nào.</p>'));
+h+=`<div class="lb" style="margin:14px 0 8px;padding-top:14px;border-top:1px solid var(--bd)">NHẬT KÝ CHỈ ĐẠO</div>${S.log.map(x=>`<div class="lgrow"><b>${x[0]}</b><span class="mut">${x[1]}</span></div>`).join('')}</div>`;
+{const left=i?[0,1,2,3].filter(k=>!(S.done[i.id]||[]).includes(k)):[];const n=S.mode==='semi'&&i?left.filter(k=>S.chk[i.id][k]).length:left.length;h+=`<div class="ft" style="grid-template-columns:1fr 1fr"><button class="btn" style="background:transparent;border:1px solid var(--bd2);color:var(--tx)" data-act="cancel" ${i?'':'disabled'}>Hủy</button><button class="btn" data-act="send" ${n?'':'disabled'}>Phát phiếu lệnh (${n})</button></div>`}}
+$('pnl').innerHTML=h;
+document.querySelectorAll('[data-sc]').forEach(e=>{if(sc[e.dataset.sc]!=null)e.scrollTop=sc[e.dataset.sc]});
+document.querySelectorAll('[data-act=nt]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===S.nt)));
+let nh='';
+const urg=INC.filter(i=>i.p&&st(i)<2);$('urgn').textContent=urg.length+1;
+if(S.nt==='urg')nh=urg.map(i=>`<div class="ncard" style="border-color:#ff5d6c"><div class="n">${i.n}<span class="src">${i.s}</span></div><div class="s" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${priorityTag(i)}${statusTag(i)}<span>SLA 5 phút · ${i.a}</span></div><button class="btn s" data-act="go" data-id="${i.id}">Chỉ đạo</button></div>`).join('')+`<div class="ncard" style="border-color:#ff5d6c"><div class="n">${DOCS[0][0]}</div><div class="s">${DOCS[0][1]}</div><span class="tag pri">Quá hạn 1 ngày</span></div>`;
+else if(S.nt==='gis')nh=INC.slice().sort((a,b)=>((b.p&&st(b)<2)?1:0)-((a.p&&st(a)<2)?1:0)||st(a)-st(b)).map(i=>`<div class="ncard"><div class="n">${i.n}<span class="src">${i.s}</span></div><div class="s">${i.s==='Camera AI'?'Camera AI':'Phản ánh'} · ${i.a}</div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:7px 0">${priorityTag(i)}${statusTag(i)}</div>${st(i)===2?'':`<button class="btn s" data-act="go" data-id="${i.id}">Chỉ đạo</button>`}</div>`).join('');
+else nh=(S.nt==='doc'?DOCS:OKR).map(d=>`<div class="ncard"><div class="n">${d[0]}</div><div class="s">${d[1]}</div><span class="tag" style="${d[2]==='Quá hạn 1 ngày'?'color:#ff8b96;border-color:#ff5d6c':'border-color:var(--bd2)'}">${d[2]}</span></div>`).join('');
+$('nty').innerHTML=nh}
+init();
+</script>
+</body>
+</html>
