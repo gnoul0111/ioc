@@ -29,6 +29,10 @@ const gisTileUrls={
 };
 const gisStatusColor={done:'#2fb174',doing:'#2c7dd2',soon:'#d8a50c',risk:'#d25a19',overdue:'#d33a44'};
 const gisStatusLabel={done:'Hoàn thành',doing:'Đang xử lý',soon:'Sắp đến hạn',risk:'Nguy cơ trễ',overdue:'Quá hạn'};
+/* 2026-10-23: bật CAD (điều phối xử lý điểm nghẽn — js/features/gis-cad.js). Khi bật, "Giao xử lý"/"Hoàn thành
+   xử lý" tay cũ trong popup + modal chi tiết được ẩn (giữ nguyên code): điểm nghẽn chỉ hoàn thành khi mọi đơn vị
+   được điều động báo hoàn thành qua phiếu lệnh CAD. Đặt false để quay về luồng cũ. */
+const GIS_CAD_ENABLED=true;
 
 /* 5 nhóm điểm nghẽn đúng theo bottleneck_code/bottleneck_name của sheet EFORM_INPUT — org/coord là
    responsible_org_id/coordinating_org_ids mặc định của nhóm, dùng khi sinh dữ liệu ước tính ngoài
@@ -486,14 +490,14 @@ function gisMarkerStateColor(rec){
     bản đồ như 5 nhóm điểm nghẽn thường. */
  if(gisIsEmergencyCode(rec.bottleneck_code)) return gisStatusColor.overdue;
  if(rec.status==='done') return gisStatusColor.done;
- if(rec.linkedRecordId||rec.demoLinked) return gisStatusColor.doing;
+ if(rec.linkedRecordId||rec.demoLinked||rec.cadActive) return gisStatusColor.doing;
  return (rec.reportCount||1)>=GIS_REPORT_RED_THRESHOLD?gisStatusColor.overdue:gisStatusColor.soon;
 }
 /* Nhãn chữ đi kèm gisMarkerStateColor() — dùng thay cho gisStatusLabel[status] cũ (done/doing/soon/risk/
    overdue, không khớp đúng 4 trạng thái của kịch bản) ở mọi nơi hiển thị trạng thái điểm nghẽn cho người dùng. */
 function gisStateLabel(rec){
  if(rec.status==='done') return 'Đã hoàn thành xử lý';
- if(rec.linkedRecordId||rec.demoLinked) return 'Đang xử lý';
+ if(rec.linkedRecordId||rec.demoLinked||rec.cadActive) return 'Đang xử lý';
  return 'Chưa xử lý ('+(rec.reportCount||1)+' phản ánh)';
 }
 /* Mốc thời gian dạng epoch ms (Date.now()) — dùng cho "Thời gian nhận phản ánh" (rec.received_at), khác định
@@ -551,7 +555,9 @@ function gisPopupInfoRows(rec){
    (gisMarkerStateColor/gisStateLabel — vàng/đỏ/xanh dương/xanh lá). */
 function gisEformPopupHtml(rec){
  const b=gisBottleneckMeta(rec.bottleneck_code);
- const linkedHtml=rec.linkedRecordId?'<p style="color:#8ff0c1">✓ Nhiệm vụ liên kết: '+rec.linkedRecordId+'</p>':(rec.demoLinked?'<p style="color:#8ff0c1">✓ Đã giao xử lý (dữ liệu minh hoạ)</p>':'');
+ const cadOn=GIS_CAD_ENABLED&&typeof cadPopupStatusHtml==='function';
+ const cadStatus=cadOn?cadPopupStatusHtml(rec):'';
+ const linkedHtml=cadStatus?cadStatus:rec.linkedRecordId?'<p style="color:#8ff0c1">✓ Nhiệm vụ liên kết: '+rec.linkedRecordId+'</p>':(rec.demoLinked?'<p style="color:#8ff0c1">✓ Đã giao xử lý (dữ liệu minh hoạ)</p>':'');
  const doneHtml=rec.status==='done'?'<p style="color:#7dffba">Sẽ tự ẩn khỏi bản đồ sau ít phút</p>':'';
  /* Bước 3 kịch bản: hiện số lần phản ánh trùng vị trí đã gộp vào điểm này (chỉ hiện khi >1 để đỡ rối mắt
     với các điểm chỉ có đúng 1 phản ánh) — áp dụng cho MỌI bottleneck_code kể cả 'truso' (Cháy nổ), vì giờ dùng
@@ -563,7 +569,7 @@ function gisEformPopupHtml(rec){
  const relatedHtml=related.length?'<div class="gis-report-related" style="font-size:12.5px"><b style="font-size:12.5px;color:#8ab0c8">Phản ánh liên quan ('+related.length+')</b>'+related.slice(0,3).map(r=>'<div>• '+esc(r.title)+'</div>').join('')+'</div>':'';
  /* Nút "Hoàn thành xử lý" chỉ hiện khi đã qua bước "Giao xử lý" (linkedRecordId) và chưa hoàn thành — đúng
     thứ tự bước 4→5 của kịch bản, áp dụng cho MỌI điểm nghẽn chứ không riêng báo cáo người dùng. */
- const completeBtnHtml=((rec.linkedRecordId||rec.demoLinked)&&rec.status!=='done')?gisPopupActionBtn("gisCompleteReport('"+rec.id+"')",'✓ Hoàn thành xử lý','border:1px solid rgba(47,177,116,.5);background:rgba(3,60,36,.85);color:#7dffba'):'';
+ const completeBtnHtml=cadOn?cadPopupActionHtml(rec):((rec.linkedRecordId||rec.demoLinked)&&rec.status!=='done')?gisPopupActionBtn("gisCompleteReport('"+rec.id+"')",'✓ Hoàn thành xử lý','border:1px solid rgba(47,177,116,.5);background:rgba(3,60,36,.85);color:#7dffba'):'';
  return gisPopupShell({
   iconKey:b.code,iconColor:b.color,title:b.name,
   contentLabel:'Nội dung phản ánh',
@@ -686,6 +692,7 @@ function createGisGroups(){
  updateGisStatus();
  gisRenderKpiStrip();
  renderGisReportSidebar();
+ if(typeof cadOnGisRefresh==='function') cadOnGisRefresh();
 }
 function updateGisZoneCount(){const zc=document.getElementById('gisZoneCount');if(zc)zc.textContent=String(gisZoneDefs.length+GM.userZones.length).padStart(2,'0');}
 function updateGisStatus(){
