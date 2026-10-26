@@ -9,6 +9,7 @@
  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&display=swap" rel="stylesheet">
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
  <link rel="stylesheet" href="css/gis.css" />
+ <link rel="stylesheet" href="css/gis-cad.css?v=20261024c" />
  <link rel="stylesheet" href="css/btctw-national-map.css" />
  <link rel="stylesheet" href="css/btctw-task-tally.css" />
  <!-- Leaflet/markercluster/heat tự host tại lib/ thay vì unpkg.com — Edge "Tracking Prevention" chặn riêng domain
@@ -879,6 +880,9 @@
  </div>
  </div>
  <aside class="gis-layer-sidebar">
+ <!-- Khối CAD (gis-cad.js) đặt đầu sidebar cho dễ thấy: trực ban IOC TP thấy "Điều phối CAD", tài khoản
+ xã/phường thấy "Phiếu lệnh CAD"; tài khoản khác thì ẩn. -->
+ <div id="gisCadBlock" class="cad-side-wrap" hidden></div>
  <div class="gis-layer-head">5 ĐIỂM NGHẼN</div>
  <div class="gis-kpi-strip gis-kpi-strip--sidebar" id="gisKpiStrip"></div>
  <div style="margin:8px 0 6px;border-top:1px solid rgba(73,188,255,.15)"></div>
@@ -1074,6 +1078,8 @@
  <script src="js/core/login-history.js?v=20261009c"></script>
  <script src="js/core/my-tasks-notify.js"></script>
  <script src="js/core/gis.js"></script>
+ <script src="js/core/cad-data.js?v=20261023"></script>
+ <script src="js/features/gis-cad.js?v=20261024c"></script>
  <script src="js/features/indicators.js?v=20261008"></script>
  <script src="js/features/dashboard-education.js?v=20261005j"></script>
  <script src="js/features/dashboard-ubkt.js"></script>

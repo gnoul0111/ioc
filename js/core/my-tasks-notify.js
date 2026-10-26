@@ -287,7 +287,7 @@
  return [...noticeGisItems().map(rec=>({kind:'gis',rec})),...noticeCameraItems().map(rec=>({kind:'camera',rec}))];
  }
  function noiGisItemLinked(it){
- return it.kind==='gis' ? !!(it.rec.linkedRecordId||it.rec.demoLinked) : !!(window.__cameraAlertLinks&&window.__cameraAlertLinks[it.rec.id]);
+ return it.kind==='gis' ? !!(it.rec.linkedRecordId||it.rec.demoLinked||it.rec.cadActive) :!!(window.__cameraAlertLinks&&window.__cameraAlertLinks[it.rec.id]);
  }
  /* Tách riêng khỏi noticeKpiItems() (audit-log.js, chỉ lấy status==='overdue') vì lọc trạng thái ở đây cần duyệt
  được CẢ 6 trạng thái CAT_ST, không riêng "Không đạt" — vẫn giữ đúng nguyên tắc lọc phạm vi (role + scoped theo
@@ -370,6 +370,8 @@
  noiGisCombinedItems().filter(noiIsUrgentGis).filter(it=>matchQ(it.kind==='gis'?it.rec.title:`${it.rec.type} ${it.rec.camId}`))
  .sort((a,b)=>tsOfGis(b)-tsOfGis(a))
  .forEach(it=>items.push({urgent:true,html:noiRowGis(it)})); // GIS/Camera chỉ có khái niệm khẩn cấp, luôn urgent
+ /* Notify CAD mức khẩn (bị từ chối, quá hạn xác nhận, hết ứng viên phù hợp, phiếu lệnh khẩn cho xã/phường). */
+ if(typeof cadNotifyRows==='function') cadNotifyRows(matchQ,true).forEach(html=>items.push({urgent:true,html}));
  items.sort((a,b)=>(b.urgent?1:0)-(a.urgent?1:0));
  return items.map(x=>x.html);
  }
@@ -493,11 +495,14 @@
  /* GIS eform có received_at (epoch ms thật) — Camera AI không có mốc ngày (chỉ có giờ trong ngày), coi như
  "vừa nhận hôm nay" (Date.now()) để không bị chìm dưới GIS cũ, vẫn đúng tinh thần "mới nhất lên đầu". */
  const tsOf=it=>it.kind==='gis'?(it.rec.received_at||0):Date.now();
- return noiGisCombinedItems()
+ /* Notify CAD (điều phối điểm nghẽn) luôn mới nhất nên đứng đầu tab — chỉ hiện khi không lọc trạng thái, vì
+    bộ trạng thái của tab (đã giao/chưa giao) không áp được cho sự kiện điều phối. */
+ const cadRows=showAll&&typeof cadNotifyRows==='function'?cadNotifyRows(matchQ,false):[];
+ return cadRows.concat(noiGisCombinedItems()
  .filter(it=>noiGisItemLinked(it)?has('assigned'):has('pending'))
  .filter(it=>matchQ(it.kind==='gis'?it.rec.title:`${it.rec.type} ${it.rec.camId}`))
  .sort((a,b)=>tsOf(b)-tsOf(a))
- .map(noiRowGis);
+ .map(noiRowGis));
  }
  if(typeKey==='kpi'){
  return noiKpiScopedRecords()
