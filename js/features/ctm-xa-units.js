@@ -9,6 +9,9 @@
    Kỳ báo cáo: 4 quý từ Quý 3/2025 (chính quyền địa phương hai cấp vận hành từ 01/7/2025).
    Đặt CTM_XA_ALL_TAB = false để bỏ tab "Tất cả" của tài khoản xã, phường (indicators.js, login.js, sidebar-org.js). */
 const CTM_XA_ALL_TAB = true;
+/* Tài khoản xã, phường chỉ xem số của chính mình — không xem bảng, hạng của 126 xã, phường (chốt 27/10/2026).
+   Đặt true để hiện lại thẻ "So với 126 xã, phường" (khai báo cmp của từng đơn vị vẫn giữ nguyên bên dưới). */
+const CTM_XA_SO_SANH = false;
 const CTM_PER_XA = [['2026', 2], ['2026', 1], ['2025', 4], ['2025', 3]].map((x) => ({ id: x[0] + 'Q' + x[1], label: 'Quý ' + x[1] + '/' + x[0], short: 'Q' + x[1] + '/' + x[0].slice(2) }));
 
 /* Xã, phường đang xem (currentXaId là số thứ tự trong wardNames(), login.js) */
@@ -102,7 +105,7 @@ function ctmXaUnit(def) {
     return D;
   };
   const grpOf = (k) => (def.groups || []).find((g) => (g.lines || []).indexOf(k) >= 0);
-  const cmp = (def.cmp || []).map((c) => (typeof c === 'string' ? { m: c } : c));
+  const cmp = (CTM_XA_SO_SANH ? def.cmp || [] : []).map((c) => (typeof c === 'string' ? { m: c } : c));
   const kpis = (def.kpis || []).map((k) => {
     const o = Array.isArray(k) ? { m: k[0], sub: k[1] } : typeof k === 'string' ? { m: k } : Object.assign({}, k);
     if (typeof o.sub === 'string') { const s = o.sub; o.sub = () => s; }
@@ -114,7 +117,7 @@ function ctmXaUnit(def) {
     name: (ctx) => ctmXaLoc(def.name, ctx),
     org: (ctx) => (ctx && ctx.xa ? ctmXaLoc(def.org, ctx) + ' ' + ctmXaOf(ctx.xa) : ''),
     periods: periods, kind: 'quý', cmpRef: 'quý trước', data: data, metrics: metrics, kpis: kpis, groups: def.groups || [], card: def.card,
-    note: def.note || 'kỳ báo cáo là quý; số phát sinh, số lũy kế so cùng kỳ năm trước, số tại thời điểm so quý liền trước. Chính quyền địa phương hai cấp vận hành từ 01/7/2025 nên có số từ Quý 3/2025 và chưa có số cùng kỳ năm trước. Bấm "So với 126 xã, phường" để xem vị trí của đơn vị trong toàn Thành phố.'
+    note: def.note || 'kỳ báo cáo là quý; số phát sinh, số lũy kế so cùng kỳ năm trước, số tại thời điểm so quý liền trước. Chính quyền địa phương hai cấp vận hành từ 01/7/2025 nên có số từ Quý 3/2025 và chưa có số cùng kỳ năm trước.' + (CTM_XA_SO_SANH ? ' Bấm "So với 126 xã, phường" để xem vị trí của đơn vị trong toàn Thành phố.' : '')
   };
   if (cmp.length) {
     spec.xa = {
