@@ -678,83 +678,29 @@
  function P(dim,items){return {dim,type:'bar',items:items.map(x=>({label:x[0],value:x[1]}))};}
  function S(dim,items){return {dim,type:'stat',items:items.map(x=>({label:x[0],value:x[1]}))};}
 
- /* Đảng ủy phường/xã: bộ chỉ tiêu riêng cho trục "Thành ủy" khi xem ở cấp xã/phường (currentXaId!=null) —
- khác cấp, khác chỉ tiêu so với Thành ủy thành phố (categorySeed.DANG), tránh lộ dữ liệu cấp thành phố. */
+ /* Cấp xã/phường (currentXaId!=null): 12 đơn vị đúng 12 eform của sheet "Xã/Phường" trong "File mô tả đầu vào eform" — Đảng ủy,
+ HĐND, Ủy ban MTTQ mỗi trục một eform; UBND 9 eform. Chỉ tiêu, số liệu dựng ở js/features/ctm-xa-units.js từ bản ghi eform
+ (chốt 28/10/2026: bỏ mọi chỉ tiêu ngoài eform). Khác hẳn bộ chỉ tiêu cấp Thành phố, tránh lộ dữ liệu cấp thành phố. */
+ function xaEformCat(id,name,field,ef,desc){return {id,name,field,desc,types:['Eform'],items:[['Eform «'+ef+'»',0,'Quý','Eform '+ef,[]]]};}
  const DANG_XA_CATEGORIES = [
- {id:'dangxa-vpdu',name:'Văn phòng Đảng ủy phường',field:'Đảng ủy phường',desc:'Theo dõi nhiệm vụ, công văn, chỉ đạo của Đảng ủy phường.',types:['API'],items:[['Theo dõi nhiệm vụ (VP Đảng ủy phường)',18,'Ngày','Đồng bộ dữ liệu API']]},
- {id:'dangxa-tochuc',name:'Công tác tổ chức xây dựng Đảng',field:'Đảng ủy phường',desc:'Số lượng đảng viên, chi bộ trực thuộc, đánh giá chất lượng đảng viên và tổ chức cơ sở đảng.',types:['CSDL','Excel'],items:[
- ['Tổng số đảng viên',420,'Tháng','CSDL nội bộ Đảng ủy phường',[S('Cơ cấu đảng viên',[['Đảng viên chính thức',392],['Đảng viên dự bị',28]])]],
- ['Tổng số chi bộ trực thuộc',14,'Quý','CSDL nội bộ Đảng ủy phường',[]],
- ['Kết quả đánh giá chất lượng đảng viên hàng năm',420,'Năm','CSDL nội bộ Đảng ủy phường',[P('Mức đánh giá',[['Hoàn thành xuất sắc',86],['Hoàn thành tốt',260],['Hoàn thành nhiệm vụ',68],['Không hoàn thành',6]])]],
- ['Biến động đảng viên trong kỳ',420,'Quý','CSDL nội bộ Đảng ủy phường',[P('Loại biến động',[['Kết nạp mới',12],['Chuyển sinh hoạt đến',8],['Chuyển sinh hoạt đi',6],['Từ trần, xóa tên',2]])]]
- ]},
- {id:'dangxa-kiemtra',name:'Công tác kiểm tra, giám sát',field:'Đảng ủy phường',desc:'Kiểm tra, giám sát tổ chức đảng và đảng viên, thi hành kỷ luật tại phường.',types:['CSDL','Excel'],items:[
- ['Số cuộc kiểm tra, giám sát trong kỳ',6,'Quý','CSDL Ủy ban Kiểm tra Đảng ủy phường',[]],
- ['Số trường hợp thi hành kỷ luật',1,'Quý','CSDL Ủy ban Kiểm tra Đảng ủy phường',[]]
- ]},
- {id:'dangxa-tuyengiao',name:'Tuyên giáo và Dân vận phường',field:'Đảng ủy phường',desc:'Học tập quán triệt nghị quyết, mô hình dân vận khéo, nắm bắt dư luận tại phường.',types:['CSDL','Excel'],items:[
- ['Số buổi học tập quán triệt nghị quyết, chỉ thị',4,'Quý','CSDL Ban Tuyên giáo phường',[]],
- ['Số mô hình dân vận khéo đăng ký',8,'Năm','CSDL Ban Tuyên giáo phường',[]]
- ]}
+ xaEformCat('dangxa-eform','Đảng ủy phường','Đảng ủy phường','Đảng Ủy','Số liệu eform Đảng ủy: kiểm tra giám sát, thi hành kỷ luật, đánh giá cán bộ, biến động đảng viên, cơ cấu tổ chức đảng.')
  ];
- /* UBND phường/xã: bộ chỉ tiêu riêng cấp phường (Địa chính - Xây dựng, Tư pháp - Hộ tịch, Một cửa, Văn hóa - Xã hội,
- Y tế, An ninh trật tự) — khác hẳn 17 Sở/ngành Thành phố ở categorySeed.UBND, tránh lộ dữ liệu cấp thành phố. */
  const UBND_XA_CATEGORIES = [
- {id:'ubndxa-vp',name:'Văn phòng UBND phường',field:'UBND phường',desc:'Theo dõi nhiệm vụ, công văn, chỉ đạo điều hành của UBND phường.',types:['API'],items:[['Theo dõi nhiệm vụ (UBND phường)',31,'Ngày','Đồng bộ dữ liệu API']]},
- {id:'ubndxa-diachinh',name:'Địa chính - Xây dựng - Đô thị - Môi trường',field:'UBND phường',desc:'Quản lý đất đai, trật tự xây dựng, vệ sinh môi trường, ngập úng, tắc đường trên địa bàn phường.',types:['CSDL','Excel'],items:[
- ['Hồ sơ cấp giấy chứng nhận quyền sử dụng đất',26,'Tháng','CSDL Địa chính phường',[]],
- ['Số vụ vi phạm trật tự xây dựng',7,'Tháng','CSDL Địa chính phường',[]],
- ['Phản ánh đô thị, môi trường, ngập úng, tắc đường',12,'Tuần','GIS/phản ánh hiện trường',[P('Loại phản ánh',[['Ngập úng',3],['Tắc đường',3],['Vệ sinh môi trường',4],['Trật tự đô thị',2]])]]
- ]},
- {id:'ubndxa-tuphap',name:'Tư pháp - Hộ tịch',field:'UBND phường',desc:'Đăng ký khai sinh, khai tử, kết hôn, chứng thực bản sao trên địa bàn phường.',types:['CSDL'],items:[
- ['Hồ sơ đăng ký khai sinh',18,'Tháng','CSDL Tư pháp - Hộ tịch',[]],
- ['Hồ sơ đăng ký kết hôn',9,'Tháng','CSDL Tư pháp - Hộ tịch',[]],
- ['Hồ sơ chứng thực bản sao, chữ ký',64,'Tháng','CSDL Tư pháp - Hộ tịch',[]]
- ]},
- {id:'ubndxa-mocua',name:'Bộ phận Một cửa - TTHC',field:'UBND phường',desc:'Tiếp nhận, xử lý hồ sơ thủ tục hành chính công dân tại phường.',types:['CSDL','API'],items:[
- ['Hồ sơ TTHC tiếp nhận trong kỳ',245,'Tuần','Cổng DVC một cửa',[S('Kết quả xử lý',[['Trả đúng hạn',221],['Trễ hạn',24]])]]
- ]},
- {id:'ubndxa-vhxh',name:'Văn hóa - Xã hội',field:'UBND phường',desc:'Chính sách người có công, hộ nghèo, văn hóa - thể thao cơ sở tại phường.',types:['Excel','CSDL'],items:[
- ['Hộ nghèo, cận nghèo được rà soát',34,'Quý','CSDL LĐTBXH phường',[]],
- ['Đối tượng chính sách, người có công đang quản lý',86,'Quý','CSDL LĐTBXH phường',[]]
- ]},
- {id:'ubndxa-yte',name:'Trạm Y tế phường',field:'UBND phường',desc:'Khám chữa bệnh ban đầu, tiêm chủng, phòng chống dịch tại phường.',types:['CSDL'],items:[
- ['Lượt khám chữa bệnh trong kỳ',312,'Tuần','CSDL Trạm Y tế phường',[]],
- ['Trẻ tiêm chủng đầy đủ theo lịch',97,'Tháng','CSDL Trạm Y tế phường',[]]
- ]},
- {id:'ubndxa-anninh',name:'Công an phường - An ninh trật tự',field:'UBND phường',desc:'Đảm bảo an ninh trật tự, phòng chống cháy nổ, tệ nạn xã hội trên địa bàn phường.',types:['CSDL'],items:[
- ['Vụ việc an ninh trật tự trong kỳ',5,'Tuần','CSDL Công an phường',[]],
- ['Vụ việc cháy nổ trong kỳ',1,'Tuần','CSDL Công an phường',[]]
- ]}
+ xaEformCat('ubndxa-hcc','Hành chính công','UBND phường','Hành chính công','Hồ sơ thủ tục hành chính: tiếp nhận, kết quả giải quyết, đang giải quyết.'),
+ xaEformCat('ubndxa-tcns','Tài chính - Ngân sách','UBND phường','Tài chính - Ngân sách','Thu, chi ngân sách, doanh nghiệp, hợp tác xã, đầu tư theo tiểu chỉ tiêu của eform.'),
+ xaEformCat('ubndxa-qlvb','Quản lý văn bản','UBND phường','Quản lý văn bản','Văn bản đến, văn bản đi theo tình trạng xử lý, trong hạn, quá hạn.'),
+ xaEformCat('ubndxa-gpmb','Giải phóng mặt bằng','UBND phường','GPMB','Dự án giải phóng mặt bằng: diện tích thu hồi, hộ bị ảnh hưởng, bàn giao mặt bằng, kinh phí bồi thường.'),
+ xaEformCat('ubndxa-gd','Giáo dục','UBND phường','Giáo dục','Cơ sở, học sinh, giáo viên theo bậc học, loại cơ sở, nhóm đối tượng.'),
+ xaEformCat('ubndxa-yte','Y tế','UBND phường','Y tế','Ngộ độc thực phẩm, dịch bệnh truyền nhiễm, bảo trợ xã hội.'),
+ xaEformCat('ubndxa-vh','Văn hóa','UBND phường','Văn hóa','Nghệ thuật biểu diễn, di sản, lễ hội, thiết chế, thể thao, du lịch, truyền thông, gia đình và văn hóa cơ sở.'),
+ xaEformCat('ubndxa-nv','Nội vụ','UBND phường','Nội vụ','Lao động, việc làm, biên chế, tuyển mới, nghỉ hưu, thôi việc, người có công.'),
+ xaEformCat('ubndxa-ktxh','Kinh tế xã hội','UBND phường','Kinh tế xã hội','Chỉ tiêu kinh tế tổng hợp, văn hóa - xã hội, xây dựng đô thị: Thành phố giao, kế hoạch, ước thực hiện.')
  ];
- /* HĐND phường/xã: theo Luật Tổ chức chính quyền địa phương 2 cấp, xã/phường vẫn có HĐND cấp xã riêng — chỉ tiêu
- quy mô nhỏ (tiếp xúc cử tri, giám sát, thẩm tra ngân sách phường), khác hẳn các Ban của HĐND Thành phố. */
  const HDND_XA_CATEGORIES = [
- {id:'hdndxa-nhiemvu',name:'HĐND phường · Theo dõi nhiệm vụ',field:'HĐND phường',desc:'Thống kê nhiệm vụ, chuẩn bị kỳ họp của HĐND phường.',types:['API'],items:[['Theo dõi nhiệm vụ (HĐND phường)',9,'Ngày','Đồng bộ dữ liệu API']]},
- {id:'hdndxa-tiepxuc',name:'Tiếp xúc cử tri',field:'HĐND phường',desc:'Tổng hợp ý kiến, kiến nghị cử tri qua các đợt tiếp xúc tại phường.',types:['Excel'],items:[
- ['Số ý kiến, kiến nghị cử tri trong kỳ',22,'Quý','Excel HĐND phường',[S('Kết quả xử lý',[['Đã trả lời',16],['Đang xử lý',6]])]]
- ]},
- {id:'hdndxa-giamsat',name:'Giám sát chuyên đề',field:'HĐND phường',desc:'Giám sát việc thực hiện nghị quyết, chính sách tại phường.',types:['Excel'],items:[
- ['Số cuộc giám sát chuyên đề trong kỳ',3,'Quý','Excel HĐND phường',[]]
- ]},
- {id:'hdndxa-ngansach',name:'Thẩm tra ngân sách phường',field:'HĐND phường',desc:'Thẩm tra dự toán, quyết toán ngân sách phường trước kỳ họp.',types:['Excel'],items:[
- ['Kết quả thẩm tra dự toán, quyết toán ngân sách phường',2,'Năm','Excel HĐND phường',[]]
- ]}
+ xaEformCat('hdndxa-eform','Hội đồng nhân dân phường','HĐND phường','Hội đồng nhân dân','Số liệu eform HĐND: nghị quyết, hoạt động giám sát, họp Thường trực, kỳ họp, tiếp xúc cử tri.')
  ];
- /* MTTQ phường/xã: vận động quỹ, giám sát - phản biện, đoàn thể chính trị - xã hội ở quy mô phường, khác các Ban
- chuyên trách của Ủy ban MTTQ Thành phố. */
  const MTTQ_XA_CATEGORIES = [
- {id:'mttqxa-nhiemvu',name:'MTTQ phường · Theo dõi nhiệm vụ',field:'MTTQ phường',desc:'Thống kê nhiệm vụ, chương trình phối hợp của Ủy ban MTTQ phường.',types:['API'],items:[['Theo dõi nhiệm vụ (MTTQ phường)',7,'Ngày','Đồng bộ dữ liệu API']]},
- {id:'mttqxa-quyvi',name:'Vận động Quỹ vì người nghèo',field:'MTTQ phường',desc:'Vận động, tiếp nhận và phân bổ Quỹ vì người nghèo tại phường.',types:['Excel'],items:[
- ['Số tiền vận động Quỹ vì người nghèo (triệu đồng)',180,'Năm','Excel MTTQ phường',[]],
- ['Số hộ nghèo được hỗ trợ trong kỳ',12,'Năm','Excel MTTQ phường',[]]
- ]},
- {id:'mttqxa-giamsat',name:'Giám sát - Phản biện xã hội',field:'MTTQ phường',desc:'Giám sát, phản biện xã hội các chương trình, chính sách tại phường.',types:['Excel'],items:[
- ['Số cuộc giám sát, phản biện xã hội trong kỳ',2,'Quý','Excel MTTQ phường',[]]
- ]},
- {id:'mttqxa-doanthe',name:'Đoàn thể chính trị - xã hội phường',field:'MTTQ phường',desc:'Tổng hợp hoạt động các đoàn thể (Phụ nữ, Nông dân, Đoàn Thanh niên, CCB) trên địa bàn phường.',types:['Excel'],items:[
- ['Số phong trào, hoạt động đoàn thể trong kỳ',6,'Quý','Excel MTTQ phường',[]]
- ]}
+ xaEformCat('mttqxa-eform','Mặt trận Tổ quốc phường','MTTQ phường','Mặt trận tổ quốc','Số liệu eform MTTQ: Mặt trận, Đoàn Thanh niên, Hội Nông dân, Hội Phụ nữ, Hội Cựu chiến binh, Công đoàn, các hội quần chúng.')
  ];
  const XA_CATEGORIES_BY_ROLE = {DANG:DANG_XA_CATEGORIES,HDND:HDND_XA_CATEGORIES,UBND:UBND_XA_CATEGORIES,MTTQ:MTTQ_XA_CATEGORIES};
  function categorySeedForRole(r){

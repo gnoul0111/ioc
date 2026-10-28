@@ -15,7 +15,7 @@ const escFn = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (m) => ({ '&
 
 const SO_CFG = ['vhtt', 'vpub', 'bql', 'dl', 'dttg', 'ttra', 'khcn', 'nnmt', 'sct', 'sxd', 'snv', 'syt'].map((s) => 'js/core/' + s + '-config.js');
 SO_CFG.unshift('js/core/xa-dan-so.js');
-const FILES = SO_CFG.concat(['js/core/hcc-config.js', 'js/features/hcc-data.js', 'js/core/ctm-xa.js', 'js/core/line-chart.js', 'js/features/ctm-engine.js', 'js/features/ctm-mttq.js', 'js/features/ctm-dang.js', 'js/features/ctm-hdnd.js', 'js/features/ctm-all.js', 'js/features/ctm-xa-units.js', 'js/features/ctm-so.js']);
+const FILES = SO_CFG.concat(['js/core/hcc-config.js', 'js/features/hcc-data.js', 'js/core/ctm-xa.js', 'js/core/xa-eform.js', 'js/core/xa-eform-mau.js', 'js/core/line-chart.js', 'js/features/ctm-engine.js', 'js/features/ctm-mttq.js', 'js/features/ctm-dang.js', 'js/features/ctm-hdnd.js', 'js/features/ctm-all.js', 'js/features/ctm-xa-units.js', 'js/features/ctm-so.js']);
 const ctx = vm.createContext({ console, Math, Number, String, Object, Array, JSON, isFinite, Date, esc: escFn, document: {} });
 /* Số hồ sơ theo xã, phường của TT Phục vụ HCC cần danh sách 126 đơn vị (gdUnitData của dashboard-education.js, file đó cần DOM nên chỉ lấy mảng) */
 const eduM = read('js/features/dashboard-education.js').match(/const gdUnitData=\[([\s\S]*?)\n\s*\];/);
@@ -59,7 +59,8 @@ IDS.forEach((id) => {
   const spec = run('CTM_SPECS[' + JSON.stringify(id) + ']');
   ok(spec.periods.length >= (spec.role === 'UBND' && spec.level === 'city' ? 1 : 2), id + ': đủ số kỳ báo cáo (' + spec.periods.length + ')');
   ok(spec.kpis.length >= 4 && spec.kpis.length <= 8, id + ': 4–8 ô số chính (' + spec.kpis.length + ')');
-  const keys = new Set(spec.kpis.map((k) => k.m).concat(...(spec.groups || []).map((g) => g.lines || [])));
+  /* nhóm có số dòng theo bản ghi (g.lines là hàm — eform cấp xã) kiểm ở tests/ctm/xa-eform.test.js */
+  const keys = new Set(spec.kpis.map((k) => k.m).concat(...(spec.groups || []).map((g) => (Array.isArray(g.lines) ? g.lines : []))));
   ok([...keys].every((k) => spec.metrics[k]), id + ': mọi chỉ tiêu dùng trong ô số / thẻ nhóm đều có khai báo');
   (spec.level === 'xa' ? XA_TEST : [null]).forEach((xaName) => {
   setXa(xaName);
@@ -124,33 +125,21 @@ IDS.forEach((id) => {
 
 setXa(null);
 
-console.log('== Đơn vị cấp xã: số khớp đơn vị cấp Thành phố, tên đổi theo phường / xã');
+console.log('== Đơn vị cấp xã: 12 eform, tên đổi theo phường / xã');
 {
   const XS = run('Object.keys(CTM_SPECS).filter(function(k){return CTM_SPECS[k].level==="xa"})');
-  ok(XS.length === 19, '19 đơn vị cấp xã (' + XS.length + ')');
-  const seedXa = (read('js/core/central-level.js').match(/\{id:'((?:dang|hdnd|ubnd|mttq)xa-[a-z]+)'/g) || []).map((s) => s.slice(5, -1));
-  ok(seedXa.length === 19 && seedXa.every((x) => XS.indexOf(x) >= 0), 'đủ mọi đơn vị trong danh mục cấp xã của IOC');
-  /* tổng 126 xã, phường của đơn vị cấp xã = số đơn vị cấp Thành phố đã chia */
-  const sumXa = (spec, key, pid) => run('CTM_XA.reduce(function(s,u){var D=ctmD(CTM_SPECS[' + JSON.stringify(spec) + '],' + JSON.stringify(pid) + ',{xa:u});return s+(D&&D[' + JSON.stringify(key) + ']||0)},0)');
-  ['2026Q2', '2025Q3'].forEach((p) => {
-    const dvXa = run('ctmD(CTM_SPECS["dang-to-chuc"],' + JSON.stringify(p) + ',{xa:null}).dvXa');
-    ok(sumXa('dangxa-tochuc', 'dv', p) === Math.round(dvXa), p + ': đảng viên 126 đảng bộ xã, phường cộng lại = số của Ban Tổ chức (' + Math.round(dvXa) + ')');
-    ok(sumXa('ubndxa-anninh', 'chay', p) === run('ctmD(CTM_SPECS["dang-noi-chinh"],' + JSON.stringify(p) + ',{xa:null}).chay'), p + ': vụ cháy 126 xã, phường cộng lại = số của Ban Nội chính');
-    ok(sumXa('hdndxa-giamsat', 'gs', p) === run('ctmD(CTM_SPECS["hdnd-xa-phuong"],' + JSON.stringify(p) + ',{xa:null}).gs'), p + ': cuộc giám sát HĐND cấp xã cộng lại = số HĐND Xã, Phường');
-  });
-  ok(near(sumXa('mttqxa-quyvi', 'quy', '2025Q4'), 92.8, 0.2), 'Quý 4/2025: quỹ “Vì người nghèo” 126 xã, phường cộng lại ≈ 92,8 tỷ đồng (' + sumXa('mttqxa-quyvi', 'quy', '2025Q4').toFixed(2) + ')');
-  ok(sumXa('mttqxa-quyvi', 'tet', '2026Q1') === 5280, 'Tết Bính Ngọ 2026: suất quà từ Quỹ Thành phố cộng lại = 5.280 (số công bố)');
-  ok(sumXa('ubndxa-vhxh', 'cn', '2025Q4') === 9570, 'hộ cận nghèo 126 xã, phường cộng lại = 9.570');
+  ok(XS.length === 12, '12 đơn vị cấp xã, đúng 12 eform của sheet Xã/Phường (' + XS.length + ')');
+  const seedXa = (read('js/core/central-level.js').match(/xaEformCat\('((?:dang|hdnd|ubnd|mttq)xa-[a-z]+)'/g) || []).map((s) => s.slice(12, -1));
+  ok(seedXa.length === 12 && seedXa.every((x) => XS.indexOf(x) >= 0), 'đủ mọi đơn vị trong danh mục cấp xã của IOC (' + seedXa.join(', ') + ')');
+  ok(new Set(XS.map((x) => run('CTM_SPECS[' + JSON.stringify(x) + '].ef'))).size === 12, 'mỗi đơn vị một eform, không trùng');
   const vh = run('ctmXaByName("Phường Việt Hưng")');
-  const hccVH = run('hccUnits().find(function(r){return r.name==="Phường Việt Hưng"}).v["2026Q2"].hs');
-  ok(run('ctmD(CTM_SPECS["ubndxa-mocua"],"2026Q2",{xa:CTM_XA.find(function(u){return u.name==="Phường Việt Hưng"})}).hs') === hccVH, 'Một cửa phường Việt Hưng: hồ sơ tiếp nhận = số của TT Phục vụ HCC (' + hccVH + ')');
   ok(vh.ds === 83188 && vh.dt === 12.91, 'phường Việt Hưng: dân số 83.188, diện tích 12,91 km²');
   setXa('Xã Ba Vì');
-  ok(run('ctmName(CTM_SPECS["ubndxa-yte"])') === 'Trạm Y tế xã' && run('ctmOrg(CTM_SPECS["ubndxa-yte"])') === 'Trạm Y tế xã Ba Vì', 'xã Ba Vì: tên đơn vị ghi "xã" (Trạm Y tế xã · Trạm Y tế xã Ba Vì)');
+  ok(run('ctmName(CTM_SPECS["dangxa-eform"])') === 'Đảng ủy xã' && /xã Ba Vì$/.test(run('ctmOrg(CTM_SPECS["dangxa-eform"])')), 'xã Ba Vì: tên đơn vị ghi "xã" (Đảng ủy xã · … xã Ba Vì)');
   ok(run('ctmHandles("ubndxa-yte")') === true && run('ctmHandles("dang-to-chuc")') === false, 'ctmHandles: ở xã chỉ nhận đơn vị cấp xã');
   ok(run('ctmOverviewFor(["DANG","HDND","UBND","MTTQ"]).id') === 'xa-4truc' && run('ctmOverviewFor(["UBND"]).id') === 'xa-UBND', 'ctmOverviewFor: tài khoản xã dùng màn ngoài cấp xã');
   setXa('Phường Việt Hưng');
-  ok(run('ctmName(CTM_SPECS["ubndxa-yte"])') === 'Trạm Y tế phường', 'phường Việt Hưng: tên đơn vị ghi "phường"');
+  ok(run('ctmName(CTM_SPECS["dangxa-eform"])') === 'Đảng ủy phường', 'phường Việt Hưng: tên đơn vị ghi "phường"');
   ok(run('ctmHandles("dang-to-chuc")') === false, 'ở phường không mở nhầm đơn vị cấp Thành phố');
   setXa(null);
 }
@@ -247,7 +236,7 @@ console.log('== Màn ngoài');
     'mttq-hoi-lhpn', 'mttq-hoi-nong-dan-tp', 'mttq-lien-doan-lao-dong', 'mttq-xa-phuong', 'mttq-thanh-doan', 'mttq-vp-co-quan'];
   const miss = want.filter((x) => IDS.indexOf(x) < 0);
   ok(!miss.length, 'đủ ' + want.length + ' đơn vị Thành ủy, HĐND, MTTQ cấp Thành phố' + (miss.length ? ' (thiếu ' + miss.join(', ') + ')' : ''));
-  const seedIds = (read('js/core/central-level.js').match(/\{id:'([a-z0-9-]+)'/g) || []).map((s) => s.slice(5, -1));
+  const seedIds = (read('js/core/central-level.js').match(/\{id:'([a-z0-9-]+)'|xaEformCat\('([a-z0-9-]+)'/g) || []).map((s) => s.replace(/^(\{id:|xaEformCat\()'/, '').slice(0, -1));
   const orphan = IDS.filter((x) => seedIds.indexOf(x) < 0);
   ok(!orphan.length, 'mọi đơn vị khai báo đều có lĩnh vực tương ứng trong danh mục IOC' + (orphan.length ? ' (không có: ' + orphan.join(', ') + ')' : ''));
   ok(run('ctmOverviewFor(["MTTQ"])') != null && run('ctmOverviewFor(["UBND"])') == null, 'ctmOverviewFor: có cấu hình MTTQ, không đụng trục UBND');
