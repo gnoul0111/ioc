@@ -139,7 +139,7 @@
  }
  }
  function ensureCategoryIndicators(){
- Object.keys(categorySeed).forEach(role=>categorySeed[role].forEach(cat=>cat.items.forEach(item=>addIndicatorFromCategory(role,item))));
+ Object.keys(categorySeed).forEach(role=>categorySeed[role].forEach(cat=>{ if(!cat.an) cat.items.forEach(item=>addIndicatorFromCategory(role,item)); }));
  /* Nạp sẵn indicatorRecords cho toàn bộ đơn vị con cấp Trung ương (TW_OFFICE_CATEGORIES_BY_ROLE) — cùng cơ chế
  với Thành phố, để notify "chỉ tiêu chưa đạt KPI" và các nơi khác dựa trên indicatorRecords cũng có dữ liệu. */
  Object.keys(TW_OFFICE_CATEGORIES_BY_ROLE).forEach(role=>TW_OFFICE_CATEGORIES_BY_ROLE[role].forEach(cat=>cat.items.forEach(item=>addIndicatorFromCategory(role,item))));

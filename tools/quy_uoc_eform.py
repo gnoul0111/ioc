@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
-"""Quy ước xử lý dữ liệu eform cho biểu đồ chỉ tiêu các sở (chốt 13/10/2026, theo phản hồi nhóm triển khai
+"""Quy ước xử lý dữ liệu eform cho biểu đồ chỉ tiêu các sở (chốt 13/10/2026, sửa theo quy ước 28/10/2026 — theo phản hồi nhóm triển khai
 `bao_cao_bieu_do_cua_cac_so`). Một nguồn dùng chung cho:
   - mục "Quy ước xử lý dữ liệu eform" trong PHẦN "Cách hiển thị trên giao diện IOC" của 12 tài liệu *_MO_TA_CHI_TIEU
     (tools/ctm_display.py gọi QU[spec_id]);
-  - tài liệu chung docs/CHUNG/QUY_UOC_XU_LY_EFORM_2026_10_13 (Phần II chép cùng nội dung).
+  - tài liệu chung docs/CHUNG/QUY_UOC_CHI_TIEU_THEO_EFORM_2026_10_28 (bản 13/10 đã thay và xóa).
 Sửa ở đây thì chạy lại các *_doc_docx.py. Nguyên tắc: KHÔNG thêm trường vào eform."""
 
-NGAY = '13/10/2026'
-TAI_LIEU_CHUNG = 'docs/CHUNG/QUY_UOC_XU_LY_EFORM_2026_10_13'
+NGAY = '28/10/2026'
+TAI_LIEU_CHUNG = 'docs/CHUNG/QUY_UOC_CHI_TIEU_THEO_EFORM_2026_10_28'
 
 QUY_UOC = [
-    '**Không hiện số không có trường trong eform.** Thẻ, biểu đồ cần số mà eform không có trường (kế hoạch, số hộ, tuyến…) thì ẩn; không lấy số từ văn bản, bộ chỉ tiêu cũ hay tự đặt. Mục tiêu Thành phố giao đã công bố được giữ làm mốc, có ghi nguồn văn bản.',
-    '**Khóa bản ghi.** Mỗi eform có một khóa (bảng dưới). Bản ghi trùng khóa thì lấy bản gửi sau cùng (thời điểm tạo, sửa bản ghi do hệ thống eform ghi). Bản ghi thiếu trường khóa thì không tính, đếm vào "bản ghi lỗi".',
-    '**Số tại thời điểm lấy bản gần nhất.** Kỳ đang xem chưa có báo cáo thì lấy bản gần nhất trước đó, ghi "số tháng …"; cũ hơn 1 kỳ thì ghi "chưa cập nhật", không vẽ.',
-    '**Biểu đồ theo tháng.** Bản ghi là sự việc (hoạt động, vụ việc, đợt hỗ trợ, tin bài): có trường ngày phát sinh thì xếp tháng theo ngày đó; không có thì dùng «Tháng» của kỳ báo cáo và ghi "theo tháng báo cáo". Bản ghi là số tổng hợp tháng của một đơn vị thì tháng báo cáo là tháng số liệu.',
-    '**Trường tổng do đơn vị tự tính.** Đủ thành phần thì IOC tự cộng; thiếu thành phần thì dùng trường tổng; tổng lệch với cộng thành phần thì dùng cộng thành phần và đánh dấu bản ghi. Không đổi ô trống thành 0. Trường tỷ lệ tự tính không dùng; IOC cộng tử số, mẫu số rồi chia.',
-    '**Bản tháng và bản quý** của cùng kỳ không cộng chồng: số phát sinh có bản tháng thì cộng tháng, chỉ có bản quý thì dùng bản quý; số tại thời điểm lấy bản tháng cuối quý, không có thì lấy bản quý. Bản "Không phát sinh" không cộng vào số.',
+    '**Eform là nguồn duy nhất.** Chỉ dùng trường có trong eform để dựng chỉ tiêu, cách tính, biểu đồ; không thêm chỉ tiêu, trường ngoài eform; không lấy số từ văn bản, số công bố, bộ chỉ tiêu cũ, mục tiêu Thành phố giao, dân số, diện tích.',
+    '**Hiện đủ mọi trường.** Mỗi eform có màn "Dữ liệu đã nhập": mọi bản ghi, đủ mọi trường, tên cột đúng như eform; bấm số nào ở phần tổng hợp cũng mở được các bản ghi tạo ra số đó.',
+    '**Số đã nhập là số hiển thị.** Trường tỷ lệ, trường tổng đơn vị đã nhập hiện đúng số đã nhập. IOC được tính thêm từ trường eform (tỷ lệ gộp = cộng tử số ÷ cộng mẫu số; tổng thành phần) nhưng ghi rõ "IOC tính" và công thức; lệch với số đã nhập thì đánh dấu bản ghi.',
+    '**Khóa bản ghi.** Mỗi eform có một khóa (bảng dưới). Bản ghi trùng khóa: phần tổng hợp lấy bản gửi sau cùng, màn Dữ liệu đã nhập vẫn hiện và đánh dấu. Bản ghi thiếu trường khóa không vào tổng hợp, được đánh dấu.',
+    '**Số tại thời điểm lấy bản gần nhất.** Kỳ đang xem chưa có báo cáo thì lấy bản gần nhất trước đó, ghi kỳ của số; cũ hơn 1 kỳ thì ghi "chưa cập nhật".',
+    '**Biểu đồ theo tháng.** Bản ghi là sự việc: có trường ngày phát sinh thì xếp tháng theo ngày đó; không có thì theo «Tháng» của kỳ báo cáo và ghi "theo tháng báo cáo".',
+    '**Bản tháng và bản quý** của cùng kỳ không cộng chồng. Bản "Không phát sinh" không cộng. Ô trống không đổi thành 0.',
 ]
 
 P, T, L = 'Phát sinh trong kỳ (cộng các tháng)', 'Tại thời điểm (bản kỳ đang xem, thiếu thì bản gần nhất)', 'Lũy kế đơn vị đã cộng (bản kỳ đang xem)'

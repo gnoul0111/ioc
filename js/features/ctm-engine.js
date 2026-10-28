@@ -182,7 +182,9 @@ function ctmDd(id, label, cur, opts, handler) {
 function ctmHeader(spec, back) {
   const b = back === 'home' ? ctmLnk('← Tổng quan', "ctmGo('home')") : '';
   const opts = spec.periods.map((p) => ({ v: p.id, text: p.label }));
-  return '<div class="stc-toolbar"><div class="stc-tl">' + b + '</div><div class="stc-ctrls">' + ctmDd('period', 'Kỳ báo cáo', ctmCurPid(spec), opts, 'ctmSetPeriod') + (typeof indicatorEntryBtnHtml === 'function' ? indicatorEntryBtnHtml() : '') +
+  /* spec.grans: đơn vị cho chọn xem theo Tháng / Quý / Năm (chỉ tiêu theo eform cấp Thành phố, ctm-eform.js) */
+  const gran = spec.grans ? ctmDd('gran', 'Xem theo', CTM_UI.gran || 'quy', spec.grans.map((g) => ({ v: g[0], text: g[1] })), 'ctmSetGran') : '';
+  return '<div class="stc-toolbar"><div class="stc-tl">' + b + '</div><div class="stc-ctrls">' + gran + ctmDd('period', 'Kỳ báo cáo', ctmCurPid(spec), opts, 'ctmSetPeriod') + (typeof indicatorEntryBtnHtml === 'function' ? indicatorEntryBtnHtml() : '') +
     '<button type="button" class="stc-btn primary" onclick="ctmExport()">' + CTM_ICON_DL + 'Xuất Excel</button></div></div>';
 }
 function ctmFoot(spec, n) {
@@ -200,7 +202,7 @@ function ctmKpiTile(spec, k, n, onclick) {
   try { sub = k.sub ? k.sub(n.D, n.P, n) : ctmUnit(spec, k.m); } catch (e) { sub = ''; }
   const d = k.na && !n.P ? '<span class="stc-dl na">' + ctmE(k.na) + '</span>' : ctmDlM(spec, k.m, n, true);
   const act = onclick || ctmTarget(k.target);
-  return '<button type="button" class="stc-kpi"' + (act ? ' onclick="' + act + '"' : '') + '><div class="stc-lb">' + ctmE(k.l || m.l) + '</div><div class="stc-v">' + ctmFmtM(spec, k.m, v) + '</div><div class="stc-u">' + ctmE(sub) + '</div><div style="margin-top:10px;min-height:18px">' + d + '</div></button>';
+  return '<button type="button" class="stc-kpi"' + (act ? ' onclick="' + act + '"' : '') + '><div class="stc-lb">' + ctmE(k.l || m.l) + '</div><div class="stc-v"' + (ctmF(v, m.d).length > 9 ? ' style="font-size:' + (ctmF(v, m.d).length > 13 ? 16 : 20) + 'px"' : '') + '>' + ctmFmtM(spec, k.m, v) + '</div><div class="stc-u">' + ctmE(sub) + '</div><div style="margin-top:10px;min-height:18px">' + d + '</div></button>';
 }
 function ctmGl(spec, key, n) {
   const m = ctmM(spec, key), v = ctmV(spec, key, n.D);
@@ -685,7 +687,8 @@ function ctmXaQ(v) { CTM_UI.xa.q = v; CTM_UI.focusQ = true; ctmRerender(false); 
 function ctmXaSel(name) { const X = CTM_UI.xa; X.anim = !!name && !X.sel; X.sel = name || null; ctmRerender(false); }
 function ctmXaStep(d) { const X = CTM_UI.xa, at = X.order.indexOf(X.sel); if (at < 0 || !X.order[at + d]) return; X.sel = X.order[at + d]; ctmRerender(false); }
 /* Màn Dữ liệu đã nhập: key = dòng số liệu hoặc ô số (chỉ hiện các bản ghi tạo ra số đó), null = mọi bản ghi của kỳ */
-function ctmRec(key) { CTM_UI.dd = null; CTM_UI.screen = 'rec'; CTM_UI.rec = { f: 'all', q: '', key: key || null }; ctmRerender(true); }
+function ctmRec(key) { CTM_UI.dd = null; CTM_UI.screen = 'rec'; CTM_UI.rec = { f: 'all', q: '', key: key || null, ef: CTM_UI.rec.ef }; ctmRerender(true); }
+function ctmSetGran(g) { CTM_UI.dd = null; CTM_UI.gran = String(g); CTM_UI.period = null; ctmRerender(false); }
 function ctmRecF(f) { CTM_UI.rec.f = f; ctmRerender(false); }
 function ctmRecQ(v) { CTM_UI.rec.q = v; CTM_UI.focusQ = true; ctmRerender(false); }
 function ctmDdToggle(id) { CTM_UI.dd = CTM_UI.dd === id ? null : id; ctmRerender(false); }
@@ -766,7 +769,7 @@ function ctmOvLines(spec) {
   const n = ctmNP(spec);
   return (spec.card || spec.kpis.slice(0, 4).map((k) => k.m)).map((k) => { const m = ctmM(spec, k); return { k: k, l: (spec.cardL && spec.cardL[k]) || m.short || m.l, v: ctmF(ctmV(spec, k, n.D), m.d), u: m.u || '' }; });
 }
-function ctmOvLineHtml(x) { return '<div class="uo-gl uo-col"><span class="uo-l">' + ctmE(x.l) + '</span><span class="uo-v">' + x.v + '</span><span class="uo-u">' + ctmE(x.u) + '</span></div>'; }
+function ctmOvLineHtml(x) { return '<div class="uo-gl uo-col"><span class="uo-l">' + ctmE(x.l) + '</span><span class="uo-v"' + (String(x.v).length > 11 ? ' style="font-size:12px"' : '') + '>' + x.v + '</span><span class="uo-u">' + ctmE(x.u) + '</span></div>'; }
 /* cfg.rename(chuỗi, ctx): đổi nhãn theo đơn vị đang xem (VD 'phường' → 'xã' ở tài khoản xã). */
 function ctmOvRn(cfg, s) { return cfg.rename ? cfg.rename(String(s == null ? '' : s), ctmCtx()) : String(s == null ? '' : s); }
 function ctmOvShort(c, cfg) { return ctmOvRn(cfg, (cfg.short && cfg.short[c.id]) || c.short || c.name); }
@@ -788,9 +791,10 @@ function ctmOvKpi(cfg, k, catsAll) {
     return '<button type="button" class="stc-kpi uo-kpi" onclick="openCategoryDetail(\'' + c.role + '\',\'' + c.id + '\')"><div class="stc-lb">' + ctmE(k.l || x.l) + '</div><div class="stc-v">' + val + '</div><div class="uo-ksrc">' + ctmE(ctmOvShort(c, cfg) + ' · ' + (U.ky || '')) + '</div></button>';
   }
   if (!spec || !c) return '';
-  const n = ctmNP(spec), m = ctmM(spec, k.m), v = ctmV(spec, k.m, n.D), u = k.u != null ? k.u : m.u;
-  const val = ctmF(v, m.d) + (u === '%' ? '<small class="uo-pct">%</small>' : u ? '<small>' + ctmE(u) + '</small>' : '');
-  return '<button type="button" class="stc-kpi uo-kpi" onclick="openCategoryDetail(\'' + c.role + '\',\'' + c.id + '\',' + ctmJs(k.target || 'home') + ')"><div class="stc-lb">' + ctmE(k.l || m.l) + '</div><div class="stc-v">' + val + '</div><div class="uo-ksrc">' + ctmE(ctmOvShort(c, cfg) + ' · ' + ctmPLabel(spec, n.p)) + '</div></button>';
+  const n = ctmNP(spec), m = ctmM(spec, k.m), v = ctmV(spec, k.m, n.D), u = k.u != null ? k.u : m.u, txt = ctmF(v, m.d);
+  const val = txt + (u === '%' ? '<small class="uo-pct">%</small>' : u ? '<small>' + ctmE(u) + '</small>' : '');
+  /* số dài (VD số tiền tính bằng đồng) thu nhỏ chữ cho vừa ô */
+  return '<button type="button" class="stc-kpi uo-kpi" onclick="openCategoryDetail(\'' + c.role + '\',\'' + c.id + '\',' + ctmJs(k.target || 'home') + ')"><div class="stc-lb">' + ctmE(k.l || m.l) + '</div><div class="stc-v"' + (txt.length > 9 ? ' style="font-size:' + (txt.length > 13 ? 15 : 18) + 'px"' : '') + '>' + val + '</div><div class="uo-ksrc">' + ctmE(ctmOvShort(c, cfg) + ' · ' + ctmPLabel(spec, n.p)) + '</div></button>';
 }
 function ctmOvGroup(cfg, g, catsAll) {
   const list = ctmOvIds(g, catsAll).map((id) => catsAll.find((c) => c.id === id)).filter(Boolean), on = CTM_OV_PICK[cfg.id] === g.id, w = cfg.unitWord || 'đơn vị';
