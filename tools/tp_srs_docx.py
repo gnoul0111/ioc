@@ -17,9 +17,9 @@ if not NODE:
     raise SystemExit('Không tìm thấy Node: đặt biến NODE=<đường dẫn node> (hoặc Electron, tool tự bật ELECTRON_RUN_AS_NODE).')
 D = json.loads(subprocess.run([NODE, 'tools/tp_srs_dump.js'], cwd=ROOT, capture_output=True, check=True,
                               env=dict(os.environ, ELECTRON_RUN_AS_NODE='1')).stdout.decode('utf-8'))
-VER, NGAY = '1.0', '28/10/2026'
+VER, NGAY = '1.1', '29/10/2026'
 SHEET_URL = 'https://docs.google.com/spreadsheets/d/1n1UHGnQ4sULz6_D9J0D2N02B0grCc8RbnLh0h9mY70k'
-TESTS = {'ctm.test.js': 6741, 'ctm-quy-tac.test.js': 1707, 'xa-eform.test.js': 797, 'tp-eform.test.js': 605}
+TESTS = {'ctm.test.js': 6741, 'ctm-quy-tac.test.js': 1707, 'xa-eform.test.js': 797, 'tp-eform.test.js': 1431}
 ROLES = ['DANG', 'HDND', 'UBND', 'MTTQ']
 ROLE = {'DANG': 'Đảng ủy', 'HDND': 'HĐND', 'UBND': 'UBND', 'MTTQ': 'Ủy ban MTTQ'}
 KIEU = {'dm': 'Danh mục', 'so': 'Số', 'chu': 'Chữ', 'ngay': 'Ngày tháng'}
@@ -31,6 +31,8 @@ def efno(e):
     return int(m.group(1)) if m else 0
 
 
+# SRS này chỉ gồm 4 trục (Thành ủy, HĐND, MTTQ) và Văn phòng UBND (trục UBND); các sở có tài liệu riêng (tools/so_mo_ta_docx.py)
+D['units'] = [u for u in D['units'] if u['role'] != 'UBND' or u['id'] == 'ubnd-vpubnd']
 U = sorted(D['units'], key=lambda u: (ROLES.index(u['role']), min(efno(e['ef']) + (100 if e['ef'].startswith('ubnd') else 0) for e in u['eforms'])))
 EFS = [(u, e) for u in U for e in u['eforms']]
 N_EF, N_FIELD = len(EFS), sum(len(e['fields']) for _, e in EFS)
@@ -135,7 +137,7 @@ para('**Ngoài phạm vi:**')
 bullets([
     'Hệ thống nhập eform (IOC chỉ đọc bản ghi); kết nối API dữ liệu 4 trục (chưa cung cấp — mục 9).',
     'Chỉ tiêu cấp xã, phường (tài liệu riêng: docs/XA_XaPhuong/XA_SRS_CHI_TIEU_XA_PHUONG_2026_10_28).',
-    '12 sở, ngành còn lại (làm theo eform ở đợt sau, mục 9); tab UBND của màn ngoài còn theo các sở hiện hành.',
+    'Các sở, ngành khác của UBND: đã làm theo eform (28–29/10/2026), mỗi đơn vị có tài liệu mô tả chỉ tiêu riêng (docs/<ĐƠN VỊ>/*_MO_TA_CHI_TIEU, tools/so_mo_ta_docx.py).',
     'Cấp Trung ương; bản đồ GIS; giao việc, theo dõi nhiệm vụ chung của hệ thống; quản trị đơn vị, người dùng.',
 ])
 heading('1.3. Thuật ngữ', 2)
@@ -203,7 +205,7 @@ table([
     ['Tài khoản 4 Ban Thành ủy (UBKT, Tổ chức, Tuyên giáo và Dân vận, Nội chính)', 'Đơn vị của Ban mình với các eform của Ban', 'Văn phòng Thành ủy · Theo dõi nhiệm vụ đã ẩn'],
     ['Tài khoản các Ban HĐND, Văn phòng Đoàn ĐBQH - HĐND, Đoàn ĐBQH, Tổ tư vấn', ['Cả 6 eform của trục HĐND (đơn vị cũ đã ẩn)', 'Riêng 4 Ban HĐND: eform hoạt động Thường trực, Ban, Tổ lọc sẵn theo Ban (FR-12)'], 'Bỏ lọc được'],
     ['Tài khoản các Ban, đoàn thể MTTQ', 'Cả 6 eform của trục MTTQ (đơn vị cũ đã ẩn)', 'Câu chốt 5, bản đọc MTTQ'],
-    ['Tài khoản Văn phòng UBND Thành phố', '9 eform của Văn phòng UBND', 'Các sở khác theo đợt sau'],
+    ['Tài khoản Văn phòng UBND Thành phố', '9 eform của Văn phòng UBND', 'Các sở khác: tài liệu riêng của từng sở'],
 ], [5.0, 7.0, 4.0], size=10)
 heading('2.4. Ràng buộc thiết kế', 2)
 bullets([
@@ -354,6 +356,13 @@ fr('FR-14', 'Đối chiếu khung eform với file eform', [
     ['Xử lý', [f'Tải "File mô tả đầu vào eform" về .xlsx; chạy "python3 tools/xa_eform_schema.py <tệp.xlsx> --tp --check": so khung {D["nKhoi"]} khối, {D["nEform"]} eform với js/core/eform-khung.js.',
                'Báo trường thêm, bỏ, đổi tên/kiểu/danh mục; có khác biệt thì trả mã lỗi để chặn phát hành. Chạy không có "--check": ghi lại khung.']],
 ], ['Với file ngày 28/10/2026: khung khớp; 4 trục dùng 29 eform của 5 khối (Bảng 4.1).'])
+
+fr('FR-15', 'Nút ← quay lại màn trước', [
+    ['Mục đích', 'Xem bản ghi xong quay lại đúng chỗ đang xem, không phải bấm lại từ Tổng quan.'],
+    ['Xử lý', ['Mỗi lần sang màn khác trong popup (Tổng quan → màn eform → Theo 126 xã → hồ sơ xã → Dữ liệu đã nhập), IOC nhớ màn đang đứng: eform, chỉ tiêu và hồ sơ xã đang mở, bộ lọc của Dữ liệu đã nhập.',
+               'Nút ở góc trên bên trái ghi tên màn trước (VD "← Theo 126 xã, phường · Phường Cửa Nam"); bấm thì về đúng màn đó, hồ sơ xã vẫn mở. Màn trước không phải Tổng quan thì có thêm lối "Tổng quan".',
+               'Lọc, tìm trong cùng một màn không thêm lịch sử. Về Tổng quan hoặc mở đơn vị khác thì xóa lịch sử.']],
+], ['Mở bản ghi từ hồ sơ Phường Cửa Nam (màn 126 xã) → bấm ← về màn 126 xã, hồ sơ Phường Cửa Nam vẫn mở; bấm ← lần nữa về màn eform.'], 'Nên có')
 
 # ======================================================= 4. DỮ LIỆU, QUY TẮC
 heading('4. YÊU CẦU DỮ LIỆU VÀ QUY TẮC NGHIỆP VỤ', 1)
@@ -509,7 +518,7 @@ table([
     ['5', 'Ba eform sheet "Trục UBND" (văn bản trên môi trường mạng, cuộc họp không giấy tờ, chữ ký số) không có trường «Năm»: không xếp được kỳ, không so sánh, không vẽ diễn biến.', 'Bên eform thêm «Năm» (và «Tháng»/«Quý»).'],
     ['6', 'Ô số "Thu ngân sách nhà nước" ở tab "Tất cả" lấy từ Sở Tài chính theo nguồn hiện hành.', 'Giữ nguyên theo quy ước (nguồn khác để nguyên); đổi khi Sở Tài chính có eform.'],
     ['7', 'Lọc sẵn và phân quyền đang làm ở trình duyệt (môi trường trình diễn).', 'Lọc bản ghi theo tài khoản ở máy chủ (NFR-03).'],
-    ['8', '12 sở, ngành chưa làm theo eform (đợt sau): Thanh tra, Công Thương, NN&MT, Nội vụ; KH&CN, Xây dựng, Dân tộc và Tôn giáo, Y tế; Du lịch, VH&TT, Ban QL khu CNC (VP UBND đã xong cùng trục UBND).', 'Mỗi sở lập bản đọc eform, duyệt, rồi dựng theo khuôn ctm-eform.js.'],
+    ['8', 'Các sở, ngành của UBND đã làm theo eform (28–29/10/2026): Thanh tra, Công Thương, NN&MT, Nội vụ, KH&CN, Xây dựng, Dân tộc và Tôn giáo, Y tế, VH, TT và Du lịch, Ban QL khu CNC; mô tả ở tài liệu riêng từng sở.', 'Không còn việc dở; tab UBND của màn ngoài đọc thẻ từng sở theo eform.'],
     ['9', f'File eform còn {len(LOI)} chỗ lỗi, chỗ nghi (Phụ lục B).', 'Bên eform sửa; chạy lại công cụ sinh khung.'],
 ], [0.8, 8.6, 6.6], size=10)
 
@@ -546,7 +555,8 @@ table([
 
 heading('PHỤ LỤC E. LỊCH SỬ PHIÊN BẢN', 1)
 table([['Phiên bản', 'Ngày', 'Nội dung'],
-       ['1.0', NGAY, f'Bản đầu: {len(U)} đơn vị, {N_EF} eform, {N_FIELD} trường, {N_CHI} chỉ tiêu theo eform; ẩn {len(AN)} đơn vị cũ; màn ngoài theo eform; kỳ Tháng/Quý/Năm; Dữ liệu đã nhập; lọc sẵn theo tài khoản Ban HĐND.']],
+       ['1.1', NGAY, 'Thêm FR-15 (nút ← quay lại màn trước); các sở đã làm theo eform, tách tài liệu riêng từng sở; cập nhật số kiểm thử.'],
+       ['1.0', '28/10/2026', f'Bản đầu: {len(U)} đơn vị, {N_EF} eform, {N_FIELD} trường, {N_CHI} chỉ tiêu theo eform; ẩn {len(AN)} đơn vị cũ; màn ngoài theo eform; kỳ Tháng/Quý/Năm; Dữ liệu đã nhập; lọc sẵn theo tài khoản Ban HĐND.']],
       [2.2, 2.6, 11.2], size=10.5)
 
 from docx.oxml import OxmlElement

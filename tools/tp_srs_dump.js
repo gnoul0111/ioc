@@ -1,5 +1,6 @@
 'use strict';
-/* Xuất dữ liệu cho tài liệu SRS chỉ tiêu 4 trục cấp Thành phố theo eform (tools/tp_srs_docx.py) ra JSON. Đọc thẳng cấu hình đang chạy
+/* Xuất dữ liệu cho tài liệu SRS chỉ tiêu 4 trục cấp Thành phố (tools/tp_srs_docx.py) và tài liệu mô tả chỉ tiêu từng sở
+   (tools/so_mo_ta_docx.py) theo eform ra JSON — mọi đơn vị dựng theo khung eform (4 trục, VP UBND, 11 sở). Đọc thẳng cấu hình đang chạy
    — nạp code vào vm như tests/ctm/tp-eform.test.js: khung eform (js/core/eform-khung.js), đơn vị và cấu hình eform
    (js/features/ctm-truc-eform.js), cách tính từng chỉ tiêu (efMoTa), vai trò từng trường suy từ cấu hình, màn ngoài, cờ, số mẫu.
    Chạy từ thư mục gốc ioc:  node tools/tp_srs_dump.js > scratch.json */
@@ -10,7 +11,8 @@ const SO = ['vhtt', 'vpub', 'bql', 'dl', 'dttg', 'ttra', 'khcn', 'nnmt', 'sct', 
 SO.unshift('js/core/xa-dan-so.js');
 const FILES = SO.concat(['js/core/hcc-config.js', 'js/features/hcc-data.js', 'js/core/ctm-xa.js', 'js/core/xa-eform.js', 'js/core/xa-eform-mau.js', 'js/core/line-chart.js', 'js/features/ctm-engine.js', 'js/features/ctm-mttq.js',
   'js/features/ctm-dang.js', 'js/features/ctm-hdnd.js', 'js/features/ctm-all.js', 'js/features/ctm-xa-units.js', 'js/features/ctm-so.js',
-  'js/core/eform-khung.js', 'js/core/eform-mau.js', 'js/features/ctm-eform.js', 'js/features/ctm-truc-eform.js']);
+  'js/core/eform-khung.js', 'js/core/eform-mau.js', 'js/features/ctm-eform.js', 'js/features/ctm-truc-eform.js',
+  'js/features/ctm-so-eform.js', 'js/features/ctm-so-eform2.js']);
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 const ctx = vm.createContext({ console, Math, Number, String, Object, Array, JSON, isFinite, Date, esc, document: { getElementById: () => null } });
 const edu = read('js/features/dashboard-education.js').match(/const gdUnitData=\[([\s\S]*?)\n\s*\];/);
@@ -47,6 +49,7 @@ function vaiTro(cfg, unitId, c) {
   const kt = (cfg.kt || []).filter((k) => (k.c || []).indexOf(c) >= 0 || new RegExp('R\\.' + c + '\\b').test(String(k.f))).map((k) => k.l);
   if (kt.length) out.push('Kiểm tra: ' + kt.join('; '));
   if (EF_LOC && Object.keys(EF_LOC).some((s) => s === unitId && EF_LOC[s].c === c)) out.push('Lọc sẵn theo tài khoản Ban (FR-12)');
+  if (cfg.bo && cfg.bo[c]) out.push('Bỏ bản ' + cfg.bo[c].map((v) => '«' + (run('xaEfLb')(EFK[cfg.ef].F[c], v) || v) + '»').join(', ') + ' khỏi phần tính');
   return out.length ? out : ['Chỉ xem ở Dữ liệu đã nhập'];
 }
 const BIEU = { cot: 'Thanh ngang', chong: 'Cơ cấu, thanh xếp chồng', xu: 'Cột qua các kỳ', phan: 'Cơ cấu theo chỉ tiêu thành phần', ds: 'Thanh các chỉ tiêu' };
@@ -59,6 +62,8 @@ const units = ids.map((id) => {
     const V = P.used.length ? efVals(cfg, P.used) : {};
     return {
       ef: cfg.ef, ten: cfg.ten || ef.ten, efTen: ef.ten, sheet: ef.sheet, dong: ef.dong, banGhi: cfg.banGhi, khongKy: efKhongKy(cfg.ef),
+      luuY: cfg.luuY || '', boNote: run('efBoNote')(cfg), kyCuoi: !!cfg.kyCuoi, uuTien: cfg.uuTien ? '«' + ef.F[cfg.uuTien.c].l + '» = ' + (run('xaEfLb')(ef.F[cfg.uuTien.c], cfg.uuTien.v) || cfg.uuTien.v) : '',
+      dvt: cfg.dvt ? ef.F[cfg.dvt].l : '', bangLoc: (cfg.bang || []).some((b) => b.loc),
       khoa: (cfg.khoa || []).map((c) => ef.F[c].l), khoaRong: (cfg.khoaRong || []).map((c) => ef.F[c].l), cap: (cfg.cap || []).map((c) => ef.F[c].l),
       chi: Object.keys(cfg.chi).map((cid) => ({ id: cid, l: cfg.chi[cid].l, loai: cfg.chi[cid].loai, u: efUnit(cfg, cid), mota: efMoTa(cfg, cid),
         the: (cfg.the || []).indexOf(cid) >= 0, cot: (cfg.cot || []).indexOf(cid) >= 0, kpi: (s.kpis || []).some((k) => k.m === cfg.ef + '_' + cid), v: V[cid] == null ? null : efFmt(cfg, cid, V[cid]) })),
