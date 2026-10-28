@@ -711,7 +711,7 @@
  if(r==='HDND') return HDND_XA_CATEGORIES;
  if(r==='MTTQ') return MTTQ_XA_CATEGORIES;
  }
- return categorySeed[r]||[];
+ return (categorySeed[r]||[]).filter(c=>!c.an);
  }
  const categorySeed = {
  DANG:[
@@ -943,11 +943,41 @@
  items:VHTT_ITEMS.concat(DL_ITEMS)});
  categorySeed.UBND=categorySeed.UBND.filter(c=>!UBND_SO_DA_NHAP.includes(c.id));
  }
+ /* Bốn trục cấp Thành phố theo eform (chốt 28/10/2026, docs/BAN_DOC_EFORM/TRUC_*): chỉ dựng đơn vị có eform, chỉ tiêu ở
+ js/features/ctm-truc-eform.js. Đảng: 4 Ban giữ mã cũ, chỉ tiêu cũ thay bằng eform (giữ ở itemsCu); VPTU · Theo dõi nhiệm vụ ẩn.
+ HĐND, MTTQ: mỗi eform một đơn vị (ef:true — không phải phòng/ban, không vào cây tổ chức); mọi đơn vị cũ ẩn (an:true).
+ Ẩn chứ không xóa: tài khoản ban cũ vẫn đăng nhập được và xem cả trục. Đặt TRUC_AN_DON_VI_CU = false là về như cũ. */
+ const TRUC_AN_DON_VI_CU = true;
+ function efTrucCat(id,name,field,efs,desc){return {id,name,field,desc,types:['Eform'],ef:true,items:efs.map(e=>['Eform «'+e+'»',0,'Tháng/Quý/Năm','Eform',[]])};}
+ if(TRUC_AN_DON_VI_CU){
+ categorySeed.DANG.forEach(c=>{ if(c.id==='dang-vptu') c.an=true; });
+ categorySeed.HDND.forEach(c=>{ c.an=true; });
+ categorySeed.MTTQ.forEach(c=>{ c.an=true; });
+ const DANG_EF={'dang-ubkt':['UBKT Thành ủy Hà Nội - Kiểm tra giám sát tổng hợp'],'dang-to-chuc':['Đánh giá cán bộ','Công tác chính trị nội bộ','Cơ cấu tổ chức Đảng','Biến động Đảng viên','Biên chế & CBCCVC khối Đảng'],'dang-tuyen-giao':['Ban Tuyên giáo và Dân vận Thành ủy'],'dang-noi-chinh':['Ban Nội chính Thành ủy']};
+ categorySeed.DANG.forEach(c=>{ const e=DANG_EF[c.id]; if(!e) return; c.itemsCu=c.items; c.items=efTrucCat(c.id,'','',e,'').items; c.types=['Eform'];
+ c.desc=e.length>1?e.length+' eform: '+e.join(', ')+'.':'Eform «'+e[0]+'».'; });
+ categorySeed.HDND.push(
+ efTrucCat('hdnd-ef1','Tiếp xúc cử tri và kiến nghị cử tri','HĐND',['Danh sách tiếp xúc cử tri và kiến nghị cử tri'],'Cuộc tiếp xúc cử tri, kiến nghị theo lĩnh vực, chuyển xử lý, trả lời, giải quyết dứt điểm.'),
+ efTrucCat('hdnd-ef2','Theo dõi nhiệm vụ HĐND','HĐND',['Theo dõi nhiệm vụ Hội đồng nhân dân'],'Nhiệm vụ theo khối, đơn vị, tình trạng nhận và thực hiện.'),
+ efTrucCat('hdnd-ef3','Giám sát, chất vấn và giải trình','HĐND',['Giám sát, chất vấn và giải trình HĐND'],'Hoạt động giám sát, chất vấn, giải trình và kiến nghị sau giám sát.'),
+ efTrucCat('hdnd-ef4','Hoạt động Thường trực, Ban và Tổ đại biểu','HĐND',['Danh sách hoạt động Thường trực, Ban và Tổ đại biểu HĐND'],'Hoạt động theo loại, đơn vị thực hiện, kiến nghị và trạng thái tiếp thu.'),
+ efTrucCat('hdnd-ef5','Kỳ họp và Nghị quyết','HĐND',['Kỳ họp và Nghị quyết Hội đồng nhân dân'],'Kỳ họp, nghị quyết theo lĩnh vực, ban hành đúng hạn, quá hạn.'),
+ efTrucCat('hdnd-ef6','Chỉ số tổng hợp và kế hoạch hoạt động','HĐND',['Danh sách chỉ số tổng hợp và kế hoạch hoạt động'],'Tiêu chí hiệu quả, khảo sát hài lòng của cử tri, kiến nghị, kế hoạch năm.'));
+ categorySeed.MTTQ.push(
+ efTrucCat('mttq-ef1','Theo dõi nhiệm vụ - Khối Mặt trận Tổ quốc','MTTQ',['Theo dõi nhiệm vụ - Khối Mặt trận Tổ quốc'],'Nhiệm vụ theo khối, trạng thái giao, nhận, thực hiện.'),
+ efTrucCat('mttq-ef2','Vận động thu Quỹ "Vì người nghèo"','MTTQ',['Tình hình vận động thu quỹ "Vì người nghèo"'],'Số tiền ủng hộ theo hình thức, nguồn; chỉ tiêu giao, tổng vận động của từng đơn vị.'),
+ efTrucCat('mttq-ef3','Ủng hộ Quỹ "Vì biển, đảo Việt Nam"','MTTQ',['Thống kê ủng hộ quỹ vì biển đảo Việt Nam'],'Số đã vận động, đã chuyển về Quỹ Thành phố, còn phải chuyển theo đợt, cấp đơn vị.'),
+ efTrucCat('mttq-ef4','Thu chi Quỹ "Vì người nghèo" (QĐ4795)','MTTQ',['MTTQ eForm QĐ4795 Thu chi quỹ Vì người nghèo'],'Tồn quỹ, các khoản thu, chi, kết quả hỗ trợ theo địa bàn.'),
+ efTrucCat('mttq-ef5','Quà Tết theo cấp','MTTQ',['Cơ cấu kết quả vận động các nguồn lực hỗ trợ tặng quà Tết theo cấp'],'Đối tượng, hồ sơ theo nhóm nguồn lực theo cấp và đạt điều kiện.'),
+ efTrucCat('mttq-ef6','Quà Tết theo nguồn quỹ','MTTQ',['Cơ cấu kết quả hỗ trợ tặng quà Tết theo nguồn quỹ'],'Đối tượng, hồ sơ theo nhóm nguồn quỹ và đạt điều kiện.'));
+ const vp=categorySeed.UBND.find(c=>c.id==='ubnd-vpubnd');
+ if(vp) vp.desc='9 eform của Văn phòng: chỉ số 27, 29, 52, 74, hạ tầng CNTT (sheet VP UBND) và 4 eform chỉ có ở sheet "Trục UBND": văn bản trên môi trường mạng, cắt giảm quy định, cuộc họp không giấy tờ, chữ ký số.';
+ }
 
  /* Chỉ tiêu "Theo dõi nhiệm vụ"/tổng hợp xã-phường là số liệu gộp của cả trục, không đại diện cho 1 phòng/ban
  cụ thể — loại khỏi cây "Cơ cấu tổ chức" và màn chọn tài khoản phòng/ban cấp Thành phố. */
  const CITY_OFFICE_EXCLUDE_IDS = ['dang-vptu','hdnd-nhiem-vu','hdnd-xa-phuong','mttq-nhiem-vu','mttq-xa-phuong'];
- function cityOfficeList(role){ return (categorySeed[role]||[]).filter(c=>!CITY_OFFICE_EXCLUDE_IDS.includes(c.id)); }
+ function cityOfficeList(role){ return (categorySeed[role]||[]).filter(c=>!c.ef&&!CITY_OFFICE_EXCLUDE_IDS.includes(c.id)); }
  /* Tìm phòng/ban cấp Thành phố theo id, dùng cho đăng nhập tài khoản phòng/ban (ban-<officeId>) — chỉ tìm trong
  Đảng ủy/HĐND/MTTQ vì UBND đã có cơ chế tài khoản Sở/ngành riêng (so-<soId>). */
  function findOfficeCategory(officeId){

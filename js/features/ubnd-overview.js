@@ -37,7 +37,7 @@ const UBND_OV_KPIS = [
   { cat: 'ubnd-congthuong', line: 2, m: 'bl', label: 'Bán lẻ hàng hóa và dịch vụ tiêu dùng' },
   UBND_OV_GOP_DL ? { cat: 'ubnd-vhtt', line: 4, m: 'dlTong', label: 'Khách du lịch' } : { cat: 'ubnd-dulich', line: 0, m: 'tong', label: 'Khách du lịch' },
   { cat: 'ubnd-yte', line: 0, m: 'bhR', label: 'Bao phủ bảo hiểm y tế' },
-  { cat: 'ubnd-vpubnd', line: 0, m: 'vbR', label: 'Văn bản xử lý trên môi trường mạng' }
+  { cat: 'ubnd-vpubnd', line: 0, m: 'vpub1_tl', label: 'Văn bản xử lý trên môi trường mạng' }
 ];
 /* Tên ngắn của sở ở ô số và thẻ nhóm. */
 const UBND_OV_SHORT = {
