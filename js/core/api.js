@@ -98,14 +98,14 @@ function apiKpiGridCardHtml(kpi, idx, role, catId) {
   return `<button class="field-category-card so-item-card" onclick="openCategoryDetail('${role}','${catId}',${idx})"><h4>${esc(kpi.label)}</h4>${bodyHtml}</button>`;
 }
 
-/* catId cấp xã/phường (UBND_XA_CATEGORIES) -> khối thật của API, chỉ 4 khối khớp nghĩa với category UI có
-   sẵn (xem project memory "IOC API integration" + đối chiếu nội dung bieu_do thật).
+/* catId cấp xã/phường (UBND_XA_CATEGORIES — 12 đơn vị theo eform từ 28/10/2026) -> khối thật của API, 4 khối cùng tên eform
+   (xem project memory "IOC API integration" + đối chiếu nội dung bieu_do thật).
    TẠM TẮT cùng lý do với API_SO_ID_MAP ở trên — để rỗng {} cho apiCategoryFetcher() luôn trả null. */
 const API_XA_KHOI_MAP = {
   // 'ubndxa-yte': 'y_te',
-  // 'ubndxa-mocua': 'hanh_chinh_cong',
-  // 'ubndxa-vp': 'quan_ly_van_ban',
-  // 'ubndxa-vhxh': 'van_hoa',
+  // 'ubndxa-hcc': 'hanh_chinh_cong',
+  // 'ubndxa-qlvb': 'quan_ly_van_ban',
+  // 'ubndxa-vh': 'van_hoa',
 };
 /* wardIdx (currentXaId, dạng string) -> ma_xa thật của API. Chỉ 2 xã/phường mẫu có data thật. */
 const API_XA_WARD_MAP = { '84': 'xa_phu_xuyen', '37': 'phuong_viet_hung' };

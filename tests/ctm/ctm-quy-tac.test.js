@@ -11,7 +11,7 @@ const escFn = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (m) => ({ '&
 
 const SO_CFG = ['vhtt', 'vpub', 'bql', 'dl', 'dttg', 'ttra', 'khcn', 'nnmt', 'sct', 'sxd', 'snv', 'syt'].map((s) => 'js/core/' + s + '-config.js');
 SO_CFG.unshift('js/core/xa-dan-so.js');
-const FILES = SO_CFG.concat(['js/core/hcc-config.js', 'js/features/hcc-data.js', 'js/core/ctm-xa.js', 'js/core/line-chart.js', 'js/features/ctm-engine.js', 'js/features/ctm-mttq.js', 'js/features/ctm-dang.js', 'js/features/ctm-hdnd.js', 'js/features/ctm-all.js', 'js/features/ctm-xa-units.js', 'js/features/ctm-so.js', 'js/features/ubnd-overview.js']);
+const FILES = SO_CFG.concat(['js/core/hcc-config.js', 'js/features/hcc-data.js', 'js/core/ctm-xa.js', 'js/core/xa-eform.js', 'js/core/xa-eform-mau.js', 'js/core/line-chart.js', 'js/features/ctm-engine.js', 'js/features/ctm-mttq.js', 'js/features/ctm-dang.js', 'js/features/ctm-hdnd.js', 'js/features/ctm-all.js', 'js/features/ctm-xa-units.js', 'js/features/ctm-so.js', 'js/features/ubnd-overview.js']);
 const ctx = vm.createContext({ console, Math, Number, String, Object, Array, JSON, isFinite, Date, esc: escFn, document: {} });
 const eduM = read('js/features/dashboard-education.js').match(/const gdUnitData=\[([\s\S]*?)\n\s*\];/);
 vm.runInContext('const gdUnitData=[' + eduM[1] + '];', ctx);
@@ -144,15 +144,15 @@ ids.forEach((id) => {
   });
 });
 
-console.log('== H19 · Cùng xã, cùng chỉ tiêu: màn Trạm Y tế lấy số Sở Y tế (tháng cuối quý)');
-['Phường Việt Hưng', 'Xã Ba Vì', 'Phường Hoàn Kiếm'].forEach((name) => {
-  const u = XA.find((x) => x.name === name), su = run('SYT_UNITS').find((x) => x.ten === name);
-  [['2026Q2', 5], ['2026Q1', 2]].forEach(([pid, m]) => {
-    const D = run('ctmD')(S['ubndxa-yte'], pid, { xa: u });
-    ok(Math.abs(D.bhyt - Math.round(su.bhyt[m] / su.dan * 10000) / 100) < 0.006, name + ' ' + pid + ': bảo hiểm y tế = số Sở Y tế tháng ' + (m + 1));
-    ok(Math.abs(D.hsSk - Math.round(su.hssk[m] / su.dan * 1000) / 10) < 0.06, name + ' ' + pid + ': hồ sơ sức khỏe điện tử = số Sở Y tế tháng ' + (m + 1));
-  });
-});
+console.log('== H19 (thay 28/10/2026) · Cấp xã chỉ hiện chỉ tiêu có trong eform: Y tế xã không còn bảo hiểm y tế, hồ sơ sức khỏe của Sở Y tế');
+{
+  const u = XA.find((x) => x.name === 'Phường Việt Hưng');
+  setXa('Phường Việt Hưng');
+  run('ctmD')(S['ubndxa-yte'], '2026Q2', { xa: u });
+  const L = Object.keys(S['ubndxa-yte'].metrics).map((k) => S['ubndxa-yte'].metrics[k].l).join(' | ');
+  ok(!/bảo hiểm y tế|hồ sơ sức khỏe|tiêm chủng|khám, chữa bệnh/i.test(L), 'Y tế xã: không có chỉ tiêu ngoài eform (' + L.slice(0, 80) + ')');
+  setXa(null);
+}
 
 console.log('== BA 23, 24 · Nông thôn mới theo bộ tiêu chí 2026–2030');
 {

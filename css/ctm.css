@@ -61,3 +61,19 @@
 .uo-groups.ctm-g2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .uo-groups.ctm-g3{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media(max-width:1000px){.uo-groups.ctm-g3,.uo-groups.ctm-g2{grid-template-columns:minmax(0,1fr)}}
+
+/* Đơn vị theo eform cấp xã, phường (ctm-xa-units.js): bảng nhóm và màn "Dữ liệu đã nhập" — đủ mọi trường eform, cuộn ngang,
+   hàng tiêu đề đứng yên; ô cần xem lại (mã ngoài danh mục, số không đọc được, bỏ trống trường chia nhóm) tô màu cảnh báo */
+.stc-root .ctm-eft td,.stc-root .ctm-eft th{white-space:nowrap}
+.stc-root .ctm-eft td:first-child{white-space:normal;min-width:180px}
+.stc-root .ctm-recbox{max-height:620px;overflow:auto;border:1px solid var(--line);border-radius:12px}
+.stc-root .ctm-rect{min-width:100%}
+.stc-root .ctm-rect th{position:sticky;top:0;z-index:1;background:var(--card2);text-align:left;white-space:nowrap;padding:8px 10px}
+.stc-root .ctm-rect td{padding:7px 10px;white-space:nowrap;text-align:left}
+.stc-root .ctm-rect td.ctm-n{text-align:right}
+.stc-root .ctm-rect th:first-child,.stc-root .ctm-rect td:first-child{padding-left:10px;color:var(--mute);font-weight:500}
+.stc-root .ctm-rect td.ctm-bad{background:rgba(242,182,54,.16);box-shadow:inset 0 0 0 1px var(--warn);color:var(--ink)}
+.stc-root .ctm-rect tr.ctm-badrow td:first-child{color:var(--warn);font-weight:700}
+.stc-root .ctm-rect .ctm-nil{color:var(--mute);opacity:.6}
+/* #modalBody là lưới (display:grid): khung màn chỉ tiêu phải co theo popup, bảng rộng tự cuộn ngang trong khung của nó */
+#modalBody > .stc-root.ctm-root{min-width:0}

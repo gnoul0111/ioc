@@ -23,14 +23,16 @@
        thẻ: { type: 'cmp'|'cols'|'table'|'parts'|'top'|'html', t, s, … } — xem ctmCardHtml
      xa: { label, note, inds: [{ id, l, u, d, better: 'high'|'low'|'none' (trung tính: chỉ sắp theo số), tot, v(row) }], rows(pid, ctx) → [{ u: đơn vị CTM_XA, … }] },
      card: [khóa…],                  // dòng số trên thẻ ngoài (mặc định = 4 ô số đầu)
-     note, foot                      // ghi chú "Cách đọc" ở Tổng quan, chân trang
-   }) */
+     note, foot,                     // ghi chú "Cách đọc" ở Tổng quan, chân trang
+     rec: { label, card(n), screen(spec), sheet(spec, n) → { head, rows } }   // màn "Dữ liệu đã nhập" (đơn vị theo eform cấp xã)
+   })
+   Nhóm có số dòng thay đổi theo bản ghi: g.lines = (n) → [khóa…], g.count = (n) → chữ đếm trên thẻ nhóm. */
 const CTM_ENABLED = true;
 const CTM_OVERVIEW_ENABLED = true;
 const CTM_SPECS = {};
 const CTM_OVERVIEWS = [];
 const CTM_UI = { open: false, id: null, role: null, screen: 'home', group: null, period: null, dd: null, focusQ: false,
-  xa: { ind: null, f: 'all', q: '', sel: null, anim: false, order: [] } };
+  xa: { ind: null, f: 'all', q: '', sel: null, anim: false, order: [] }, rec: { f: 'all', q: '', key: null } };
 const CTM_OV_PICK = {};
 const CTM_CACHE = {};
 /* số lớn đã hiện trong màn đang dựng ("số|đơn vị") — thẻ sau không ghi lại tổng trùng (quy tắc H14); đặt lại mỗi lần dựng màn nhóm */
@@ -191,7 +193,7 @@ function ctmSub(spec, n, unit, keys) {
   const pid = keys ? ctmCmpPid(spec, keys, n) : n.pp;
   return ctmPLabel(spec, n.p) + (pid === 'mix' ? ' so với kỳ so sánh của từng chỉ tiêu' : pid != null ? ' so với ' + ctmCmpLabel(spec, pid, n) : '') + (unit ? ' · ' + unit : '');
 }
-function ctmTarget(t) { return !t ? '' : t === 'xa' ? 'ctmXa()' : t.indexOf('xa:') === 0 ? 'ctmXa(' + ctmJs(t.slice(3)) + ')' : t.indexOf('g:') === 0 ? "ctmGo('group','" + t.slice(2) + "')" : ''; }
+function ctmTarget(t) { return !t ? '' : t === 'xa' ? 'ctmXa()' : t.indexOf('xa:') === 0 ? 'ctmXa(' + ctmJs(t.slice(3)) + ')' : t.indexOf('g:') === 0 ? "ctmGo('group','" + t.slice(2) + "')" : t === 'rec' ? 'ctmRec(null)' : t.indexOf('rec:') === 0 ? 'ctmRec(' + ctmJs(t.slice(4)) + ')' : ''; }
 function ctmKpiTile(spec, k, n, onclick) {
   const v = ctmV(spec, k.m, n.D), m = ctmM(spec, k.m);
   let sub = '';
@@ -204,9 +206,15 @@ function ctmGl(spec, key, n) {
   const m = ctmM(spec, key), v = ctmV(spec, key, n.D);
   return '<div class="stc-gl"><span>' + ctmE(m.short || m.l) + '</span><span class="stc-v">' + ctmF(v, m.d) + (m.u ? '<small>' + ctmE(m.u === '%' ? '%' : m.u) + '</small>' : '') + '</span><span>' + ctmDlM(spec, key, n) + '</span></div>';
 }
+function ctmGLines(g, n) { try { return (typeof g.lines === 'function' ? g.lines(n) : g.lines) || []; } catch (e) { return []; } }
 function ctmGroupCard(spec, g, n, onclick) {
-  const L = (g.lines || []).map((k) => ctmGl(spec, k, n));
-  return '<button type="button" class="stc-gcard" onclick="' + (onclick || ("ctmGo('group','" + g.id + "')")) + '"><div class="stc-gh"><h3>' + ctmE(g.label) + '</h3><span>' + L.length + ' chỉ tiêu</span></div>' + L.join('') + '<div class="stc-gmore">Xem nhóm ' + ctmE(g.label) + ' ›</div></button>';
+  const L = ctmGLines(g, n).map((k) => ctmGl(spec, k, n));
+  const cnt = typeof g.count === 'function' ? ctmText(g.count, n) : L.length + ' chỉ tiêu';
+  return '<button type="button" class="stc-gcard" onclick="' + (onclick || ("ctmGo('group','" + g.id + "')")) + '"><div class="stc-gh"><h3>' + ctmE(g.label) + '</h3><span>' + ctmE(cnt) + '</span></div>' + L.join('') + '<div class="stc-gmore">Xem nhóm ' + ctmE(g.label) + ' ›</div></button>';
+}
+/* Thẻ "Dữ liệu đã nhập" ở Tổng quan (đơn vị có spec.rec) */
+function ctmRecCard(spec, n, onclick) {
+  return '<button type="button" class="stc-gcard sgd-alt" onclick="' + (onclick || 'ctmRec(null)') + '"><div class="stc-gh"><h3>' + ctmE(spec.rec.label) + '</h3><span>đủ mọi trường</span></div>' + ctmText(spec.rec.card, n) + '<div class="stc-gmore">Xem ' + ctmE(spec.rec.label.toLowerCase()) + ' ›</div></button>';
 }
 function ctmXaLabel(spec) { return (spec.xa && spec.xa.label) || 'Theo 126 xã, phường'; }
 function ctmXaCard(spec, onclick) {
@@ -423,7 +431,7 @@ function ctmCardHtml(spec, c, n) {
 /* Bố cục mặc định của một nhóm khi cấu hình không ghi rows: hàng 1 = so sánh kỳ này/kỳ trước (các chỉ tiêu cùng đơn vị
    với chỉ tiêu đầu) + cột qua các kỳ; các hàng sau = cơ cấu (parts), bảng (table), tỷ lệ (rates), xã/phường đứng đầu (top). */
 function ctmAutoRows(spec, g) {
-  const L = g.lines || [], u0 = ctmM(spec, L[0]).u, rows = [], extra = [];
+  const L = ctmGLines(g, ctmNP(spec)), u0 = ctmM(spec, L[0]).u, rows = [], extra = [];
   const pct = L.filter((k) => ctmM(spec, k).u === '%');
   const colsKey = g.cols || (u0 === '%' ? L.find((k) => ctmM(spec, k).u !== '%') || L[0] : L[0]);
   /* thẻ cơ cấu của nhóm: g.parts, và bảng có tổng tối đa 6 phần cũng vẽ bằng thẻ cơ cấu chuẩn (quy tắc H15) */
@@ -478,8 +486,8 @@ function ctmScreenHome(spec) {
   let h = ctmHeader(spec, null);
   h += '<div class="stc-kpis" style="--ctm-k:' + Math.min(8, spec.kpis.length) + '">' + spec.kpis.map((k) => ctmKpiTile(spec, k, n)).join('') + '</div>';
   const G = spec.groups || [];
-  h += '<div class="stc-secrow"><div class="stc-sec">' + ctmCountWord(G.length) + ' nhóm chỉ tiêu · mỗi nhóm một màn hình</div><div style="display:flex;gap:18px;flex-wrap:wrap">' + (spec.xa ? ctmLnk(ctmXaLabel(spec) + ' ›', 'ctmXa()') : '') + '</div></div>';
-  h += '<div class="sgd-g3">' + G.map((g) => ctmGroupCard(spec, g, n)).join('') + (spec.xa ? ctmXaCard(spec) : '') + '</div>';
+  h += '<div class="stc-secrow"><div class="stc-sec">' + ctmCountWord(G.length) + ' nhóm chỉ tiêu · mỗi nhóm một màn hình</div><div style="display:flex;gap:18px;flex-wrap:wrap">' + (spec.xa ? ctmLnk(ctmXaLabel(spec) + ' ›', 'ctmXa()') : '') + (spec.rec ? ctmLnk(spec.rec.label + ' ›', 'ctmRec(null)') : '') + '</div></div>';
+  h += '<div class="sgd-g3">' + (spec.rec ? ctmRecCard(spec, n) : '') + G.map((g) => ctmGroupCard(spec, g, n)).join('') + (spec.xa ? ctmXaCard(spec) : '') + '</div>';
   if (spec.note) h += '<div class="stc-mt">' + ctmNote('<b>Cách đọc:</b> ' + ctmText(spec.note, n.D, n.P, n)) + '</div>';
   return h + ctmFoot(spec, n);
 }
@@ -605,12 +613,14 @@ function ctmXaDrawer(spec, rows, name, n) {
 function ctmScreenHtml(spec) {
   if (CTM_UI.screen === 'group' && (spec.groups || []).length) return ctmScreenGroup(spec);
   if (CTM_UI.screen === 'xa' && spec.xa) return ctmScreenXa(spec);
+  if (CTM_UI.screen === 'rec' && spec.rec) return spec.rec.screen(spec);
   return ctmScreenHome(spec);
 }
 function ctmScreenMeta(spec) {
   const base = ctmName(spec), org = ctmOrg(spec), pl = ctmPLabel(spec, ctmCurPid(spec));
   if (CTM_UI.screen === 'group') { const G = spec.groups || [], gi = Math.max(0, G.findIndex((g) => g.id === CTM_UI.group)); return { title: base + ' — ' + (G[gi] ? G[gi].label : ''), sub: (org ? org + ' · ' : '') + 'Nhóm ' + (gi + 1) + '/' + G.length + ' · ' + pl }; }
   if (CTM_UI.screen === 'xa' && spec.xa) return { title: base + ' — ' + ctmXaLabel(spec), sub: (org ? org + ' · ' : '') + ctmXaInd(spec).l + ' · ' + pl };
+  if (CTM_UI.screen === 'rec' && spec.rec) return { title: base + ' — ' + spec.rec.label, sub: (org ? org + ' · ' : '') + pl };
   return { title: base, sub: (org ? org + ' · ' : '') + spec.kpis.length + ' chỉ tiêu chính · ' + (spec.groups || []).length + ' nhóm · ' + pl };
 }
 function ctmTasksHtml(spec) {
@@ -650,11 +660,12 @@ function ctmHandles(catId) {
 function ctmOpenForm(catId, itemIndex, role) {
   const spec = CTM_SPECS[catId];
   if (!spec) return;
-  if (CTM_UI.id !== catId) { CTM_UI.period = spec.periods[0].id; CTM_UI.xa.ind = spec.xa ? spec.xa.inds[0].id : null; CTM_UI.xa.f = 'all'; CTM_UI.xa.q = ''; }
+  if (CTM_UI.id !== catId) { CTM_UI.period = spec.periods[0].id; CTM_UI.xa.ind = spec.xa ? spec.xa.inds[0].id : null; CTM_UI.xa.f = 'all'; CTM_UI.xa.q = ''; CTM_UI.rec = { f: 'all', q: '', key: null }; }
   CTM_UI.id = catId; CTM_UI.role = role || spec.role; CTM_UI.dd = null; CTM_UI.xa.sel = null;
   const t = typeof itemIndex === 'string' ? itemIndex : '';
   if (t.indexOf('g:') === 0 && (spec.groups || []).some((g) => g.id === t.slice(2))) { CTM_UI.screen = 'group'; CTM_UI.group = t.slice(2); }
   else if (t.indexOf('xa') === 0 && spec.xa) { CTM_UI.screen = 'xa'; if (t.length > 3) CTM_UI.xa.ind = t.slice(3); }
+  else if (t.indexOf('rec') === 0 && spec.rec) { CTM_UI.screen = 'rec'; CTM_UI.rec = { f: 'all', q: '', key: t.length > 4 ? t.slice(4) : null }; }
   else CTM_UI.screen = 'home';
   if (typeof STC_UI !== 'undefined') STC_UI.open = false;
   if (typeof SGD_UI !== 'undefined') SGD_UI.open = false;
@@ -673,6 +684,10 @@ function ctmXaF(f) { CTM_UI.xa.f = f; ctmRerender(false); }
 function ctmXaQ(v) { CTM_UI.xa.q = v; CTM_UI.focusQ = true; ctmRerender(false); }
 function ctmXaSel(name) { const X = CTM_UI.xa; X.anim = !!name && !X.sel; X.sel = name || null; ctmRerender(false); }
 function ctmXaStep(d) { const X = CTM_UI.xa, at = X.order.indexOf(X.sel); if (at < 0 || !X.order[at + d]) return; X.sel = X.order[at + d]; ctmRerender(false); }
+/* Màn Dữ liệu đã nhập: key = dòng số liệu hoặc ô số (chỉ hiện các bản ghi tạo ra số đó), null = mọi bản ghi của kỳ */
+function ctmRec(key) { CTM_UI.dd = null; CTM_UI.screen = 'rec'; CTM_UI.rec = { f: 'all', q: '', key: key || null }; ctmRerender(true); }
+function ctmRecF(f) { CTM_UI.rec.f = f; ctmRerender(false); }
+function ctmRecQ(v) { CTM_UI.rec.q = v; CTM_UI.focusQ = true; ctmRerender(false); }
 function ctmDdToggle(id) { CTM_UI.dd = CTM_UI.dd === id ? null : id; ctmRerender(false); }
 function ctmSetPeriod(p) { CTM_UI.dd = null; CTM_UI.period = String(p); ctmRerender(false); }
 if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
@@ -708,8 +723,14 @@ async function ctmExport() {
     ws.addRow([grp, m.l, a, b, d, m.u === '%' ? '%' + ((m.rate || m.u === '%') ? ' (chênh điểm %)' : '') : m.u || '']);
   };
   spec.kpis.forEach((k) => add('Chỉ tiêu chính', k.m));
-  (spec.groups || []).forEach((g) => (g.lines || []).forEach((k) => add(g.label, k)));
+  (spec.groups || []).forEach((g) => ctmGLines(g, n).forEach((k) => add(g.label, k)));
   ws.columns = [{ width: 28 }, { width: 44 }, { width: 16 }, { width: 16 }, { width: 16 }, { width: 22 }];
+  if (spec.rec && spec.rec.sheet) {
+    const R = spec.rec.sheet(spec, n), wr = wb.addWorksheet(spec.rec.label);
+    wr.addRow(R.head).font = { bold: true };
+    R.rows.forEach((r) => wr.addRow(r));
+    wr.columns = R.head.map((h, i) => ({ width: i ? Math.min(40, Math.max(12, String(h).length + 4)) : 6 }));
+  }
   if (spec.xa) {
     const wx = wb.addWorksheet('Theo xã, phường');
     wx.addRow(['Xã, phường', 'Loại', 'Dân số', 'Diện tích (km²)'].concat(spec.xa.inds.map((I) => I.l + ' (' + I.u + ')'))).font = { bold: true };
@@ -825,7 +846,7 @@ function ctmBandHtml(cat) {
   h += '<div class="stc-kpis" style="--ctm-k:' + Math.min(8, spec.kpis.length) + '">' + spec.kpis.map((k) => ctmKpiTile(spec, k, n, open(k.target))).join('') + '</div>';
   const G = spec.groups || [];
   h += '<div class="stc-sec" style="margin:4px 0 12px">' + ctmCountWord(G.length) + ' nhóm chỉ tiêu · mỗi nhóm một màn hình</div>';
-  h += '<div class="sgd-g3">' + G.map((g) => ctmGroupCard(spec, g, n, open('g:' + g.id))).join('') + (spec.xa ? ctmXaCard(spec, open('xa')) : '') + '</div>';
+  h += '<div class="sgd-g3">' + (spec.rec ? ctmRecCard(spec, n, open('rec')) : '') + G.map((g) => ctmGroupCard(spec, g, n, open('g:' + g.id))).join('') + (spec.xa ? ctmXaCard(spec, open('xa')) : '') + '</div>';
   h += '<p class="cpi-legend" style="margin:10px 0 0;font-size:11px">' + ctmE(ctmPLabel(spec, n.p) + (ctmOrg(spec) ? ' · ' + ctmOrg(spec) : '')) + '</p>';
   return h + '</div></div>';
 }
