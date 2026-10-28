@@ -14,11 +14,14 @@
                loai: 'dem' | 'demkhac' (c) | 'dembang' (c, v: [mã]) | 'demdk' (f: (R) => true, mt: chữ mô tả) | 'cong' (c hoặc [c…]) |
                'td' (c — tại thời điểm, mỗi khóa lấy kỳ cuối) | 'dau' (c — đầu kỳ, mỗi khóa lấy kỳ đầu) |
                'motlan' (c, theo: [trường | '_kyId'] — mỗi tổ hợp lấy một lần) | 'nhap' (c — số đã nhập, chỉ hiện khi một bản ghi) |
-               'tyle' (tu, mau: mã chỉ tiêu; IOC tính = tu ÷ mau × 100) | 'hieu' (a, b; IOC tính = a − b) | 'tang' (tu, mau; IOC tính = tu ÷ mau × 100 − 100) }
+               'tyle' (tu, mau: mã chỉ tiêu; IOC tính = tu ÷ mau × 100) | 'hieu' (a, b; IOC tính = a − b) | 'tang' (tu, mau; IOC tính = tu ÷ mau × 100 − 100) |
+               'thuong' (tu, mau; IOC tính = tu ÷ mau) | 'bqts' (c, w: trường; IOC tính bình quân c theo trọng số w) |
+               'congtich' (c, a, b: trường; cộng c, bản ghi trống c thì IOC tính a × b) }
    Biểu đồ: { loai: 'cot' (t, theo, m) | 'chong' (t, theo, m) | 'xu' (t, m) | 'phan' (t, ms: [chỉ tiêu cộng thành tổng]) | 'ds' (t, ms: [chỉ tiêu]) }.
    Thêm: bang: [{ t, cap, cot }] bảng phụ (bỏ bản ghi để trống trường cấp 1); uuTien: { c, v, theo } — cùng tổ hợp «theo» có bản ghi
    trường c = v (VD «Loại bản ghi» = Tổng hợp) thì chỉ dùng các bản ghi đó. bo: { trường: [mã] } — bản ghi có trường = mã (VD «Không phát sinh»)
    không tính vào chỉ tiêu nào (vẫn hiện ở Dữ liệu đã nhập). luuY: câu lưu ý riêng của eform, hiện ở màn eform và Dữ liệu đã nhập.
+   kyCuoi: true — số tại thời điểm: xem quý, năm thì mỗi khóa chỉ lấy bản kỳ cuối (áp cho mọi chỉ tiêu của eform).
    Bản ghi lấy từ EF_NGUON (js/core/eform-mau.js — đang là bản ghi mẫu dựng theo khung eform). */
 
 /* ---------- Khung eform ---------- */
@@ -140,11 +143,18 @@ function efPick(cfg, pid) {
     const arr = by[k], best = Math.min.apply(null, arr.map((R) => EF_HANG[R._ky.loai]));
     arr.forEach((R) => { if (EF_HANG[R._ky.loai] === best) used.push(R); else R._x2 = true; });
   });
+  const bo = {};
   if (cfg.uuTien) {
     const U = cfg.uuTien, tk = (R) => U.theo.map((c) => String(R[c] == null ? '' : R[c])).join('|'), co = new Set(used.filter((R) => R[U.c] === U.v).map(tk));
-    used = used.filter((R) => R[U.c] === U.v || !co.has(tk(R)));
+    used = used.filter((R) => { const ok = R[U.c] === U.v || !co.has(tk(R)); if (!ok) bo[R._i] = 'Cùng nhóm đã có bản «' + (xaEfLb(EFK[cfg.ef].F[U.c], U.v) || U.v) + '», không cộng chồng'; return ok; });
   }
-  return { cand: cand, used: used };
+  /* cfg.kyCuoi: số tại thời điểm — xem quý, năm thì mỗi khóa chỉ lấy bản của kỳ cuối cùng (VD một điểm nguy cơ báo cáo 3 tháng chỉ đếm một lần) */
+  if (cfg.kyCuoi) {
+    const last = {};
+    used.forEach((R) => { const k = efKhoa(cfg, R); if (!last[k] || R._ord > last[k]._ord || (R._ord === last[k]._ord && R._i > last[k]._i)) last[k] = R; });
+    used = used.filter((R) => { const ok = last[efKhoa(cfg, R)] === R; if (!ok) bo[R._i] = 'Cùng khóa đã có bản kỳ sau trong kỳ xem (số tại thời điểm lấy kỳ cuối)'; return ok; });
+  }
+  return { cand: cand, used: used, bo: bo };
 }
 function efNum(v) { return typeof v === 'number' && isFinite(v) ? v : null; }
 /* Ngày của trường Ngày tháng ra số ngày để so trước, sau (số ngày kiểu Excel hoặc chữ yyyy-mm-dd); không đọc được thì null */
@@ -167,6 +177,8 @@ function efVals(cfg, rs) {
     else if (m.loai === 'cong') V[id] = sum(rs, m.c);
     else if (m.loai === 'td') V[id] = sum(latestBy((R) => efKhoa(cfg, R)), m.c);
     else if (m.loai === 'motlan') V[id] = sum(latestBy((R) => m.theo.map((c) => String(R[c] == null ? '' : R[c])).join('|')), m.c);
+    else if (m.loai === 'bqts') { let a = 0, w = 0; rs.forEach((R) => { const x = efNum(R[m.c]), y = efNum(R[m.w]); if (x != null && y) { a += x * y; w += y; } }); V[id] = w ? a / w : null; }
+    else if (m.loai === 'congtich') { const vs = rs.map((R) => { const x = efNum(R[m.c]); return x != null ? x : efNum(R[m.a]) != null && efNum(R[m.b]) != null ? R[m.a] * R[m.b] : null; }).filter((x) => x != null); V[id] = vs.length ? vs.reduce((x, y) => x + y, 0) : null; }
     else if (m.loai === 'nhap') { const L = m.theo ? latestBy((R) => m.theo.map((c) => String(R[c] == null ? '' : R[c])).join('|')) : rs; V[id] = L.length === 1 ? efNum(L[0][m.c]) : null; }
   });
   Object.keys(C).forEach((id) => {
@@ -174,6 +186,7 @@ function efVals(cfg, rs) {
     if (m.loai === 'tyle') V[id] = V[m.tu] != null && V[m.mau] ? V[m.tu] / V[m.mau] * 100 : null;
     else if (m.loai === 'hieu') V[id] = V[m.a] != null && V[m.b] != null ? V[m.a] - V[m.b] : null;
     else if (m.loai === 'tang') V[id] = V[m.tu] != null && V[m.mau] ? V[m.tu] / V[m.mau] * 100 - 100 : null;
+    else if (m.loai === 'thuong') V[id] = V[m.tu] != null && V[m.mau] ? V[m.tu] / V[m.mau] : null;
   });
   return V;
 }
@@ -199,9 +212,12 @@ function efMoTa0(cfg, m, ef, fl, ml) {
   if (m.loai === 'tyle') return 'IOC tính: ' + ml(m.tu) + ' ÷ ' + ml(m.mau) + ' × 100';
   if (m.loai === 'hieu') return 'IOC tính: ' + ml(m.a) + ' − ' + ml(m.b);
   if (m.loai === 'tang') return 'IOC tính: ' + ml(m.tu) + ' ÷ ' + ml(m.mau) + ' × 100 − 100';
+  if (m.loai === 'thuong') return 'IOC tính: ' + ml(m.tu) + ' ÷ ' + ml(m.mau);
+  if (m.loai === 'bqts') return 'IOC tính: bình quân ' + fl(m.c) + ' theo trọng số ' + fl(m.w) + ' (cộng ' + fl(m.c) + ' × ' + fl(m.w) + ' ÷ cộng ' + fl(m.w) + ')';
+  if (m.loai === 'congtich') return 'cộng ' + fl(m.c) + '; bản ghi để trống thì IOC tính ' + fl(m.a) + ' × ' + fl(m.b);
   return '';
 }
-function efUnit(cfg, id) { const m = cfg.chi[id], ef = EFK[cfg.ef], c = Array.isArray(m.c) ? m.c[0] : m.c; return m.u != null ? m.u : m.loai === 'tyle' || m.loai === 'tang' ? '%' : c && ef.F[c] ? xaEfUnitOf(ef.F[c].l) : ''; }
+function efUnit(cfg, id) { const m = cfg.chi[id], ef = EFK[cfg.ef], c = Array.isArray(m.c) ? m.c[0] : m.c; return m.u != null ? m.u : m.loai === 'tyle' || m.loai === 'tang' || m.loai === 'bqts' ? '%' : c && ef.F[c] ? xaEfUnitOf(ef.F[c].l) : ''; }
 function efD(cfg, id, v) { const m = cfg.chi[id]; if (m.d != null) return m.d; const u = efUnit(cfg, id); return u === '%' ? 1 : v != null && Math.abs(v) < 100 && Math.round(v) !== v ? 1 : 0; }
 function efFmt(cfg, id, v) { const u = efUnit(cfg, id); return ctmF(v, efD(cfg, id, v)) + (u === '%' && v != null ? '%' : ''); }
 /* Nhãn của một giá trị trường (danh mục ra tên hiển thị; trường khác hiện đúng chữ) */
@@ -258,7 +274,7 @@ function efTreeHtml(cfg, rs, sortBy, boTrong, fullId) {
   if (more && !EF_FULL[fullId]) body = all.slice(0, LIM).join('</tr>') + '</tr>';
   const T = efVals(cfg, rs);
   body += '<tr class="tot"><td>Cộng</td>' + cot.map((id) => '<td>' + cell(id, T, []) + '</td>').join('') + '<td>' + ctmF(rs.length) + '</td></tr>';
-  const iocs = cot.filter((id) => /tyle|hieu|tang|nhap|motlan|td|dau/.test(cfg.chi[id].loai));
+  const iocs = cot.filter((id) => /tyle|hieu|tang|thuong|bqts|congtich|nhap|motlan|td|dau/.test(cfg.chi[id].loai));
   return '<div class="ctm-scroll"><table class="stc-tbl ctm-eft ef-tree"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>' +
     (more ? '<div style="margin-top:8px">' + ctmLnk(EF_FULL[fullId] ? 'Thu gọn về ' + LIM + ' dòng' : 'Xem đủ ' + ctmF(all.length) + ' dòng ›', 'efTreeFull(' + ctmJs(fullId) + ')') + '</div>' : '') +
     '<div class="stc-hint" style="margin-top:10px">Bấm tên ở cột đầu để xem các bản ghi tạo ra số của dòng đó. Rê chuột tên cột để xem cách tính.' +
@@ -314,6 +330,8 @@ function efXaInds(def) {
       const m = cfg.chi[id], key = cfg.ef + '_' + id, u = efUnit(cfg, id), l = (many ? (cfg.ten || EFK[cfg.ef].ten) + ' · ' : '') + m.l;
       const I = { id: key, ef: cfg.ef, l: l, u: u === '%' ? '%' : u || (/^dem/.test(m.loai) && m.loai !== 'demkhac' ? 'bản ghi' : ''), d: u === '%' ? 1 : 0, v: (r) => r.V[key] };
       if (m.loai === 'tyle') Object.assign(I, { num: (r) => r.V[cfg.ef + '_' + m.tu], den: (r) => r.V[cfg.ef + '_' + m.mau], rank: true, better: 'high', w: (r) => r.V[cfg.ef + '_' + m.mau] || 0 });
+      /* tỷ lệ bình quân, thương, tốc độ tăng: không cộng theo xã; mức Thành phố là số của nhóm */
+      else if (['bqts', 'thuong', 'tang'].indexOf(m.loai) >= 0) Object.assign(I, { better: 'none', tp: (D) => D[key] });
       /* mức Thành phố = số của nhóm (đếm khác nhau như «số ứng dụng» không cộng được theo xã) */
       else Object.assign(I, { tot: true, better: 'none', tp: (D) => D[key] });
       out.push(I);
@@ -435,7 +453,7 @@ function ctmEformDonVi(def) {
     const items = P.cand.map((R) => {
       const bad = efBad(cfg, R, all);
       if (R._thay) bad._ = 'Trùng khóa với bản gửi sau, không dùng ở phần tổng hợp';
-      else if (!usedSet.has(R)) bad._ = 'Cùng khóa đã có bản kỳ ngắn hơn (bản tháng), không cộng chồng';
+      else if (!usedSet.has(R)) bad._ = (P.bo && P.bo[R._i]) || 'Cùng khóa đã có bản kỳ ngắn hơn (bản tháng), không cộng chồng';
       return { R: R, bad: bad };
     });
     const c1 = (cfg.cap || [])[0];

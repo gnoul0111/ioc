@@ -32,15 +32,16 @@ KHOI = {
 KIEU = {'Danh mục': 'dm', 'Số': 'so', 'Chữ': 'chu', 'Ngày tháng': 'ngay'}
 # «Kỳ báo cáo»: tên hiển thị theo mã. Khi file điền tên lệch mã (28/10/2026, Văn hóa, Nội vụ, Kinh tế xã hội ghi mã "thang" tên "Năm"…)
 # IOC hiện tên theo mã (anh duyệt 28/10/2026), giữ tên trong file ở `lgoc` và báo lỗi để bên eform sửa.
-KY_TEN = {'thang': 'Tháng', 'quy': 'Quý', 'nam': 'Năm'}
+# «Quý» cũng vậy (28/10/2026, Sở VHTT eform 4 ghi mã "quy_ii" tên "Quý III").
+KY_TEN = {'ky_bao_cao': {'thang': 'Tháng', 'quy': 'Quý', 'nam': 'Năm'}, 'quy': {'quy_i': 'Quý I', 'quy_ii': 'Quý II', 'quy_iii': 'Quý III', 'quy_iv': 'Quý IV'}}
 
 
 def ky_ten(code_truong, o, bao):
-    want = KY_TEN.get(o['v']) if code_truong == 'ky_bao_cao' else None
+    want = KY_TEN.get(code_truong, {}).get(o['v'])
     if want and o['l'] and o['l'] != want:
         o['lgoc'] = o['l']
         o['l'] = want
-        bao('Mã "%s" của «Kỳ báo cáo» ghi tên "%s" (lệch mã) — IOC hiện "%s"' % (o['v'], o['lgoc'], want))
+        bao('Mã "%s" của «%s» ghi tên "%s" (lệch mã) — IOC hiện "%s"' % (o['v'], 'Kỳ báo cáo' if code_truong == 'ky_bao_cao' else 'Quý', o['lgoc'], want))
 
 
 def norm_code(s):

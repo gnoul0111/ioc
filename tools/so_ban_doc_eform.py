@@ -25,7 +25,7 @@ def dmt(f):
     return f'{len(ls)} mã: ' + ', '.join(ls[:6]) + (f', … (+{len(ls) - 6})' if len(ls) > 6 else '')
 
 
-def gen(out, title, head, khoi, cfgs, cau, chung=None, them=None):
+def gen(out, title, head, khoi, cfgs, cau, chung=None, them=None, duyet=True):
     E = KH[khoi]['eforms']
     assert len(E) == len(cfgs), (len(E), len(cfgs))
     L = [title, ''] + head + ['', 'Mọi eform có trường kỳ «Kỳ báo cáo» (Tháng/Quý/Năm), «Năm», «Tháng», «Quý»: xếp bản ghi vào kỳ; người xem chọn Tháng / Quý / Năm (X12); '
@@ -54,15 +54,19 @@ def gen(out, title, head, khoi, cfgs, cau, chung=None, them=None):
         if c.get('loi'):
             L += ['', '**Lỗi, chỗ nghi trong file eform:**', ''] + [f'- {x}' for x in c['loi']]
         L.append('')
-    L += ['## CÂU HỎI VÀ TRẢ LỜI (28/10/2026)', '']
-    L += [f'{n + 1}. {q}' for n, q in enumerate(cau)]
-    L += ['', '**Trả lời (28/10/2026):** theo đề xuất ở tất cả các câu.'] + ([''] + them if them else [])
+    if duyet:
+        L += ['## CÂU HỎI VÀ TRẢ LỜI (28/10/2026)', '']
+        L += [f'{n + 1}. {q}' for n, q in enumerate(cau)]
+        L += ['', '**Trả lời (28/10/2026):** theo đề xuất ở tất cả các câu.'] + ([''] + them if them else [])
+    else:
+        L += ['## CÂU HỎI (chờ anh trả lời trước khi dựng màn hình)', '', 'Mỗi câu có đề xuất của em; anh đồng ý thì trả lời "theo đề xuất", khác thì ghi cách làm.', '']
+        L += [f'{n + 1}. {q}' for n, q in enumerate(cau)]
     open(out, 'w', encoding='utf-8').write('\n'.join(L) + '\n')
     print('ok', out, len(E), 'eform', nf, 'trường', len(cau), 'câu hỏi')
 
 
 OUTD = os.path.join(ROOT, 'docs', 'BAN_DOC_EFORM')
-HEAD = lambda nguon, cap, an: [f'- **Ngày**: {NGAY} · lập theo Phần IV của docs/CHUNG/QUY_UOC_CHI_TIEU_THEO_EFORM_2026_10_28 · **đã duyệt 28/10/2026**: anh trả lời "theo đề xuất" cho mọi câu hỏi (cuối bản đọc)',
+HEAD = lambda nguon, cap, an, duyet=True: [f'- **Ngày**: {NGAY} · lập theo Phần IV của docs/CHUNG/QUY_UOC_CHI_TIEU_THEO_EFORM_2026_10_28 · ' + ('**đã duyệt 28/10/2026**: anh trả lời "theo đề xuất" cho mọi câu hỏi (cuối bản đọc)' if duyet else '**chờ anh duyệt trước khi dựng màn hình**'),
                                f'- **Nguồn**: {nguon}; bảng trường sinh thẳng từ file (đủ mọi trường, đúng thứ tự). Khung trên IOC đã đối chiếu với file tải ngày {NGAY}: khớp.',
                                f'- **Chia cấp trên IOC**: {cap}', f'- **Chỉ tiêu cũ**: {an}']
 

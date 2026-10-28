@@ -985,6 +985,22 @@
  categorySeed.UBND.forEach(c=>{ const e=SO_EF[c.id]; if(!e) return; c.itemsCu=c.items; c.typesCu=c.types; c.items=efTrucCat(c.id,'','',e,'').items; c.types=['Eform'];
  c.desc=e.length+' eform của '+c.name.replace(/ \(hợp nhất.*\)$/,'')+': '+e.join('; ')+'.'; });
  }
+ /* 12 sở theo eform — 7 sở còn lại (bản đọc docs/BAN_DOC_EFORM/SO_KHCN, SO_XAY_DUNG, SO_DTTG, SO_Y_TE, SO_VHTT, SO_DU_LICH, SO_BQL_KCNC,
+ duyệt 28/10/2026): dựng theo eform ở js/features/ctm-so-eform2.js. Chỉ tiêu cũ (kể cả nhóm "Dự án 2026–2030" của VH&TT dựng từ eform đã bỏ)
+ giữ ở itemsCu, ẩn bằng cờ: SO_EFORM_DOT23 = false là về như cũ. Du lịch nằm trong thẻ Sở VH, TT và DL khi cờ UBND_SAP_XEP_SO_2026 bật. */
+ const SO_EFORM_DOT23 = true;
+ if(SO_EFORM_DOT23){
+ const DL_EF=['Khách du lịch nội địa và quốc tế','Doanh thu dịch vụ du lịch'];
+ const SO_EF2={'ubnd-khcn':['Hạ tầng và thiết bị số','Con người và cộng đồng số','Văn bản, quy trình và dịch vụ công'],
+ 'ubnd-xaydung':['Nhà ở (chỉ số 20)','Vận tải hành khách (chỉ số 24)','Nguy cơ sạt lở, úng ngập (chỉ số 84)','Vận chuyển, luân chuyển (chỉ số 68, 69)'],
+ 'ubnd-dantoc-tongiao':['Chương trình mục tiêu quốc gia vùng đồng bào dân tộc thiểu số và miền núi'],
+ 'ubnd-yte':['Ngộ độc thực phẩm','Bao phủ bảo hiểm y tế','Dịch bệnh nhóm A, B','Hồ sơ sức khỏe điện tử'],
+ 'ubnd-vhtt':['Chương trình hành động 08-CT','Người tham gia hoạt động nghệ thuật','Doanh thu đơn vị nghệ thuật','Hoạt động nghệ thuật chuyên nghiệp','Thông tin báo chí, mạng xã hội'].concat(typeof UBND_SAP_XEP_SO_2026!=='undefined'&&UBND_SAP_XEP_SO_2026?DL_EF:[]),
+ 'ubnd-dulich':DL_EF,
+ 'ubnd-bqlkcnc':['Khu công nghiệp, khu chế xuất, khu kinh tế và khu công nghệ cao']};
+ categorySeed.UBND.forEach(c=>{ const e=SO_EF2[c.id]; if(!e) return; c.itemsCu=c.items; c.typesCu=c.types; c.items=efTrucCat(c.id,'','',e,'').items; c.types=['Eform'];
+ c.desc=e.length+' eform của '+c.name.replace(/ \(hợp nhất.*\)$/,'')+': '+e.join('; ')+'.'; });
+ }
 
  /* Chỉ tiêu "Theo dõi nhiệm vụ"/tổng hợp xã-phường là số liệu gộp của cả trục, không đại diện cho 1 phòng/ban
  cụ thể — loại khỏi cây "Cơ cấu tổ chức" và màn chọn tài khoản phòng/ban cấp Thành phố. */
