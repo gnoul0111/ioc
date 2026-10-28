@@ -52,7 +52,8 @@ function efMauDung(efId, cfg) {
     cfg.gen(ctx, (part) => {
       const R = {};
       efMauKy(R, cfg.ky, p[0], p[1], ef.F);
-      ef.fields.forEach((f) => { if (!(f.c in R)) R[f.c] = f.c in part ? part[f.c] : efMauDien(f, r, ctx); });
+      /* part được ghi đè trường kỳ (VD một eform có cả bản năm và bản quý) */
+      ef.fields.forEach((f) => { R[f.c] = f.c in part ? part[f.c] : f.c in R ? R[f.c] : efMauDien(f, r, ctx); });
       out.push(R);
     }, r);
   });
@@ -69,8 +70,9 @@ const EF_MAU_CFG = {
       so_don_vi_cong_bo_trien_khai_qd: r.i(2, 30), so_don_vi_da_bao_cao: r.i(2, 30), so_don_vi_duoc_kiem_tra_da_lam_viec: r.i(0, 12), so_kho_khan_kien_nghi: r.i(0, 4),
       ten_don_vi: 'UBKT ' + r.p(['Đảng ủy ', 'Đảng ủy ']) + r.p(EF_XA_TEN).toLowerCase().replace(/^(phường|xã) /, (s) => s), co_du_lieu: r.c(0.9) ? 'ok' : r.p(['thieu_minh_chung', 'thieu_mau_so']),
       trang_thai_doi_soat: r.c(0.8) ? 'da_doi_soat' : 'chua_doi_soat', lop_du_lieu: r.p(['lop_0', 'lop_1', 'lop_2']), minh_chung_url: '' }); } } },
-  dang2: { ky: 'nam', gen: (x, push, r) => { if (x.y !== 2025) return; efVs('dang2', 'don_vi').forEach((dv, i) => { const tot = r.i(40, 900), xs = Math.round(tot * (0.12 + 0.08 * r.f())), kht = Math.round(tot * 0.01 * r.f()), kdg = r.i(0, 3), ht = Math.round(tot * 0.2 * r.f()), tot2 = tot - xs - kht - kdg - ht;
-    push({ don_vi: dv, so_hoan_thanh_xuat_sac_nhiem_vu: xs, so_hoan_thanh_tot_nhiem_vu: tot2, so_hoan_thanh_nhiem_vu: ht, so_khong_hoan_thanh_nhiem_vu: kht, so_khong_danh_gia_xep_loai: kdg, tong_so_can_bo_duoc_danh_gia: tot + (i === 3 ? 2 : 0), ngay_cap_nhat: '2026-01-' + String(10 + i).padStart(2, '0') }); }); } },
+  /* đánh giá cán bộ: bản năm 2025 và bản quý của năm 2026 */
+  dang2: { ky: 'quy', gen: (x, push, r) => { const nam = x.y === 2025; if (nam && x.q !== 4) return; const ky = nam ? { ky_bao_cao: 'nam', quy: null } : {}; efVs('dang2', 'don_vi').forEach((dv, i) => { const tot = r.i(40, 900), xs = Math.round(tot * (0.12 + 0.08 * r.f())), kht = Math.round(tot * 0.01 * r.f()), kdg = r.i(0, 3), ht = Math.round(tot * 0.2 * r.f()), tot2 = tot - xs - kht - kdg - ht;
+    push(Object.assign({ don_vi: dv, so_hoan_thanh_xuat_sac_nhiem_vu: xs, so_hoan_thanh_tot_nhiem_vu: tot2, so_hoan_thanh_nhiem_vu: ht, so_khong_hoan_thanh_nhiem_vu: kht, so_khong_danh_gia_xep_loai: kdg, tong_so_can_bo_duoc_danh_gia: tot + (nam && i === 3 ? 2 : 0), ngay_cap_nhat: nam ? '2026-01-' + String(10 + i).padStart(2, '0') : efMauNgay(x.y, x.m, 10 + i) }, ky)); }); } },
   dang3: { ky: 'thang', gen: (x, push, r) => { for (let i = 0; i < 6; i++) { const d = r.i(1, 20), xong = r.c(0.6);
     push({ chuc_vu: r.p(['Chuyên viên', 'Phó Trưởng phòng', 'Trưởng phòng', 'Phó Chủ tịch UBND', 'Bí thư chi bộ']), noi_dung_chi_tiet: r.p(['Thẩm định tiêu chuẩn chính trị', 'Đi công tác nước ngoài theo đoàn', 'Giải quyết chế độ chính sách', 'Xác minh lý lịch']),
       thoi_gian_bat_dau: efMauNgay(x.y, x.m, d), thoi_gian_ket_thuc: xong ? efMauNgay(x.y, x.m, d + r.i(2, 8)) : null, trang_thai_xu_ly_thuc_hien: xong ? 'hoan_thanh' : r.p(['dang_xu_ly_dang_xac_minh', 'dang_xu_ly_dang_xac_minh', 'tam_dung']),
@@ -157,8 +159,9 @@ const EF_MAU_CFG = {
   /* ---------- Trục UBND: VP UBND Thành phố ---------- */
   vpub1: { ky: 'quy', gen: (x, push, r) => { efVs('vpub1', 'don_vi_bao_cao').forEach((dv, i) => { const t = Math.round(CTM_XA[i].ds * (0.05 + 0.03 * r.f())), xl = Math.round(t * (0.9 + 0.095 * r.f()));
     push({ don_vi_bao_cao: dv, cap_bao_cao: efVof('vpub1', 'cap_bao_cao', 'Xã/Phường'), tong_so_van_ban_ho_so_cong_viec: t, so_van_ban_ho_so_xu_ly_tren_moi_truong_mang: xl, ty_le_tu_tinh: Math.round(xl / t * 1000) / 10 + (x.pi === 6 && i === 4 ? 5 : 0), ghi_chu: '' }); }); } },
-  vpub2: { ky: 'nam', gen: (x, push, r) => { efVs('vpub2', 'don_vi_bao_cao').slice(0, 60).forEach((dv, i) => { const co = r.c(x.y === 2026 ? 0.7 : 0.45);
-    push({ don_vi_bao_cao: dv, doi_tuong_phuc_vu: r.p(['Người dân, doanh nghiệp', 'Cán bộ, công chức']), da_trien_khai_tro_ly_ao: co ? 'Có' : 'Không', ten_ung_dung_tro_ly_ao: co ? r.p(['Trợ lý ảo iHanoi', 'Trợ lý ảo hành chính công', 'Trợ lý ảo văn bản']) : '', ghi_chu: '' }); }); } },
+  /* trợ lý ảo: bản năm 2025 và bản quý của năm 2026 */
+  vpub2: { ky: 'quy', gen: (x, push, r) => { const nam = x.y === 2025; if (nam && x.q !== 4) return; efVs('vpub2', 'don_vi_bao_cao').slice(0, 60).forEach((dv, i) => { const co = r.c(nam ? 0.45 : 0.5 + 0.08 * x.q);
+    push({ ...(nam ? { ky_bao_cao: 'nam', quy: null } : {}), don_vi_bao_cao: dv, doi_tuong_phuc_vu: r.p(['Người dân, doanh nghiệp', 'Cán bộ, công chức']), da_trien_khai_tro_ly_ao: co ? 'Có' : 'Không', ten_ung_dung_tro_ly_ao: co ? r.p(['Trợ lý ảo iHanoi', 'Trợ lý ảo hành chính công', 'Trợ lý ảo văn bản']) : '', ghi_chu: '' }); }); } },
   vpub3: { ky: 'thang', gen: (x, push, r) => { for (let i = 0; i < 7; i++) { const g = r.i(1, 15), st = r.p(efVs('vpub3', 'trang_thai_thuc_hien')), xong = /hoan_thanh/.test(st);
     push({ ten_nhiem_vu: r.p(['Triển khai Đề án 06', 'Rà soát thủ tục hành chính', 'Báo cáo giải ngân đầu tư công', 'Xây dựng cơ sở dữ liệu đất đai', 'Chuyển đổi số y tế']) + ' (' + x.m + '/' + x.y + ')', co_quan_giao: r.p(['Chính phủ', 'Thủ tướng Chính phủ', 'Văn phòng Chính phủ']),
       van_ban_giao_nhiem_vu: r.i(100, 999) + '/VPCP-' + r.p(['KSTT', 'TH', 'KTTH']), ngay_giao: efMauNgay(x.y, x.m, g), han_hoan_thanh: efMauNgay(x.y, x.m, Math.min(28, g + 12)), don_vi_chu_tri: r.p(['Sở Tài chính', 'Sở Nội vụ', 'Sở Nông nghiệp và Môi trường', 'Sở Y tế']), don_vi_phoi_hop: r.p(['Văn phòng UBND Thành phố', 'Sở Khoa học và Công nghệ']),

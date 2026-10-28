@@ -246,6 +246,17 @@ console.log('== Theo 126 xã, phường: bảng xếp hạng, hồ sơ xã — s
   ok(/stc-lg/.test(hg) && /Xem đủ 126 xã, phường/.test(hg) && /Xem đủ \d+ dòng/.test(hg), 'màn nhóm Biến động Đảng viên: thẻ so sánh kỳ, top xã, bảng thu gọn có "Xem đủ"');
 }
 
+console.log('== Kỳ chưa có bản ghi: nói rõ, chỉ kỳ gần nhất có số');
+{
+  run('CTM_UI.gran="quy"');
+  ok(run('efPick')(CFG.dang2, '2026Q3').used.length > 0 && run('efPick')(CFG.dang2, '2025').used.length > 0, 'dang2: có bản ghi quý 2026 và bản năm 2025');
+  const h = screen('dang-to-chuc', 'group', '2025Q2', 'CTM_UI.group="dang2";');
+  ok(/Kỳ này chưa có bản ghi/.test(h) && /efGoKy\(/.test(h) && !/stc-lg/.test(h), 'dang2 Quý 2/2025 (chưa có bản ghi): báo trống, có nút sang kỳ có số, không vẽ thẻ rỗng');
+  run('efGoKy("nam","2025")');
+  ok(run('CTM_UI.gran') === 'nam' && run('CTM_UI.period') === '2025', 'bấm nút → chuyển sang Năm 2025');
+  run('CTM_UI.gran="quy"');
+}
+
 console.log('== Màn ngoài các trục');
 {
   const cats = (roles) => { const c2 = []; return c2; };
