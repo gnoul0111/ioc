@@ -181,7 +181,9 @@ function ctmDd(id, label, cur, opts, handler) {
   return '<div class="stc-dd' + (open ? ' open' : '') + '"><button type="button" class="stc-ddb" aria-haspopup="listbox" aria-expanded="' + open + '" onclick="ctmDdToggle(\'' + id + '\')"><small>' + ctmE(label) + '</small><b>' + ctmE(cv ? cv.text : '—') + '</b><span class="stc-ddc"></span></button>' + list + '</div>';
 }
 function ctmHeader(spec, back) {
-  const b = back === 'home' ? ctmLnk('← Tổng quan', "ctmGo('home')") : '';
+  /* nút quay lại đúng màn trước (CTM_HIST); màn trước không phải Tổng quan thì thêm lối về Tổng quan */
+  const prev = CTM_HIST[CTM_HIST.length - 1], pl = prev && prev.screen !== 'home' ? ctmHistLabel(spec, prev) : '';
+  const b = back !== 'home' ? '' : pl ? ctmLnk('← ' + pl, 'ctmBack()') + '<span style="opacity:.5;margin:0 8px">·</span>' + ctmLnk('Tổng quan', "ctmGo('home')") : ctmLnk('← Tổng quan', 'ctmBack()');
   const opts = spec.periods.map((p) => ({ v: p.id, text: p.label }));
   /* spec.grans: đơn vị cho chọn xem theo Tháng / Quý / Năm (chỉ tiêu theo eform cấp Thành phố, ctm-eform.js) */
   const gran = spec.grans ? ctmDd('gran', 'Xem theo', CTM_UI.gran || 'quy', spec.grans.map((g) => ({ v: g[0], text: g[1] })), 'ctmSetGran') : '';
@@ -666,7 +668,7 @@ function ctmOpenForm(catId, itemIndex, role) {
   const spec = CTM_SPECS[catId];
   if (!spec) return;
   if (CTM_UI.id !== catId) { CTM_UI.period = spec.periods[0].id; CTM_UI.xa.ind = spec.xa ? spec.xa.inds[0].id : null; CTM_UI.xa.f = 'all'; CTM_UI.xa.q = ''; CTM_UI.rec = { f: 'all', q: '', key: null }; }
-  CTM_UI.id = catId; CTM_UI.role = role || spec.role; CTM_UI.dd = null; CTM_UI.xa.sel = null;
+  CTM_UI.id = catId; CTM_UI.role = role || spec.role; CTM_UI.dd = null; CTM_UI.xa.sel = null; CTM_HIST.length = 0;
   const t = typeof itemIndex === 'string' ? itemIndex : '';
   if (t.indexOf('g:') === 0 && (spec.groups || []).some((g) => g.id === t.slice(2))) { CTM_UI.screen = 'group'; CTM_UI.group = t.slice(2); }
   else if (t.indexOf('xa') === 0 && spec.xa) { CTM_UI.screen = 'xa'; if (t.length > 3) CTM_UI.xa.ind = t.slice(3); }
@@ -682,15 +684,35 @@ function ctmOpenForm(catId, itemIndex, role) {
   ctmFitLines(document.getElementById('modalBody'));
 }
 function ctmClose() { CTM_UI.open = false; if (typeof closeModal === 'function') closeModal(); }
-function ctmGo(screen, arg) { CTM_UI.dd = null; CTM_UI.xa.sel = null; CTM_UI.screen = screen; if (screen === 'group' && arg) CTM_UI.group = arg; ctmRerender(true); }
-function ctmXa(ind) { CTM_UI.dd = null; CTM_UI.screen = 'xa'; CTM_UI.xa.sel = null; if (ind) CTM_UI.xa.ind = ind; ctmRerender(true); }
+/* Lịch sử màn trong popup: mỗi lần sang màn khác thì nhớ màn đang đứng (nhóm, chỉ tiêu và hồ sơ xã đang mở, bộ lọc của
+   Dữ liệu đã nhập) để nút "←" ở đầu màn quay lại đúng màn đó. Về Tổng quan hoặc mở đơn vị khác thì xóa lịch sử. */
+const CTM_HIST = [];
+function ctmPush() { const U = CTM_UI; CTM_HIST.push({ screen: U.screen, group: U.group, xa: { ind: U.xa.ind, f: U.xa.f, q: U.xa.q, sel: U.xa.sel }, rec: Object.assign({}, U.rec) }); if (CTM_HIST.length > 30) CTM_HIST.shift(); }
+function ctmHistLabel(spec, h) {
+  if (h.screen === 'group') { const g = (spec.groups || []).find((x) => x.id === h.group); return g ? g.label : 'Nhóm'; }
+  if (h.screen === 'xa') return spec.xa ? ctmXaLabel(spec) + (h.xa.sel ? ' · ' + h.xa.sel : '') : 'Theo xã, phường';
+  if (h.screen === 'rec') return spec.rec ? spec.rec.label : 'Dữ liệu đã nhập';
+  return 'Tổng quan';
+}
+function ctmBack() {
+  const h = CTM_HIST.pop();
+  if (!h) { ctmGo('home'); return; }
+  CTM_UI.dd = null; CTM_UI.screen = h.screen; CTM_UI.group = h.group; Object.assign(CTM_UI.xa, h.xa, { anim: false }); CTM_UI.rec = h.rec;
+  ctmRerender(true);
+}
+function ctmGo(screen, arg) {
+  if (screen === 'home') CTM_HIST.length = 0;
+  else if (screen !== CTM_UI.screen || (screen === 'group' && arg && arg !== CTM_UI.group)) ctmPush();
+  CTM_UI.dd = null; CTM_UI.xa.sel = null; CTM_UI.screen = screen; if (screen === 'group' && arg) CTM_UI.group = arg; ctmRerender(true);
+}
+function ctmXa(ind) { if (CTM_UI.screen !== 'xa') ctmPush(); CTM_UI.dd = null; CTM_UI.screen = 'xa'; CTM_UI.xa.sel = null; if (ind) CTM_UI.xa.ind = ind; ctmRerender(true); }
 function ctmXaPick(ind) { CTM_UI.xa.ind = ind; ctmRerender(false); }
 function ctmXaF(f) { CTM_UI.xa.f = f; ctmRerender(false); }
 function ctmXaQ(v) { CTM_UI.xa.q = v; CTM_UI.focusQ = true; ctmRerender(false); }
 function ctmXaSel(name) { const X = CTM_UI.xa; X.anim = !!name && !X.sel; X.sel = name || null; ctmRerender(false); }
 function ctmXaStep(d) { const X = CTM_UI.xa, at = X.order.indexOf(X.sel); if (at < 0 || !X.order[at + d]) return; X.sel = X.order[at + d]; ctmRerender(false); }
 /* Màn Dữ liệu đã nhập: key = dòng số liệu hoặc ô số (chỉ hiện các bản ghi tạo ra số đó), null = mọi bản ghi của kỳ */
-function ctmRec(key) { CTM_UI.dd = null; CTM_UI.screen = 'rec'; CTM_UI.rec = { f: 'all', q: '', key: key || null, ef: CTM_UI.rec.ef }; ctmRerender(true); }
+function ctmRec(key) { if (CTM_UI.screen !== 'rec') ctmPush(); CTM_UI.dd = null; CTM_UI.screen = 'rec'; CTM_UI.rec = { f: 'all', q: '', key: key || null, ef: CTM_UI.rec.ef }; ctmRerender(true); }
 function ctmSetGran(g) { CTM_UI.dd = null; CTM_UI.gran = String(g); CTM_UI.period = null; ctmRerender(false); }
 function ctmRecF(f) { CTM_UI.rec.f = f; ctmRerender(false); }
 function ctmRecQ(v) { CTM_UI.rec.q = v; CTM_UI.focusQ = true; ctmRerender(false); }

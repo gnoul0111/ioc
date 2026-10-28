@@ -337,7 +337,7 @@ function efXaSpec(def, mk) {
         (ms.length ? ' Có ' + ms.map((e) => miss[e] + ' bản ghi «' + (EF_CFG[e].ten || EFK[e].ten) + '»').join(', ') + ' ghi xã, phường không khớp danh sách 126 nên chưa vào bảng này (xem ở Dữ liệu đã nhập).' : '');
     },
     profile: (r, n) => {
-      const ls = cfgs.filter((c) => r.n[c.ef]).map((c) => ctmLnk('Xem ' + r.n[c.ef] + ' bản ghi «' + (c.ten || EFK[c.ef].ten) + '» của ' + r.u.name + ' ›', 'ctmXaSel(null);ctmRec(' + ctmJs(efKey(c.ef, [[efXaTruong(c), r.k[c.ef]]])) + ')'));
+      const ls = cfgs.filter((c) => r.n[c.ef]).map((c) => ctmLnk('Xem ' + r.n[c.ef] + ' bản ghi «' + (c.ten || EFK[c.ef].ten) + '» của ' + r.u.name + ' ›', 'ctmRec(' + ctmJs(efKey(c.ef, [[efXaTruong(c), r.k[c.ef]]])) + ')'));
       return ls.length ? '<div class="stc-sec" style="margin:14px 0 8px">Bản ghi đã nhập</div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start">' + ls.join('') + '</div>' : '<div class="stc-hint" style="margin-top:12px">Kỳ này xã, phường chưa có bản ghi.</div>';
     }
   };

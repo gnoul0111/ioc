@@ -302,5 +302,29 @@ console.log('== Tài khoản Ban HĐND: eform 4 lọc sẵn «Đơn vị thực 
   run('currentRole=null;currentOfficeId=null;CTM_UI.open=false;');
 }
 
+console.log('== Nút ← ở đầu màn quay lại đúng màn trước');
+{
+  const st = () => run('JSON.stringify({s:CTM_UI.screen,g:CTM_UI.group,sel:CTM_UI.xa.sel,key:CTM_UI.rec.key})');
+  const head = () => unesc(run('ctmHeader(CTM_SPECS["dang-to-chuc"],"home")').replace(/<[^>]*>/g, ' '));
+  run('CTM_UI.gran="quy";CTM_UI.id="dang-to-chuc";CTM_UI.period="2026Q3";CTM_HIST.length=0;CTM_UI.screen="home";');
+  run('ctmGo("group","dang5")');
+  ok(/← Tổng quan/.test(head()), 'màn nhóm mở từ Tổng quan: nút "← Tổng quan"');
+  run('ctmRec(' + JSON.stringify(run('efKey')('dang5', [['dia_ban', 'Phường Cửa Nam']])) + ')');
+  ok(/← Biến động Đảng viên/.test(head()) && /Tổng quan/.test(head()), 'Dữ liệu đã nhập mở từ màn nhóm: nút "← <tên nhóm>" và lối về Tổng quan');
+  run('ctmRecF("bad")');
+  ok(/← Biến động Đảng viên/.test(head()), 'lọc trong Dữ liệu đã nhập không thêm lịch sử');
+  run('ctmBack()');
+  ok(JSON.parse(st()).s === 'group' && JSON.parse(st()).g === 'dang5', 'bấm ← về đúng màn nhóm Biến động Đảng viên');
+  run('ctmXa();ctmXaSel("Phường Cửa Nam");ctmRec(' + JSON.stringify(run('efKey')('dang5', [['dia_ban', 'Phường Cửa Nam']])) + ')');
+  ok(/← Theo 126 xã, phường · Phường Cửa Nam/.test(head()), 'mở bản ghi từ hồ sơ xã: nút ghi "← Theo 126 xã, phường · Phường Cửa Nam"');
+  run('ctmBack()');
+  const s1 = JSON.parse(st());
+  ok(s1.s === 'xa' && s1.sel === 'Phường Cửa Nam', 'bấm ← về màn 126 xã, hồ sơ Phường Cửa Nam vẫn mở');
+  run('ctmBack()');
+  ok(JSON.parse(st()).s === 'group', 'bấm ← lần nữa về màn nhóm');
+  run('ctmGo("home")');
+  ok(run('CTM_HIST.length') === 0, 'về Tổng quan thì xóa lịch sử');
+}
+
 console.log('\n' + pass + ' đạt, ' + fail + ' lỗi');
 process.exit(fail ? 1 : 0);
