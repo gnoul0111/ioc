@@ -377,7 +377,7 @@ function ctmCardHtml(spec, c, n) {
     const top = rows.slice(0, c.n || 10), mx = Math.max.apply(null, top.map((r) => Math.abs(ctmXaVal(I, r)))) || 1;
     const b = top.map((r, i) => ctmPg((i + 1) + '. ' + r.u.name, '', Math.abs(ctmXaVal(I, r)) / mx * 100, 'var(--s1)', ctmF(ctmXaVal(I, r), I.d) + (I.u === '%' ? '%' : ''))).join('') +
       '<div class="stc-hint" style="margin-top:10px">' + (noRank ? (I.better === 'none' && !I.tot && /trên [\d.]+ (dân|hộ)|bình quân|\//.test(String(I.l || '') + ' ' + String(I.u || '')) ? 'Nhiều hay ít không tự thân là tốt hay xấu nên chỉ để biết nơi nhiều nhất, không phải xếp hạng tốt/kém. ' : 'Số tuyệt đối, phụ thuộc quy mô dân số nên chỉ để biết nơi nhiều nhất, không phải xếp hạng tốt/kém. ') : '') + ctmLnk('Xem đủ 126 xã, phường ›', 'ctmXa(' + ctmJs(I.id) + ')') + '</div>';
-    return ctmCard({ t: (noRank ? (c.t && !/thấp nhất/i.test(c.t) ? c.t : 'Nhiều nhất: ' + I.l) : c.t || (low ? 'Thấp nhất: ' : 'Cao nhất: ') + I.l), s: sub != null ? sub : (c.n || 10) + ' xã, phường · ' + ctmPLabel(spec, n.p) + ' · ' + I.u, xa: I.id, b: b });
+    return ctmCard({ t: (noRank ? (c.t && !/thấp nhất/i.test(c.t) ? c.t : 'Nhiều nhất: ' + I.l) : c.t || (low ? 'Thấp nhất: ' : 'Cao nhất: ') + I.l), s: sub != null ? sub : (c.n || 10) + ' xã, phường · ' + ctmPLabel(spec, n.p) + (I.u ? ' · ' + I.u : ''), xa: I.id, b: b });
   }
   if (c.type === 'rates') {
     const shown = (c.items || []).filter((k) => !ctmM(spec, k).plan);
@@ -577,17 +577,19 @@ function ctmScreenXa(spec) {
   const list = sorted.concat(small, rows.filter((r) => ctmXaVal(I, r) == null)).filter((r) => (X.f === 'all' || r.u.k === X.f) && (!q || ctmNorm(r.u.name).indexOf(q) >= 0));
   X.order = list.map((r) => r.u.name);
   const lastH = I.tot ? 'Tỷ trọng' : 'So mức TP';
-  const head = '<div class="sgd-xt-row sgd-xt-head ctm-xr"><span>' + (noRank ? 'Thứ tự' : 'Hạng') + '</span><span>Xã, phường</span><span class="sgd-num">Dân số</span><span class="sgd-num">' + ctmE(I.u === '%' ? 'Tỷ lệ' : 'Giá trị') + '</span><span class="sgd-num">' + lastH + '</span></div>';
+  /* spec.xa.cot: cột thứ 3 thay cho Dân số (chỉ tiêu theo eform không dùng dân số — VD số bản ghi của xã) */
+  const C3 = spec.xa.cot || { l: 'Dân số', v: (I0, r) => r.u.ds };
+  const head = '<div class="sgd-xt-row sgd-xt-head ctm-xr"><span>' + (noRank ? 'Thứ tự' : 'Hạng') + '</span><span>Xã, phường</span><span class="sgd-num">' + ctmE(C3.l) + '</span><span class="sgd-num">' + ctmE(I.u === '%' ? 'Tỷ lệ' : 'Giá trị') + '</span><span class="sgd-num">' + lastH + '</span></div>';
   const body = list.map((r) => {
     const v = ctmXaVal(I, r), rk = ctmXaRank(I, rows, r);
     const last = v == null ? '—' : ctmXaSmall(I, r) ? '<span class="stc-dl na">Mẫu nhỏ</span>' : I.tot ? (tp ? ctmF(v / tp * 100, 1) + '%' : '—') : ctmDl(v, tp, { rate: I.u === '%', inv: low, neutral: noRank, d: I.d, eq: 'Bằng mức TP' });
     const on = (here && r === here) || X.sel === r.u.name;
-    return '<div class="sgd-xt-row ctm-xr' + (on ? ' on' : '') + '"><span class="sgd-no">' + (rk || '—') + '</span><button type="button" class="sgd-xbtn" onclick="ctmXaSel(' + ctmJs(r.u.name) + ')"><i class="ctm-pk ' + (r.u.k === 'P' ? 'p' : 'x') + '">' + (r.u.k === 'P' ? 'P' : 'X') + '</i>' + ctmE(r.u.short) + '</button><span class="sgd-num sgd-mute">' + ctmF(r.u.ds) + '</span><span class="sgd-num sgd-strong">' + ctmF(v, I.d) + '</span><span class="sgd-num">' + last + '</span></div>';
+    return '<div class="sgd-xt-row ctm-xr' + (on ? ' on' : '') + '"><span class="sgd-no">' + (rk || '—') + '</span><button type="button" class="sgd-xbtn" onclick="ctmXaSel(' + ctmJs(r.u.name) + ')"><i class="ctm-pk ' + (r.u.k === 'P' ? 'p' : 'x') + '">' + (r.u.k === 'P' ? 'P' : 'X') + '</i>' + ctmE(r.u.short) + '</button><span class="sgd-num sgd-mute">' + ctmF(C3.v(I, r)) + '</span><span class="sgd-num sgd-strong">' + ctmF(v, I.d) + '</span><span class="sgd-num">' + last + '</span></div>';
   }).join('') || '<div class="sgd-xt-row"><span class="sgd-mute">Không có xã, phường phù hợp bộ lọc.</span></div>';
   const nP = rows.filter((r) => r.u.k === 'P').length, nX = rows.length - nP;
   const tools = '<div class="ctm-tools"><div class="sgd-pills">' + [['all', 'Tất cả ' + rows.length], ['P', nP + ' phường'], ['X', nX + ' xã']].map((p) => '<button type="button" class="sgd-pill' + (X.f === p[0] ? ' on' : '') + '" onclick="ctmXaF(\'' + p[0] + '\')">' + p[1] + '</button>').join('') + '</div>' +
     '<label class="sgd-search"><small>Tìm</small><input id="ctmQ" value="' + ctmE(X.q) + '" placeholder="Tên xã, phường" oninput="ctmXaQ(this.value)" aria-label="Tìm xã, phường"></label></div>';
-  const right = '<div style="min-width:0"><div class="stc-mchips">' + chips + '</div><div class="stc-card" style="padding:14px 14px 12px"><div class="stc-ch" style="margin-bottom:0"><div><h3 class="stc-ct">' + ctmE(I.l) + '</h3><div class="stc-cs">' + ctmE(I.u + ' · ' + ctmPLabel(spec, n.p) + (here ? ' · dòng đánh dấu là ' + here.u.name : '') + ' · bấm tên để xem hồ sơ') + '</div></div></div>' + tools + '<div class="sgd-xt-box">' + head + body + '</div></div></div>';
+  const right = '<div style="min-width:0"><div class="stc-mchips">' + chips + '</div><div class="stc-card" style="padding:14px 14px 12px"><div class="stc-ch" style="margin-bottom:0"><div><h3 class="stc-ct">' + ctmE(I.l) + '</h3><div class="stc-cs">' + ctmE((I.u ? I.u + ' · ' : '') + ctmPLabel(spec, n.p) + (here ? ' · dòng đánh dấu là ' + here.u.name : '') + ' · bấm tên để xem hồ sơ') + '</div></div></div>' + tools + '<div class="sgd-xt-box">' + head + body + '</div></div></div>';
   let h = ctmHeader(spec, 'home') + '<div class="stc-explore">' + nav + right + '</div>';
   const note = ctmText(spec.xa.note, n.D, n.P, n);
   if (note) h += '<div class="stc-mt">' + ctmNote(note) + '</div>';
@@ -601,13 +603,13 @@ function ctmXaDrawer(spec, rows, name, n) {
   const chips = spec.xa.inds.map((I) => {
     const v = ctmXaVal(I, r), rk = ctmXaRank(I, rows, r), nn = rows.filter((x) => ctmXaVal(I, x) != null && !ctmXaSmall(I, x)).length;
     const pos = v == null ? 'Chưa có số' : ctmXaSmall(I, r) ? 'Mẫu nhỏ, không xếp hạng' : (ctmXaNoRank(I) ? 'Thứ tự ' : 'Hạng ') + rk + '/' + nn;
-    return '<div class="stc-mchip"><div class="stc-k">' + ctmE(I.l) + '</div><div class="stc-v">' + ctmF(v, I.d) + (I.u === '%' ? '%' : '') + '</div><div class="stc-hint">' + ctmE(pos + (I.u !== '%' ? ' · ' + I.u : '')) + '</div></div>';
+    return '<div class="stc-mchip"><div class="stc-k">' + ctmE(I.l) + '</div><div class="stc-v">' + ctmF(v, I.d) + (I.u === '%' ? '%' : '') + '</div><div class="stc-hint">' + ctmE(pos + (I.u && I.u !== '%' ? ' · ' + I.u : '')) + '</div></div>';
   }).join('');
   const extra = ctmText(spec.xa.profile, r, n);
   return '<div class="sgd-dw-bg' + anim + '" onclick="ctmXaSel(null)"></div><aside class="sgd-dw' + anim + '" role="dialog" aria-label="Hồ sơ ' + ctmE(r.u.name) + '"><div class="sgd-dw-top">' +
     '<button type="button" class="sgd-dw-nav" onclick="ctmXaStep(-1)"' + (at > 0 ? '' : ' disabled') + '>‹ Trước</button><span class="sgd-dw-pos">' + (at >= 0 ? (at + 1) + '/' + X.order.length : '') + '</span><button type="button" class="sgd-dw-nav" onclick="ctmXaStep(1)"' + (at >= 0 && at < X.order.length - 1 ? '' : ' disabled') + '>Sau ›</button>' +
     '<button type="button" class="sgd-dw-x" onclick="ctmXaSel(null)" aria-label="Đóng">×</button></div><div class="sgd-dw-body">' +
-    '<h3 style="font-size:17px;font-weight:700;margin:0 0 4px">' + ctmE(r.u.name) + '</h3><div class="stc-hint" style="margin-bottom:12px">Diện tích ' + ctmF(r.u.dt, 2) + ' km² · dân số ' + ctmF(r.u.ds) + ' người · mật độ ' + ctmF(r.u.den) + ' người/km² · ' + ctmE(ctmPLabel(spec, n.p)) + '</div>' +
+    '<h3 style="font-size:17px;font-weight:700;margin:0 0 4px">' + ctmE(r.u.name) + '</h3><div class="stc-hint" style="margin-bottom:12px">' + (spec.xa.noDs ? '' : 'Diện tích ' + ctmF(r.u.dt, 2) + ' km² · dân số ' + ctmF(r.u.ds) + ' người · mật độ ' + ctmF(r.u.den) + ' người/km² · ') + ctmE(ctmPLabel(spec, n.p)) + '</div>' +
     '<div class="stc-mchips">' + chips + '</div>' + (extra || '') + '</div></aside>';
 }
 
@@ -736,9 +738,10 @@ async function ctmExport() {
   }
   if (spec.xa) {
     const wx = wb.addWorksheet('Theo xã, phường');
-    wx.addRow(['Xã, phường', 'Loại', 'Dân số', 'Diện tích (km²)'].concat(spec.xa.inds.map((I) => I.l + ' (' + I.u + ')'))).font = { bold: true };
-    ctmXaRows(spec, n.p).forEach((r) => wx.addRow([r.u.name, r.u.k === 'P' ? 'Phường' : 'Xã', r.u.ds, r.u.dt].concat(spec.xa.inds.map((I) => { const v = ctmXaVal(I, r); return v == null ? null : Math.round(v * 100) / 100; }))));
-    wx.columns = [{ width: 32 }, { width: 10 }, { width: 12 }, { width: 14 }].concat(spec.xa.inds.map(() => ({ width: 22 })));
+    const nd = !!spec.xa.noDs;
+    wx.addRow(['Xã, phường', 'Loại'].concat(nd ? [] : ['Dân số', 'Diện tích (km²)'], spec.xa.inds.map((I) => I.l + ' (' + I.u + ')'))).font = { bold: true };
+    ctmXaRows(spec, n.p).forEach((r) => wx.addRow([r.u.name, r.u.k === 'P' ? 'Phường' : 'Xã'].concat(nd ? [] : [r.u.ds, r.u.dt], spec.xa.inds.map((I) => { const v = ctmXaVal(I, r); return v == null ? null : Math.round(v * 100) / 100; }))));
+    wx.columns = [{ width: 32 }, { width: 10 }].concat(nd ? [] : [{ width: 12 }, { width: 14 }], spec.xa.inds.map(() => ({ width: 22 })));
   }
   const buf = await wb.xlsx.writeBuffer();
   const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

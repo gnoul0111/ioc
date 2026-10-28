@@ -51,14 +51,14 @@ console.log('== Khung eform cấp Thành phố sinh từ file');
 console.log('== Chỉ dùng trường của eform (không thêm chỉ tiêu, trường)');
 TRUC_EF.forEach((e) => {
   const cfg = CFG[e], F = EFK[e].F, has = (c) => c === '_kyId' || !!F[c];
-  const used = [].concat(cfg.khoa || [], cfg.cap || [], cfg.diaBan ? [cfg.diaBan] : [], cfg.dvt ? [cfg.dvt] : [], (cfg.bieu || []).filter((b) => b.theo).map((b) => b.theo),
+  const used = [].concat(cfg.khoa || [], cfg.cap || [], cfg.diaBan ? [cfg.diaBan] : [], cfg.xaTruong ? [cfg.xaTruong] : [], cfg.dvt ? [cfg.dvt] : [], (cfg.bieu || []).filter((b) => b.theo).map((b) => b.theo),
     ...(cfg.bang || []).map((t) => t.cap), ...(cfg.kt || []).map((k) => k.c || []), cfg.uuTien ? [cfg.uuTien.c].concat(cfg.uuTien.theo) : []);
   Object.keys(cfg.chi).forEach((id) => { const m = cfg.chi[id]; [].concat(m.c || []).forEach((c) => used.push(c)); (m.theo || []).forEach((c) => used.push(c)); Object.keys(m.loc || {}).forEach((c) => used.push(c)); });
   const bad = used.filter((c) => !has(c));
   ok(!bad.length, e + ': mọi trường dùng để tính, chia cấp, vẽ có trong eform' + (bad.length ? ' — thừa ' + bad.join(', ') : ''));
   const ids = Object.keys(cfg.chi);
   ok(Object.keys(cfg.chi).every((id) => { const m = cfg.chi[id]; return m.loai !== 'tyle' && m.loai !== 'hieu' ? true : /IOC tính/.test(m.l) && ids.indexOf(m.tu || m.a) >= 0 && ids.indexOf(m.mau || m.b) >= 0; }), e + ': số IOC tính (tỷ lệ, hiệu) ghi "IOC tính", tính từ chỉ tiêu của eform');
-  ok([].concat(cfg.cot || [], cfg.the || [], ...(cfg.bieu || []).map((b) => b.ms || [b.m]), ...(cfg.bang || []).map((t) => t.cot)).every((id) => cfg.chi[id]), e + ': bảng, biểu đồ chỉ dùng chỉ tiêu đã khai báo');
+  ok([].concat(cfg.cot || [], cfg.the || [], cfg.xaChi || [], cfg.cotDb || [], ...(cfg.bieu || []).map((b) => b.ms || [b.m]), ...(cfg.bang || []).map((t) => t.cot)).every((id) => cfg.chi[id]), e + ': bảng, biểu đồ chỉ dùng chỉ tiêu đã khai báo');
   /* dữ liệu mẫu: chỉ trường của eform, ô danh mục chỉ nhận mã trong danh mục */
   const raw = run('EF_NGUON')(e), extra = new Set(), badDm = new Set();
   raw.forEach((R) => Object.keys(R).forEach((c) => { const f = F[c]; if (!f) { extra.add(c); return; } if (f.t === 'dm' && R[c] != null && R[c] !== '' && !f.dm.some((o) => o.v === R[c])) badDm.add(c + '=' + R[c]); }));
@@ -112,7 +112,7 @@ run('CTM_UI.gran="quy"');
   UNITS.forEach((u) => S[u].groups.forEach((g) => {
     const e = g.id, cfg = CFG[e], p = S[u].periods[0].id, used = run('efPick')(cfg, p).used;
     if (!used.length || !(cfg.cap || []).length) return;
-    const h = screen(u, 'group', p, 'CTM_UI.group=' + JSON.stringify(e) + ';');
+    const h = screen(u, 'group', p, 'CTM_UI.group=' + JSON.stringify(e) + ';EF_FULL[' + JSON.stringify(e + '|cap') + ']=true;');
     const rows = trs(h, 'ctm-eft ef-tree').filter((r) => /class="ef-d0"/.test(r));
     const keys = rows.map((r) => { const m = unesc(r).match(/ctmRec\(("[^"]*(?:\\.[^"]*)*")\)/); return m ? JSON.parse(m[1]) : null; }).filter(Boolean);
     const n = keys.reduce((s0, k) => { const pk = run('efParseKey')(k); return s0 + used.filter((R) => run('efMatch')(R, pk.path)).length; }, 0);
@@ -208,6 +208,42 @@ console.log('== Đơn vị cũ không có eform: ẩn bằng cờ, không xóa')
   ok(r2('cityOfficeList("HDND").some(function(c){return c.id==="hdnd-kt-ns"})') && !r2('cityOfficeList("HDND").some(function(c){return c.ef})'), 'tài khoản Ban cũ vẫn có trong cây tổ chức; đơn vị eform không phải phòng/ban');
   ok(r2('categorySeed.DANG.find(function(c){return c.id==="dang-to-chuc"}).itemsCu.length') > 0, 'chỉ tiêu cũ của Ban Tổ chức giữ ở itemsCu');
   ok(UNITS.every((u) => ids(S[u].role).indexOf(u) >= 0), 'mọi đơn vị eform có thẻ trong lưới của trục');
+}
+
+console.log('== Theo 126 xã, phường: bảng xếp hạng, hồ sơ xã — số lấy từ bản ghi eform');
+{
+  run('CTM_UI.gran="quy"');
+  const XU = UNITS.filter((u) => S[u].xa);
+  ok(['dang-ubkt', 'dang-to-chuc', 'dang-tuyen-giao', 'dang-noi-chinh', 'mttq-ef3', 'mttq-ef4', 'mttq-ef5', 'mttq-ef6', 'ubnd-vpubnd'].every((u) => XU.indexOf(u) >= 0), 'các đơn vị có eform ghi xã, phường đều có màn 126 xã (' + XU.join(', ') + ')');
+  ok(UNITS.filter((u) => /^hdnd-|mttq-ef[12]$/.test(u)).every((u) => !S[u].xa), 'eform không có trường xã, phường thì không có màn 126 xã');
+  /* kỳ có bản ghi của eform: thử Quý, rồi Năm (eform báo cáo theo năm) */
+  const kyCo = (s, e) => { for (const gr of ['quy', 'nam']) { run('CTM_UI.gran=' + JSON.stringify(gr)); const x = s.periods.find((q) => run('efPick')(CFG[e], q.id).used.length); if (x) return x.id; } run('CTM_UI.gran="quy"'); return s.periods[0].id; };
+  XU.forEach((u) => {
+    const s = S[u];
+    s.xa.inds.forEach((I) => {
+      const p = kyCo(s, I.ef);
+      run('CTM_UI.id=' + JSON.stringify(u) + ';CTM_UI.period=' + JSON.stringify(p) + ';CTM_UI.xa.ind=' + JSON.stringify(I.id) + ';CTM_UI.xa.sel=null;CTM_UI.screen="xa";');
+      const rows = run('ctmXaRows(CTM_SPECS[' + JSON.stringify(u) + '],' + JSON.stringify(p) + ')');
+      ok(rows.length === 126 && !Object.keys(rows.miss).length, u + ' · ' + I.id + ': 126 xã, mọi bản ghi khớp tên xã');
+      const loai = CFG[I.ef].chi[I.id.slice(I.ef.length + 1)].loai;
+      if (I.tot && loai !== 'demkhac') { const vs = rows.map((r) => I.v(r)).filter((v) => v != null), sum = vs.length ? vs.reduce((a0, b0) => a0 + b0, 0) : null, g = run('ctmD')(s, p)[I.id]; ok(sum == null ? g == null : Math.abs(sum - g) < 0.01, u + ' · ' + I.id + ': cộng 126 xã = số của nhóm (' + sum + ' / ' + g + ')'); }
+      const h = run('ctmScreenHtml(CTM_SPECS[' + JSON.stringify(u) + '])');
+      ok(/Bản ghi/.test(h) && !/Dân số/.test(h) && !/NaN|undefined/.test(h), u + ' · ' + I.id + ': màn 126 xã dựng được, không có cột Dân số');
+    });
+    /* hồ sơ một xã: các nút "Xem N bản ghi" mở đúng bản ghi của xã đó */
+    const I = s.xa.inds[0], p = kyCo(s, I.ef);
+    run('CTM_UI.id=' + JSON.stringify(u) + ';CTM_UI.period=' + JSON.stringify(p) + ';');
+    const r = run('ctmXaRows(CTM_SPECS[' + JSON.stringify(u) + '],' + JSON.stringify(p) + ')').find((x) => x.n[I.ef]);
+    run('CTM_UI.xa.ind=' + JSON.stringify(I.id) + ';CTM_UI.screen="xa";ctmScreenHtml(CTM_SPECS[' + JSON.stringify(u) + ']);CTM_UI.xa.sel=' + JSON.stringify(r.u.name) + ';');
+    const hd = run('ctmScreenHtml(CTM_SPECS[' + JSON.stringify(u) + '])');
+    const k = unesc(hd).match(/ctmRec\(("[^"]*(?:\\.[^"]*)*")\)/);
+    ok(!!k && !/Diện tích/.test(hd), u + ': hồ sơ ' + r.u.name + ' có nút xem bản ghi, không ghi diện tích, dân số');
+    if (k) { const hr = screen(u, 'rec', p, 'CTM_UI.rec={f:"all",q:"",key:' + k[1] + ',ef:null};'); ok(trs(hr, 'ctm-rect').length === Math.min(500, r.n[run('efParseKey')(JSON.parse(k[1])).ef]), u + ': bấm → đúng ' + r.n[I.ef] + ' bản ghi của ' + r.u.name); }
+  });
+  run('CTM_UI.gran="quy"');
+  /* màn nhóm có thẻ so sánh kỳ, biểu đồ qua các kỳ, top xã như khuôn cũ */
+  const hg = screen('dang-to-chuc', 'group', '2026Q2', 'CTM_UI.group="dang5";Object.keys(EF_FULL).forEach(function(k){delete EF_FULL[k]});');
+  ok(/stc-lg/.test(hg) && /Xem đủ 126 xã, phường/.test(hg) && /Xem đủ \d+ dòng/.test(hg), 'màn nhóm Biến động Đảng viên: thẻ so sánh kỳ, top xã, bảng thu gọn có "Xem đủ"');
 }
 
 console.log('== Màn ngoài các trục');
