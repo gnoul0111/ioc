@@ -321,7 +321,9 @@ console.log('== Sở đợt 1: bản ghi ưu tiên, kỳ Đột xuất, bỏ «K
   ok(Math.abs(V2.tang - (V2.tm / V2.kt * 100 - 100)) < 1e-9, 'sct2: tốc độ tăng (IOC tính) = tổng mức ÷ doanh thu kỳ trước × 100 − 100');
   ok(/IOC tính: .* × 100 − 100/.test(run('efMoTa')(CFG.sct2, 'tang')), 'sct2: cách tính tốc độ tăng ghi theo tên trường');
   const hn = unesc(screen('ubnd-nnmt', 'group', '2026Q3', 'CTM_UI.group="nnmt3";'));
-  ok(/chưa ghi đơn vị/.test(hn) && /Không phát sinh/.test(hn), 'nnmt: màn eform ghi lưu ý chưa có đơn vị và bỏ «Không phát sinh»');
+  ok(/«ha» là IOC tạm ghi/.test(hn) && /Không phát sinh/.test(hn), 'nnmt: màn eform ghi đơn vị tạm (ha) và bỏ «Không phát sinh»');
+  const U = (e) => run('efUnit')(CFG[e], 'kn');
+  ok(U('nnmt3') === 'ha' && U('nnmt9') === 'tấn' && U('nnmt8') === 'hộ' && U('nnmt6') === '' && U('nnmt10') === '' && /chưa ghi đơn vị/.test(CFG.nnmt6.luuY), 'nnmt: đơn vị tạm theo đoán; khí tượng, bản đồ để số trơn');
   const V1 = run('efVals')(CFG.ttra2, run('efPick')(CFG.ttra2, '2026Q3').used), cuoc = new Set(run('efPick')(CFG.ttra2, '2026Q3').used.filter((R) => R.loai_ban_ghi !== 'khongphatsinh').map((R) => R.so_qd_thanh_tra + '|' + R.dia_ban));
   ok(V1.cuoc > 0 && V1.gtth <= V1.gtkn, 'ttra2: số cuộc và giá trị thu hồi tính được, đã thu hồi không vượt kiến nghị (' + V1.cuoc + ' cuộc, ' + cuoc.size + ' cuộc × xã)');
 }

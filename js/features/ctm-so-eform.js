@@ -242,18 +242,22 @@ const EF_SNV2 = {
 /* ============================== SỞ NN&MT: 10 eform cùng một mẫu 18 trường ============================== */
 const NNMT_TEN = { nnmt1: 'Xã đạt chuẩn nông thôn mới', nnmt2: 'Rừng bị thiệt hại', nnmt3: 'Rừng trồng mới tập trung', nnmt4: 'CTMTQG xây dựng nông thôn mới', nnmt5: 'CTMTQG giảm nghèo bền vững',
   nnmt6: 'Khí tượng thủy văn', nnmt7: 'Công trình phòng chống thiên tai', nnmt8: 'Hỗ trợ lương thực', nnmt9: 'Gạo hỗ trợ', nnmt10: 'Bản đồ, ảnh viễn thám' };
+/* Đơn vị của «Giá trị kỳ này», «Giá trị lũy kế», «Cùng kỳ», «Chênh lệch»: eform không có trường đơn vị tính; anh giao IOC ghi theo đoán
+   (28/10/2026, Sở chưa xác nhận) — màn hình ghi rõ là đơn vị tạm. null: chưa đoán được, hiện số trơn. */
+const NNMT_DVT = { nnmt1: 'xã', nnmt2: 'ha', nnmt3: 'ha', nnmt4: 'triệu đồng', nnmt5: 'triệu đồng', nnmt6: null, nnmt7: 'công trình', nnmt8: 'hộ', nnmt9: 'tấn', nnmt10: null };
 function efNnCfg(ef) {
-  const F = EFK[ef].F, c9 = F.ten_noi_dung_du_an_su_kien ? 'ten_noi_dung_du_an_su_kien' : 'ten_noi_dung_du_an_s', ten = NNMT_TEN[ef], kps = (c) => (F[c].dm || []).filter((o) => o.l === 'Không phát sinh').map((o) => o.v);
+  const dvt = NNMT_DVT[ef], F = EFK[ef].F, c9 = F.ten_noi_dung_du_an_su_kien ? 'ten_noi_dung_du_an_su_kien' : 'ten_noi_dung_du_an_s', ten = NNMT_TEN[ef], kps = (c) => (F[c].dm || []).filter((o) => o.l === 'Không phát sinh').map((o) => o.v);
   const bo = {}; ['phan_to_loai_du_lieu', 'trang_thai_trien_khai'].forEach((c) => { if (kps(c).length) bo[c] = kps(c); });
   return {
     ef: ef, ten: ten, banGhi: 'một nội dung/dự án/sự kiện theo một «Phân tổ/loại dữ liệu» tại một xã, phường (có thể đến thôn/TDP) trong một kỳ',
     khoa: ['dia_ban', 'thon_tdp', 'phan_to_loai_du_lieu', c9], khoaRong: ['thon_tdp', c9], cap: ['phan_to_loai_du_lieu', c9], xaTruong: 'dia_ban', xaChi: ['kn', 'cham'], bo: bo,
-    luuY: 'Eform không có trường đơn vị tính nên giá trị hiện đúng như đã nhập, chưa ghi đơn vị (chờ Sở xác nhận). «Tỷ lệ/tiến độ», «Cùng kỳ/chuẩn so sánh», «Chênh lệch» là số đơn vị tự nhập.',
+    luuY: (dvt ? 'Eform không có trường đơn vị tính: đơn vị «' + dvt + '» là IOC tạm ghi theo tên eform, Sở chưa xác nhận.' : 'Eform không có trường đơn vị tính nên giá trị hiện đúng như đã nhập, chưa ghi đơn vị.') +
+      ' «Tỷ lệ/tiến độ», «Cùng kỳ/chuẩn so sánh», «Chênh lệch» là số đơn vị tự nhập.',
     chi: {
-      kn: { l: efL(ef, 'gia_tri_ky_nay'), loai: 'cong', c: 'gia_tri_ky_nay', u: '' },
-      lk: { l: efL(ef, 'gia_tri_luy_ke'), loai: 'td', c: 'gia_tri_luy_ke', u: '' },
-      ck: { l: efL(ef, 'cung_ky_chuan_so_sanh'), loai: 'cong', c: 'cung_ky_chuan_so_sanh', u: '' },
-      cl: { l: efL(ef, 'chenh_lech_ky_nay_cung_ky'), loai: 'cong', c: 'chenh_lech_ky_nay_cung_ky', u: '' },
+      kn: { l: efL(ef, 'gia_tri_ky_nay'), loai: 'cong', c: 'gia_tri_ky_nay', u: dvt || '' },
+      lk: { l: efL(ef, 'gia_tri_luy_ke'), loai: 'td', c: 'gia_tri_luy_ke', u: dvt || '' },
+      ck: { l: efL(ef, 'cung_ky_chuan_so_sanh'), loai: 'cong', c: 'cung_ky_chuan_so_sanh', u: dvt || '' },
+      cl: { l: efL(ef, 'chenh_lech_ky_nay_cung_ky'), loai: 'cong', c: 'chenh_lech_ky_nay_cung_ky', u: dvt || '' },
       nd: { l: 'Số nội dung', loai: 'dem' },
       ht: { l: 'Hoàn thành', loai: 'dembang', c: 'trang_thai_trien_khai', v: ['hoan_thanh'] },
       cham: { l: 'Chậm tiến độ, đình trệ, cần xử lý', loai: 'dembang', c: 'trang_thai_trien_khai', v: ['cham_tien_do', 'dinh_tre', 'can_xu_ly'] },

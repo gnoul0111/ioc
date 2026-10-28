@@ -25,7 +25,7 @@ def dmt(f):
     return f'{len(ls)} mã: ' + ', '.join(ls[:6]) + (f', … (+{len(ls) - 6})' if len(ls) > 6 else '')
 
 
-def gen(out, title, head, khoi, cfgs, cau, chung=None):
+def gen(out, title, head, khoi, cfgs, cau, chung=None, them=None):
     E = KH[khoi]['eforms']
     assert len(E) == len(cfgs), (len(E), len(cfgs))
     L = [title, ''] + head + ['', 'Mọi eform có trường kỳ «Kỳ báo cáo» (Tháng/Quý/Năm), «Năm», «Tháng», «Quý»: xếp bản ghi vào kỳ; người xem chọn Tháng / Quý / Năm (X12); '
@@ -56,7 +56,7 @@ def gen(out, title, head, khoi, cfgs, cau, chung=None):
         L.append('')
     L += ['## CÂU HỎI VÀ TRẢ LỜI (28/10/2026)', '']
     L += [f'{n + 1}. {q}' for n, q in enumerate(cau)]
-    L += ['', '**Trả lời (28/10/2026):** theo đề xuất ở tất cả các câu. Đơn vị của các eform chưa có trường đơn vị tính: chưa ghi đơn vị cho tới khi được xác nhận.']
+    L += ['', '**Trả lời (28/10/2026):** theo đề xuất ở tất cả các câu.'] + ([''] + them if them else [])
     open(out, 'w', encoding='utf-8').write('\n'.join(L) + '\n')
     print('ok', out, len(E), 'eform', nf, 'trường', len(cau), 'câu hỏi')
 
@@ -328,5 +328,8 @@ if __name__ == '__main__':
     gen(os.path.join(OUTD, 'SO_NNMT_2026_10_28.md'), '# BẢN ĐỌC EFORM — SỞ NÔNG NGHIỆP VÀ MÔI TRƯỜNG (10 eform)',
         HEAD('sheet "Sở NNMT" của "File mô tả đầu vào eform"', 'Sở, ngành → Sở NN&MT → 10 eform (mỗi eform một thẻ — câu hỏi 4) → Nhóm → Dòng số liệu → Bản ghi. Cả 10 eform có «Địa bàn» nên có màn «Theo 126 xã, phường».',
              '10 chỉ tiêu theo cấu hình cũ thay bằng eform; 2 chỉ tiêu nguồn File ẩn bằng cờ, không xóa (câu hỏi 5).'), 'nnmt', NNMT, NNMT_CAU,
+        them=['**Bổ sung (28/10/2026) — câu 1, đơn vị:** anh không có thông tin của Sở nên giao em ghi theo đoán. Đã ghi: nông thôn mới — xã; rừng bị thiệt hại, rừng trồng mới — ha; '
+              '2 chương trình MTQG — triệu đồng; công trình phòng chống thiên tai — công trình; hỗ trợ lương thực — hộ; gạo — tấn. Khí tượng thủy văn, bản đồ và ảnh viễn thám: chưa đoán được, để số trơn. '
+              'Màn hình ghi rõ đơn vị là IOC tạm ghi, Sở chưa xác nhận; bên eform nên thêm trường «Đơn vị tính».'],
         chung=['**10 eform dùng chung một mẫu 18 trường**, chỉ khác danh mục «Phân tổ/loại dữ liệu» (và vài mã trường). Cách hiểu, chỉ tiêu, biểu đồ giống nhau cho cả 10; '
                'bảng trường của từng eform vẫn ghi đủ để đối chiếu.'])
