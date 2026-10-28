@@ -39,10 +39,10 @@ const XA_EF_MAU_CFG = {
     st: ['tong_thu_ngan_sach_nha_nuoc', 'thu_noi_dia', 'thue_gtgt', 'thue_tncn', 'phi_le_phi', 'le_phi', 'tong_chi_ngan_sach_nha_nuoc', 'chi_dau_tu_phat_trien', 'chi_thuong_xuyen', 'tong_von_dau_tu'],
     sl: ['so_luong_doanh_nghiep_dang_hoat_dong', 'so_luong_htx_dang_hoat_dong', 'so_htx_thanh_lap_moi', 'so_luong_du_an_dau_tu_cong', 'so_ho_thieu_doi'] } },
   qlvb: { nhom: 'loai_van_ban', field: 'nhom_chi_tieu', cap: {
-    van_ban_den: ['tong_so_van_ban_den', 'van_ban_den_chua_luu', 'van_ban_den_cho_duy', 'van_ban_den_da_chuye', 'tong_so_cong_van', 'chua_xu_ly', 'dang_xu_ly', 'da_hoan_tat'],
+    van_ban_den: ['tong_so_van_ban_den', 'van_ban_den_chua_luu', 'van_ban_den_cho_duyet', 'van_ban_den_da_chuyen', 'tong_so_cong_van', 'chua_xu_ly', 'dang_xu_ly', 'da_hoan_tat'],
     van_ban_di: ['tong_so_van_ban_di', 'van_ban_lien_thong', 'van_ban_noi_bo'] } },
   gpmb: { nhom: 'nhom_trang_thai' },
-  gd: { nhom: 'nhom_chi_tieu', rows: 4, ten: 'bac_hoc_loai_hinh_giao' },
+  gd: { nhom: 'nhom_chi_tieu', rows: 4, ten: 'bac_hoc_loai_hinh_giao_duc' },
   yte: { nhom: 'nhom_chi_tieu', rows: 3, ten: 'nhom_chi_tieu', dvtDong: true },
   vh: { nhom: 'nhom_chi_tieu', rows: 3, ten: 'doi_tuong_thong_ke', hop: {
     doi_tuong_thong_ke: { nghe_thuat_bieu_dien: ['don_vi_nghe_thuat', 'chuong_trinh', 'lien_hoan', 'hoi_thi'], di_san_van_hoa: ['di_tich', 'di_san_van_hoa_phi_vat_the', 'nghe_nhan'],
