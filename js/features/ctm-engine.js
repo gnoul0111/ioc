@@ -85,7 +85,8 @@ function ctmCtxKey(ctx) { return ctx && ctx.xa ? ctx.xa.name : 'TP'; }
 function ctmD(spec, pid, ctx) {
   if (pid == null) return null;
   ctx = ctx || ctmCtx();
-  const k = spec.id + '|' + pid + '|' + ctmCtxKey(ctx);
+  /* spec.locKey: bộ lọc sẵn theo tài khoản đang bật (ctm-eform.js) — số lọc và số cả đơn vị không dùng chung bộ nhớ đệm */
+  const k = spec.id + '|' + pid + '|' + ctmCtxKey(ctx) + (spec.locKey ? '|' + spec.locKey() : '');
   if (!(k in CTM_CACHE)) { try { CTM_CACHE[k] = spec.data(pid, ctx) || null; } catch (e) { if (typeof console !== 'undefined') console.warn('[ctm] ' + spec.id + ' ' + pid, e); CTM_CACHE[k] = null; } }
   return CTM_CACHE[k];
 }
@@ -185,7 +186,7 @@ function ctmHeader(spec, back) {
   /* spec.grans: đơn vị cho chọn xem theo Tháng / Quý / Năm (chỉ tiêu theo eform cấp Thành phố, ctm-eform.js) */
   const gran = spec.grans ? ctmDd('gran', 'Xem theo', CTM_UI.gran || 'quy', spec.grans.map((g) => ({ v: g[0], text: g[1] })), 'ctmSetGran') : '';
   return '<div class="stc-toolbar"><div class="stc-tl">' + b + '</div><div class="stc-ctrls">' + gran + ctmDd('period', 'Kỳ báo cáo', ctmCurPid(spec), opts, 'ctmSetPeriod') + (typeof indicatorEntryBtnHtml === 'function' ? indicatorEntryBtnHtml() : '') +
-    '<button type="button" class="stc-btn primary" onclick="ctmExport()">' + CTM_ICON_DL + 'Xuất Excel</button></div></div>';
+    '<button type="button" class="stc-btn primary" onclick="ctmExport()">' + CTM_ICON_DL + 'Xuất Excel</button></div></div>' + (spec.locHtml ? spec.locHtml() : '');
 }
 function ctmFoot(spec, n) {
   const how = ctmQuarterly(spec) ? ', số phát sinh và số lũy kế so cùng kỳ năm trước, số tại thời điểm so quý liền trước' : n.pp != null ? ', so với ' + ctmPLabel(spec, n.pp) : '';

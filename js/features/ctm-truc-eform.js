@@ -283,7 +283,11 @@ const EF_HDND_DV = [
   ['hdnd-ef5', 'Kỳ họp và Nghị quyết', EF_HDND5, ['kh', 'nq', 'dh', 'qh', 'tldh']],
   ['hdnd-ef6', 'Chỉ số tổng hợp và kế hoạch hoạt động', EF_HDND6, ['tc', 'dot', 'tlhl', 'kn', 'knll', 'kh']]
 ];
-EF_HDND_DV.forEach(([id, name, cfg, ks]) => ctmEformDonVi({ id: id, role: 'HDND', name: name, short: name, org: 'HĐND Thành phố Hà Nội', eforms: [cfg], laEform: true, kpis: ks.map((m) => ({ ef: cfg.ef, m: m })) }));
+/* Tài khoản các Ban HĐND xem cả 6 eform; riêng eform 4 lọc sẵn «Đơn vị thực hiện» = Ban của mình, bỏ lọc được (TRUC_HDND, câu chốt 5).
+   Danh mục của eform không có Ban Khoa học Công nghệ và Môi trường (null): không lọc, màn ghi rõ lý do. */
+const EF_HDND4_LOC = { ef: 'hdnd4', c: 'don_vi_thuc_hien', tk: { 'hdnd-kt-ns': 'ban_kinh_te_ngan_sach', 'hdnd-vh-xh': 'ban_van_hoa_xa_hoi', 'hdnd-phap-che': 'ban_phap_che', 'hdnd-do-thi': 'ban_do_thi', 'hdnd-khcn-mt': null } };
+EF_HDND_DV.forEach(([id, name, cfg, ks]) => ctmEformDonVi({ id: id, role: 'HDND', name: name, short: name, org: 'HĐND Thành phố Hà Nội', eforms: [cfg], laEform: true, kpis: ks.map((m) => ({ ef: cfg.ef, m: m })),
+  locTk: cfg === EF_HDND4 ? EF_HDND4_LOC : undefined }));
 
 /* ============================== TRỤC MTTQ ============================== */
 const EF_MTTQ1 = {

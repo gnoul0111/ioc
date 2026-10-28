@@ -4,7 +4,8 @@
      · số đã nhập là số hiển thị; số IOC tính (tỷ lệ, hiệu) ghi rõ "IOC tính" và công thức theo tên trường;
      · mọi số lần lại được bản ghi (bấm dòng ở bảng nhóm, cột biểu đồ → các bản ghi tạo ra số đó);
      · kỳ xem chọn Tháng / Quý / Năm (X12); bản tháng và bản quý cùng khóa không cộng chồng (X2); bản trùng khóa lấy bản sau (X1).
-   Khai báo một đơn vị: ctmEformDonVi({ id, role, name, org, short, eforms: [cấu hình eform], kpis: [{ ef, m }], card: [khóa], laEform: đơn vị là chính một eform }).
+   Khai báo một đơn vị: ctmEformDonVi({ id, role, name, org, short, eforms: [cấu hình eform], kpis: [{ ef, m }], card: [khóa], laEform: đơn vị là chính một eform,
+     locTk: lọc sẵn theo tài khoản (xem efLocTk) }).
    Cấu hình một eform (theo bản đọc eform đã duyệt, docs/BAN_DOC_EFORM):
      { ef: mã eform trong EFORM_KHUNG, ten: tên ngắn, banGhi: "một bản ghi là…", khoa: [trường khóa, không gồm kỳ], khoaRong: [trường khóa được để trống],
        cap: [trường chia cấp, cấp 1 trước], chi: { mã: chỉ tiêu }, cot: [mã chỉ tiêu hiện ở bảng], bieu: [biểu đồ],
@@ -96,9 +97,36 @@ function efAll(efId) {
   return (EF_CACHE[efId] = recs);
 }
 function efKhoa(cfg, R) { return (cfg.khoa || []).map((c) => String(R[c] == null ? '' : R[c])).join('|'); }
+/* ---------- Lọc sẵn theo tài khoản (def.locTk = { ef, c: trường danh mục, tk: { mã tài khoản: mã trong danh mục, null khi danh mục không có } }) ----------
+   VD tài khoản Ban HĐND mở eform 4 thì lọc sẵn «Đơn vị thực hiện» = Ban của mình, bỏ lọc được (TRUC_HDND, câu chốt 5).
+   Chỉ lọc khi đang mở đúng đơn vị đó; thẻ, màn ngoài trục vẫn là số cả trục. Bỏ lọc nhớ theo đơn vị + tài khoản. */
+const EF_LOC = {}, EF_LOC_TAT = {};
+function efLocTk(specId) {
+  const L = EF_LOC[specId], role = typeof currentRole !== 'undefined' ? currentRole : null, oid = typeof currentOfficeId !== 'undefined' ? currentOfficeId : null;
+  if (!L || !oid || role !== L.role || !(oid in L.tk)) return null;
+  const cat = typeof categorySeed !== 'undefined' ? (categorySeed[L.role] || []).find((c) => c.id === oid) : null;
+  return { ef: L.ef, c: L.c, v: L.tk[oid], ten: cat ? cat.name : oid, k: specId + '|' + oid };
+}
+function efLocOn(efId) {
+  const specId = Object.keys(EF_LOC).find((s) => EF_LOC[s].ef === efId);
+  if (!specId || !CTM_UI.open || CTM_UI.id !== specId) return null;
+  const T = efLocTk(specId);
+  return T && T.v && !EF_LOC_TAT[T.k] ? T : null;
+}
+function efLocAll(efId) { const T = efLocOn(efId), all = efAll(efId); return T ? all.filter((R) => R[T.c] === T.v) : all; }
+function efLocTat(k) { EF_LOC_TAT[k] = !EF_LOC_TAT[k]; CTM_UI.dd = null; CTM_UI.rec = { f: 'all', q: '', key: null, ef: CTM_UI.rec.ef }; ctmRerender(false); }
+function efLocHtml(specId) {
+  const T = efLocTk(specId);
+  if (!T) return '';
+  const f = EFK[T.ef].F[T.c], fl = '«' + f.l + '»';
+  if (!T.v) return '<div class="stc-mt" style="margin-bottom:14px">' + ctmNote('Tài khoản ' + ctmE(T.ten) + ': danh mục ' + ctmE(fl) + ' của eform không có «' + ctmE(T.ten) + '» nên chưa lọc sẵn được; đang xem mọi ' + ctmE(fl) + '.') + '</div>';
+  const vl = xaEfLb(f, T.v) || T.v;
+  return '<div class="stc-mt" style="margin-bottom:14px">' + ctmNote(EF_LOC_TAT[T.k] ? 'Đang xem mọi ' + ctmE(fl) + '. ' + ctmLnk('Lọc lại theo ' + vl + ' ›', 'efLocTat(' + ctmJs(T.k) + ')')
+    : '<b>Tài khoản ' + ctmE(T.ten) + ': đang lọc sẵn ' + ctmE(fl) + ' = ' + ctmE(vl) + '.</b> Mọi số, biểu đồ và bản ghi ở đây chỉ gồm bản ghi có ' + ctmE(fl) + ' là ' + ctmE(vl) + '. ' + ctmLnk('Bỏ lọc, xem mọi ' + f.l.toLowerCase() + ' ›', 'efLocTat(' + ctmJs(T.k) + ')')) + '</div>';
+}
 /* Bản ghi dùng cho kỳ pid: cùng khóa có bản tháng thì không lấy bản quý, bản năm (X2); bỏ bản đã bị bản sau thay (X1) */
 function efPick(cfg, pid) {
-  const g = efGranOf(pid), all = efAll(cfg.ef);
+  const g = efGranOf(pid), all = efLocAll(cfg.ef);
   if (efKhongKy(cfg.ef)) return { cand: all, used: all.filter((R) => !R._thay) };
   const cand = all.filter((R) => efPidOf(R, g) === pid);
   const by = {};
@@ -331,6 +359,7 @@ function efGoKy(g, p) { CTM_UI.dd = null; CTM_UI.gran = g; CTM_UI.period = p; ct
 /* ---------- Khai báo một đơn vị ---------- */
 function ctmEformDonVi(def) {
   def.eforms.forEach((cfg) => { EF_CFG[cfg.ef] = cfg; });
+  if (def.locTk) EF_LOC[def.id] = Object.assign({ role: def.role }, def.locTk);
   EF_XA[def.id] = efXaInds(def);
   const metrics = {}, mk = (cfg, id) => cfg.ef + '_' + id;
   def.eforms.forEach((cfg) => Object.keys(cfg.chi).forEach((id) => {
@@ -388,7 +417,7 @@ function ctmEformDonVi(def) {
     const X = CTM_UI.rec, pk = efParseKey(X.key);
     if (pk && def.eforms.some((c) => c.ef === pk.ef)) X.ef = pk.ef;
     const cfg = def.eforms.find((c) => c.ef === X.ef) || def.eforms[0], ef = EFK[cfg.ef];
-    const P = efPick(cfg, n.p), all = efAll(cfg.ef), q = ctmNorm(X.q), path = pk && pk.ef === cfg.ef ? pk.path : [];
+    const P = efPick(cfg, n.p), all = efLocAll(cfg.ef), q = ctmNorm(X.q), path = pk && pk.ef === cfg.ef ? pk.path : [];
     const usedSet = new Set(P.used);
     const items = P.cand.map((R) => {
       const bad = efBad(cfg, R, all);
@@ -413,7 +442,8 @@ function ctmEformDonVi(def) {
       const nb = L.items.filter((x) => Object.keys(x.bad).length).length;
       let h = ctmHeader(spec, 'home');
       if (def.eforms.length > 1) h += '<div class="sgd-pills" style="margin:0 0 12px">' + def.eforms.map((c) => '<button type="button" class="sgd-pill' + (c.ef === cfg.ef ? ' on' : '') + '" onclick="ctmRecEf(' + ctmJs(c.ef) + ')">' + ctmE(c.ten || EFK[c.ef].ten) + '</button>').join('') + '</div>';
-      h += ctmNote('<b>Toàn bộ bản ghi đã nhập vào eform «' + ctmE(ef.ten) + '», ' + ctmE(ctmPLabel(spec, n.p)) + ':</b> ' + ctmF(L.items.length) + ' bản ghi, đủ ' + ef.fields.length + ' trường theo đúng thứ tự, tên cột đúng như eform. Một bản ghi là ' + ctmE(cfg.banGhi) + '. Ô tô màu là ô cần xem lại (rê chuột xem lý do); bản ghi không dùng ở phần tổng hợp có ghi lý do ở cột đầu.' +
+      const loc = efLocOn(cfg.ef);
+      h += ctmNote('<b>' + (loc ? 'Bản ghi có «' + ctmE(ef.F[loc.c].l) + '» = ' + ctmE(xaEfLb(ef.F[loc.c], loc.v) || loc.v) + ' (lọc sẵn theo tài khoản)' : 'Toàn bộ bản ghi') + ' đã nhập vào eform «' + ctmE(ef.ten) + '», ' + ctmE(ctmPLabel(spec, n.p)) + ':</b> ' + ctmF(L.items.length) + ' bản ghi, đủ ' + ef.fields.length + ' trường theo đúng thứ tự, tên cột đúng như eform. Một bản ghi là ' + ctmE(cfg.banGhi) + '. Ô tô màu là ô cần xem lại (rê chuột xem lý do); bản ghi không dùng ở phần tổng hợp có ghi lý do ở cột đầu.' +
         (efKhongKy(cfg.ef) ? ' ' + EF_KHONG_KY_NOTE : L.noKy ? ' Có ' + L.noKy + ' bản ghi thiếu năm hoặc kỳ báo cáo nên chưa xếp vào kỳ nào.' : '') + (typeof EF_LA_MAU !== 'undefined' && EF_LA_MAU ? ' <b>Đang là bản ghi mẫu dựng theo khung eform, chưa nối dữ liệu thật.</b>' : ''));
       const mchip = (k, v) => '<div class="stc-mchip"><div class="stc-k">' + ctmE(k) + '</div><div class="stc-v">' + v + '</div></div>';
       h += '<div class="stc-mchips stc-mt">' + mchip('Bản ghi ' + ctmPLabel(spec, n.p), ctmF(L.items.length)) + mchip('Trường của eform', ctmF(ef.fields.length)) + mchip('Bản ghi cần xem lại', ctmF(nb)) + mchip('Bản ghi mọi kỳ', ctmF(L.all.length)) + '</div>';
@@ -444,6 +474,7 @@ function ctmEformDonVi(def) {
     get kind() { return { thang: 'tháng', quy: 'quý', nam: 'năm' }[efGran()]; },
     get cmpRef() { return EF_SO_TRUOC[efGran()]; },
     data: data, metrics: metrics, kpis: kpis, groups: groups, rec: rec, card: def.card || kpis.slice(0, 3).map((k) => k.m), xa: efXaSpec(def, mk),
+    locKey: def.locTk ? () => { const T = efLocOn(def.locTk.ef); return T ? T.v : ''; } : undefined, locHtml: def.locTk ? () => efLocHtml(def.id) : undefined,
     note: 'mọi số lấy từ bản ghi của ' + (def.eforms.length > 1 ? def.eforms.length + ' eform' : 'eform «' + EFK[def.eforms[0].ef].ten + '»') + '; chọn xem theo Tháng, Quý hoặc Năm ở thanh công cụ. Số đã nhập hiện đúng như nhập; số IOC tính ghi rõ công thức. Bấm tên dòng ở bảng, thanh ở biểu đồ để xem các bản ghi tạo ra số đó; "Dữ liệu đã nhập" hiện đủ mọi trường của từng eform.',
     foot: 'So với kỳ liền trước cùng loại (tháng, quý, năm), màu trung tính. Nguồn: eform trong "File mô tả đầu vào eform".'
   };
