@@ -973,6 +973,18 @@
  const vp=categorySeed.UBND.find(c=>c.id==='ubnd-vpubnd');
  if(vp) vp.desc='9 eform của Văn phòng: chỉ số 27, 29, 52, 74, hạ tầng CNTT (sheet VP UBND) và 4 eform chỉ có ở sheet "Trục UBND": văn bản trên môi trường mạng, cắt giảm quy định, cuộc họp không giấy tờ, chữ ký số.';
  }
+ /* 12 sở theo eform — đợt 1 (bản đọc docs/BAN_DOC_EFORM/SO_*, duyệt 28/10/2026): Thanh tra, Công Thương, Nội vụ, NN&MT dựng theo eform ở
+ js/features/ctm-so-eform.js. Chỉ tiêu cũ (kể cả 5 chỉ tiêu nguồn File của Nội vụ, 2 của NN&MT) giữ ở itemsCu, ẩn bằng cờ:
+ SO_EFORM_DOT1 = false là về như cũ. */
+ const SO_EFORM_DOT1 = true;
+ if(SO_EFORM_DOT1){
+ const SO_EF={'ubnd-thanhtra':['Kiểm tra Chủ tịch UBND xã, phường và người đứng đầu','Thanh tra','Tiếp công dân, giải quyết khiếu nại, tố cáo'],
+ 'ubnd-congthuong':['Xuất khẩu, nhập khẩu','Bán lẻ hàng hóa và doanh thu dịch vụ tiêu dùng','Thương mại điện tử','Điện năng, xăng dầu, than','Chỉ số sản xuất công nghiệp (IIP)'],
+ 'ubnd-noivu':['Bảo hiểm xã hội, bảo hiểm y tế, bảo hiểm thất nghiệp','Lao động, công chức, viên chức'],
+ 'ubnd-nnmt':['Tỷ lệ xã đạt chuẩn nông thôn mới','Diện tích rừng bị thiệt hại','Diện tích rừng trồng mới tập trung','CTMTQG xây dựng nông thôn mới','CTMTQG giảm nghèo bền vững','Khí tượng thủy văn','Công trình phòng chống thiên tai','Hộ/người được hỗ trợ lương thực','Tổng số gạo hỗ trợ','Bản đồ và ảnh viễn thám']};
+ categorySeed.UBND.forEach(c=>{ const e=SO_EF[c.id]; if(!e) return; c.itemsCu=c.items; c.typesCu=c.types; c.items=efTrucCat(c.id,'','',e,'').items; c.types=['Eform'];
+ c.desc=e.length+' eform của '+c.name.replace(/ \(hợp nhất.*\)$/,'')+': '+e.join('; ')+'.'; });
+ }
 
  /* Chỉ tiêu "Theo dõi nhiệm vụ"/tổng hợp xã-phường là số liệu gộp của cả trục, không đại diện cho 1 phòng/ban
  cụ thể — loại khỏi cây "Cơ cấu tổ chức" và màn chọn tài khoản phòng/ban cấp Thành phố. */

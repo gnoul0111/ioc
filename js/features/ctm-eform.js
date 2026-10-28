@@ -5,7 +5,7 @@
      · mọi số lần lại được bản ghi (bấm dòng ở bảng nhóm, cột biểu đồ → các bản ghi tạo ra số đó);
      · kỳ xem chọn Tháng / Quý / Năm (X12); bản tháng và bản quý cùng khóa không cộng chồng (X2); bản trùng khóa lấy bản sau (X1).
    Khai báo một đơn vị: ctmEformDonVi({ id, role, name, org, short, eforms: [cấu hình eform], kpis: [{ ef, m }], card: [khóa], laEform: đơn vị là chính một eform,
-     locTk: lọc sẵn theo tài khoản (xem efLocTk) }).
+     locTk: lọc sẵn theo tài khoản (xem efLocTk), cardL: { khóa: nhãn } nhãn riêng của dòng thẻ ngoài }).
    Cấu hình một eform (theo bản đọc eform đã duyệt, docs/BAN_DOC_EFORM):
      { ef: mã eform trong EFORM_KHUNG, ten: tên ngắn, banGhi: "một bản ghi là…", khoa: [trường khóa, không gồm kỳ], khoaRong: [trường khóa được để trống],
        cap: [trường chia cấp, cấp 1 trước], chi: { mã: chỉ tiêu }, cot: [mã chỉ tiêu hiện ở bảng], bieu: [biểu đồ],
@@ -14,10 +14,11 @@
                loai: 'dem' | 'demkhac' (c) | 'dembang' (c, v: [mã]) | 'demdk' (f: (R) => true, mt: chữ mô tả) | 'cong' (c hoặc [c…]) |
                'td' (c — tại thời điểm, mỗi khóa lấy kỳ cuối) | 'dau' (c — đầu kỳ, mỗi khóa lấy kỳ đầu) |
                'motlan' (c, theo: [trường | '_kyId'] — mỗi tổ hợp lấy một lần) | 'nhap' (c — số đã nhập, chỉ hiện khi một bản ghi) |
-               'tyle' (tu, mau: mã chỉ tiêu; IOC tính = tu ÷ mau × 100) | 'hieu' (a, b; IOC tính = a − b) }
+               'tyle' (tu, mau: mã chỉ tiêu; IOC tính = tu ÷ mau × 100) | 'hieu' (a, b; IOC tính = a − b) | 'tang' (tu, mau; IOC tính = tu ÷ mau × 100 − 100) }
    Biểu đồ: { loai: 'cot' (t, theo, m) | 'chong' (t, theo, m) | 'xu' (t, m) | 'phan' (t, ms: [chỉ tiêu cộng thành tổng]) | 'ds' (t, ms: [chỉ tiêu]) }.
    Thêm: bang: [{ t, cap, cot }] bảng phụ (bỏ bản ghi để trống trường cấp 1); uuTien: { c, v, theo } — cùng tổ hợp «theo» có bản ghi
-   trường c = v (VD «Loại bản ghi» = Tổng hợp) thì chỉ dùng các bản ghi đó.
+   trường c = v (VD «Loại bản ghi» = Tổng hợp) thì chỉ dùng các bản ghi đó. bo: { trường: [mã] } — bản ghi có trường = mã (VD «Không phát sinh»)
+   không tính vào chỉ tiêu nào (vẫn hiện ở Dữ liệu đã nhập). luuY: câu lưu ý riêng của eform, hiện ở màn eform và Dữ liệu đã nhập.
    Bản ghi lấy từ EF_NGUON (js/core/eform-mau.js — đang là bản ghi mẫu dựng theo khung eform). */
 
 /* ---------- Khung eform ---------- */
@@ -42,10 +43,13 @@ function efGranOf(pid) { return /^\d{4}-\d{2}$/.test(pid) ? 'thang' : /Q/.test(p
 /* Kỳ của một bản ghi: { loai: 'thang' | 'quy' | 'nam', y, q, m } hoặc null khi thiếu năm, kỳ */
 function efKyOf(R) {
   const y = Number(R.nam), k = R.ky_bao_cao;
-  if (!y || !k) return null;
+  if (!k || (!y && ['thang', 'quy', 'nam'].indexOf(k) >= 0)) return null;
   if (k === 'thang') { const m = Number(R.thang); return m >= 1 && m <= 12 ? { loai: 'thang', y: y, q: Math.ceil(m / 3), m: m } : null; }
   if (k === 'quy') { const q = ['quy_i', 'quy_ii', 'quy_iii', 'quy_iv'].indexOf(R.quy) + 1; return q ? { loai: 'quy', y: y, q: q } : null; }
   if (k === 'nam') return { loai: 'nam', y: y };
+  /* kỳ khác (VD «Đột xuất», Thanh tra eform 3): xếp vào tháng chứa «Ngày báo cáo» (bản đọc SO_THANH_TRA, câu 7) */
+  const d = efNgay(R.ngay_bao_cao);
+  if (d != null) { const t = new Date((d - 25569) * 864e5); return { loai: 'thang', y: t.getUTCFullYear(), q: Math.ceil((t.getUTCMonth() + 1) / 3), m: t.getUTCMonth() + 1 }; }
   return null;
 }
 function efPidOf(R, g) {
@@ -148,6 +152,7 @@ function efNgay(v) { if (typeof v === 'number' && isFinite(v)) return v; const m
 /* Giá trị các chỉ tiêu trên một tập bản ghi */
 function efVals(cfg, rs) {
   const V = {}, C = cfg.chi;
+  if (cfg.bo) rs = rs.filter((R) => !efBo(cfg, R));
   const by1 = (arr, keyF, first) => { const m = {}; arr.forEach((R) => { const k = keyF(R); if (!m[k] || (first ? R._ord < m[k]._ord : R._ord >= m[k]._ord)) m[k] = R; }); return Object.keys(m).map((k) => m[k]); };
   const sum = (arr, c) => { const cs = Array.isArray(c) ? c : [c], vs = []; arr.forEach((R) => cs.forEach((x) => { const v = efNum(R[x]); if (v != null) vs.push(v); })); return vs.length ? vs.reduce((a, b) => a + b, 0) : null; };
   const all = rs;
@@ -168,9 +173,13 @@ function efVals(cfg, rs) {
     const m = C[id];
     if (m.loai === 'tyle') V[id] = V[m.tu] != null && V[m.mau] ? V[m.tu] / V[m.mau] * 100 : null;
     else if (m.loai === 'hieu') V[id] = V[m.a] != null && V[m.b] != null ? V[m.a] - V[m.b] : null;
+    else if (m.loai === 'tang') V[id] = V[m.tu] != null && V[m.mau] ? V[m.tu] / V[m.mau] * 100 - 100 : null;
   });
   return V;
 }
+/* Bản ghi bị bỏ khỏi phần tính (cfg.bo); câu ghi chú tương ứng */
+function efBo(cfg, R) { return Object.keys(cfg.bo).some((c) => cfg.bo[c].indexOf(R[c]) >= 0); }
+function efBoNote(cfg) { if (!cfg.bo) return ''; const ef = EFK[cfg.ef]; return 'Bản ghi có ' + Object.keys(cfg.bo).map((c) => '«' + ef.F[c].l + '» = ' + cfg.bo[c].map((v) => xaEfLb(ef.F[c], v) || v).join(' / ')).join(' hoặc ') + ' không tính vào số.'; }
 /* Cách tính bằng chữ theo tên trường (quy ước 28/10/2026, sửa H21) */
 function efMoTa(cfg, id) {
   const m = cfg.chi[id], ef = EFK[cfg.ef], fl = (c) => '«' + (ef.F[c] ? ef.F[c].l : c) + '»', ml = (k) => cfg.chi[k].l;
@@ -189,9 +198,10 @@ function efMoTa0(cfg, m, ef, fl, ml) {
   if (m.loai === 'nhap') return 'số đã nhập ở ' + fl(m.c) + (m.theo ? ', hiện khi dòng chỉ gồm một ' + m.theo.map((c) => (c === '_kyId' ? 'kỳ báo cáo' : fl(c))).join(' + ') : ' (dòng gồm nhiều bản ghi thì xem ở Dữ liệu đã nhập)');
   if (m.loai === 'tyle') return 'IOC tính: ' + ml(m.tu) + ' ÷ ' + ml(m.mau) + ' × 100';
   if (m.loai === 'hieu') return 'IOC tính: ' + ml(m.a) + ' − ' + ml(m.b);
+  if (m.loai === 'tang') return 'IOC tính: ' + ml(m.tu) + ' ÷ ' + ml(m.mau) + ' × 100 − 100';
   return '';
 }
-function efUnit(cfg, id) { const m = cfg.chi[id], ef = EFK[cfg.ef], c = Array.isArray(m.c) ? m.c[0] : m.c; return m.u != null ? m.u : m.loai === 'tyle' ? '%' : c && ef.F[c] ? xaEfUnitOf(ef.F[c].l) : ''; }
+function efUnit(cfg, id) { const m = cfg.chi[id], ef = EFK[cfg.ef], c = Array.isArray(m.c) ? m.c[0] : m.c; return m.u != null ? m.u : m.loai === 'tyle' || m.loai === 'tang' ? '%' : c && ef.F[c] ? xaEfUnitOf(ef.F[c].l) : ''; }
 function efD(cfg, id, v) { const m = cfg.chi[id]; if (m.d != null) return m.d; const u = efUnit(cfg, id); return u === '%' ? 1 : v != null && Math.abs(v) < 100 && Math.round(v) !== v ? 1 : 0; }
 function efFmt(cfg, id, v) { const u = efUnit(cfg, id); return ctmF(v, efD(cfg, id, v)) + (u === '%' && v != null ? '%' : ''); }
 /* Nhãn của một giá trị trường (danh mục ra tên hiển thị; trường khác hiện đúng chữ) */
@@ -248,7 +258,7 @@ function efTreeHtml(cfg, rs, sortBy, boTrong, fullId) {
   if (more && !EF_FULL[fullId]) body = all.slice(0, LIM).join('</tr>') + '</tr>';
   const T = efVals(cfg, rs);
   body += '<tr class="tot"><td>Cộng</td>' + cot.map((id) => '<td>' + cell(id, T, []) + '</td>').join('') + '<td>' + ctmF(rs.length) + '</td></tr>';
-  const iocs = cot.filter((id) => /tyle|hieu|nhap|motlan|td/.test(cfg.chi[id].loai));
+  const iocs = cot.filter((id) => /tyle|hieu|tang|nhap|motlan|td|dau/.test(cfg.chi[id].loai));
   return '<div class="ctm-scroll"><table class="stc-tbl ctm-eft ef-tree"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>' +
     (more ? '<div style="margin-top:8px">' + ctmLnk(EF_FULL[fullId] ? 'Thu gọn về ' + LIM + ' dòng' : 'Xem đủ ' + ctmF(all.length) + ' dòng ›', 'efTreeFull(' + ctmJs(fullId) + ')') + '</div>' : '') +
     '<div class="stc-hint" style="margin-top:10px">Bấm tên ở cột đầu để xem các bản ghi tạo ra số của dòng đó. Rê chuột tên cột để xem cách tính.' +
@@ -383,19 +393,22 @@ function ctmEformDonVi(def) {
     const ef = EFK[cfg.ef], rsOf = (n) => efPick(cfg, n.p).used, sp = () => CTM_SPECS[def.id];
     const bieu = cfg.bieu || [], xu = bieu.find((b) => b.loai === 'xu'), phan = bieu.find((b) => b.loai === 'phan' && b.tong);
     const rates = Object.keys(cfg.chi).filter((id) => cfg.chi[id].loai === 'tyle');
+    const luuY = [efBoNote(cfg), cfg.luuY || ''].filter(Boolean).join(' ');
     const extra = [];
     const bs = bieu.filter((b) => b !== xu && b !== phan).map((b) => ({ type: 'html', t: b.t, s: (D, P, n) => ctmPLabel(sp(), n.p) + (b.theo ? ' · bấm thanh để xem bản ghi' : ''),
       html: (D, P, n) => (b.loai === 'chong' ? efStackHtml(cfg, rsOf(n), b) : b.loai === 'phan' ? efPartsHtml(cfg, rsOf(n), b, true) : b.loai === 'ds' ? efPartsHtml(cfg, rsOf(n), b, false) : efBarsHtml(cfg, rsOf(n), b)) }));
     for (let i = 0; i < bs.length; i += 2) extra.push(bs.slice(i, i + 2));
     extra.push([{ type: 'html', t: 'Bảng theo ' + (cfg.cap || []).map((c) => ef.F[c].l).join(' › '), s: (D, P, n) => (cfg.ten || ef.ten) + ' · ' + ctmPLabel(sp(), n.p) + ' · bấm tên dòng để xem bản ghi', html: (D, P, n) => efTreeHtml(cfg, rsOf(n), null, false, cfg.ef + '|cap') }]);
-    (cfg.bang || []).forEach((t, i) => extra.push([{ type: 'html', t: t.t, s: (D, P, n) => ctmPLabel(sp(), n.p), html: (D, P, n) => efTreeHtml(Object.assign({}, cfg, { cap: t.cap, cot: t.cot }), rsOf(n), null, true, cfg.ef + '|bang' + i) }]));
+    /* bảng phụ: t.loc chỉ lấy bản ghi khớp (VD chỉ các mã chỉ tiêu cộng dồn) */
+    (cfg.bang || []).forEach((t, i) => extra.push([{ type: 'html', t: t.t, s: (D, P, n) => ctmPLabel(sp(), n.p), html: (D, P, n) => efTreeHtml(Object.assign({}, cfg, { cap: t.cap, cot: t.cot }),
+      t.loc ? rsOf(n).filter((R) => Object.keys(t.loc).every((c) => t.loc[c].indexOf(R[c]) >= 0)) : rsOf(n), null, true, cfg.ef + '|bang' + i) }]));
     const xaInd = (EF_XA[def.id] || []).find((I) => I.ef === cfg.ef);
     if (cfg.diaBan && !xaInd) extra.push([{ type: 'html', t: 'Theo ' + ef.F[cfg.diaBan].l.toLowerCase(), s: (D, P, n) => 'Cộng theo từng ' + ef.F[cfg.diaBan].l.toLowerCase() + ' · ' + ctmPLabel(sp(), n.p),
       html: (D, P, n) => efTreeHtml(Object.assign({}, cfg, { cap: [cfg.diaBan], cot: cfg.cotDb || cfg.cot }), rsOf(n), null, false, cfg.ef + '|db') }]);
     /* đơn vị là chính một eform (def.laEform — HĐND, MTTQ): nhóm gọi "Bảng và biểu đồ" để tiêu đề không lặp tên eform */
     const g = {
       id: cfg.ef, label: def.laEform ? 'Bảng và biểu đồ' : cfg.ten || ef.ten,
-      note: (D, P, n) => 'Eform «' + ef.ten + '» · một bản ghi là ' + cfg.banGhi + ' · ' + (efKhongKy(cfg.ef) ? rsOf(n).length + ' bản ghi. ' + EF_KHONG_KY_NOTE : rsOf(n).length + ' bản ghi dùng cho ' + ctmPLabel(sp(), n.p)),
+      note: (D, P, n) => 'Eform «' + ef.ten + '» · một bản ghi là ' + cfg.banGhi + ' · ' + (efKhongKy(cfg.ef) ? rsOf(n).length + ' bản ghi. ' + EF_KHONG_KY_NOTE : rsOf(n).length + ' bản ghi dùng cho ' + ctmPLabel(sp(), n.p)) + (luuY ? '. ' + luuY : ''),
       lines: (n) => (cfg.the || Object.keys(cfg.chi).slice(0, 4)).map((id) => mk(cfg, id)),
       count: (n) => { const k = rsOf(n).length ? null : efKyGanNhat(cfg); return ctmF(rsOf(n).length) + ' bản ghi' + (k ? ' · có số ở ' + k.label : ''); },
       cols: xu ? mk(cfg, xu.m) : undefined, colsT: xu ? xu.t : undefined,
@@ -443,7 +456,7 @@ function ctmEformDonVi(def) {
       let h = ctmHeader(spec, 'home');
       if (def.eforms.length > 1) h += '<div class="sgd-pills" style="margin:0 0 12px">' + def.eforms.map((c) => '<button type="button" class="sgd-pill' + (c.ef === cfg.ef ? ' on' : '') + '" onclick="ctmRecEf(' + ctmJs(c.ef) + ')">' + ctmE(c.ten || EFK[c.ef].ten) + '</button>').join('') + '</div>';
       const loc = efLocOn(cfg.ef);
-      h += ctmNote('<b>' + (loc ? 'Bản ghi có «' + ctmE(ef.F[loc.c].l) + '» = ' + ctmE(xaEfLb(ef.F[loc.c], loc.v) || loc.v) + ' (lọc sẵn theo tài khoản)' : 'Toàn bộ bản ghi') + ' đã nhập vào eform «' + ctmE(ef.ten) + '», ' + ctmE(ctmPLabel(spec, n.p)) + ':</b> ' + ctmF(L.items.length) + ' bản ghi, đủ ' + ef.fields.length + ' trường theo đúng thứ tự, tên cột đúng như eform. Một bản ghi là ' + ctmE(cfg.banGhi) + '. Ô tô màu là ô cần xem lại (rê chuột xem lý do); bản ghi không dùng ở phần tổng hợp có ghi lý do ở cột đầu.' +
+      h += ctmNote('<b>' + (loc ? 'Bản ghi có «' + ctmE(ef.F[loc.c].l) + '» = ' + ctmE(xaEfLb(ef.F[loc.c], loc.v) || loc.v) + ' (lọc sẵn theo tài khoản)' : 'Toàn bộ bản ghi') + ' đã nhập vào eform «' + ctmE(ef.ten) + '», ' + ctmE(ctmPLabel(spec, n.p)) + ':</b> ' + ctmF(L.items.length) + ' bản ghi, đủ ' + ef.fields.length + ' trường theo đúng thứ tự, tên cột đúng như eform. Một bản ghi là ' + ctmE(cfg.banGhi) + '. ' + ctmE([efBoNote(cfg), cfg.luuY || ''].filter(Boolean).join(' ')) + (cfg.bo || cfg.luuY ? ' ' : '') + 'Ô tô màu là ô cần xem lại (rê chuột xem lý do); bản ghi không dùng ở phần tổng hợp có ghi lý do ở cột đầu.' +
         (efKhongKy(cfg.ef) ? ' ' + EF_KHONG_KY_NOTE : L.noKy ? ' Có ' + L.noKy + ' bản ghi thiếu năm hoặc kỳ báo cáo nên chưa xếp vào kỳ nào.' : '') + (typeof EF_LA_MAU !== 'undefined' && EF_LA_MAU ? ' <b>Đang là bản ghi mẫu dựng theo khung eform, chưa nối dữ liệu thật.</b>' : ''));
       const mchip = (k, v) => '<div class="stc-mchip"><div class="stc-k">' + ctmE(k) + '</div><div class="stc-v">' + v + '</div></div>';
       h += '<div class="stc-mchips stc-mt">' + mchip('Bản ghi ' + ctmPLabel(spec, n.p), ctmF(L.items.length)) + mchip('Trường của eform', ctmF(ef.fields.length)) + mchip('Bản ghi cần xem lại', ctmF(nb)) + mchip('Bản ghi mọi kỳ', ctmF(L.all.length)) + '</div>';
@@ -473,7 +486,7 @@ function ctmEformDonVi(def) {
     get periods() { return EF_KY[efGran()]; },
     get kind() { return { thang: 'tháng', quy: 'quý', nam: 'năm' }[efGran()]; },
     get cmpRef() { return EF_SO_TRUOC[efGran()]; },
-    data: data, metrics: metrics, kpis: kpis, groups: groups, rec: rec, card: def.card || kpis.slice(0, 3).map((k) => k.m), xa: efXaSpec(def, mk),
+    data: data, metrics: metrics, kpis: kpis, groups: groups, rec: rec, card: def.card || kpis.slice(0, 3).map((k) => k.m), cardL: def.cardL, xa: efXaSpec(def, mk),
     locKey: def.locTk ? () => { const T = efLocOn(def.locTk.ef); return T ? T.v : ''; } : undefined, locHtml: def.locTk ? () => efLocHtml(def.id) : undefined,
     note: 'mọi số lấy từ bản ghi của ' + (def.eforms.length > 1 ? def.eforms.length + ' eform' : 'eform «' + EFK[def.eforms[0].ef].ten + '»') + '; chọn xem theo Tháng, Quý hoặc Năm ở thanh công cụ. Số đã nhập hiện đúng như nhập; số IOC tính ghi rõ công thức. Bấm tên dòng ở bảng, thanh ở biểu đồ để xem các bản ghi tạo ra số đó; "Dữ liệu đã nhập" hiện đủ mọi trường của từng eform.',
     foot: 'So với kỳ liền trước cùng loại (tháng, quý, năm), màu trung tính. Nguồn: eform trong "File mô tả đầu vào eform".'

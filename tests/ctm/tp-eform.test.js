@@ -16,7 +16,7 @@ const escFn = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (m) => ({ '&
 const SO_CFG = ['vhtt', 'vpub', 'bql', 'dl', 'dttg', 'ttra', 'khcn', 'nnmt', 'sct', 'sxd', 'snv', 'syt'].map((s) => 'js/core/' + s + '-config.js');
 SO_CFG.unshift('js/core/xa-dan-so.js');
 const FILES = SO_CFG.concat(['js/core/hcc-config.js', 'js/features/hcc-data.js', 'js/core/ctm-xa.js', 'js/core/xa-eform.js', 'js/core/xa-eform-mau.js', 'js/core/line-chart.js', 'js/features/ctm-engine.js', 'js/features/ctm-mttq.js', 'js/features/ctm-dang.js', 'js/features/ctm-hdnd.js', 'js/features/ctm-all.js', 'js/features/ctm-xa-units.js', 'js/features/ctm-so.js',
-  'js/core/eform-khung.js', 'js/core/eform-mau.js', 'js/features/ctm-eform.js', 'js/features/ctm-truc-eform.js']);
+  'js/core/eform-khung.js', 'js/core/eform-mau.js', 'js/features/ctm-eform.js', 'js/features/ctm-truc-eform.js', 'js/features/ctm-so-eform.js']);
 const ctx = vm.createContext({ console, Math, Number, String, Object, Array, JSON, isFinite, Date, esc: escFn, document: { getElementById: () => null } });
 const eduM = read('js/features/dashboard-education.js').match(/const gdUnitData=\[([\s\S]*?)\n\s*\];/);
 vm.runInContext('const gdUnitData=[' + eduM[1] + '];', ctx);
@@ -33,6 +33,9 @@ const S = run('CTM_SPECS'), EFK = run('EFK'), CFG = run('EF_CFG');
 const UNITS = Object.keys(S).filter((k) => S[k].efDonVi);
 const screen = (id, sc, p, extra) => run('CTM_UI.id=' + JSON.stringify(id) + ';CTM_UI.period=' + JSON.stringify(p) + ';CTM_UI.screen=' + JSON.stringify(sc) + ';' + (extra || '') + 'ctmScreenHtml(CTM_SPECS[' + JSON.stringify(id) + '])');
 const TRUC_EF = Object.keys(EFK).filter((k) => /^(dang|hdnd|mttq|vpub)\d$/.test(k) || ['ubnd2', 'ubnd3', 'ubnd6', 'ubnd9'].indexOf(k) >= 0);
+/* 12 sở — đợt 1 (Thanh tra, Công Thương, Nội vụ, NN&MT): các phép kiểm chung chạy trên cả 4 trục và các sở đã dựng */
+const SO_EF = Object.keys(EFK).filter((k) => /^(ttra|sct|snv|nnmt)\d+$/.test(k));
+const EF_DUNG = TRUC_EF.concat(SO_EF);
 
 console.log('== Khung eform cấp Thành phố sinh từ file');
 {
@@ -46,18 +49,20 @@ console.log('== Khung eform cấp Thành phố sinh từ file');
   ok(at('dang-ubkt') === 'dang1' && at('dang-to-chuc') === 'dang2,dang3,dang4,dang5,dang6' && at('dang-tuyen-giao') === 'dang7' && at('dang-noi-chinh') === 'dang8', 'Đảng: eform về đúng Ban đã chốt');
   ok(at('ubnd-vpubnd') === 'vpub1,vpub2,vpub3,vpub4,vpub5,ubnd2,ubnd3,ubnd6,ubnd9', 'VP UBND: 9 eform (5 sheet VP UBND + 4 chỉ có ở sheet Trục UBND)');
   ok([1, 2, 3, 4, 5, 6].every((i) => at('hdnd-ef' + i) === 'hdnd' + i && at('mttq-ef' + i) === 'mttq' + i), 'HĐND, MTTQ: mỗi eform một đơn vị');
+  ok(SO_EF.length === 20 && SO_EF.every((e) => CFG[e] && UNITS.filter((u) => S[u].groups.some((g) => g.id === e)).length === 1), 'sở đợt 1: 20 eform, mỗi eform ở đúng một đơn vị (' + SO_EF.length + ')');
+  ok(at('ubnd-thanhtra') === 'ttra1,ttra2,ttra3' && at('ubnd-congthuong') === 'sct1,sct2,sct3,sct4,sct5' && at('ubnd-noivu') === 'snv1,snv2' && at('ubnd-nnmt') === Array.from({ length: 10 }, (_, i) => 'nnmt' + (i + 1)).join(','), 'sở đợt 1: eform về đúng sở, mỗi eform một thẻ');
 }
 
 console.log('== Chỉ dùng trường của eform (không thêm chỉ tiêu, trường)');
-TRUC_EF.forEach((e) => {
+EF_DUNG.forEach((e) => {
   const cfg = CFG[e], F = EFK[e].F, has = (c) => c === '_kyId' || !!F[c];
   const used = [].concat(cfg.khoa || [], cfg.cap || [], cfg.diaBan ? [cfg.diaBan] : [], cfg.xaTruong ? [cfg.xaTruong] : [], cfg.dvt ? [cfg.dvt] : [], (cfg.bieu || []).filter((b) => b.theo).map((b) => b.theo),
-    ...(cfg.bang || []).map((t) => t.cap), ...(cfg.kt || []).map((k) => k.c || []), cfg.uuTien ? [cfg.uuTien.c].concat(cfg.uuTien.theo) : []);
+    ...(cfg.bang || []).map((t) => t.cap), ...(cfg.kt || []).map((k) => k.c || []), cfg.uuTien ? [cfg.uuTien.c].concat(cfg.uuTien.theo) : [], Object.keys(cfg.bo || {}), ...(cfg.bang || []).map((t) => Object.keys(t.loc || {})));
   Object.keys(cfg.chi).forEach((id) => { const m = cfg.chi[id]; [].concat(m.c || []).forEach((c) => used.push(c)); (m.theo || []).forEach((c) => used.push(c)); Object.keys(m.loc || {}).forEach((c) => used.push(c)); });
   const bad = used.filter((c) => !has(c));
   ok(!bad.length, e + ': mọi trường dùng để tính, chia cấp, vẽ có trong eform' + (bad.length ? ' — thừa ' + bad.join(', ') : ''));
   const ids = Object.keys(cfg.chi);
-  ok(Object.keys(cfg.chi).every((id) => { const m = cfg.chi[id]; return m.loai !== 'tyle' && m.loai !== 'hieu' ? true : /IOC tính/.test(m.l) && ids.indexOf(m.tu || m.a) >= 0 && ids.indexOf(m.mau || m.b) >= 0; }), e + ': số IOC tính (tỷ lệ, hiệu) ghi "IOC tính", tính từ chỉ tiêu của eform');
+  ok(Object.keys(cfg.chi).every((id) => { const m = cfg.chi[id]; return ['tyle', 'hieu', 'tang'].indexOf(m.loai) < 0 ? true : /IOC tính/.test(m.l) && ids.indexOf(m.tu || m.a) >= 0 && ids.indexOf(m.mau || m.b) >= 0; }), e + ': số IOC tính (tỷ lệ, hiệu) ghi "IOC tính", tính từ chỉ tiêu của eform');
   ok([].concat(cfg.cot || [], cfg.the || [], cfg.xaChi || [], cfg.cotDb || [], ...(cfg.bieu || []).map((b) => b.ms || [b.m]), ...(cfg.bang || []).map((t) => t.cot)).every((id) => cfg.chi[id]), e + ': bảng, biểu đồ chỉ dùng chỉ tiêu đã khai báo');
   /* dữ liệu mẫu: chỉ trường của eform, ô danh mục chỉ nhận mã trong danh mục */
   const raw = run('EF_NGUON')(e), extra = new Set(), badDm = new Set();
@@ -160,7 +165,7 @@ console.log('== Bản ghi cần xem lại (X8 và kiểm tra riêng của eform)
   ok(bad('mttq4').some((R) => run('efBad')(CFG.mttq4, R, []).tong_thu_trong_ky), 'mttq4: tổng thu khác cộng 7 khoản được tô màu');
   ok(bad('vpub1').some((R) => run('efBad')(CFG.vpub1, R, []).ty_le_tu_tinh), 'vpub1: tỷ lệ đã nhập lệch được tô màu');
   ok(bad('hdnd1').some((R) => run('efBad')(CFG.hdnd1, R, run('efAll')('hdnd1')).so_luot_cu_tri_tham_gia), 'hdnd1: cùng cuộc TXCT mà số lượt cử tri khác nhau được tô màu');
-  const ok8 = TRUC_EF.every((e) => { const all = run('efAll')(e); return bad(e).length <= all.length * 0.15; });
+  const ok8 = EF_DUNG.every((e) => { const all = run('efAll')(e); const n = bad(e).length; if (n > all.length * 0.15) console.log('    ' + e + ': ' + n + '/' + all.length); return n <= all.length * 0.15; });
   ok(ok8, 'bản ghi mẫu phần lớn hợp lệ (tối đa 15% bản ghi bị tô màu ở mọi eform)');
 }
 
@@ -300,6 +305,25 @@ console.log('== Tài khoản Ban HĐND: eform 4 lọc sẵn «Đơn vị thực 
   run('currentOfficeId="hdnd-khcn-mt";');
   ok(used().length === nAll && /danh mục «Đơn vị thực hiện» của eform không có «Ban Khoa học Công nghệ và Môi trường»/.test(unesc(screen('hdnd-ef4', 'home', pid))), 'Ban KHCN và Môi trường (không có trong danh mục eform): không lọc, ghi rõ lý do');
   run('currentRole=null;currentOfficeId=null;CTM_UI.open=false;');
+}
+
+console.log('== Sở đợt 1: bản ghi ưu tiên, kỳ Đột xuất, bỏ «Không phát sinh», tỷ lệ tăng, lưu ý NN&MT');
+{
+  const all3 = run('efAll')('ttra3'), dx = all3.filter((R) => R.ky_bao_cao === 'dotxuat');
+  ok(dx.length > 0 && dx.every((R) => R._ky && R._ky.loai === 'thang' && R._kyId === R.ngay_bao_cao.slice(0, 7)), 'ttra3: bản «Đột xuất» xếp vào tháng của «Ngày báo cáo» (' + dx.length + ' bản)');
+  const P = run('efPick')(CFG.ttra3, '2026-09'), XA = EFK.ttra3.F.dia_ban.dm.map((o) => o.v);
+  const of = (xa) => P.used.filter((R) => R.dia_ban === xa).map((R) => R.loai_ban_ghi).sort().join(',');
+  ok(of(XA[0]) === 'tonghop' && P.cand.some((R) => R.dia_ban === XA[0] && R.loai_ban_ghi === 'chitietdonthu'), 'ttra3: xã có bản Tổng hợp thì không dùng bản chi tiết');
+  ok(of(XA[40]) === 'chitietdonthu,chitietvuviec', 'ttra3: xã chỉ có bản chi tiết thì cộng các bản chi tiết');
+  const Pq = run('efPick')(CFG.ttra3, '2026Q3').used, kps = Pq.filter((R) => R.loai_ban_ghi === 'khongphatsinh');
+  ok(kps.length > 0 && run('efVals')(CFG.ttra3, Pq).bg === Pq.length - kps.length, 'ttra3: bản «Không phát sinh» không tính vào số (' + kps.length + ' bản)');
+  const V2 = run('efVals')(CFG.sct2, run('efPick')(CFG.sct2, '2026-09').used);
+  ok(Math.abs(V2.tang - (V2.tm / V2.kt * 100 - 100)) < 1e-9, 'sct2: tốc độ tăng (IOC tính) = tổng mức ÷ doanh thu kỳ trước × 100 − 100');
+  ok(/IOC tính: .* × 100 − 100/.test(run('efMoTa')(CFG.sct2, 'tang')), 'sct2: cách tính tốc độ tăng ghi theo tên trường');
+  const hn = unesc(screen('ubnd-nnmt', 'group', '2026Q3', 'CTM_UI.group="nnmt3";'));
+  ok(/chưa ghi đơn vị/.test(hn) && /Không phát sinh/.test(hn), 'nnmt: màn eform ghi lưu ý chưa có đơn vị và bỏ «Không phát sinh»');
+  const V1 = run('efVals')(CFG.ttra2, run('efPick')(CFG.ttra2, '2026Q3').used), cuoc = new Set(run('efPick')(CFG.ttra2, '2026Q3').used.filter((R) => R.loai_ban_ghi !== 'khongphatsinh').map((R) => R.so_qd_thanh_tra + '|' + R.dia_ban));
+  ok(V1.cuoc > 0 && V1.gtth <= V1.gtkn, 'ttra2: số cuộc và giá trị thu hồi tính được, đã thu hồi không vượt kiến nghị (' + V1.cuoc + ' cuộc, ' + cuoc.size + ' cuộc × xã)');
 }
 
 console.log('== Nút ← ở đầu màn quay lại đúng màn trước');
