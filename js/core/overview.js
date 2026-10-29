@@ -143,8 +143,13 @@
  taskMetricCard('received','Trực tiếp xử lý nhiệm vụ được giao',()=>`<button class="ghost" onclick="openOverviewPieSegment('metric','received')">Xem chi tiết theo 4 trục</button>`),
  SHOW_CALENDAR_OVERVIEW_CARD?pieCard('Lịch công tác/kỳ họp','Vai trò thư ký: ngày/tuần/tháng, lịch sắp họp và lịch trễ.',calSegments,'calendar',fmt(calSegments.reduce((a,s)=>a+s.value,0)),'Lịch',secretary):''
  ].join('');
- const body=document.getElementById('pieGrid'); if(body) body.innerHTML=cards;
+ const body=document.getElementById('pieGrid');
+ if(body){
+ body.innerHTML=cards;
+ ['overview-documents','overview-assigned','overview-received'].forEach((id,index)=>{if(body.children[index]) body.children[index].id=id;});
+ }
  flushPendingOverviewDonuts();
+ if(typeof uvApply==='function') uvApply(false);
  }
  function openOverviewPieSegment(group,key){
  if(group==='metric'){

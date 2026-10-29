@@ -530,7 +530,7 @@
  tabsBox.style.overflowX='auto';
  tabsBox.style.flexWrap='nowrap';
  tabsBox.innerHTML=NOTI_TAB_DEFS.map(t=>
- `<button class="gis-report-tab${t.key===activeTab?' active':''}" style="flex:0 0 auto;white-space:nowrap;padding:8px 12px" onclick="onNotiTabClick('${t.key}')">${esc(t.label)}</button>`
+ `<button class="gis-report-tab${t.key===activeTab?' active':''}" data-uv-item="notify-tab-${t.key}" data-uv-label="${esc(t.label)}" data-uv-icon="🔔" data-uv-parent="notify" style="flex:0 0 auto;white-space:nowrap;padding:8px 12px" onclick="onNotiTabClick('${t.key}')">${esc(t.label)}</button>`
  ).join('');
  let rows;
  const isCrossType=(activeTab==='urgent');
@@ -572,6 +572,7 @@
  __notiScrollObserver=new IntersectionObserver(entries=>{ if(entries[0].isIntersecting) loadMoreNotiRows(); },{root:null,rootMargin:'300px'});
  __notiScrollObserver.observe(sentinel);
  }
+ if(typeof uvApply==='function') uvApply(false);
  }
  let __notiScrollObserver=null;
  function loadMoreNotiRows(){

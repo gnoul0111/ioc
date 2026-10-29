@@ -1,0 +1,85 @@
+/* ============================== ẨN / HIỆN GIAO DIỆN IOC (js/features/ui-visibility.js) ==============================
+   Người dùng chọn khối nào hiện/ẩn; khối ẩn bằng class riêng .uv-hidden (KHÔNG dùng .hidden / .btm-role-hidden /
+   .btt-role-hidden của cơ chế phân quyền theo tài khoản để hai cơ chế không đạp lên nhau).
+   Lưới .dashboard-grid chỉ đổi cách xếp khi có ít nhất 1 khối trong lưới bị ẩn (class .uv-on) — khi hiện đủ thì
+   bố cục gốc trong theme-base.css / btctw-national-map.css giữ nguyên 100%. */
+
+.uv-hidden{display:none!important}
+
+/* ---- Chế độ chỉnh sửa màn hình chính ---- */
+body.uv-editing{padding-bottom:76px}
+body.uv-editing .uv-editable{position:relative;outline:2px solid rgba(255,213,75,.62);outline-offset:3px;border-radius:12px}
+body.uv-editing .uv-editable.uv-hide-action{position:relative}
+body.uv-editing .uv-editable.uv-hide-action::after{content:"−";position:absolute;z-index:21;top:3px;left:3px;width:24px;height:24px;display:grid;place-items:center;border:2px solid #fff;border-radius:50%;background:#ef4444;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.35);font-size:18px;font-weight:900;line-height:1;pointer-events:none}
+.uv-remove{position:absolute;z-index:20;top:8px;left:8px;width:28px;height:28px;display:none;place-items:center;padding:0;border:2px solid #fff;border-radius:50%;background:#ef4444;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.35);cursor:pointer}
+body.uv-editing .uv-editable>.uv-remove{display:grid}
+.uv-remove i{font-size:18px;font-weight:900}
+.uv-edit-bar{position:fixed;z-index:81;left:50%;bottom:16px;display:none;align-items:center;gap:8px;padding:8px 10px 8px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2);color:var(--text);box-shadow:0 10px 32px rgba(0,0,0,.35);transform:translateX(-50%)}
+.uv-edit-bar.open{display:flex}
+.uv-edit-bar b{margin-right:4px;font-size:13px;white-space:nowrap}
+.uv-edit-bar button{display:inline-flex;align-items:center;gap:5px;padding:8px 10px;font-size:12px;white-space:nowrap}
+
+/* ---- Bố cục lưới tự co giãn ---- */
+/* Bỏ ép hàng cố định (grid-row:1/2...) để khối còn lại tự dồn lên, không chừa hàng trống; thứ tự theo `order`. */
+.dashboard-grid.uv-on>.widget{grid-row:auto!important}
+.dashboard-grid.uv-on .gis-widget{order:1}
+.dashboard-grid.uv-on #notificationsWidget{order:2}
+.dashboard-grid.uv-on #indicatorsWidget{order:3}
+.dashboard-grid.uv-on.btm-tw-layout #indicatorsWidget{order:1}
+/* Khối đứng một mình trên hàng (bạn cùng hàng đã ẩn) thì kéo giãn kín chiều ngang. */
+.dashboard-grid.uv-on>.widget.uv-full{grid-column:1/-1!important}
+/* Màn hình hẹp (lưới 2 cột): Notify mặc định chỉ chiếm cột trái; khi đang ở chế độ co giãn thì cho kín ngang, không để nửa phải trống. */
+@media (max-width:1450px){.dashboard-grid.uv-on #notificationsWidget{grid-column:1/-1!important}}
+
+/* Khi mọi khối đều ẩn */
+.uv-empty{display:none;margin:14px 0;padding:34px 18px;text-align:center;border:1px dashed var(--line-soft);border-radius:16px;color:var(--muted)}
+.uv-empty.show{display:block}
+.uv-empty b{display:block;font-size:15px;color:var(--text);margin-bottom:6px}
+.uv-empty button{margin-top:12px}
+
+/* ---- Bảng chọn ---- */
+.uv-panel{position:fixed;z-index:80;width:min(340px,calc(100vw - 20px));max-height:calc(var(--vh,1vh)*80);overflow:auto;display:none;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2);color:var(--text);box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.uv-panel.open{display:block}
+.uv-head{padding:13px 15px 9px;border-bottom:1px solid var(--line-soft)}
+.uv-head{cursor:move;touch-action:none;user-select:none}
+.uv-head b{display:block;font-size:14px;font-weight:900}
+.uv-head small{display:block;margin-top:3px;font-size:11.5px;line-height:1.4;color:var(--muted)}
+.uv-list{padding:6px 8px}
+.uv-node{position:relative}
+.uv-node+.uv-node{margin-top:3px}
+.uv-root-node{padding:3px 0;border-bottom:1px solid rgba(87,178,255,.12)}
+.uv-root-node:last-child{border-bottom:0}
+.uv-root-row .uv-lb{font-weight:900}
+.uv-group-row{margin-top:5px;padding-top:7px;padding-bottom:7px;border-radius:6px;background:rgba(87,178,255,.08);color:var(--muted)}
+.uv-group-row .uv-lb{font-size:11.5px;font-weight:900}
+.uv-children{margin:2px 0 5px 13px;padding-left:9px;border-left:1px solid rgba(87,178,255,.28)}
+.uv-children.collapsed{display:none}
+.uv-child-row{padding-top:7px;padding-bottom:7px}
+.uv-node[data-depth="2"]>.uv-row{padding-left:12px}
+.uv-row:has(input:disabled){opacity:.5;cursor:not-allowed}
+.uv-row{display:flex;align-items:center;gap:7px;padding:9px 8px;border-radius:10px;user-select:none}
+.uv-row:hover{background:rgba(87,178,255,.12)}
+.uv-collapse,.uv-tree-spacer{flex:0 0 18px;width:18px;height:22px;display:grid;place-items:center;padding:0;border:0;background:transparent;color:var(--muted);font-size:15px;font-weight:900}
+.uv-collapse{cursor:pointer}
+.uv-collapse:hover{color:var(--text);background:rgba(87,178,255,.14)}
+.uv-toggle{display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer}
+.uv-toggle:has(input:disabled){cursor:not-allowed}
+.uv-row .uv-ic{flex:0 0 22px;text-align:center;font-size:15px}
+.uv-row .uv-lb{flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.3}
+.uv-row input{position:absolute;opacity:0;pointer-events:none}
+.uv-switch{flex:0 0 38px;height:22px;border-radius:11px;background:rgba(128,150,170,.45);position:relative;transition:background .15s}
+.uv-switch::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .15s}
+.uv-row input:checked+.uv-switch{background:var(--blue)}
+.uv-row input:checked+.uv-switch::after{transform:translateX(16px)}
+.uv-row input:focus-visible+.uv-switch{outline:2px solid var(--gold);outline-offset:2px}
+.uv-none{padding:14px 10px;font-size:12.5px;color:var(--muted)}
+.uv-foot{display:flex;gap:8px;padding:9px 12px 12px;border-top:1px solid var(--line-soft)}
+.uv-foot button{flex:1;padding:8px 10px;font-size:12.5px;white-space:nowrap}
+
+/* ---- Điện thoại: 3 nút hành động chung 1 hàng, bảng chọn bung full ngang ---- */
+@media (max-width:640px){
+  .rt-actions-grid button{flex:1 1 calc(33.333% - 6px)!important;padding:9px 4px!important;font-size:11.5px!important;white-space:normal!important}
+  .uv-panel{width:min(340px,calc(100vw - 20px))}
+  .uv-edit-bar{left:10px;right:10px;bottom:10px;justify-content:center;transform:none}
+  .uv-edit-bar b{flex:1;min-width:0}
+}

@@ -8,7 +8,7 @@
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&display=swap" rel="stylesheet">
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
- <link rel="stylesheet" href="css/gis.css" />
+ <link rel="stylesheet" href="css/gis.css?v=20261029-1" />
  <link rel="stylesheet" href="css/gis-cad.css?v=20261024c" />
  <link rel="stylesheet" href="css/btctw-national-map.css" />
  <link rel="stylesheet" href="css/btctw-task-tally.css" />
@@ -45,6 +45,7 @@
  <link rel="stylesheet" href="css/oua-login-log.css?v=20261013" />
  <link rel="stylesheet" href="css/oua-data-sources.css?v=20261022" />
  <link rel="stylesheet" href="css/login-history.css?v=20261009c" />
+ <link rel="stylesheet" href="css/ui-visibility.css?v=20261029-5" />
  <!-- CSS bổ sung cho "Cài đặt cây thư mục" (Phase 7, kéo-thả) — để riêng thay vì sửa vào css/oua.css (1 dòng minified) cho an toàn, vẫn scoped dưới #ouaScreen. -->
  <style>
    #ouaScreen .oua-dnd-node{cursor:grab}
@@ -764,6 +765,7 @@
  <div class="role-icon" id="currentIcon"></div>
  <div class="truncate"><b id="currentRoleName">--</b><small id="currentRoleDesc">--</small></div>
  <div class="acct-menu hidden" id="acctMenu" role="menu" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()">
+ <button type="button" role="menuitem" onclick="openUiEditMode()"><i class="ti ti-layout-dashboard"></i>Chỉnh sửa màn hình</button>
  <button type="button" role="menuitem" onclick="openChangePassword()"><i class="ti ti-key"></i>Đổi mật khẩu</button>
  <button type="button" role="menuitem" onclick="openLoginHistory()"><i class="ti ti-file-text"></i>Xem nhật ký đăng nhập</button>
  </div>
@@ -883,9 +885,12 @@
  <!-- Khối CAD (gis-cad.js) đặt đầu sidebar cho dễ thấy: trực ban IOC TP thấy "Điều phối CAD", tài khoản
  xã/phường thấy "Phiếu lệnh CAD"; tài khoản khác thì ẩn. -->
  <div id="gisCadBlock" class="cad-side-wrap" hidden></div>
+ <div id="gisBottleneckSection">
  <div class="gis-layer-head">5 ĐIỂM NGHẼN</div>
  <div class="gis-kpi-strip gis-kpi-strip--sidebar" id="gisKpiStrip"></div>
  <div style="margin:8px 0 6px;border-top:1px solid rgba(73,188,255,.15)"></div>
+ </div>
+ <div id="gisStatusSection">
  <div class="gis-layer-head">TRẠNG THÁI XỬ LÝ</div>
  <div class="gis-status-legend">
  <span style="background:rgba(216,165,12,.12);border:1px solid rgba(216,165,12,.3);border-radius:6px;padding:3px 6px"><i style="background:#d8a50c"></i>Chưa xử lý (&lt;5 phản ánh)</span>
@@ -896,6 +901,8 @@
  <div style="margin:8px 0 4px;border-top:1px solid rgba(73,188,255,.15)"></div>
  <div id="gisMapStatus" style="font-size:10px;color:#7f9bb5;line-height:1.7"></div>
  <div style="margin:8px 0 6px;border-top:1px solid rgba(73,188,255,.15)"></div>
+ </div>
+ <div id="gisUserReportsSection">
  <div class="gis-layer-head">BÁO CÁO NGƯỜI DÙNG</div>
  <button class="gis-map-pill" style="width:100%;justify-content:center;margin-bottom:6px" onclick="gisOpenNewReportForm()"><i class="gdi">➕</i><span>Thêm báo cáo mới</span></button>
  <div style="display:flex;gap:4px;margin-bottom:6px">
@@ -903,6 +910,7 @@
  <button class="gis-report-tab" id="gisReportTabHistory" onclick="gisSetReportTab('history')">Đã xử lý</button>
  </div>
  <div id="gisReportList" style="font-size:10px;color:#9db8cc;line-height:1.6;max-height:160px;overflow:auto"></div>
+ </div>
  </aside>
  </div>
  </div>
@@ -1076,11 +1084,11 @@
  <script src="js/core/task-scope.js"></script>
  <script src="js/core/audit-log.js"></script>
  <script src="js/core/login-history.js?v=20261009c"></script>
- <script src="js/core/my-tasks-notify.js"></script>
+ <script src="js/core/my-tasks-notify.js?v=20261029-4"></script>
  <script src="js/core/gis.js"></script>
  <script src="js/core/cad-data.js?v=20261023"></script>
  <script src="js/features/gis-cad.js?v=20261024c"></script>
- <script src="js/features/indicators.js?v=20261008"></script>
+ <script src="js/features/indicators.js?v=20261029-5"></script>
  <script src="js/features/dashboard-education.js?v=20261005j"></script>
  <script src="js/features/dashboard-ubkt.js"></script>
  <script src="js/features/dashboard-to-chuc.js"></script>
@@ -1117,7 +1125,7 @@
 <script src="js/features/dashboard-sgd.js?v=20261005"></script>
 <script src="js/features/hcc-data.js"></script>
 <script src="js/features/dashboard-hcc.js?v=20261005"></script>
-<script src="js/features/ubnd-overview.js?v=20261019"></script>
+<script src="js/features/ubnd-overview.js?v=20261029-2"></script>
 <script src="js/core/ctm-xa.js?v=20261008"></script>
 <script src="js/core/xa-eform.js?v=20261028j"></script>
 <script src="js/core/xa-eform-mau.js?v=20261028j"></script>
@@ -1140,5 +1148,6 @@
  <script src="js/features/btctw-embed.js"></script>
  <script src="js/features/btctw-task-tally.js"></script>
  <script src="js/features/render-all.js"></script>
+ <script src="js/features/ui-visibility.js?v=20261029-12"></script>
 </body>
 </html>

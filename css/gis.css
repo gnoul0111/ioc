@@ -12,6 +12,8 @@
    giãn theo màn hình). minmax(150px, min(20%,360px)) giữ 1 khoảng an toàn: không nhỏ hơn 150px (chữ hết đọc
    được) và không vượt quá 360px (widget rất lớn thì sidebar cũng không nên chiếm quá nhiều). */
 .gis-map-body{display:grid;grid-template-columns:1fr minmax(150px,min(20%,360px));grid-template-rows:1fr;height:100%;background:#020b16;flex:1;min-height:0}
+.gis-map-body.uv-sidebar-collapsed{grid-template-columns:minmax(0,1fr)}
+.gis-map-body.uv-sidebar-collapsed>.gis-layer-sidebar{display:none}
 .gis-map-viewport{position:relative;overflow:hidden;isolation:isolate;height:100%;min-height:0}
 #gisMap{position:absolute;inset:0;background:#020b16}
 /* Theme "dark" = ảnh vệ tinh (OSM đã bỏ hẳn, xem gisTileUrls trong gis.js) làm tối bớt cho hợp giao diện
@@ -154,6 +156,7 @@
 
 @media (max-width:640px){
  .gis-map-body{grid-template-columns:1fr;grid-template-rows:1fr auto}
+ .gis-map-body.uv-sidebar-collapsed{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
  .gis-layer-sidebar{width:100%;min-width:0;flex-direction:row;flex-wrap:wrap;max-height:120px;border-left:0;border-top:1px solid rgba(73,188,255,.16)}
  /* .gis-map-topline mặc định flex-wrap:nowrap, 3 con (nhãn "GIS trực tuyến" / khối select+nút / ô tìm kiếm)
     cùng cố ở 1 hàng — khối giữa lại tự flex-wrap:wrap (từ style inline) nên khi hàng bị bóp hẹp trên mobile,
