@@ -85,7 +85,8 @@ function ctmCtxKey(ctx) { return ctx && ctx.xa ? ctx.xa.name : 'TP'; }
 function ctmD(spec, pid, ctx) {
   if (pid == null) return null;
   ctx = ctx || ctmCtx();
-  const k = spec.id + '|' + pid + '|' + ctmCtxKey(ctx);
+  /* spec.locKey: bộ lọc sẵn theo tài khoản đang bật (ctm-eform.js) — số lọc và số cả đơn vị không dùng chung bộ nhớ đệm */
+  const k = spec.id + '|' + pid + '|' + ctmCtxKey(ctx) + (spec.locKey ? '|' + spec.locKey() : '');
   if (!(k in CTM_CACHE)) { try { CTM_CACHE[k] = spec.data(pid, ctx) || null; } catch (e) { if (typeof console !== 'undefined') console.warn('[ctm] ' + spec.id + ' ' + pid, e); CTM_CACHE[k] = null; } }
   return CTM_CACHE[k];
 }
@@ -180,12 +181,14 @@ function ctmDd(id, label, cur, opts, handler) {
   return '<div class="stc-dd' + (open ? ' open' : '') + '"><button type="button" class="stc-ddb" aria-haspopup="listbox" aria-expanded="' + open + '" onclick="ctmDdToggle(\'' + id + '\')"><small>' + ctmE(label) + '</small><b>' + ctmE(cv ? cv.text : '—') + '</b><span class="stc-ddc"></span></button>' + list + '</div>';
 }
 function ctmHeader(spec, back) {
-  const b = back === 'home' ? ctmLnk('← Tổng quan', "ctmGo('home')") : '';
+  /* nút quay lại đúng màn trước (CTM_HIST); màn trước không phải Tổng quan thì thêm lối về Tổng quan */
+  const prev = CTM_HIST[CTM_HIST.length - 1], pl = prev && prev.screen !== 'home' ? ctmHistLabel(spec, prev) : '';
+  const b = back !== 'home' ? '' : pl ? ctmLnk('← ' + pl, 'ctmBack()') + '<span style="opacity:.5;margin:0 8px">·</span>' + ctmLnk('Tổng quan', "ctmGo('home')") : ctmLnk('← Tổng quan', 'ctmBack()');
   const opts = spec.periods.map((p) => ({ v: p.id, text: p.label }));
   /* spec.grans: đơn vị cho chọn xem theo Tháng / Quý / Năm (chỉ tiêu theo eform cấp Thành phố, ctm-eform.js) */
   const gran = spec.grans ? ctmDd('gran', 'Xem theo', CTM_UI.gran || 'quy', spec.grans.map((g) => ({ v: g[0], text: g[1] })), 'ctmSetGran') : '';
   return '<div class="stc-toolbar"><div class="stc-tl">' + b + '</div><div class="stc-ctrls">' + gran + ctmDd('period', 'Kỳ báo cáo', ctmCurPid(spec), opts, 'ctmSetPeriod') + (typeof indicatorEntryBtnHtml === 'function' ? indicatorEntryBtnHtml() : '') +
-    '<button type="button" class="stc-btn primary" onclick="ctmExport()">' + CTM_ICON_DL + 'Xuất Excel</button></div></div>';
+    '<button type="button" class="stc-btn primary" onclick="ctmExport()">' + CTM_ICON_DL + 'Xuất Excel</button></div></div>' + (spec.locHtml ? spec.locHtml() : '');
 }
 function ctmFoot(spec, n) {
   const how = ctmQuarterly(spec) ? ', số phát sinh và số lũy kế so cùng kỳ năm trước, số tại thời điểm so quý liền trước' : n.pp != null ? ', so với ' + ctmPLabel(spec, n.pp) : '';
@@ -377,7 +380,7 @@ function ctmCardHtml(spec, c, n) {
     const top = rows.slice(0, c.n || 10), mx = Math.max.apply(null, top.map((r) => Math.abs(ctmXaVal(I, r)))) || 1;
     const b = top.map((r, i) => ctmPg((i + 1) + '. ' + r.u.name, '', Math.abs(ctmXaVal(I, r)) / mx * 100, 'var(--s1)', ctmF(ctmXaVal(I, r), I.d) + (I.u === '%' ? '%' : ''))).join('') +
       '<div class="stc-hint" style="margin-top:10px">' + (noRank ? (I.better === 'none' && !I.tot && /trên [\d.]+ (dân|hộ)|bình quân|\//.test(String(I.l || '') + ' ' + String(I.u || '')) ? 'Nhiều hay ít không tự thân là tốt hay xấu nên chỉ để biết nơi nhiều nhất, không phải xếp hạng tốt/kém. ' : 'Số tuyệt đối, phụ thuộc quy mô dân số nên chỉ để biết nơi nhiều nhất, không phải xếp hạng tốt/kém. ') : '') + ctmLnk('Xem đủ 126 xã, phường ›', 'ctmXa(' + ctmJs(I.id) + ')') + '</div>';
-    return ctmCard({ t: (noRank ? (c.t && !/thấp nhất/i.test(c.t) ? c.t : 'Nhiều nhất: ' + I.l) : c.t || (low ? 'Thấp nhất: ' : 'Cao nhất: ') + I.l), s: sub != null ? sub : (c.n || 10) + ' xã, phường · ' + ctmPLabel(spec, n.p) + ' · ' + I.u, xa: I.id, b: b });
+    return ctmCard({ t: (noRank ? (c.t && !/thấp nhất/i.test(c.t) ? c.t : 'Nhiều nhất: ' + I.l) : c.t || (low ? 'Thấp nhất: ' : 'Cao nhất: ') + I.l), s: sub != null ? sub : (c.n || 10) + ' xã, phường · ' + ctmPLabel(spec, n.p) + (I.u ? ' · ' + I.u : ''), xa: I.id, b: b });
   }
   if (c.type === 'rates') {
     const shown = (c.items || []).filter((k) => !ctmM(spec, k).plan);
@@ -577,17 +580,19 @@ function ctmScreenXa(spec) {
   const list = sorted.concat(small, rows.filter((r) => ctmXaVal(I, r) == null)).filter((r) => (X.f === 'all' || r.u.k === X.f) && (!q || ctmNorm(r.u.name).indexOf(q) >= 0));
   X.order = list.map((r) => r.u.name);
   const lastH = I.tot ? 'Tỷ trọng' : 'So mức TP';
-  const head = '<div class="sgd-xt-row sgd-xt-head ctm-xr"><span>' + (noRank ? 'Thứ tự' : 'Hạng') + '</span><span>Xã, phường</span><span class="sgd-num">Dân số</span><span class="sgd-num">' + ctmE(I.u === '%' ? 'Tỷ lệ' : 'Giá trị') + '</span><span class="sgd-num">' + lastH + '</span></div>';
+  /* spec.xa.cot: cột thứ 3 thay cho Dân số (chỉ tiêu theo eform không dùng dân số — VD số bản ghi của xã) */
+  const C3 = spec.xa.cot || { l: 'Dân số', v: (I0, r) => r.u.ds };
+  const head = '<div class="sgd-xt-row sgd-xt-head ctm-xr"><span>' + (noRank ? 'Thứ tự' : 'Hạng') + '</span><span>Xã, phường</span><span class="sgd-num">' + ctmE(C3.l) + '</span><span class="sgd-num">' + ctmE(I.u === '%' ? 'Tỷ lệ' : 'Giá trị') + '</span><span class="sgd-num">' + lastH + '</span></div>';
   const body = list.map((r) => {
     const v = ctmXaVal(I, r), rk = ctmXaRank(I, rows, r);
     const last = v == null ? '—' : ctmXaSmall(I, r) ? '<span class="stc-dl na">Mẫu nhỏ</span>' : I.tot ? (tp ? ctmF(v / tp * 100, 1) + '%' : '—') : ctmDl(v, tp, { rate: I.u === '%', inv: low, neutral: noRank, d: I.d, eq: 'Bằng mức TP' });
     const on = (here && r === here) || X.sel === r.u.name;
-    return '<div class="sgd-xt-row ctm-xr' + (on ? ' on' : '') + '"><span class="sgd-no">' + (rk || '—') + '</span><button type="button" class="sgd-xbtn" onclick="ctmXaSel(' + ctmJs(r.u.name) + ')"><i class="ctm-pk ' + (r.u.k === 'P' ? 'p' : 'x') + '">' + (r.u.k === 'P' ? 'P' : 'X') + '</i>' + ctmE(r.u.short) + '</button><span class="sgd-num sgd-mute">' + ctmF(r.u.ds) + '</span><span class="sgd-num sgd-strong">' + ctmF(v, I.d) + '</span><span class="sgd-num">' + last + '</span></div>';
+    return '<div class="sgd-xt-row ctm-xr' + (on ? ' on' : '') + '"><span class="sgd-no">' + (rk || '—') + '</span><button type="button" class="sgd-xbtn" onclick="ctmXaSel(' + ctmJs(r.u.name) + ')"><i class="ctm-pk ' + (r.u.k === 'P' ? 'p' : 'x') + '">' + (r.u.k === 'P' ? 'P' : 'X') + '</i>' + ctmE(r.u.short) + '</button><span class="sgd-num sgd-mute">' + ctmF(C3.v(I, r)) + '</span><span class="sgd-num sgd-strong">' + ctmF(v, I.d) + '</span><span class="sgd-num">' + last + '</span></div>';
   }).join('') || '<div class="sgd-xt-row"><span class="sgd-mute">Không có xã, phường phù hợp bộ lọc.</span></div>';
   const nP = rows.filter((r) => r.u.k === 'P').length, nX = rows.length - nP;
   const tools = '<div class="ctm-tools"><div class="sgd-pills">' + [['all', 'Tất cả ' + rows.length], ['P', nP + ' phường'], ['X', nX + ' xã']].map((p) => '<button type="button" class="sgd-pill' + (X.f === p[0] ? ' on' : '') + '" onclick="ctmXaF(\'' + p[0] + '\')">' + p[1] + '</button>').join('') + '</div>' +
     '<label class="sgd-search"><small>Tìm</small><input id="ctmQ" value="' + ctmE(X.q) + '" placeholder="Tên xã, phường" oninput="ctmXaQ(this.value)" aria-label="Tìm xã, phường"></label></div>';
-  const right = '<div style="min-width:0"><div class="stc-mchips">' + chips + '</div><div class="stc-card" style="padding:14px 14px 12px"><div class="stc-ch" style="margin-bottom:0"><div><h3 class="stc-ct">' + ctmE(I.l) + '</h3><div class="stc-cs">' + ctmE(I.u + ' · ' + ctmPLabel(spec, n.p) + (here ? ' · dòng đánh dấu là ' + here.u.name : '') + ' · bấm tên để xem hồ sơ') + '</div></div></div>' + tools + '<div class="sgd-xt-box">' + head + body + '</div></div></div>';
+  const right = '<div style="min-width:0"><div class="stc-mchips">' + chips + '</div><div class="stc-card" style="padding:14px 14px 12px"><div class="stc-ch" style="margin-bottom:0"><div><h3 class="stc-ct">' + ctmE(I.l) + '</h3><div class="stc-cs">' + ctmE((I.u ? I.u + ' · ' : '') + ctmPLabel(spec, n.p) + (here ? ' · dòng đánh dấu là ' + here.u.name : '') + ' · bấm tên để xem hồ sơ') + '</div></div></div>' + tools + '<div class="sgd-xt-box">' + head + body + '</div></div></div>';
   let h = ctmHeader(spec, 'home') + '<div class="stc-explore">' + nav + right + '</div>';
   const note = ctmText(spec.xa.note, n.D, n.P, n);
   if (note) h += '<div class="stc-mt">' + ctmNote(note) + '</div>';
@@ -601,13 +606,13 @@ function ctmXaDrawer(spec, rows, name, n) {
   const chips = spec.xa.inds.map((I) => {
     const v = ctmXaVal(I, r), rk = ctmXaRank(I, rows, r), nn = rows.filter((x) => ctmXaVal(I, x) != null && !ctmXaSmall(I, x)).length;
     const pos = v == null ? 'Chưa có số' : ctmXaSmall(I, r) ? 'Mẫu nhỏ, không xếp hạng' : (ctmXaNoRank(I) ? 'Thứ tự ' : 'Hạng ') + rk + '/' + nn;
-    return '<div class="stc-mchip"><div class="stc-k">' + ctmE(I.l) + '</div><div class="stc-v">' + ctmF(v, I.d) + (I.u === '%' ? '%' : '') + '</div><div class="stc-hint">' + ctmE(pos + (I.u !== '%' ? ' · ' + I.u : '')) + '</div></div>';
+    return '<div class="stc-mchip"><div class="stc-k">' + ctmE(I.l) + '</div><div class="stc-v">' + ctmF(v, I.d) + (I.u === '%' ? '%' : '') + '</div><div class="stc-hint">' + ctmE(pos + (I.u && I.u !== '%' ? ' · ' + I.u : '')) + '</div></div>';
   }).join('');
   const extra = ctmText(spec.xa.profile, r, n);
   return '<div class="sgd-dw-bg' + anim + '" onclick="ctmXaSel(null)"></div><aside class="sgd-dw' + anim + '" role="dialog" aria-label="Hồ sơ ' + ctmE(r.u.name) + '"><div class="sgd-dw-top">' +
     '<button type="button" class="sgd-dw-nav" onclick="ctmXaStep(-1)"' + (at > 0 ? '' : ' disabled') + '>‹ Trước</button><span class="sgd-dw-pos">' + (at >= 0 ? (at + 1) + '/' + X.order.length : '') + '</span><button type="button" class="sgd-dw-nav" onclick="ctmXaStep(1)"' + (at >= 0 && at < X.order.length - 1 ? '' : ' disabled') + '>Sau ›</button>' +
     '<button type="button" class="sgd-dw-x" onclick="ctmXaSel(null)" aria-label="Đóng">×</button></div><div class="sgd-dw-body">' +
-    '<h3 style="font-size:17px;font-weight:700;margin:0 0 4px">' + ctmE(r.u.name) + '</h3><div class="stc-hint" style="margin-bottom:12px">Diện tích ' + ctmF(r.u.dt, 2) + ' km² · dân số ' + ctmF(r.u.ds) + ' người · mật độ ' + ctmF(r.u.den) + ' người/km² · ' + ctmE(ctmPLabel(spec, n.p)) + '</div>' +
+    '<h3 style="font-size:17px;font-weight:700;margin:0 0 4px">' + ctmE(r.u.name) + '</h3><div class="stc-hint" style="margin-bottom:12px">' + (spec.xa.noDs ? '' : 'Diện tích ' + ctmF(r.u.dt, 2) + ' km² · dân số ' + ctmF(r.u.ds) + ' người · mật độ ' + ctmF(r.u.den) + ' người/km² · ') + ctmE(ctmPLabel(spec, n.p)) + '</div>' +
     '<div class="stc-mchips">' + chips + '</div>' + (extra || '') + '</div></aside>';
 }
 
@@ -663,7 +668,7 @@ function ctmOpenForm(catId, itemIndex, role) {
   const spec = CTM_SPECS[catId];
   if (!spec) return;
   if (CTM_UI.id !== catId) { CTM_UI.period = spec.periods[0].id; CTM_UI.xa.ind = spec.xa ? spec.xa.inds[0].id : null; CTM_UI.xa.f = 'all'; CTM_UI.xa.q = ''; CTM_UI.rec = { f: 'all', q: '', key: null }; }
-  CTM_UI.id = catId; CTM_UI.role = role || spec.role; CTM_UI.dd = null; CTM_UI.xa.sel = null;
+  CTM_UI.id = catId; CTM_UI.role = role || spec.role; CTM_UI.dd = null; CTM_UI.xa.sel = null; CTM_HIST.length = 0;
   const t = typeof itemIndex === 'string' ? itemIndex : '';
   if (t.indexOf('g:') === 0 && (spec.groups || []).some((g) => g.id === t.slice(2))) { CTM_UI.screen = 'group'; CTM_UI.group = t.slice(2); }
   else if (t.indexOf('xa') === 0 && spec.xa) { CTM_UI.screen = 'xa'; if (t.length > 3) CTM_UI.xa.ind = t.slice(3); }
@@ -679,15 +684,35 @@ function ctmOpenForm(catId, itemIndex, role) {
   ctmFitLines(document.getElementById('modalBody'));
 }
 function ctmClose() { CTM_UI.open = false; if (typeof closeModal === 'function') closeModal(); }
-function ctmGo(screen, arg) { CTM_UI.dd = null; CTM_UI.xa.sel = null; CTM_UI.screen = screen; if (screen === 'group' && arg) CTM_UI.group = arg; ctmRerender(true); }
-function ctmXa(ind) { CTM_UI.dd = null; CTM_UI.screen = 'xa'; CTM_UI.xa.sel = null; if (ind) CTM_UI.xa.ind = ind; ctmRerender(true); }
+/* Lịch sử màn trong popup: mỗi lần sang màn khác thì nhớ màn đang đứng (nhóm, chỉ tiêu và hồ sơ xã đang mở, bộ lọc của
+   Dữ liệu đã nhập) để nút "←" ở đầu màn quay lại đúng màn đó. Về Tổng quan hoặc mở đơn vị khác thì xóa lịch sử. */
+const CTM_HIST = [];
+function ctmPush() { const U = CTM_UI; CTM_HIST.push({ screen: U.screen, group: U.group, xa: { ind: U.xa.ind, f: U.xa.f, q: U.xa.q, sel: U.xa.sel }, rec: Object.assign({}, U.rec) }); if (CTM_HIST.length > 30) CTM_HIST.shift(); }
+function ctmHistLabel(spec, h) {
+  if (h.screen === 'group') { const g = (spec.groups || []).find((x) => x.id === h.group); return g ? g.label : 'Nhóm'; }
+  if (h.screen === 'xa') return spec.xa ? ctmXaLabel(spec) + (h.xa.sel ? ' · ' + h.xa.sel : '') : 'Theo xã, phường';
+  if (h.screen === 'rec') return spec.rec ? spec.rec.label : 'Dữ liệu đã nhập';
+  return 'Tổng quan';
+}
+function ctmBack() {
+  const h = CTM_HIST.pop();
+  if (!h) { ctmGo('home'); return; }
+  CTM_UI.dd = null; CTM_UI.screen = h.screen; CTM_UI.group = h.group; Object.assign(CTM_UI.xa, h.xa, { anim: false }); CTM_UI.rec = h.rec;
+  ctmRerender(true);
+}
+function ctmGo(screen, arg) {
+  if (screen === 'home') CTM_HIST.length = 0;
+  else if (screen !== CTM_UI.screen || (screen === 'group' && arg && arg !== CTM_UI.group)) ctmPush();
+  CTM_UI.dd = null; CTM_UI.xa.sel = null; CTM_UI.screen = screen; if (screen === 'group' && arg) CTM_UI.group = arg; ctmRerender(true);
+}
+function ctmXa(ind) { if (CTM_UI.screen !== 'xa') ctmPush(); CTM_UI.dd = null; CTM_UI.screen = 'xa'; CTM_UI.xa.sel = null; if (ind) CTM_UI.xa.ind = ind; ctmRerender(true); }
 function ctmXaPick(ind) { CTM_UI.xa.ind = ind; ctmRerender(false); }
 function ctmXaF(f) { CTM_UI.xa.f = f; ctmRerender(false); }
 function ctmXaQ(v) { CTM_UI.xa.q = v; CTM_UI.focusQ = true; ctmRerender(false); }
 function ctmXaSel(name) { const X = CTM_UI.xa; X.anim = !!name && !X.sel; X.sel = name || null; ctmRerender(false); }
 function ctmXaStep(d) { const X = CTM_UI.xa, at = X.order.indexOf(X.sel); if (at < 0 || !X.order[at + d]) return; X.sel = X.order[at + d]; ctmRerender(false); }
 /* Màn Dữ liệu đã nhập: key = dòng số liệu hoặc ô số (chỉ hiện các bản ghi tạo ra số đó), null = mọi bản ghi của kỳ */
-function ctmRec(key) { CTM_UI.dd = null; CTM_UI.screen = 'rec'; CTM_UI.rec = { f: 'all', q: '', key: key || null, ef: CTM_UI.rec.ef }; ctmRerender(true); }
+function ctmRec(key) { if (CTM_UI.screen !== 'rec') ctmPush(); CTM_UI.dd = null; CTM_UI.screen = 'rec'; CTM_UI.rec = { f: 'all', q: '', key: key || null, ef: CTM_UI.rec.ef }; ctmRerender(true); }
 function ctmSetGran(g) { CTM_UI.dd = null; CTM_UI.gran = String(g); CTM_UI.period = null; ctmRerender(false); }
 function ctmRecF(f) { CTM_UI.rec.f = f; ctmRerender(false); }
 function ctmRecQ(v) { CTM_UI.rec.q = v; CTM_UI.focusQ = true; ctmRerender(false); }
@@ -736,9 +761,10 @@ async function ctmExport() {
   }
   if (spec.xa) {
     const wx = wb.addWorksheet('Theo xã, phường');
-    wx.addRow(['Xã, phường', 'Loại', 'Dân số', 'Diện tích (km²)'].concat(spec.xa.inds.map((I) => I.l + ' (' + I.u + ')'))).font = { bold: true };
-    ctmXaRows(spec, n.p).forEach((r) => wx.addRow([r.u.name, r.u.k === 'P' ? 'Phường' : 'Xã', r.u.ds, r.u.dt].concat(spec.xa.inds.map((I) => { const v = ctmXaVal(I, r); return v == null ? null : Math.round(v * 100) / 100; }))));
-    wx.columns = [{ width: 32 }, { width: 10 }, { width: 12 }, { width: 14 }].concat(spec.xa.inds.map(() => ({ width: 22 })));
+    const nd = !!spec.xa.noDs;
+    wx.addRow(['Xã, phường', 'Loại'].concat(nd ? [] : ['Dân số', 'Diện tích (km²)'], spec.xa.inds.map((I) => I.l + ' (' + I.u + ')'))).font = { bold: true };
+    ctmXaRows(spec, n.p).forEach((r) => wx.addRow([r.u.name, r.u.k === 'P' ? 'Phường' : 'Xã'].concat(nd ? [] : [r.u.ds, r.u.dt], spec.xa.inds.map((I) => { const v = ctmXaVal(I, r); return v == null ? null : Math.round(v * 100) / 100; }))));
+    wx.columns = [{ width: 32 }, { width: 10 }].concat(nd ? [] : [{ width: 12 }, { width: 14 }], spec.xa.inds.map(() => ({ width: 22 })));
   }
   const buf = await wb.xlsx.writeBuffer();
   const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

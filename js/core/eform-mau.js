@@ -52,7 +52,8 @@ function efMauDung(efId, cfg) {
     cfg.gen(ctx, (part) => {
       const R = {};
       efMauKy(R, cfg.ky, p[0], p[1], ef.F);
-      ef.fields.forEach((f) => { if (!(f.c in R)) R[f.c] = f.c in part ? part[f.c] : efMauDien(f, r, ctx); });
+      /* part được ghi đè trường kỳ (VD một eform có cả bản năm và bản quý) */
+      ef.fields.forEach((f) => { R[f.c] = f.c in part ? part[f.c] : f.c in R ? R[f.c] : efMauDien(f, r, ctx); });
       out.push(R);
     }, r);
   });
@@ -69,8 +70,9 @@ const EF_MAU_CFG = {
       so_don_vi_cong_bo_trien_khai_qd: r.i(2, 30), so_don_vi_da_bao_cao: r.i(2, 30), so_don_vi_duoc_kiem_tra_da_lam_viec: r.i(0, 12), so_kho_khan_kien_nghi: r.i(0, 4),
       ten_don_vi: 'UBKT ' + r.p(['Đảng ủy ', 'Đảng ủy ']) + r.p(EF_XA_TEN).toLowerCase().replace(/^(phường|xã) /, (s) => s), co_du_lieu: r.c(0.9) ? 'ok' : r.p(['thieu_minh_chung', 'thieu_mau_so']),
       trang_thai_doi_soat: r.c(0.8) ? 'da_doi_soat' : 'chua_doi_soat', lop_du_lieu: r.p(['lop_0', 'lop_1', 'lop_2']), minh_chung_url: '' }); } } },
-  dang2: { ky: 'nam', gen: (x, push, r) => { if (x.y !== 2025) return; efVs('dang2', 'don_vi').forEach((dv, i) => { const tot = r.i(40, 900), xs = Math.round(tot * (0.12 + 0.08 * r.f())), kht = Math.round(tot * 0.01 * r.f()), kdg = r.i(0, 3), ht = Math.round(tot * 0.2 * r.f()), tot2 = tot - xs - kht - kdg - ht;
-    push({ don_vi: dv, so_hoan_thanh_xuat_sac_nhiem_vu: xs, so_hoan_thanh_tot_nhiem_vu: tot2, so_hoan_thanh_nhiem_vu: ht, so_khong_hoan_thanh_nhiem_vu: kht, so_khong_danh_gia_xep_loai: kdg, tong_so_can_bo_duoc_danh_gia: tot + (i === 3 ? 2 : 0), ngay_cap_nhat: '2026-01-' + String(10 + i).padStart(2, '0') }); }); } },
+  /* đánh giá cán bộ: bản năm 2025 và bản quý của năm 2026 */
+  dang2: { ky: 'quy', gen: (x, push, r) => { const nam = x.y === 2025; if (nam && x.q !== 4) return; const ky = nam ? { ky_bao_cao: 'nam', quy: null } : {}; efVs('dang2', 'don_vi').forEach((dv, i) => { const tot = r.i(40, 900), xs = Math.round(tot * (0.12 + 0.08 * r.f())), kht = Math.round(tot * 0.01 * r.f()), kdg = r.i(0, 3), ht = Math.round(tot * 0.2 * r.f()), tot2 = tot - xs - kht - kdg - ht;
+    push(Object.assign({ don_vi: dv, so_hoan_thanh_xuat_sac_nhiem_vu: xs, so_hoan_thanh_tot_nhiem_vu: tot2, so_hoan_thanh_nhiem_vu: ht, so_khong_hoan_thanh_nhiem_vu: kht, so_khong_danh_gia_xep_loai: kdg, tong_so_can_bo_duoc_danh_gia: tot + (nam && i === 3 ? 2 : 0), ngay_cap_nhat: nam ? '2026-01-' + String(10 + i).padStart(2, '0') : efMauNgay(x.y, x.m, 10 + i) }, ky)); }); } },
   dang3: { ky: 'thang', gen: (x, push, r) => { for (let i = 0; i < 6; i++) { const d = r.i(1, 20), xong = r.c(0.6);
     push({ chuc_vu: r.p(['Chuyên viên', 'Phó Trưởng phòng', 'Trưởng phòng', 'Phó Chủ tịch UBND', 'Bí thư chi bộ']), noi_dung_chi_tiet: r.p(['Thẩm định tiêu chuẩn chính trị', 'Đi công tác nước ngoài theo đoàn', 'Giải quyết chế độ chính sách', 'Xác minh lý lịch']),
       thoi_gian_bat_dau: efMauNgay(x.y, x.m, d), thoi_gian_ket_thuc: xong ? efMauNgay(x.y, x.m, d + r.i(2, 8)) : null, trang_thai_xu_ly_thuc_hien: xong ? 'hoan_thanh' : r.p(['dang_xu_ly_dang_xac_minh', 'dang_xu_ly_dang_xac_minh', 'tam_dung']),
@@ -157,8 +159,9 @@ const EF_MAU_CFG = {
   /* ---------- Trục UBND: VP UBND Thành phố ---------- */
   vpub1: { ky: 'quy', gen: (x, push, r) => { efVs('vpub1', 'don_vi_bao_cao').forEach((dv, i) => { const t = Math.round(CTM_XA[i].ds * (0.05 + 0.03 * r.f())), xl = Math.round(t * (0.9 + 0.095 * r.f()));
     push({ don_vi_bao_cao: dv, cap_bao_cao: efVof('vpub1', 'cap_bao_cao', 'Xã/Phường'), tong_so_van_ban_ho_so_cong_viec: t, so_van_ban_ho_so_xu_ly_tren_moi_truong_mang: xl, ty_le_tu_tinh: Math.round(xl / t * 1000) / 10 + (x.pi === 6 && i === 4 ? 5 : 0), ghi_chu: '' }); }); } },
-  vpub2: { ky: 'nam', gen: (x, push, r) => { efVs('vpub2', 'don_vi_bao_cao').slice(0, 60).forEach((dv, i) => { const co = r.c(x.y === 2026 ? 0.7 : 0.45);
-    push({ don_vi_bao_cao: dv, doi_tuong_phuc_vu: r.p(['Người dân, doanh nghiệp', 'Cán bộ, công chức']), da_trien_khai_tro_ly_ao: co ? 'Có' : 'Không', ten_ung_dung_tro_ly_ao: co ? r.p(['Trợ lý ảo iHanoi', 'Trợ lý ảo hành chính công', 'Trợ lý ảo văn bản']) : '', ghi_chu: '' }); }); } },
+  /* trợ lý ảo: bản năm 2025 và bản quý của năm 2026 */
+  vpub2: { ky: 'quy', gen: (x, push, r) => { const nam = x.y === 2025; if (nam && x.q !== 4) return; efVs('vpub2', 'don_vi_bao_cao').slice(0, 60).forEach((dv, i) => { const co = r.c(nam ? 0.45 : 0.5 + 0.08 * x.q);
+    push({ ...(nam ? { ky_bao_cao: 'nam', quy: null } : {}), don_vi_bao_cao: dv, doi_tuong_phuc_vu: r.p(['Người dân, doanh nghiệp', 'Cán bộ, công chức']), da_trien_khai_tro_ly_ao: co ? 'Có' : 'Không', ten_ung_dung_tro_ly_ao: co ? r.p(['Trợ lý ảo iHanoi', 'Trợ lý ảo hành chính công', 'Trợ lý ảo văn bản']) : '', ghi_chu: '' }); }); } },
   vpub3: { ky: 'thang', gen: (x, push, r) => { for (let i = 0; i < 7; i++) { const g = r.i(1, 15), st = r.p(efVs('vpub3', 'trang_thai_thuc_hien')), xong = /hoan_thanh/.test(st);
     push({ ten_nhiem_vu: r.p(['Triển khai Đề án 06', 'Rà soát thủ tục hành chính', 'Báo cáo giải ngân đầu tư công', 'Xây dựng cơ sở dữ liệu đất đai', 'Chuyển đổi số y tế']) + ' (' + x.m + '/' + x.y + ')', co_quan_giao: r.p(['Chính phủ', 'Thủ tướng Chính phủ', 'Văn phòng Chính phủ']),
       van_ban_giao_nhiem_vu: r.i(100, 999) + '/VPCP-' + r.p(['KSTT', 'TH', 'KTTH']), ngay_giao: efMauNgay(x.y, x.m, g), han_hoan_thanh: efMauNgay(x.y, x.m, Math.min(28, g + 12)), don_vi_chu_tri: r.p(['Sở Tài chính', 'Sở Nội vụ', 'Sở Nông nghiệp và Môi trường', 'Sở Y tế']), don_vi_phoi_hop: r.p(['Văn phòng UBND Thành phố', 'Sở Khoa học và Công nghệ']),
@@ -173,8 +176,227 @@ const EF_MAU_CFG = {
   ubnd3: { ky: 'quy', gen: (x, push, r) => { efVs('ubnd3', 'don_vi_bao_cao').slice(0, 40).forEach((dv) => { const t = r.i(5, 60), dvt = r.p(efVs('ubnd3', 'don_vi_tinh_chi_phi_vnd_gio_cong')), tr = dvt === efVs('ubnd3', 'don_vi_tinh_chi_phi_vnd_gio_cong')[0] ? r.i(50, 900) * 1e6 : r.i(200, 5000);
     push({ don_vi_bao_cao: dv, tong_so_quy_dinh_can_ra_soat_cat_giam: t, so_quy_dinh_da_duoc_cat_giam_don_gian_hoa: r.i(0, t), don_vi_tinh_chi_phi_vnd_gio_cong: dvt, tong_chi_phi_tuan_thu_truoc_cai_cach: tr, chi_phi_tuan_thu_sau_cai_cach: Math.round(tr * (0.6 + 0.35 * r.f())), ghi_chu: '' }); }); } },
   ubnd6: { ky: 'quy', gen: (x, push, r) => { efVs('ubnd6', 'dia_ban').forEach((db, i) => { const t = r.i(25, 90); push({ dia_ban: db, cap_bao_cao: efVs('ubnd6', 'cap_bao_cao')[1], tong_so_cbccvc_thuoc_dien_duoc_cap_chu_ky_so: t, so_cbccvc_da_duoc_cap_chu_ky_so_chuyen_dung_cong_vu: t - r.i(0, 3) }); }); } },
-  ubnd9: { ky: 'quy', gen: (x, push, r) => { efVs('ubnd9', 'don_vi_bao_cao').forEach((dv, i) => { const t = r.i(25, 90); push({ don_vi_bao_cao: dv, cap_bao_cao: efVs('ubnd9', 'cap_bao_cao')[1], tong_so_cbccvc_thuoc_dien_duoc_cap_chu_ky_so: t, so_cbccvc_da_duoc_cap_chu_ky_so_chuyen_dung_cong_vu: t - r.i(0, 3) + (x.pi === 6 && i === 2 ? 5 : 0) }); }); } }
+  ubnd9: { ky: 'quy', gen: (x, push, r) => { efVs('ubnd9', 'don_vi_bao_cao').forEach((dv, i) => { const t = r.i(25, 90); push({ don_vi_bao_cao: dv, cap_bao_cao: efVs('ubnd9', 'cap_bao_cao')[1], tong_so_cbccvc_thuoc_dien_duoc_cap_chu_ky_so: t, so_cbccvc_da_duoc_cap_chu_ky_so_chuyen_dung_cong_vu: t - r.i(0, 3) + (x.pi === 6 && i === 2 ? 5 : 0) }); }); } },
+  /* ---------- 12 sở — đợt 1: Thanh tra Thành phố ---------- */
+  /* kiểm tra Chủ tịch UBND xã: cuộc chưa thực hiện xong kiến nghị được nhập lại tháng sau để cập nhật (bản đọc, câu 1) */
+  ttra1: { ky: 'thang', gen: (x, push, r) => { const XA = efVs('ttra1', 'dia_ban'), cu = (x.st.ttra1 || []).filter((o) => !o.xong), moi = [];
+    for (let i = 0; i < r.i(2, 4); i++) moi.push({ qd: r.i(10, 299) + '/QĐ-TTTP-' + x.y + String(x.m).padStart(2, '0') + (i + 1), xa: r.p(XA), kn: r.i(3, 14), da: 0, bd: r.i(1, 12), lv: r.p(['Đất đai', 'Trật tự xây dựng', 'Tài chính - ngân sách', 'Tiếp công dân, giải quyết khiếu nại']) });
+    x.st.ttra1 = [];
+    cu.concat(moi).forEach((o, j) => { o.da = Math.min(o.kn, o.da + r.i(1, Math.ceil(o.kn / 2))); const qh = r.c(0.25) ? r.i(0, o.kn - o.da) : 0, dang = o.kn - o.da - qh; o.xong = o.da === o.kn; if (!o.xong) x.st.ttra1.push(o);
+      const kl = o.da > 0, ngay = efMauNgay(x.y, x.m, o.bd), sai = x.pi === 20 && j === 0;
+      push({ dia_ban: o.xa, thon_tdp: '', loai_ban_ghi: efVs('ttra1', 'loai_ban_ghi')[0], ten_cuoc_kiem_tra_noi_dung: 'Kiểm tra trách nhiệm Chủ tịch UBND về ' + o.lv.toLowerCase(), doi_tuong_kiem_tra: 'Chủ tịch UBND xã, phường', nhom_doi_tuong: 'Người đứng đầu',
+        co_quan_chu_tri_kiem_tra: r.c(0.8) ? 'co' : 'khong', can_cu_quyet_dinh_kiem_tra_so: o.qd, ngay_quyet_dinh: ngay, noi_dung_kiem_tra_chinh: 'Trách nhiệm thực hiện pháp luật về ' + o.lv.toLowerCase(), linh_vuc_kiem_tra_chi_tiet: o.lv,
+        thoi_gian_bat_dau: ngay, thoi_gian_ket_thuc_ke_hoach: efMauNgay(x.y, x.m, o.bd + 10), thoi_gian_ket_thuc_thuc_te: kl ? efMauNgay(x.y, x.m, o.bd + r.i(8, 14)) : null,
+        trang_thai_kiem_tra: o.xong ? 'Hoàn thành' : kl ? 'Đã ban hành kết luận' : 'Đang kiểm tra', so_don_vi_duoc_kiem_tra: r.i(1, 6), da_ban_hanh_ket_luan: kl ? 'co' : 'khong', ngay_ban_hanh_ket_luan: kl ? efMauNgay(x.y, x.m, o.bd + 15) : null,
+        so_ket_luan: kl ? r.i(10, 99) + '/KL-TTTP' : '', co_kien_nghi_xu_ly: 'co', so_kien_nghi_xu_ly: o.kn, kien_nghi_hanh_chinh: r.c(0.5) ? 'Kiểm điểm trách nhiệm' : '', kien_nghi_tai_chinh: r.c(0.4) ? 'Thu hồi về ngân sách' : '', kien_nghi_chuyen_cqdt: '',
+        gia_tri_kien_nghi_thu_hoi_giam_tru_trieu_dong: r.i(0, 900), da_thuc_hien_kien_nghi: o.da, dang_thuc_hien_kien_nghi: dang, qua_han_thuc_hien_kien_nghi: qh,
+        ty_le_thuc_hien_kien_nghi: Math.round(o.da / o.kn * 1000) / 10 + (sai ? 9 : 0), han_bao_cao_ket_qua: efMauNgay(x.y, x.m, 28), tinh_trang_qua_han: qh ? 'Quá hạn' : 'Chưa quá hạn', vuong_mac_kien_nghi: '', ghi_chu: '' }); });
+    if (x.m % 4 === 0) push({ dia_ban: r.p(XA), loai_ban_ghi: efVs('ttra1', 'loai_ban_ghi').slice(-1)[0], ten_cuoc_kiem_tra_noi_dung: '', can_cu_quyet_dinh_kiem_tra_so: '', trang_thai_kiem_tra: '', so_don_vi_duoc_kiem_tra: null, so_kien_nghi_xu_ly: null,
+      gia_tri_kien_nghi_thu_hoi_giam_tru_trieu_dong: null, da_thuc_hien_kien_nghi: null, dang_thuc_hien_kien_nghi: null, qua_han_thuc_hien_kien_nghi: null, ty_le_thuc_hien_kien_nghi: null, da_ban_hanh_ket_luan: null, co_kien_nghi_xu_ly: null,
+      ngay_quyet_dinh: null, thoi_gian_bat_dau: null, thoi_gian_ket_thuc_ke_hoach: null, thoi_gian_ket_thuc_thuc_te: null, ngay_ban_hanh_ket_luan: null, han_bao_cao_ket_qua: null, so_ket_luan: '', tinh_trang_qua_han: '', doi_tuong_kiem_tra: '', nhom_doi_tuong: '',
+      co_quan_chu_tri_kiem_tra: null, noi_dung_kiem_tra_chinh: '', linh_vuc_kiem_tra_chi_tiet: '', kien_nghi_hanh_chinh: '', kien_nghi_tai_chinh: '', kien_nghi_chuyen_cqdt: '', vuong_mac_kien_nghi: '', thon_tdp: '', ghi_chu: 'Kỳ này không phát sinh' }); } },
+  /* thanh tra: bản «Theo dõi sau thanh tra» cập nhật giá trị đã thu hồi (lũy kế của cuộc) 2 và 4 tháng sau khi có kết luận */
+  ttra2: { ky: 'thang', gen: (x, push, r) => { const XA = efVs('ttra2', 'dia_ban'), LV = efVs('ttra2', 'linh_vuc_thanh_tra'), st = x.st.ttra2 || (x.st.ttra2 = []);
+    const base = (o) => ({ ten_cuoc_thanh_tra_noi_dung: 'Thanh tra ' + o.ten, nguon_ke_hoach: o.ng, thon_tdp: '', dia_ban: o.xa, don_vi_duoc_thanh_tra: o.dv, linh_vuc_thanh_tra: o.lv, co_quan_chu_tri: 'co', so_qd_thanh_tra: o.qd, ngay_qd_thanh_tra: o.nqd,
+      ngay_bat_dau: o.nbd, ngay_ket_thuc_du_kien: o.nkt, so_don_vi_duoc_thanh_tra: o.sdv, so_kien_nghi_xu_ly: o.kn, gia_tri_kien_nghi_thu_hoi_trieu_dong: o.gtkn, so_ca_nhan_to_chuc_kien_nghi_xu_ly_hc: o.hc, so_vu_viec_chuyen_cq_dieu_tra: o.cq, vuong_mac: '', kien_nghi_ho_tro: '' });
+    for (let i = 0; i < r.i(2, 4); i++) { const d = r.i(1, 7), lv = r.p(LV.filter((v) => v !== 'khac')), ketluan = r.c(0.65), gtkn = Math.round((20 + 1500 * r.f()) * 10) / 10, gtth = ketluan ? Math.round(gtkn * (0.2 + 0.5 * r.f()) * 10) / 10 : 0;
+      const o = { qd: r.i(100, 999) + '/QĐ-TTTP-' + x.y + String(x.m).padStart(2, '0'), xa: r.p(XA), ten: r.p(['quản lý, sử dụng ngân sách', 'công tác quản lý đất đai', 'đầu tư xây dựng', 'mua sắm tài sản công', 'giải quyết thủ tục hành chính']), ng: r.p(efVs('ttra2', 'nguon_ke_hoach')),
+        dv: r.p(['UBND xã, phường', 'Ban Quản lý dự án', 'Trung tâm y tế', 'Trường học']), lv: lv, nqd: efMauNgay(x.y, x.m, d), nbd: efMauNgay(x.y, x.m, d + 2), nkt: efMauNgay(x.y, x.m, d + 18), sdv: r.i(1, 8), kn: ketluan ? r.i(2, 15) : 0, gtkn: gtkn, hc: ketluan ? r.i(0, 6) : 0, cq: r.c(0.1) ? 1 : 0, gtth: gtth, t: x.pi };
+      const qh = r.c(0.15) ? r.i(1, 20) : 0, sai = x.pi === 20 && i === 0;
+      push(Object.assign(base(o), { loai_ban_ghi: 'cuocthanhtra', ngay_ket_thuc_thuc_te: ketluan ? efMauNgay(x.y, x.m, d + 19) : null, trang_thai_cuoc_thanh_tra: ketluan ? 'dabanhanhketluan' : r.p(['dangtrienkhai', 'daketthucxacminh']),
+        da_ban_hanh_ket_luan: ketluan ? 'co' : 'khong', so_kl_thanh_tra: ketluan ? r.i(10, 99) + '/KL-TTTP' : '', ngay_kl_thanh_tra: ketluan ? efMauNgay(x.y, x.m, d + 20) : null, kien_nghi_xu_ly: ketluan ? 'co' : 'khong',
+        gia_tri_da_thu_hoi_trieu_dong: gtth, so_van_ban_don_doc_nhac: 0, ty_le_thu_hoi: gtkn ? Math.round(gtth / gtkn * 1000) / 10 + (sai ? 12 : 0) : null, tien_do_phan_tram: ketluan ? 100 : r.i(20, 90), qua_han_ngay: qh, muc_canh_bao: qh > 10 ? 'do' : qh ? 'vang' : 'xanh' }));
+      if (ketluan) st.push(o); }
+    st.filter((o) => x.pi - o.t === 2 || x.pi - o.t === 4).forEach((o) => { o.gtth = Math.min(o.gtkn, Math.round((o.gtth + o.gtkn * 0.25 * r.f()) * 10) / 10);
+      push(Object.assign(base(o), { loai_ban_ghi: 'theodoisauthanhtra', ngay_ket_thuc_thuc_te: o.nkt, trang_thai_cuoc_thanh_tra: 'theodoithuchien', da_ban_hanh_ket_luan: 'co', so_kl_thanh_tra: 'KL/' + o.qd, ngay_kl_thanh_tra: o.nkt, kien_nghi_xu_ly: 'co',
+        gia_tri_da_thu_hoi_trieu_dong: o.gtth, so_van_ban_don_doc_nhac: r.i(0, 3), ty_le_thu_hoi: Math.round(o.gtth / o.gtkn * 1000) / 10, tien_do_phan_tram: 100, qua_han_ngay: 0, muc_canh_bao: 'xanh' })); }); } },
+  /* tiếp công dân: 40 xã bản Tổng hợp; 3 xã thêm bản chi tiết (không dùng vì đã có Tổng hợp); 2 xã chỉ có bản chi tiết; 1 bản Đột xuất; bản Không phát sinh mỗi quý */
+  ttra3: { ky: 'thang', gen: (x, push, r) => { const XA = efVs('ttra3', 'dia_ban'), st = x.st.ttra3 || (x.st.ttra3 = {}), LT = efVs('ttra3', 'loai_tiep_cong_dan_chinh').filter((v) => v !== 'khongphatsinh'), TT = efVs('ttra3', 'tinh_trang_xu_ly_tong_hop').filter((v) => v !== 'khongphatsinh');
+    const so = (xa, k, loai, sai) => { const dau = st[xa + loai] != null ? st[xa + loai] : r.i(0, 12 * k), moi = r.i(2, 25 * k), tong = dau + moi, dkd = r.i(Math.floor(tong * 0.6), tong), tq = r.i(0, dkd), chuyen = r.i(0, dkd - tq), hd = dkd - tq - chuyen;
+      const a = r.i(0, tong), b = r.i(0, tong - a), c = r.i(0, tong - a - b), thuly = r.i(Math.floor(tq / 2), tq + 3), dgq = r.i(0, thuly), dh = r.i(Math.floor(dgq * 0.7), dgq), rut = r.i(0, thuly - dgq), dxqh = r.c(0.3) ? r.i(0, thuly - dgq - rut) : 0, ton = r.i(0, tong - Math.floor(dgq / 2));
+      st[xa + loai] = ton;
+      return { loai_tiep_cong_dan_chinh: r.p(LT), so_cuoc_tiep_cong_dan: r.i(1, 8 * k), so_luot_cong_dan: r.i(3, 60 * k), so_doan_dong_nguoi: r.c(0.2) ? r.i(1, 2) : 0, so_vu_viec_tiep_nhan_qua_tiep_dan: r.i(0, 10 * k), tong_don_thu_tiep_nhan: tong + (sai ? 3 : 0), don_ky_truoc_chuyen_sang: dau, don_moi_trong_ky: moi,
+        don_du_dieu_kien_xu_ly: dkd, don_khong_du_dieu_kien_luu: tong - dkd, don_thuoc_tham_quyen: tq, don_khong_thuoc_tham_quyen_da_chuyen: chuyen, don_khong_thuoc_tham_quyen_da_huong_dan: hd, so_don_khieu_nai: a, so_don_to_cao: b, so_don_kien_nghi_phan_anh: c, so_don_nhieu_noi_dung_khac: tong - a - b - c,
+        so_vu_viec_thu_ly: thuly, so_vu_viec_da_giai_quyet: dgq, so_vu_giai_quyet_dung_han: dh, so_vu_giai_quyet_qua_han: dgq - dh, so_vu_dang_xu_ly_trong_han: thuly - dgq - rut - dxqh, so_vu_dang_xu_ly_qua_han: dxqh, so_vu_rut_don_dinh_chi: rut, so_vu_phuc_tap_keo_dai: r.c(0.15) ? 1 : 0,
+        ty_le_giai_quyet_vu_viec: thuly ? Math.round(dgq / thuly * 1000) / 10 : null, ty_le_giai_quyet_dung_han: dgq ? Math.round(dh / dgq * 1000) / 10 : null, ton_cuoi_ky: ton, ngay_bao_cao: efMauNgay(x.y, x.m, 25), han_bao_cao_chot_so_lieu: efMauNgay(x.y, x.m, 25), qua_han_bao_cao_ngay: null,
+        tinh_trang_xu_ly_tong_hop: r.p(TT), vuong_mac_nguyen_nhan: '', kien_nghi_ho_tro: '', ghi_chu: '', thon_tdp: '' }; };
+    XA.slice(0, 40).forEach((xa, i) => { push(Object.assign({ dia_ban: xa, loai_ban_ghi: 'tonghop' }, so(xa, 2, 'th', x.pi === 20 && i === 3)));
+      if (i < 3) push(Object.assign({ dia_ban: xa, loai_ban_ghi: 'chitietdonthu' }, so(xa, 1, 'ct'), { thon_tdp: 'Tổ dân phố ' + (i + 1) })); });
+    XA.slice(40, 42).forEach((xa) => ['chitietdonthu', 'chitietvuviec'].forEach((l) => push(Object.assign({ dia_ban: xa, loai_ban_ghi: l }, so(xa, 1, l)))));
+    push(Object.assign({ dia_ban: XA[42], loai_ban_ghi: 'tonghop' }, so(XA[42], 1, 'dx'), { ky_bao_cao: 'dotxuat', thang: null, quy: null, ngay_bao_cao: efMauNgay(x.y, x.m, r.i(5, 20)), ghi_chu: 'Báo cáo đột xuất' }));
+    if (x.m % 3 === 0) { const kps = { dia_ban: XA[43], loai_ban_ghi: 'khongphatsinh', loai_tiep_cong_dan_chinh: 'khongphatsinh', tinh_trang_xu_ly_tong_hop: 'khongphatsinh', thon_tdp: '', ngay_bao_cao: efMauNgay(x.y, x.m, 25), han_bao_cao_chot_so_lieu: efMauNgay(x.y, x.m, 25),
+      qua_han_bao_cao_ngay: null, vuong_mac_nguyen_nhan: '', kien_nghi_ho_tro: '', ghi_chu: 'Không phát sinh' };
+      EFK.ttra3.fields.forEach((f) => { if (f.t === 'so' && ['nam', 'thang'].indexOf(f.c) < 0) kps[f.c] = /^ty_le/.test(f.c) ? null : 0; }); push(kps); } } },
+  /* ---------- Sở Công Thương ---------- */
+  sct1: { ky: 'thang', gen: (x, push, r) => { const L = x.st.sct1 || (x.st.sct1 = Array.from({ length: 25 }, (_, i) => ({ ten: 'Công ty ' + ['Hà Thành', 'Thăng Long', 'Long Biên', 'Sông Hồng', 'Tây Hồ'][i % 5] + ' ' + (i + 1), xa: r.p(efVs('sct1', 'dia_ban')),
+      lh: r.p(efVs('sct1', 'loai_hinh_hoat_dong')), ng: r.p(['Dệt may', 'Điện tử', 'Nông sản', 'Cơ khí', 'Đồ gỗ']), tt: r.p(['Hoa Kỳ', 'Nhật Bản', 'Hàn Quốc', 'Trung Quốc', 'EU']), qm: r.i(50, 3000) })));
+    L.forEach((o, i) => { const xk = o.lh === 'nhap_khau' ? 0 : Math.round(o.qm * (0.7 + 0.6 * r.f())) * 1000, nk = o.lh === 'xuat_khau' ? 0 : Math.round(o.qm * (0.4 + 0.5 * r.f())) * 1000;
+      push({ dia_ban: o.xa, ten_doanh_nghiep: o.ten, loai_hinh_doanh_nghiep: i % 3 ? 'Công ty TNHH' : 'Công ty cổ phần', nganh_hang_mat_hang_chinh: o.ng, loai_hinh_hoat_dong: o.lh, thi_truong_chinh: o.tt, kim_ngach_xuat_khau_usd: xk, kim_ngach_nhap_khau_usd: nk,
+        tong_kim_ngach_xnk_usd: xk + nk + (x.pi === 20 && i === 2 ? 5000 : 0), ghi_chu: '' }); }); } },
+  sct2: { ky: 'thang', gen: (x, push, r) => { const L = x.st.sct2 || (x.st.sct2 = Array.from({ length: 30 }, (_, i) => ({ ten: ['Siêu thị', 'Cửa hàng', 'Trung tâm thương mại', 'Nhà hàng'][i % 4] + ' ' + (i + 1), xa: r.p(efVs('sct2', 'dia_ban')),
+      lh: ['Siêu thị', 'Cửa hàng bán lẻ', 'Trung tâm thương mại', 'Ăn uống, lưu trú'][i % 4], ng: r.p(['Lương thực, thực phẩm', 'Hàng may mặc', 'Đồ dùng gia đình', 'Dịch vụ ăn uống']), qm: r.i(200, 4000) * 1e6, truoc: null })));
+    L.forEach((o, i) => { const bl = Math.round(o.qm * (0.5 + 0.4 * r.f()) / 1e6) * 1e6, dv = Math.round(o.qm * (0.1 + 0.3 * r.f()) / 1e6) * 1e6, tm = bl + dv, kt = o.truoc || Math.round(tm * (0.9 + 0.15 * r.f()) / 1e6) * 1e6; o.truoc = tm;
+      push({ dia_ban: o.xa, ten_co_so_doanh_nghiep: o.ten, loai_hinh_kinh_doanh: o.lh, nganh_hang_linh_vuc_dich_vu_chinh: o.ng, doanh_thu_ban_le_hang_hoa_dong: bl, doanh_thu_dich_vu_dong: dv, tong_muc_ban_le_dv_tieu_dung_dong: tm,
+        doanh_thu_ky_truoc_lien_ke_dong: kt, toc_do_tang_ky_truoc_phan_tram: Math.round((tm / kt * 100 - 100) * 10) / 10 + (x.pi === 20 && i === 4 ? 6 : 0), ghi_chu: '' }); }); } },
+  sct3: { ky: 'thang', gen: (x, push, r) => { const st = x.st.sct3 || (x.st.sct3 = {}), DT = efVs('sct3', 'doi_tuong_thong_ke');
+    efVs('sct3', 'dia_ban').slice(0, 30).forEach((xa, i) => efVs('sct3', 'ma_chi_tieu_con_cds').forEach((ma, j) => { const k = xa + ma, o = st[k] || (st[k] = { tong: r.i(20, 400), dat: 0, dt: DT[j % DT.length] }); o.tong += r.i(0, 4); o.dat = Math.min(o.tong, Math.max(o.dat, Math.round(o.tong * (0.3 + 0.5 * r.f()))));
+      push({ dia_ban: xa, ma_chi_tieu_con_cds: ma, doi_tuong_thong_ke: o.dt, tong_so_doi_tuong: o.tong, so_doi_tuong_dat: o.dat, ty_le_dat_phan_tram: Math.round(o.dat / o.tong * 1000) / 10 + (x.pi === 20 && i === 1 && j === 0 ? 8 : 0), nen_tang_so_hinh_thuc_ap_dung: r.p(['Sàn thương mại điện tử', 'Thanh toán không dùng tiền mặt', 'Mạng xã hội', 'Website bán hàng']), ghi_chu: '' }); })); } },
+  sct4: { ky: 'thang', gen: (x, push, r) => { const MH = { dien_nang: [efVs('sct4', 'ma_chi_tieu_qd4795')[0], [efVs('sct4', 'don_vi_tinh')[0]], () => r.i(200, 9000) * 1000], xang_dau: [efVs('sct4', 'ma_chi_tieu_qd4795')[1], efVs('sct4', 'don_vi_tinh').slice(1, 3), () => r.i(5, 900) * 1000],
+      than: [efVs('sct4', 'ma_chi_tieu_qd4795')[2], [efVs('sct4', 'don_vi_tinh')[3]], () => r.i(10, 3000)] };
+    const L = x.st.sct4 || (x.st.sct4 = Array.from({ length: 18 }, (_, i) => { const mh = Object.keys(MH)[i % 3]; return { ten: ['Điện lực', 'Cửa hàng xăng dầu', 'Công ty kinh doanh than'][i % 3] + ' ' + (i + 1), mh: mh, xa: r.p(efVs('sct4', 'dia_ban')), lh: r.p(efVs('sct4', 'loai_hinh_don_vi')), dvt: r.p(MH[mh][1]) }; }));
+    L.forEach((o, i) => push({ dia_ban: o.xa, ma_chi_tieu_qd4795: MH[o.mh][0], loai_mat_hang: o.mh, ten_don_vi_cung_ung: o.ten, loai_hinh_don_vi: o.lh, san_luong_trong_ky: MH[o.mh][2](), don_vi_tinh: x.pi === 20 && i === 2 ? efVs('sct4', 'don_vi_tinh')[0] : o.dvt, ghi_chu: '' })); } },
+  sct5: { ky: 'thang', gen: (x, push, r) => { const L = x.st.sct5 || (x.st.sct5 = Array.from({ length: 20 }, (_, i) => ({ ten: 'Doanh nghiệp sản xuất ' + (i + 1), xa: r.p(efVs('sct5', 'dia_ban')), ng: efVs('sct5', 'nganh_cong_nghiep_vsic')[i % 5], gt: r.i(5, 400) * 1e9 })));
+    L.forEach((o, i) => { const kt = o.gt, kn = Math.round(kt * (0.92 + 0.18 * r.f()) / 1e6) * 1e6; o.gt = kn;
+      push({ dia_ban: o.xa, ten_doanh_nghiep_co_so: o.ten, nganh_cong_nghiep_vsic: o.ng, gia_tri_sx_ky_nay_dong: kn, gia_tri_sx_ky_truoc_dong: kt, chi_so_iip_ky_truoc_phan_tram: Math.round(kn / kt * 1000) / 10 + (x.pi === 20 && i === 3 ? 4 : 0), ghi_chu: '' }); }); } },
+  /* ---------- Sở Nội vụ ---------- */
+  snv1: { ky: 'thang', gen: (x, push, r) => { const st = x.st.snv1 || (x.st.snv1 = {}), MA = efVs('snv1', 'ma_chi_tieu_qd4795');
+    efVs('snv1', 'dia_ban').slice(0, 30).forEach((xa, i) => MA.forEach((ma, j) => { const k = xa + ma, o = st[k] || (st[k] = { tong: r.i(400, 4000), k: 0.4 + 0.3 * r.f() }); o.tong += r.i(-5, 15); o.k = Math.min(0.98, o.k + 0.004 * r.f());
+      if (j < 2) { const dat = Math.round(o.tong * o.k); push({ thon_tdp: '', ma_chi_tieu_qd4795: ma, ten_chi_tieu: j ? 'Tỷ lệ tham gia BHXH' : 'Tỷ lệ tham gia BHTN', doi_tuong_noi_dung: 'Người lao động thuộc diện tham gia', tong_so_doi_tuong: o.tong, so_doi_tuong_dat: dat,
+        ty_le_phan_tram: Math.round(dat / o.tong * 1000) / 10 + (x.pi === 20 && i === 2 && j === 1 ? 5 : 0), don_vi_tinh: 'người', ghi_chu: '', dia_ban: xa }); }
+      else push({ thon_tdp: '', ma_chi_tieu_qd4795: ma, ten_chi_tieu: ['Số người hưởng', 'Thu BHXH, BHYT, BHTN', 'Chi BHXH, BHYT, BHTN'][j - 2], doi_tuong_noi_dung: j === 2 ? 'Người hưởng chế độ' : 'Số tiền', tong_so_doi_tuong: j === 2 ? r.i(20, 300) : r.i(500, 9000), so_doi_tuong_dat: null, ty_le_phan_tram: null,
+        don_vi_tinh: j === 2 ? 'người' : 'triệu đồng', ghi_chu: '', dia_ban: xa }); })); } },
+  snv2: { ky: 'thang', gen: (x, push, r) => { const st = x.st.snv2 || (x.st.snv2 = {});
+    efVs('snv2', 'dia_ban').forEach((xa, i) => { const o = st[xa] || (st[xa] = { ld: Math.round(CTM_XA[i % CTM_XA.length].ds * 0.55), kd: 0.5 + 0.3 * r.f(), cds: r.i(0, 2), antt: r.i(0, 1), ks: r.i(20, 80), ck: r.i(20, 80), giao: r.i(40, 120) });
+      o.ld += r.i(-20, 40); o.kd = Math.min(0.95, o.kd + 0.003 * r.f()); const tm = r.c(0.3) ? r.i(1, 3) : 0, nh = r.c(0.2) ? 1 : 0, tv = r.c(0.1) ? 1 : 0, ct = r.c(0.15) ? 1 : 0; o.th = Math.min(o.giao, (o.th || o.giao - r.i(0, 8)) + tm - nh - tv - ct);
+      push({ tong_luc_luong_lao_dong: o.ld, so_lao_dong_dat: Math.round(o.ld * o.kd), don_vi_co_cbccvc_chuyen_trach_cds: o.cds, don_vi_co_cbccvc_chuyen_trach_antt_mang: o.antt, tong_cbccvc_boi_duong_ky_nang_so: o.ks, so_cbccvc_boi_duong_ky_nang_so_dat: Math.round(o.ks * (0.6 + 0.4 * r.f())),
+        tong_cbccvc_cap_chu_ky_so: o.ck, so_cbccvc_cap_chu_ky_so_dat: o.ck - r.i(0, 4) + (x.pi === 20 && i === 5 ? 9 : 0), lao_dong_viet_nam_di_nuoc_ngoai: r.i(0, 6), lao_dong_nuoc_ngoai: r.i(0, 12), bien_che_huong_luong: o.th, bien_che_duoc_giao: o.giao, bien_che_thuc_hien: o.th,
+        so_tuyen_moi: tm, so_nghi_huu: nh, thoi_viec: tv, chuyen_cong_tac: ct, dia_ban: xa }); }); } }
 };
+/* ---------- Sở NN&MT: 10 eform cùng mẫu 18 trường — 20 nội dung cố định (xã × phân tổ × tên) mỗi tháng; lũy kế cộng dồn trong năm;
+   vài bản lệch chênh lệch, thiếu vướng mắc để màn Dữ liệu đã nhập có bản ghi cần xem lại ---------- */
+(function () {
+  const T = { nnmt1: ['Xã đạt chuẩn nông thôn mới nâng cao', 'Xã đạt chuẩn nông thôn mới kiểu mẫu'], nnmt2: ['Vụ chặt phá rừng', 'Vụ cháy rừng'], nnmt3: ['Trồng rừng phòng hộ', 'Trồng rừng sản xuất'],
+    nnmt4: ['Hạ tầng giao thông nông thôn', 'Nhà văn hóa thôn'], nnmt5: ['Hỗ trợ sinh kế hộ nghèo', 'Đào tạo nghề cho lao động nghèo'], nnmt6: ['Trạm quan trắc mưa', 'Bản tin dự báo thời tiết'],
+    nnmt7: ['Hồ chứa', 'Tuyến đê'], nnmt8: ['Hỗ trợ hộ bị thiên tai', 'Hỗ trợ dịp giáp hạt'], nnmt9: ['Gạo hỗ trợ thiên tai', 'Gạo cứu đói giáp hạt'], nnmt10: ['Bản đồ rủi ro thiên tai cấp xã', 'Lớp dữ liệu ngập lụt'] };
+  const PT_CHU = { nnmt1: ['Nông thôn mới nâng cao', 'Nông thôn mới kiểu mẫu'], nnmt5: ['Dự án 1', 'Dự án 2', 'Dự án 3'] };
+  Object.keys(T).forEach((ef) => { EF_MAU_CFG[ef] = { ky: 'thang', gen: (x, push, r) => {
+    const F = EFK[ef].F, fs = EFK[ef].fields, c9 = fs[8].c, c11 = fs[10].c, pts = F.phan_to_loai_du_lieu.t === 'dm' ? efVs(ef, 'phan_to_loai_du_lieu').filter((v) => v !== 'khong_phat_sinh') : PT_CHU[ef] || ['Nội dung chung'];
+    const TT = efVs(ef, 'trang_thai_trien_khai').filter((v) => v !== 'khong_phat_sinh'), XA = efVs(ef, 'dia_ban');
+    const L = x.st[ef] || (x.st[ef] = Array.from({ length: 20 }, (_, i) => ({ xa: XA[(i * 6 + ef.length) % XA.length], pt: pts[i % pts.length], ten: T[ef][i % 2] + ' ' + (i + 1), qm: r.i(2, 60), lk: 0, y: 0 })));
+    L.forEach((o, i) => { if (o.y !== x.y) { o.lk = 0; o.y = x.y; } const kn = Math.round(o.qm * (0.5 + r.f()) * 10) / 10, ck = Math.round(o.qm * (0.5 + r.f()) * 10) / 10; o.lk = Math.round((o.lk + kn) * 10) / 10;
+      const tt = r.p(TT), cham = ['cham_tien_do', 'dinh_tre', 'can_xu_ly'].indexOf(tt) >= 0, sai = x.pi === 20 && i === 1;
+      push({ ngay_bao_cao: efMauNgay(x.y, x.m, 25), dia_ban: o.xa, thon_tdp: '', phan_to_loai_du_lieu: o.pt, [c9]: o.ten, don_vi_chu_tri_phoi_hop: 'Phòng Kinh tế', [c11]: 'Kế hoạch năm ' + x.y,
+        gia_tri_ky_nay: kn, gia_tri_luy_ke: o.lk, cung_ky_chuan_so_sanh: ck, ty_le_tien_do_tu_tinh: Math.min(100, Math.round(o.lk / (o.qm * 12) * 1000) / 10), chenh_lech_ky_nay_cung_ky: Math.round((kn - ck + (sai ? 3 : 0)) * 10) / 10,
+        trang_thai_trien_khai: tt, vuong_mac_nguyen_nhan: cham && !(x.pi === 19 && i < 3) ? r.p(['Chậm giải ngân vốn', 'Vướng mặt bằng', 'Thời tiết bất lợi']) : '' }); }); } }; });
+})();
+/* ---------- 12 sở — 7 sở còn lại (đợt 2, 3): KH&CN, Xây dựng, Dân tộc và Tôn giáo, Y tế, VH&TT, Du lịch, Ban QL khu CNC ---------- */
+(function () {
+  const C = EF_MAU_CFG, Co = (ef, c, p) => efVof(ef, c, p ? 'Có' : 'Không');
+  /* một cặp tổng – số đạt – tỷ lệ đã nhập; sai: cộng lệch tỷ lệ để có bản ghi cần xem lại */
+  const cap = (R, tong, so, tl, t, k, sai) => { const s = Math.min(t, Math.round(t * k)); R[tong] = t; R[so] = s; R[tl] = t ? Math.round(s / t * 1000) / 10 + (sai ? 6 : 0) : null; return R; };
+  const xaOf = (ef, n, off) => efVs(ef, 'dia_ban').slice(off || 0, (off || 0) + n);
+  const tang = (st, k, v0, step, r) => { st[k] = st[k] == null ? v0 : Math.min(0.99, st[k] + step * r.f()); return st[k]; };
+  /* KH&CN: mỗi xã một bản ghi/tháng; số tại thời điểm tăng dần */
+  C.khcn1 = { ky: 'thang', gen: (x, push, r) => { const st = x.st.khcn1 || (x.st.khcn1 = {}); xaOf('khcn1', 60).forEach((xa, i) => { const u = CTM_XA[i % CTM_XA.length], ho = Math.round(u.ds / 3.2), dan = Math.round(u.ds * 0.82), sai = x.pi === 20 && i === 4;
+    const R = { loai_doi_tuong: '', ten_doi_tuong: '', dia_ban: xa, ghi_chu: '', co_ket_noi_internet_cap_quang_ma10: Co('khcn1', 'co_ket_noi_internet_cap_quang_ma10', r.c(0.95)),
+      da_dap_ung_ha_tang_cntt_giao_ban_ma12: Co('khcn1', 'da_dap_ung_ha_tang_cntt_giao_ban_ma12', r.c(0.85)), co_wifi_cong_cong_mien_phi_ma45: Co('khcn1', 'co_wifi_cong_cong_mien_phi_ma45', r.c(0.6)), co_phuc_vu_dvc_truc_tuyen_ma13: Co('khcn1', 'co_phuc_vu_dvc_truc_tuyen_ma13', r.c(0.9)) };
+    cap(R, 'tong_so_ho_gia_dinh_ma9', 'so_ho_co_internet_cap_quang_ma9', 'ty_le_ma9', ho, tang(st, xa + 9, 0.85, 0.004, r), sai); cap(R, 'dan_so_tu_15_tuoi_ma42', 'so_nguoi_dung_smartphone_ma42', 'ty_le_ma42', dan, tang(st, xa + 42, 0.9, 0.003, r)); push(R); }); } };
+  C.khcn2 = { ky: 'thang', gen: (x, push, r) => { const st = x.st.khcn2 || (x.st.khcn2 = {}); xaOf('khcn2', 60).forEach((xa, i) => { const u = CTM_XA[i % CTM_XA.length], sai = x.pi === 20 && i === 7;
+    const R = { loai_doi_tuong: '', ten_doi_tuong: '', dia_ban: xa, ghi_chu: '', co_to_cds_cong_dong_ma14: Co('khcn2', 'co_to_cds_cong_dong_ma14', true), co_doi_ho_tro_cds_phan_ung_nhanh_ma15: Co('khcn2', 'co_doi_ho_tro_cds_phan_ung_nhanh_ma15', r.c(0.8)),
+      co_mo_hinh_khuyen_khich_dvc_tt_ma8: Co('khcn2', 'co_mo_hinh_khuyen_khich_dvc_tt_ma8', r.c(0.7)) };
+    cap(R, 'dan_so_ma48', 'so_nguoi_dung_dvc_truc_tuyen_ma48', 'ty_le_ma48', u.ds, tang(st, xa + 48, 0.45, 0.01, r)); cap(R, 'dan_so_tu_14_tuoi_ma40', 'so_nguoi_co_danh_tinh_dien_tu_ma40', 'ty_le_ma40', Math.round(u.ds * 0.83), tang(st, xa + 40, 0.8, 0.006, r));
+    cap(R, 'dan_so_truong_thanh_ma41', 'so_nguoi_co_chu_ky_so_ma41', 'ty_le_ma41', Math.round(u.ds * 0.76), tang(st, xa + 41, 0.3, 0.012, r), sai); cap(R, 'dan_so_ma19', 'so_nguoi_pho_cap_ky_nang_so_ma19', 'ty_le_ma19', u.ds, tang(st, xa + 19, 0.5, 0.01, r));
+    cap(R, 'tong_cbccvc_ma21', 'so_tham_gia_lop_attt_ma21', 'ty_le_ma21', r.i(30, 70), tang(st, xa + 21, 0.4, 0.02, r)); push(R); }); } };
+  C.khcn3 = { ky: 'thang', gen: (x, push, r) => { xaOf('khcn3', 60).forEach((xa, i) => { const hs = r.i(300, 2500), sai = x.pi === 20 && i === 2;
+    const R = { loai_doi_tuong: '', ten_doi_tuong: '', dia_ban: xa, ghi_chu: '', tong_ho_so_tthc_tiep_nhan_ma25_49: hs, ty_le_ma25_49: Math.round((70 + 25 * r.f()) * 10) / 10,
+      co_chap_nhan_thanh_toan_khong_tien_mat_ma37: Co('khcn3', 'co_chap_nhan_thanh_toan_khong_tien_mat_ma37', r.c(0.9)), co_tro_ly_ao_ma29: Co('khcn3', 'co_tro_ly_ao_ma29', r.c(0.5)), so_hoi_nghi_to_chuc_trong_ky_ma5: r.i(0, 6) };
+    cap(R, 'tong_ho_so_nghia_vu_tai_chinh_ma50', 'so_ho_so_thanh_toan_truc_tuyen_ma50', 'ty_le_ma50', Math.round(hs * 0.3), 0.6 + 0.35 * r.f()); cap(R, 'tong_van_ban_ho_so_noi_bo_ma27', 'so_xu_ly_tren_moi_truong_mang_ma27', 'ty_le_ma27', r.i(200, 900), 0.95 + 0.05 * r.f(), sai);
+    cap(R, 'tong_van_ban_trao_doi_cqnn_ma28', 'so_van_ban_dien_tu_ky_so_ma28', 'ty_le_ma28', r.i(150, 700), 0.94 + 0.06 * r.f()); push(R); }); } };
+  /* Xây dựng */
+  C.sxd1 = { ky: 'thang', gen: (x, push, r) => { const TT = efVs('sxd1', 'tinh_trang_cong_trinh'), LC = efVs('sxd1', 'loai_cong_trinh'), LN = efVs('sxd1', 'loai_nha_o');
+    efVs('sxd1', 'don_vi_bao_cao').slice(0, 40).forEach((xa, i) => { [[LC[0], LN[0]], [LC[1], LN[0]], [LC[2], LN[1]]].slice(0, 1 + (i % 3)).forEach(([lc, ln], j) => TT.forEach((tt, t) => { const n = t === 1 ? r.i(2, 30) : r.i(0, 12), tang2 = lc === LC[1] ? r.i(9, 30) : r.i(2, 5), dt = n * r.i(60, 140);
+      push({ ngay_bao_cao: efMauNgay(x.y, x.m, 25), don_vi_bao_cao: xa, loai_cong_trinh: lc, loai_nha_o: ln, tinh_trang_cong_trinh: tt, so_luong_cong_trinh: n, tong_dien_tich_xay_dung_m2: dt,
+        tong_dien_tich_san_m2: x.pi === 20 && i === 3 && t === 2 ? Math.round(dt / 2) : dt * tang2, so_tang: tang2, ghi_chu: '' }); })); }); } };
+  C.sxd2 = { ky: 'thang', gen: (x, push, r) => { const NG = efVs('sxd2', 'nganh_van_tai'), LH = efVs('sxd2', 'loai_hinh_van_tai');
+    efVs('sxd2', 'don_vi_bao_cao').slice(0, 30).forEach((xa, i) => [[NG[0], LH[0]], [NG[0], LH[3]], [NG[5], LH[0]]].slice(0, 1 + (i % 3)).forEach(([ng, lh], j) => { const hk = r.i(2000, 90000), cl = Math.round((3 + 20 * r.f()) * 10) / 10;
+      push({ ngay_bao_cao: efMauNgay(x.y, x.m, 25), don_vi_bao_cao: xa, nganh_van_tai: ng, loai_hinh_van_tai: lh, so_luot_hanh_khach_van_chuyen_hk: hk, cu_ly_van_chuyen_binh_quan_km: cl,
+        hanh_khach_km_tu_tinh: j === 1 ? null : Math.round(hk * cl) + (x.pi === 20 && i === 1 ? 5000 : 0), ghi_chu: '' }); })); } };
+  C.sxd3 = { ky: 'thang', gen: (x, push, r) => { const ds = x.st.sxd3 || (x.st.sxd3 = Array.from({ length: 60 }, (_, i) => ({ xa: efVs('sxd3', 'don_vi_bao_cao')[(i * 2 + 1) % 126], tuyen: 'Đường ' + ['Láng', 'Giải Phóng', 'Nguyễn Trãi', 'Quốc lộ 32', 'Đê La Thành', 'Tỉnh lộ 419'][i % 6],
+      vt: 'Km ' + (i + 1) + '+' + (i * 37 % 900), lng: efVs('sxd3', 'loai_nguy_co')[i % 4], md: efVs('sxd3', 'muc_do_nguy_co')[i % 4], tt: 0, cd: r.i(50, 1200), lat: 20.9 + (i % 20) * 0.01, lon: 105.7 + (i % 15) * 0.02 })));
+    const TT = efVs('sxd3', 'trang_thai_xu_ly');
+    ds.forEach((o, i) => { if (x.pi % 3 === 0 && o.tt < 2 && r.c(0.3)) o.tt++; const R = { cap_bao_cao: efVs('sxd3', 'cap_bao_cao')[0], don_vi_bao_cao: o.xa, ten_tuyen_duong: o.tuyen, ten_vi_tri_dia_diem: o.vt, latitude_vi_do: o.lat, longitude_kinh_do: o.lon,
+      loai_nguy_co: o.lng, chieu_dai_anh_huong_m: o.cd, muc_do_nguy_co: x.pi === 20 && i === 5 ? null : o.md, phuong_an_xu_ly: 'Gia cố, cắm biển cảnh báo', trang_thai_xu_ly: x.pi === 20 && i === 5 ? TT[2] : TT[o.tt], ghi_chu: '' };
+      push(R); if (i < 2) push(Object.assign({}, R, { cap_bao_cao: efVs('sxd3', 'cap_bao_cao')[1] })); }); } };
+  C.sxd4 = { ky: 'thang', gen: (x, push, r) => { const DT = efVs('sxd4', 'doi_tuong_van_chuyen'), LH = efVs('sxd4', 'loai_hinh_van_tai');
+    efVs('sxd4', 'dia_ban').slice(0, 30).forEach((xa, i) => DT.forEach((dt, j) => { const kl = j === 0 ? r.i(5000, 200000) : r.i(500, 40000);
+      push({ dia_ban: xa, cap_bao_cao: efVs('sxd4', 'cap_bao_cao')[0], doi_tuong_van_chuyen: dt, loai_hinh_van_tai: LH[i % 3], khoi_luong_van_chuyen_hanh_khach_hoac_tan: kl, khoi_luong_luan_chuyen_hanh_khach_km_hoac_tan_km: Math.round(kl * (8 + 40 * r.f())) }); })); } };
+  /* Dân tộc và Tôn giáo: 25 xã × 2–4 dự án cố định; giải ngân cộng dồn trong năm; kết quả vùng ghi lặp ở mọi dự án của xã */
+  C.dttg1 = { ky: 'thang', gen: (x, push, r) => { const st = x.st.dttg1 || (x.st.dttg1 = { ds: efVs('dttg1', 'dia_ban').slice(60, 85).map((xa, i) => ({ xa: xa, vung: { hoDtts: r.i(80, 600), kN: 0.6 + 0.3 * r.f(), dCo: r.i(5, 20), kD: 0.5 + 0.4 * r.f(), hs: r.i(100, 700), kH: 0.85 + 0.12 * r.f(), ngDau: r.i(20, 120) },
+      da: Array.from({ length: 2 + (i % 3) }, (_, j) => ({ ten: ['Cứng hóa đường trục thôn', 'Công trình nước sinh hoạt', 'Hỗ trợ sinh kế', 'Đào tạo nghề cho lao động DTTS'][j] + ' ' + (i + 1), nd: efVs('dttg1', 'du_an_thanh_phan_noi_dung')[j % 7],
+        loai: efVs('dttg1', 'loai_ban_ghi')[j % 3], nguon: efVs('dttg1', 'nguon_von')[j % 2], kh: r.i(500, 9000), lk: 0, y: 0, tt: 1 })) })) });
+    const TT = efVs('dttg1', 'trang_thai_trien_khai'), ND = efVs('dttg1', 'nguon_du_lieu'), DS = efVs('dttg1', 'trang_thai_doi_soat'), CL = efVs('dttg1', 'trang_thai_chat_luong_du_lieu');
+    st.ds.forEach((o, i) => { const v = o.vung; v.kN = Math.min(0.98, v.kN + 0.004 * r.f()); v.kD = Math.min(0.98, v.kD + 0.003 * r.f()); const ngCuoi = Math.max(0, Math.round(v.ngDau * (1 - 0.01 * (x.pi % 12))));
+      o.da.forEach((d, j) => { if (d.y !== x.y) { d.lk = 0; d.y = x.y; } const pb = Math.round(d.kh * 0.9), gk = d.lk >= pb ? 0 : Math.min(pb - d.lk, Math.round(pb * (0.03 + 0.08 * r.f()))); d.lk += gk;
+        if (x.pi % 4 === 0 && r.c(0.15)) d.tt = r.p([1, 1, 2, 3, 4]); const tt = TT[d.tt], sai = x.pi === 20 && i === 1 && j === 0;
+        push({ dia_ban: o.xa, thon_tdp: 'Thôn ' + (j + 1), ten_du_an_hoat_dong: d.ten, du_an_thanh_phan_noi_dung: d.nd, loai_ban_ghi: d.loai, nguon_von: d.nguon, ke_hoach_von_nam_trieu_dong: d.kh, von_duoc_phan_bo_trieu_dong: pb,
+          giai_ngan_ky_nay_trieu_dong: gk, giai_ngan_luy_ke_trieu_dong: d.lk, ty_le_giai_ngan_ke_hoach: Math.round(d.lk / d.kh * 1000) / 10 + (sai ? 7 : 0), ty_le_giai_ngan_phan_bo: Math.round(d.lk / pb * 1000) / 10, trang_thai_trien_khai: tt,
+          tien_do_ke_hoach_pct: Math.min(100, x.m * 9), tien_do_thuc_te_pct: Math.min(100, Math.round(d.lk / d.kh * 100)), dung_tien_do: efVs('dttg1', 'dung_tien_do')[d.lk / d.kh * 100 >= x.m * 7 ? 0 : 1], von_dinh_tre_phap_ly_tthc_trieu_dong: d.tt === 3 ? Math.round(pb * 0.2) : 0,
+          ty_le_von_dinh_tre: d.tt === 3 ? 20 : 0, so_vu_vi_pham_sai_pham: r.c(0.03) ? 1 : 0, bao_cao_ktgs_dung_han: efVs('dttg1', 'bao_cao_ktgs_dung_han')[r.c(0.9) ? 0 : 1], ap_dung_cong_nghe_so: efVs('dttg1', 'ap_dung_cong_nghe_so')[0],
+          so_ho_dtts: v.hoDtts, so_ho_dtts_dung_nuoc_hvs: Math.round(v.hoDtts * v.kN), ty_le_ho_dtts_dung_nuoc_hvs: Math.round(Math.round(v.hoDtts * v.kN) / v.hoDtts * 1000) / 10, so_dia_ban_co_duong_o_to_den_trung_tam: v.dCo, so_dia_ban_da_cung_hoa: Math.round(v.dCo * v.kD),
+          ty_le_duong_trung_tam_cung_hoa: Math.round(Math.round(v.dCo * v.kD) / v.dCo * 1000) / 10, so_hs_trong_do_tuoi: v.hs, so_hs_di_hoc_dung_cap: Math.round(v.hs * v.kH), ty_le_hs_di_hoc_dung_cap: Math.round(Math.round(v.hs * v.kH) / v.hs * 1000) / 10,
+          so_ho_ngheo_dau_ky: v.ngDau, so_ho_ngheo_cuoi_ky: ngCuoi, ty_le_giam_ho_ngheo: Math.round((v.ngDau - ngCuoi) / v.ngDau * 1000) / 10, vuong_mac_nguyen_nhan: d.tt === 3 || d.tt === 4 ? (x.pi === 19 ? '' : 'Vướng thủ tục đất đai') : '', kien_nghi_xu_ly: '',
+          nguon_du_lieu: ND[j % 4], minh_chung_url: '', nguoi_nhap: r.p(EF_TEN), nguoi_xac_nhan: r.p(EF_TEN), trang_thai_doi_soat: DS[r.c(0.8) ? 1 : 0], trang_thai_chat_luong_du_lieu: CL[sai ? 1 : 0] }); }); });
+    if (x.m % 6 === 0) push({ dia_ban: efVs('dttg1', 'dia_ban')[90], thon_tdp: '', ten_du_an_hoat_dong: '', du_an_thanh_phan_noi_dung: efVs('dttg1', 'du_an_thanh_phan_noi_dung').slice(-1)[0], loai_ban_ghi: efVs('dttg1', 'loai_ban_ghi').slice(-1)[0],
+      nguon_von: efVs('dttg1', 'nguon_von').slice(-1)[0], trang_thai_trien_khai: TT.slice(-1)[0], nguon_du_lieu: ND.slice(-1)[0], trang_thai_doi_soat: DS.slice(-1)[0], trang_thai_chat_luong_du_lieu: CL[0], dung_tien_do: efVs('dttg1', 'dung_tien_do')[2],
+      bao_cao_ktgs_dung_han: efVs('dttg1', 'bao_cao_ktgs_dung_han')[2], ap_dung_cong_nghe_so: efVs('dttg1', 'ap_dung_cong_nghe_so')[2], ...Object.fromEntries(EFK.dttg1.fields.filter((f) => f.t === 'so' && ['nam', 'thang'].indexOf(f.c) < 0).map((f) => [f.c, null])),
+      vuong_mac_nguyen_nhan: '', kien_nghi_xu_ly: '', minh_chung_url: '', nguoi_nhap: r.p(EF_TEN), nguoi_xac_nhan: '' }); } };
+  /* Y tế */
+  C.syt1 = { ky: 'thang', gen: (x, push, r) => { const cu = (x.st.syt1 || []).filter((o) => !o.xong), moi = []; for (let i = 0; i < r.i(0, 3); i++) moi.push({ xa: r.p(efVs('syt1', 'dia_ban')), ten: 'Vụ ngộ độc ' + r.p(['bếp ăn tập thể', 'tiệc cưới', 'trường học', 'quán ăn']) + ' ' + x.m + '/' + x.y, ngay: efMauNgay(x.y, x.m, r.i(1, 25)), mac: r.i(5, 60), nn: r.p(['Vi sinh vật', 'Độc tố tự nhiên', 'Hóa chất', 'Chưa rõ']) });
+    x.st.syt1 = [];
+    cu.concat(moi).forEach((o, i) => { o.mac += o.cu ? r.i(0, 5) : 0; o.xong = !!o.cu; o.cu = true; if (!o.xong) x.st.syt1.push(o); const nang = Math.round(o.mac * 0.2 * r.f());
+      push({ dia_ban: o.xa, thon_tdp: '', ten_vu_viec: o.ten, ngay_phat_hien: o.ngay, so_nguoi_mac_nhap_vien: o.mac, so_ca_nang: x.pi === 20 && i === 0 ? o.mac + 2 : nang, so_ca_tu_vong: r.c(0.05) ? 1 : 0, nguyen_nhan_nghi_ngo: o.nn, ghi_chu: '' }); }); } };
+  const sytTl = (ef, so, k0) => ({ ky: 'thang', gen: (x, push, r) => { const st = x.st[ef] || (x.st[ef] = {}); efVs(ef, 'dia_ban').slice(0, 40).forEach((xa, i) => [1, 2, 3].forEach((t) => { const ds = r.i(400, 1500), k = tang(st, xa + t, k0, 0.004, r);
+    push({ thon_tdp: 'Tổ dân phố ' + t, tong_dan_so_thon: ds, [so]: x.pi === 20 && i === 2 && t === 1 ? ds + 15 : Math.round(ds * k), ghi_chu: '', dia_ban: xa }); })); } });
+  C.syt2 = sytTl('syt2', 'so_nguoi_co_the_bhyt', 0.9); C.syt4 = sytTl('syt4', 'so_nguoi_co_ho_so_skdt', 0.55);
+  C.syt3 = { ky: 'thang', gen: (x, push, r) => { for (let i = 0; i < r.i(2, 6); i++) { const mac = r.i(1, 40);
+    push({ dia_ban: r.p(efVs('syt3', 'dia_ban')), thon_tdp: 'TDP số ' + r.i(1, 12), ten_benh: r.p(['Sốt xuất huyết', 'Tay chân miệng', 'Sởi', 'Thủy đậu', 'Cúm A']), ngay_phat_hien: efMauNgay(x.y, x.m, r.i(1, 26)), so_ca_mac: mac,
+      so_ca_nang: Math.round(mac * 0.15 * r.f()), so_ca_tu_vong: x.pi === 20 && i === 0 ? mac + 1 : 0, bien_phap_xu_ly: 'Khoanh vùng, phun hóa chất', ghi_chu: '' }); } } };
+  /* VH&TT */
+  C.vhtt1 = { ky: 'thang', gen: (x, push, r) => { const L = x.st.vhtt1 || (x.st.vhtt1 = Array.from({ length: 15 }, (_, i) => ({ nv: ['Xây dựng nếp sống văn minh', 'Phát triển công nghiệp văn hóa', 'Bảo tồn di sản', 'Phát triển thể thao quần chúng', 'Số hóa di tích'][i % 5] + ' — nhiệm vụ ' + (i + 1),
+      dv: ['Phòng Quản lý văn hóa', 'Phòng Quản lý thể dục thể thao', 'Phòng Quản lý di sản', 'Văn phòng Sở'][i % 4], td: 0 })));
+    const TD = ['Chưa triển khai', 'Đang thực hiện', 'Đang thực hiện', 'Hoàn thành'];
+    L.forEach((o) => { if (o.td < 3 && r.c(0.2)) o.td++; push({ chi_tieu_nhiem_vu: o.nv, don_vi_chu_tri: o.dv, san_pham: 'Báo cáo, kế hoạch', thoi_gian_hoan_thanh_theo_ke_hoach: 'Quý IV/' + x.y, tien_do_thuc_hien: TD[o.td],
+      ngay_cap_nhat_tien_do: efMauNgay(x.y, x.m, 25), cong_viec_thoi_gian_du_kien: o.td === 3 ? '' : 'Tiếp tục triển khai', danh_gia_muc_do_hoan_thanh_theo_ke_hoach_hoac_de_xuat_khac: o.td === 3 ? 'Đúng kế hoạch' : 'Đang theo kế hoạch', so_sanh_voi_ky_bao_cao_truoc: 'Không đổi', dia_ban: '' }); }); } };
+  C.vhtt2 = { ky: 'thang', gen: (x, push, r) => { for (let i = 0; i < 8; i++) { const d = r.i(1, 25), xa = r.p(efVs('vhtt2', 'dia_ban'));
+    push({ don_vi_to_chuc: 'UBND ' + (efLbs('vhtt2', 'dia_ban')[efVs('vhtt2', 'dia_ban').indexOf(xa)] || ''), hoat_dong_nghe_thuat: r.p(efVs('vhtt2', 'hoat_dong_nghe_thuat')), ten_hoat_dong_chuong_trinh: r.p(['Đêm nhạc mùa thu', 'Triển lãm ảnh Hà Nội', 'Liên hoan văn nghệ quần chúng', 'Ngày hội văn hóa']) + ' ' + x.m + '/' + x.y + ' #' + (i + 1),
+      loai_hoat_dong: r.p(efVs('vhtt2', 'loai_hoat_dong')), quy_mo_ioc: r.p(efVs('vhtt2', 'quy_mo_ioc')), cap_to_chuc_thuc_te: r.p(efVs('vhtt2', 'cap_to_chuc_thuc_te')), dia_diem_to_chuc: 'Nhà văn hóa', dia_ban: xa, thon_tdp: '',
+      ngay_bat_dau: efMauNgay(x.y, x.m, d), ngay_ket_thuc: x.pi === 20 && i === 0 ? efMauNgay(x.y, x.m, d - 1) : efMauNgay(x.y, x.m, d + r.i(0, 2)), so_buoi_dem_dien: r.i(1, 4), so_nguoi_tham_gia: r.i(80, 2000), doi_tuong_tham_gia: 'Nhân dân',
+      don_vi_phoi_hop: '', so_chung_tu_hd_bien_ban: '', nguoi_nhap: r.p(EF_TEN), nguoi_xac_nhan: r.p(EF_TEN), trang_thai_doi_soat: efVs('vhtt2', 'trang_thai_doi_soat')[r.c(0.85) ? 2 : 3], ghi_chu: '' }); } } };
+  C.vhtt3 = { ky: 'thang', gen: (x, push, r) => { const DV = ['Nhà hát Chèo Hà Nội', 'Nhà hát Cải lương Hà Nội', 'Nhà hát Múa rối Thăng Long', 'Đoàn Ca múa Hà Nội', 'Nhà hát Kịch Hà Nội'];
+    for (let i = 0; i < 6; i++) { const d = r.i(1, 20), ve = r.i(200, 3000), gia = r.i(10, 30) * 10000, bv = Math.round(ve * gia / 1e6 * 10) / 10, hd = Math.round(r.i(0, 400) * 10) / 10, tt = Math.round(r.i(0, 150) * 10) / 10, dvk = Math.round(r.i(0, 80) * 10) / 10, tong = Math.round((bv + hd + tt + dvk) * 10) / 10, cp = Math.round(tong * (0.6 + 0.3 * r.f()) * 10) / 10, sai = x.pi === 20 && i === 0;
+      push({ don_vi_nghe_thuat_tp_quan_ly: DV[i % 5], ten_hoat_dong_chuong_trinh: r.p(['Vở diễn mới', 'Chương trình nghệ thuật phục vụ khán giả', 'Đêm diễn tri ân']) + ' ' + x.m + '/' + x.y + ' #' + (i + 1), loai_hoat_dong: 'Biểu diễn',
+        tinh_chat: efVs('vhtt3', 'tinh_chat')[i % 3], quy_mo_ioc: efVs('vhtt3', 'quy_mo_ioc')[i % 3], cap_to_chuc_thuc_te: efVs('vhtt3', 'cap_to_chuc_thuc_te')[i % 3], dia_diem_to_chuc: 'Rạp ' + DV[i % 5], dia_ban: r.p(efVs('vhtt3', 'dia_ban').slice(0, 20)), thon_tdp: '',
+        ngay_bat_dau: efMauNgay(x.y, x.m, d), ngay_ket_thuc: efMauNgay(x.y, x.m, d + r.i(0, 5)), so_buoi_dem_dien: r.i(1, 8), so_ve_ban: ve, gia_ve_binh_quan_dong: gia, doanh_thu_ban_ve_trieu_dong: bv, doanh_thu_hop_dong_dat_hang_trieu_dong: hd,
+        doanh_thu_tai_tro_quang_cao_trieu_dong: tt, doanh_thu_dich_vu_khac_trieu_dong: dvk, tong_doanh_thu_trieu_dong: sai ? tong + 50 : tong, tong_doanh_thu_ty_dong: Math.round(tong / 1000 * 1000) / 1000, luot_khan_gia: Math.round(ve * 1.1), kinh_phi_nsnn_ho_tro_trieu_dong: r.i(0, 200),
+        chi_phi_truc_tiep_trieu_dong: cp, chenh_lech_thu_chi_trieu_dong: Math.round((tong - cp) * 10) / 10, trang_thai_hach_toan: efVs('vhtt3', 'trang_thai_hach_toan')[r.i(0, 3)], so_chung_tu_hd_bien_ban: 'HĐ-' + r.i(10, 99), ghi_chu: '' }); } } };
+  C.vhtt4 = { ky: 'thang', gen: (x, push, r) => { for (let i = 0; i < 6; i++) { const d = r.i(1, 22), ve = r.i(200, 2500), st = efVs('vhtt4', 'trang_thai_hoat_dong');
+    push({ don_vi_bao_cao: r.p(efVs('vhtt4', 'don_vi_bao_cao').slice(0, 30)), thon_tdp: '', ten_hoat_dong_nghe_thuat: r.p(['Liên hoan sân khấu chèo', 'Hội diễn ca múa nhạc', 'Hội thi nghệ thuật xiếc', 'Liên hoan múa rối']) + ' ' + x.m + '/' + x.y + ' #' + (i + 1),
+      ngay_bat_dau: efMauNgay(x.y, x.m, d), ngay_ket_thuc: efMauNgay(x.y, x.m, d + r.i(1, 4)), dia_chi_chi_tiet: 'Nhà hát lớn', loai_hinh_theo: efVs('vhtt4', 'loai_hinh_theo')[i % 3], tinh_chat_theo: efVs('vhtt4', 'tinh_chat_theo')[i % 3],
+      quy_mo_theo: efVs('vhtt4', 'quy_mo_theo')[i % 2], cap_to_chuc_thuc_te: efVs('vhtt4', 'cap_to_chuc_thuc_te')[1 + (i % 3)], don_vi_chu_tri_to_chuc: 'Sở Văn hóa và Thể thao', don_vi_phoi_hop: '', loai_hinh_nghe_thuat: r.p(efVs('vhtt4', 'loai_hinh_nghe_thuat')),
+      hinh_thuc_to_chuc: efVs('vhtt4', 'hinh_thuc_to_chuc')[i % 3], so_buoi_dem_dien: r.i(1, 6), so_luot_nghe_si_dien_vien: r.i(10, 120), so_luot_khan_gia: x.pi === 20 && i === 1 ? ve * 3 : Math.round(ve * 0.9), so_ve_khach_moi_phat_hanh: ve,
+      doanh_thu_ve_dich_vu_dong: ve * r.i(5, 20) * 10000, kinh_phi_nsnn_ho_tro_dong: r.i(0, 50) * 1e6, nguon_kinh_phi_khac_dong: r.i(0, 20) * 1e6, trang_thai_hoat_dong: i === 5 ? st[1] : st[0], can_cu_ke_hoach_van_ban: 'Kế hoạch số ' + r.i(10, 99), so_giay_phep_thong_bao: '', ghi_chu_vuong_mac: '' }); } } };
+  C.vhtt5 = { ky: 'thang', gen: (x, push, r) => { for (let i = 0; i < 15; i++) { const d = r.i(1, 26), xem = r.i(500, 80000);
+    push({ ngay_dang: efMauNgay(x.y, x.m, d), thoi_gian_cap_nhat: x.pi === 20 && i === 0 ? efMauNgay(x.y, x.m, d - 1) : efMauNgay(x.y, x.m, d + 1), tieu_de_tin_bai: r.p(['Hà Nội phát triển văn hóa đọc', 'Lễ hội mùa thu Hà Nội', 'Phố đi bộ cuối tuần', 'Bảo tồn làng nghề truyền thống', 'Giải chạy marathon']) + ' (' + x.m + '/' + x.y + ' #' + (i + 1) + ')',
+      link_bai_viet: '', loai_nguon: r.p(efVs('vhtt5', 'loai_nguon')), ten_bao_trang_tin_mang_xa_hoi: r.p(['Hà Nội Mới', 'Kinh tế và Đô thị', 'VnExpress', 'Facebook', 'Đài Hà Nội']), tac_gia: r.p(EF_TEN), linh_vuc: r.p(['Văn hóa', 'Du lịch', 'Thể thao', 'Di sản']), chu_de: 'Thủ đô',
+      dia_ban: r.p(efVs('vhtt5', 'dia_ban')), co_quan_don_vi_duoc_nhac_den: 'Sở Văn hóa và Thể thao', tu_khoa: 'Hà Nội', noi_dung_tom_tat: '', muc_do_cam_xuc: efVs('vhtt5', 'muc_do_cam_xuc')[r.c(0.7) ? 0 : r.c(0.6) ? 1 : 2], muc_do_lan_toa: r.p(efVs('vhtt5', 'muc_do_lan_toa')),
+      muc_do_quan_tam: r.p(efVs('vhtt5', 'muc_do_quan_tam')), luot_xem: xem, luot_chia_se: Math.round(xem * 0.05 * r.f()), luot_binh_luan: Math.round(xem * 0.02 * r.f()), luot_thich: Math.round(xem * 0.1 * r.f()), luot_tiep_can_reach: Math.round(xem * 1.5), diem_tuong_tac_engagement: r.i(10, 500),
+      xu_huong: r.p(efVs('vhtt5', 'xu_huong')), muc_do_uu_tien_xu_ly: efVs('vhtt5', 'muc_do_uu_tien_xu_ly')[r.c(0.8) ? 0 : r.i(1, 3)], don_vi_theo_doi: 'Văn phòng Sở', nguoi_nhap: r.p(EF_TEN), nguoi_xac_nhan: r.p(EF_TEN), trang_thai_doi_soat: efVs('vhtt5', 'trang_thai_doi_soat')[2], ghi_chu: '' }); } } };
+  /* Du lịch */
+  C.dl1 = { ky: 'thang', gen: (x, push, r) => { const LD = efVs('dl1', 'loai_diem_du_lich'), he = [6, 7, 8, 12].indexOf(x.m) >= 0 ? 1.3 : 1;
+    efVs('dl1', 'don_vi_bao_cao').slice(0, 40).forEach((xa, i) => [LD[i % 8], LD[(i + 3) % 8]].forEach((ld) => push({ don_vi_bao_cao: xa, loai_diem_du_lich: ld, so_luot_khach_du_lich_quoc_te: Math.round(r.i(500, 20000) * he), so_luot_khach_du_lich_noi_dia: Math.round(r.i(3000, 90000) * he), ghi_chu: '' }))); } };
+  C.dl2 = { ky: 'thang', gen: (x, push, r) => { const LD = efVs('dl2', 'loai_diem_du_lich'), LT = efVs('dl2', 'loai_doanh_thu'), TEN = efLbs('dl2', 'don_vi_bao_cao');
+    TEN.slice(0, 40).forEach((xa, i) => { const ld = LD[i % 8], qt = r.i(500, 20000), nd = r.i(3000, 90000), lt = r.i(500, 9000) * 1e6, lh = r.i(200, 5000) * 1e6, tt = x.pi === 20 && i === 2 ? lt : lt + lh + r.i(100, 3000) * 1e6;
+      [[LT[0], lt], [LT[1], lh], [LT[2], tt]].forEach(([l, v]) => push({ don_vi_bao_cao: xa, loai_diem_du_lich: ld, so_luot_khach_du_lich_quoc_te: qt, so_luot_khach_du_lich_noi_dia: nd, ghi_chu: '', loai_doanh_thu: l, gia_tri_doanh_thu_vnd: v })); }); } };
+  /* Ban QL khu CNC và KCN: 12 khu cố định; số tại thời điểm tăng dần */
+  C.bql1 = { ky: 'thang', gen: (x, push, r) => { const L = x.st.bql1 || (x.st.bql1 = Array.from({ length: 12 }, (_, i) => ({ xa: efVs('bql1', 'dia_ban')[(i * 9 + 20) % 126], loai: efVs('bql1', 'loai_khu')[i % 4 === 3 ? 3 : i % 2],
+      ten: ['KCN Thăng Long', 'KCN Quang Minh', 'KCN Nội Bài', 'Khu CNC Hòa Lạc', 'KCN Phú Nghĩa', 'KCN Thạch Thất - Quốc Oai', 'KCN Sài Đồng B', 'Khu CNC sinh học', 'KCN Phùng', 'KCN Nam Phú Cát', 'KCN Bắc Thường Tín', 'KCN Phụ Chẩn'][i],
+      dn: r.i(20, 300), von: r.i(500, 9000), ld: r.i(3000, 60000), qh: r.i(100, 1500), k: 0.5 + 0.4 * r.f() })));
+    L.forEach((o, i) => { const moi = r.c(0.3) ? r.i(1, 4) : 0; o.dn += moi; o.von += moi * r.i(20, 300); o.ld += r.i(-50, 300); o.k = Math.min(0.99, o.k + 0.003 * r.f()); const lap = Math.round(o.qh * o.k);
+      push({ dia_ban: o.xa, so_doanh_nghiep_dang_hoat_dong: o.dn, tong_von_dau_tu_dang_ky_ty_dong: o.von, so_lao_dong_dang_lam_viec: o.ld, doi_tac_nha_dau_tu_chinh: r.p(['Nhật Bản', 'Hàn Quốc', 'Singapore', 'Trong nước']), so_luong_thanh_lap_dieu_chinh_trong_ky: moi + r.i(0, 2),
+        noi_dung_thanh_lap_dieu_chinh_gan_nhat: moi ? 'Cấp mới dự án sản xuất' : '', so_du_an_thu_hut_dau_tu_moi_trong_ky: moi, tong_von_thu_hut_dau_tu_moi_ty_dong: moi * r.i(20, 300), tinh_hinh_dau_tu_ket_cau_ha_tang: r.p(['Hoàn thành', 'Đang đầu tư', 'Chưa triển khai']),
+        von_dau_tu_ha_tang_trong_ky_ty_dong: r.i(0, 80), doanh_thu_san_xuat_kinh_doanh_trong_ky_ty_dong: r.i(200, 9000), tinh_hinh_bao_ve_moi_truong: 'Có trạm xử lý nước thải tập trung', dat_chuan_moi_truong: r.c(0.85) ? 'Đạt' : 'Chưa đạt',
+        loai_khu: o.loai, ten_khu: o.ten, dien_tich_quy_hoach_ha: o.qh, dien_tich_da_lap_day_ha: lap, ty_le_lap_day_phan_tram: Math.round(lap / o.qh * 1000) / 10 + (x.pi === 20 && i === 1 ? 9 : 0), ghi_chu: '' }); }); } };
+})();
 const EF_MAU_CACHE = {};
 function efMau(efId) { if (!EF_MAU_CFG[efId]) return []; if (!EF_MAU_CACHE[efId]) EF_MAU_CACHE[efId] = efMauDung(efId, EF_MAU_CFG[efId]); return EF_MAU_CACHE[efId]; }
 /* Nguồn bản ghi của màn hình: mã eform → mảng bản ghi { mã trường: giá trị } */

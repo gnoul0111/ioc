@@ -83,7 +83,7 @@ const EF_DANG4 = {
   kt: [{ l: 'Trùng «Tên tổ chức Đảng» trong cùng kỳ', c: ['ten_to_chuc_dang'], f: (R, all) => all.some((x) => x !== R && x._kyId === R._kyId && x.ten_to_chuc_dang === R.ten_to_chuc_dang) }]
 };
 const EF_DANG5 = {
-  ef: 'dang5', ten: 'Biến động Đảng viên', banGhi: 'số liệu đảng viên của một «Địa bàn» trong một kỳ', khoa: ['dia_ban'], cap: ['dia_ban'],
+  ef: 'dang5', ten: 'Biến động Đảng viên', banGhi: 'số liệu đảng viên của một «Địa bàn» trong một kỳ', khoa: ['dia_ban'], cap: ['dia_ban'], xaTruong: 'dia_ban', xaChi: ['cuoi', 'kn', 'tlkn', 'di'],
   chi: {
     dau: { l: efL('dang5', 'tong_dang_vien_hien_co_dau_ky'), loai: 'dau', c: 'tong_dang_vien_hien_co_dau_ky' },
     kn: { l: efL('dang5', 'so_ket_nap_moi_trong_ky'), loai: 'cong', c: 'so_ket_nap_moi_trong_ky' },
@@ -283,7 +283,11 @@ const EF_HDND_DV = [
   ['hdnd-ef5', 'Kỳ họp và Nghị quyết', EF_HDND5, ['kh', 'nq', 'dh', 'qh', 'tldh']],
   ['hdnd-ef6', 'Chỉ số tổng hợp và kế hoạch hoạt động', EF_HDND6, ['tc', 'dot', 'tlhl', 'kn', 'knll', 'kh']]
 ];
-EF_HDND_DV.forEach(([id, name, cfg, ks]) => ctmEformDonVi({ id: id, role: 'HDND', name: name, short: name, org: 'HĐND Thành phố Hà Nội', eforms: [cfg], laEform: true, kpis: ks.map((m) => ({ ef: cfg.ef, m: m })) }));
+/* Tài khoản các Ban HĐND xem cả 6 eform; riêng eform 4 lọc sẵn «Đơn vị thực hiện» = Ban của mình, bỏ lọc được (TRUC_HDND, câu chốt 5).
+   Danh mục của eform không có Ban Khoa học Công nghệ và Môi trường (null): không lọc, màn ghi rõ lý do. */
+const EF_HDND4_LOC = { ef: 'hdnd4', c: 'don_vi_thuc_hien', tk: { 'hdnd-kt-ns': 'ban_kinh_te_ngan_sach', 'hdnd-vh-xh': 'ban_van_hoa_xa_hoi', 'hdnd-phap-che': 'ban_phap_che', 'hdnd-do-thi': 'ban_do_thi', 'hdnd-khcn-mt': null } };
+EF_HDND_DV.forEach(([id, name, cfg, ks]) => ctmEformDonVi({ id: id, role: 'HDND', name: name, short: name, org: 'HĐND Thành phố Hà Nội', eforms: [cfg], laEform: true, kpis: ks.map((m) => ({ ef: cfg.ef, m: m })),
+  locTk: cfg === EF_HDND4 ? EF_HDND4_LOC : undefined }));
 
 /* ============================== TRỤC MTTQ ============================== */
 const EF_MTTQ1 = {
@@ -355,7 +359,7 @@ const EF_MTTQ4_THU = ['thu_ung_ho_cq_to_chuc_dn_trong_nuoc', 'thu_ung_ho_ca_nhan
 const EF_MTTQ4_CHI = ['chi_ho_tro_xay_moi_nha_ddk', 'chi_ho_tro_sua_chua_nha', 'chi_ho_tro_kham_chua_benh', 'chi_ho_tro_hssv_ngheo', 'chi_ho_tro_von_sx_sinh_ke', 'chi_ho_tro_dip_le_tet', 'chi_phi_quan_ly_quy', 'chi_khac'];
 const EF_MTTQ4 = {
   ef: 'mttq4', ten: 'Thu chi Quỹ "Vì người nghèo" (QĐ4795)', banGhi: 'báo cáo thu, chi Quỹ "Vì người nghèo" của một địa bàn trong kỳ; «Loại bản ghi» cho biết phần Thu, Chi, Tồn đầu kỳ hay bản Tổng hợp',
-  khoa: ['dia_ban', 'dot_van_dong', 'loai_ban_ghi'], cap: ['cap_bao_cao', 'dia_ban'], uuTien: { c: 'loai_ban_ghi', v: 'tong_hop', theo: ['dia_ban', 'dot_van_dong', '_kyId'] },
+  khoa: ['dia_ban', 'dot_van_dong', 'loai_ban_ghi'], cap: ['cap_bao_cao', 'dia_ban'], xaTruong: 'dia_ban', xaChi: ['thu', 'chi', 'cuoi', 'hn'], uuTien: { c: 'loai_ban_ghi', v: 'tong_hop', theo: ['dia_ban', 'dot_van_dong', '_kyId'] },
   chi: Object.assign({
     dau: { l: efL('mttq4', 'ton_quy_dau_ky'), loai: 'dau', c: 'ton_quy_dau_ky' },
     thu: { l: efL('mttq4', 'tong_thu_trong_ky') + ' (đã nhập)', kl: efL('mttq4', 'tong_thu_trong_ky'), loai: 'cong', c: 'tong_thu_trong_ky' },
@@ -409,7 +413,7 @@ EF_MTTQ_DV.forEach(([id, name, cfg, ks]) => ctmEformDonVi({ id: id, role: 'MTTQ'
 
 /* ============================== TRỤC UBND: VP UBND THÀNH PHỐ (9 eform) ============================== */
 const efVbCfg = (ef, ten, cap) => ({
-  ef: ef, ten: ten, banGhi: 'số văn bản, hồ sơ công việc của một đơn vị báo cáo trong kỳ', khoa: ['don_vi_bao_cao'], cap: cap,
+  ef: ef, ten: ten, banGhi: 'số văn bản, hồ sơ công việc của một đơn vị báo cáo trong kỳ', khoa: ['don_vi_bao_cao'], cap: cap, xaTruong: 'don_vi_bao_cao', xaChi: ['tl', 'tong'],
   chi: {
     tong: { l: efL(ef, 'tong_so_van_ban_ho_so_cong_viec'), loai: 'cong', c: 'tong_so_van_ban_ho_so_cong_viec' },
     xl: { l: efL(ef, 'so_van_ban_ho_so_xu_ly_tren_moi_truong_mang'), loai: 'cong', c: 'so_van_ban_ho_so_xu_ly_tren_moi_truong_mang' },
@@ -424,7 +428,7 @@ const efVbCfg = (ef, ten, cap) => ({
 });
 const EF_VPUB1 = efVbCfg('vpub1', 'Chỉ số 27 · văn bản trên môi trường mạng', ['cap_bao_cao', 'don_vi_bao_cao']);
 const EF_VPUB2 = {
-  ef: 'vpub2', ten: 'Chỉ số 29 · trợ lý ảo', banGhi: 'một ứng dụng trợ lý ảo (hoặc tình trạng chưa triển khai) của một đơn vị báo cáo', khoa: ['don_vi_bao_cao', 'ten_ung_dung_tro_ly_ao'], khoaRong: ['ten_ung_dung_tro_ly_ao'], cap: ['da_trien_khai_tro_ly_ao', 'doi_tuong_phuc_vu'],
+  ef: 'vpub2', ten: 'Chỉ số 29 · trợ lý ảo', banGhi: 'một ứng dụng trợ lý ảo (hoặc tình trạng chưa triển khai) của một đơn vị báo cáo', khoa: ['don_vi_bao_cao', 'ten_ung_dung_tro_ly_ao'], khoaRong: ['ten_ung_dung_tro_ly_ao'], xaTruong: 'don_vi_bao_cao', xaChi: ['ud', 'bg'], cap: ['da_trien_khai_tro_ly_ao', 'doi_tuong_phuc_vu'],
   chi: {
     bg: { l: 'Số bản ghi', loai: 'dem' },
     dv: { l: 'Số đơn vị báo cáo', loai: 'demkhac', c: 'don_vi_bao_cao' },
@@ -446,12 +450,12 @@ const EF_VPUB3 = {
   },
   cot: ['nv', 'ht', 'dh', 'qhch', 'tl', 'tlN'], the: ['nv', 'ht', 'qhch', 'tl'],
   bieu: [{ loai: 'chong', t: 'Nhiệm vụ theo trạng thái thực hiện', theo: 'trang_thai_thuc_hien', m: 'nv' }, { loai: 'cot', t: 'Nhiệm vụ theo cơ quan giao', theo: 'co_quan_giao', m: 'nv' }, { loai: 'xu', t: 'Số nhiệm vụ qua các kỳ', m: 'nv' }],
-  diaBan: 'dia_ban', cotDb: ['nv', 'ht', 'tl'],
+  diaBan: 'dia_ban', cotDb: ['nv', 'ht', 'tl'], xaChi: ['nv', 'tl'],
   kt: [{ l: 'Hoàn thành mà thiếu «Ngày hoàn thành»', c: ['ngay_hoan_thanh'], f: (R) => /^hoan_thanh/.test(R.trang_thai_thuc_hien || '') && !R.ngay_hoan_thanh },
     { l: '«Ngày hoàn thành» sau «Hạn hoàn thành» mà ghi Hoàn thành đúng hạn', c: ['ngay_hoan_thanh'], f: (R) => R.trang_thai_thuc_hien === 'hoan_thanh_dung_han' && efSauHan(R.ngay_hoan_thanh, R.han_hoan_thanh) }]
 };
 const EF_VPUB4 = {
-  ef: 'vpub4', ten: 'Chỉ số 52 · hồ sơ thủ tục hành chính', banGhi: 'số hồ sơ thủ tục hành chính của một đơn vị báo cáo trong kỳ', khoa: ['don_vi_bao_cao'], cap: ['don_vi_bao_cao'],
+  ef: 'vpub4', ten: 'Chỉ số 52 · hồ sơ thủ tục hành chính', banGhi: 'số hồ sơ thủ tục hành chính của một đơn vị báo cáo trong kỳ', khoa: ['don_vi_bao_cao'], cap: ['don_vi_bao_cao'], xaTruong: 'don_vi_bao_cao', xaChi: ['tn', 'tldh', 'tltt', 'tlsh'],
   chi: {
     tn: { l: efL('vpub4', 'tong_so_ho_so_tiep_nhan'), loai: 'cong', c: 'tong_so_ho_so_tiep_nhan' },
     dh: { l: efL('vpub4', 'ho_so_giai_quyet_dung_han'), loai: 'cong', c: 'ho_so_giai_quyet_dung_han' },
@@ -473,7 +477,7 @@ const EF_VPUB4 = {
 };
 const EF_VPUB5 = {
   ef: 'vpub5', ten: 'Chỉ số 11, 12 · hạ tầng CNTT', banGhi: 'số lượng một loại hạ tầng CNTT ở một tình trạng của một đơn vị báo cáo', khoa: ['don_vi_bao_cao', 'loai_ha_tang_cntt', 'tinh_trang_hoat_dong'],
-  cap: ['loai_ha_tang_cntt', 'tinh_trang_hoat_dong'], dvt: 'loai_ha_tang_cntt',
+  cap: ['loai_ha_tang_cntt', 'tinh_trang_hoat_dong'], dvt: 'loai_ha_tang_cntt', xaTruong: 'don_vi_bao_cao', xaChi: ['bg', 'tlgb'],
   chi: {
     sl: { l: efL('vpub5', 'so_luong'), loai: 'td', c: 'so_luong', dvt: true },
     hd: { l: 'Số lượng đang hoạt động', loai: 'td', c: 'so_luong', dvt: true, loc: { tinh_trang_hoat_dong: ['dang_hoat_dong'] } },
@@ -491,7 +495,7 @@ const EF_VPUB5 = {
 const EF_UBND2 = efVbCfg('ubnd2', 'Tỷ lệ văn bản trên môi trường mạng', ['don_vi_bao_cao']);
 const EF_UBND3 = {
   ef: 'ubnd3', ten: 'Cắt giảm quy định, chi phí tuân thủ', banGhi: 'số quy định rà soát, cắt giảm và chi phí tuân thủ của một đơn vị báo cáo trong kỳ', khoa: ['don_vi_bao_cao'],
-  cap: ['don_vi_tinh_chi_phi_vnd_gio_cong', 'don_vi_bao_cao'], dvt: 'don_vi_tinh_chi_phi_vnd_gio_cong',
+  cap: ['don_vi_tinh_chi_phi_vnd_gio_cong', 'don_vi_bao_cao'], dvt: 'don_vi_tinh_chi_phi_vnd_gio_cong', xaTruong: 'don_vi_bao_cao', xaChi: ['tlcg', 'cg'],
   chi: {
     qd: { l: efL('ubnd3', 'tong_so_quy_dinh_can_ra_soat_cat_giam'), loai: 'cong', c: 'tong_so_quy_dinh_can_ra_soat_cat_giam' },
     cg: { l: efL('ubnd3', 'so_quy_dinh_da_duoc_cat_giam_don_gian_hoa'), loai: 'cong', c: 'so_quy_dinh_da_duoc_cat_giam_don_gian_hoa' },
@@ -512,7 +516,7 @@ const EF_UBND3 = {
     { l: 'Chi phí sau cải cách lớn hơn trước cải cách', c: ['chi_phi_tuan_thu_sau_cai_cach'], f: (R) => efNum(R.chi_phi_tuan_thu_sau_cai_cach) > efNum(R.tong_chi_phi_tuan_thu_truoc_cai_cach) }]
 };
 const efCksCfg = (ef, ten, dv, banGhiDv) => ({
-  ef: ef, ten: ten, banGhi: 'số cán bộ thuộc diện và đã được cấp chữ ký số của một ' + banGhiDv + ' trong kỳ', khoa: [dv, 'cap_bao_cao'], cap: ['cap_bao_cao', dv],
+  ef: ef, ten: ten, banGhi: 'số cán bộ thuộc diện và đã được cấp chữ ký số của một ' + banGhiDv + ' trong kỳ', khoa: [dv, 'cap_bao_cao'], cap: ['cap_bao_cao', dv], xaTruong: dv, xaChi: ['tl', 'cap'],
   chi: {
     td: { l: efL(ef, 'tong_so_cbccvc_thuoc_dien_duoc_cap_chu_ky_so'), loai: 'cong', c: 'tong_so_cbccvc_thuoc_dien_duoc_cap_chu_ky_so' },
     cap: { l: efL(ef, 'so_cbccvc_da_duoc_cap_chu_ky_so_chuyen_dung_cong_vu'), loai: 'cong', c: 'so_cbccvc_da_duoc_cap_chu_ky_so_chuyen_dung_cong_vu' },

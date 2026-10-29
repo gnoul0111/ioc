@@ -30,6 +30,18 @@ KHOI = {
     'Kinh tế xã hội': ('ktxh', 'UBND'), 'Mặt trận tổ quốc': ('mttq', 'MTTQ'),
 }
 KIEU = {'Danh mục': 'dm', 'Số': 'so', 'Chữ': 'chu', 'Ngày tháng': 'ngay'}
+# «Kỳ báo cáo»: tên hiển thị theo mã. Khi file điền tên lệch mã (28/10/2026, Văn hóa, Nội vụ, Kinh tế xã hội ghi mã "thang" tên "Năm"…)
+# IOC hiện tên theo mã (anh duyệt 28/10/2026), giữ tên trong file ở `lgoc` và báo lỗi để bên eform sửa.
+# «Quý» cũng vậy (28/10/2026, Sở VHTT eform 4 ghi mã "quy_ii" tên "Quý III").
+KY_TEN = {'ky_bao_cao': {'thang': 'Tháng', 'quy': 'Quý', 'nam': 'Năm'}, 'quy': {'quy_i': 'Quý I', 'quy_ii': 'Quý II', 'quy_iii': 'Quý III', 'quy_iv': 'Quý IV'}}
+
+
+def ky_ten(code_truong, o, bao):
+    want = KY_TEN.get(code_truong, {}).get(o['v'])
+    if want and o['l'] and o['l'] != want:
+        o['lgoc'] = o['l']
+        o['l'] = want
+        bao('Mã "%s" của «%s» ghi tên "%s" (lệch mã) — IOC hiện "%s"' % (o['v'], 'Kỳ báo cáo' if code_truong == 'ky_bao_cao' else 'Quý', o['lgoc'], want))
 
 
 def norm_code(s):
@@ -128,6 +140,7 @@ def parse(path):
                 issues.append((no, cur['ten'], 'Mã danh mục "%s" %s' % (o['v'], 'có ký tự ẩn (U+200B)' if an else 'có dấu ("%s")' % v0)))
             if not o['l']:
                 issues.append((no, cur['ten'], 'Mã danh mục "%s" của «%s» thiếu tên hiển thị' % (v0, fld['l'])))
+            ky_ten(fld['c'], o, lambda m: issues.append((no, cur['ten'], m)))
             fld['dm'].append(o)
     for ef in eforms:
         seen = set()
@@ -148,7 +161,8 @@ def render(eforms):
         "   Sinh bằng tools/xa_eform_schema.py từ sheet \"Xã/Phường\" của \"File mô tả đầu vào eform\" (Google Sheets",
         "   1n1UHGnQ4sULz6_D9J0D2N02B0grCc8RbnLh0h9mY70k). Mỗi eform: id, trục, tên khối trong sheet, dòng bắt đầu, danh sách trường",
         "   đúng thứ tự trong file: { l: tên trường, c: mã (đã chuẩn hóa không dấu), goc: mã gốc khi khác, t: 'dm' | 'so' | 'chu' |",
-        "   'ngay', mau: dữ liệu mẫu, dm: [{ v: mã, l: tên hiển thị }], dong: số dòng trong sheet }.",
+        "   'ngay', mau: dữ liệu mẫu, dm: [{ v: mã, l: tên hiển thị, lgoc: tên trong file khi IOC hiện tên theo mã (Kỳ báo cáo) }],",
+        "   dong: số dòng trong sheet }.",
         "   Màn hình chỉ tiêu xã, phường (ctm-xa-units.js) chỉ được dùng các trường có ở đây. Eform đổi thì chạy lại tool. */",
         "const XA_EFORM = [",
     ]
@@ -238,6 +252,7 @@ def parse_tp(path):
                 if o['v'] != e:
                     o['goc'] = e
                     issues.append((ten, no, cur['ten'], 'Mã danh mục "%s" có dấu hoặc ký tự ẩn' % o['v']))
+                ky_ten(fld['c'], o, lambda m: issues.append((ten, no, cur['ten'], m)))
                 fld['dm'].append(o)
         efs = [x for x in efs if x['fields']]
         for i, x in enumerate(efs):
