@@ -60,6 +60,12 @@ tests/           Kiểm thử bằng Node cho từng Sở
 tools/           Script sinh tài liệu Word, dựng trang độc lập, làm video giới thiệu
 ```
 
+## Ẩn/Hiện giao diện
+
+Nút **👁 Ẩn/Hiện** trên thanh đầu trang cho người dùng chọn khối nào hiện trên màn hình IOC (Tổng quan điều hành, Bản đồ GIS, Notify, Nhóm chỉ tiêu; thêm Kiểm đếm nhiệm vụ và Bản đồ số toàn quốc với tài khoản Ban Tổ chức Trung ương). Khối ẩn thì các khối còn lại tự co giãn kín chỗ. Lựa chọn lưu theo từng tài khoản trong `localStorage` (khóa `px-ioc-ui-visibility:<tài khoản>`).
+
+Mã nguồn: `js/features/ui-visibility.js`, `css/ui-visibility.css`. Muốn thêm một khối vào danh sách chỉ cần thêm 1 dòng vào `UV_BLOCKS`. Kiểm thử: `node tests/ui/ui-visibility.test.js`.
+
 ## Kiểm thử
 
 Chạy bằng Node, mỗi Sở một thư mục, ví dụ:

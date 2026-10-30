@@ -160,7 +160,7 @@
  if(top.length>1) return top.map(t=>({key:t.officeId,label:t.label,ids:twCollectIds(t,[])}));
  return null;
  }
- function renderCategoryGrid(){
+ function renderCategoryGridContent(){
  const grid=document.getElementById('indicatorGrid'); if(!grid) return;
  const q=(document.getElementById('categorySearch')?.value||'').toLowerCase();
  const scoped=scopedSingleCategory();
@@ -190,11 +190,12 @@
  if(apiFetch){
  grid.innerHTML='<div class="access-lock">Đang tải dữ liệu từ API...</div>';
  apiFetch().then(kpis=>{
- if(!kpis){ grid.innerHTML='<div class="access-lock">Không tải được dữ liệu từ API.</div>'; return; }
+ if(!kpis){ grid.innerHTML='<div class="access-lock">Không tải được dữ liệu từ API.</div>'; uvTagIndicatorItems(grid); return; }
  const filteredKpis=kpis.map((k,idx)=>[idx,k]).filter(([,k])=>!q || k.label.toLowerCase().includes(q));
  grid.innerHTML=filteredKpis.length
  ? filteredKpis.map(([idx,k])=>apiKpiGridCardHtml(k,idx,scoped.role,scoped.id)).join('')
  : '<div class="access-lock">Không có chỉ tiêu phù hợp bộ lọc.</div>';
+ uvTagIndicatorItems(grid);
  });
  return;
  }
@@ -213,7 +214,10 @@
  const filtered=cats.filter(c=>!q || c.name.toLowerCase().includes(q));
  /* Trục UBND cấp Thành phố: màn tổng quan theo giao diện mới (ubnd-overview.js) thay lưới thẻ bên dưới; bấm thẻ vẫn
     mở chi tiết sở như cũ. Tắt bằng cờ UBND_OVERVIEW_ENABLED=false để quay về lưới thẻ cũ. */
- if(typeof ubndOverviewApplies==='function' && ubndOverviewApplies(sourceRoles) && !subGroups){ grid.innerHTML=ubndOverviewHtml(filtered); return; }
+ if(typeof ubndOverviewApplies==='function' && ubndOverviewApplies(sourceRoles) && !subGroups){
+ grid.innerHTML=ubndOverviewHtml(filtered);
+ return;
+ }
  /* Các trục, cấp đã khai báo màn ngoài khuôn mới (ctm-engine.js: ctmRegisterOverview). Tắt CTM_OVERVIEW_ENABLED để quay về lưới thẻ cũ. */
  if(typeof ctmOverviewFor==='function' && !subGroups){ const ctmOv=ctmOverviewFor(sourceRoles); if(ctmOv){ grid.innerHTML=ctmOverviewHtml(ctmOv,filtered); return; } }
  grid.innerHTML=filtered.length?filtered.map(c=>{
@@ -234,6 +238,40 @@
  if(CAT_CARD_LIST_STYLE && !catHasOwnUi(c)) return catListCardHtml(c.name,c.desc,catUnitRows(c),`openCategoryDetail('${c.role}','${c.id}')`,CAT_CARD_SHOW_META?`<div class="field-category-meta">${roleBadge}<span class="badge">${c.items.length} chỉ tiêu</span></div>`:'');
  return `<button class="field-category-card" onclick="openCategoryDetail('${c.role}','${c.id}')"><div class="field-category-meta">${roleBadge}<span class="badge">${c.items.length} chỉ tiêu</span></div><h4>${c.name}</h4>${soCategoryPreviewHtml(c)}</button>`;
  }).join(''):'<div class="access-lock">Không có lĩnh vực phù hợp bộ lọc.</div>';
+ }
+ function uvTagIndicatorItems(grid){
+ if(!grid || typeof uvApply!=='function') return;
+ const selectors='.field-category-card,.uo-kpi,.uo-gcard,.uo-card,.stc-kpi,.stc-gcard,.stc-card,.indicator-kpi-tile';
+ const occurrences=new Map();
+ grid.querySelectorAll(selectors).forEach(el=>{
+ const heading=el.querySelector('h2,h3,h4,.stc-lb,.ikt-label')?.textContent.trim()||el.textContent.trim().slice(0,120);
+ if(!heading) return;
+ const scope=typeof activeCategoryRole!=='undefined'&&activeCategoryRole?activeCategoryRole:(typeof currentRole!=='undefined'?currentRole:'all');
+ const kind=[...el.classList].filter(c=>c!=='uv-hidden'&&c!=='uv-editable').sort().join('-')||'item';
+ const identity=el.id||el.getAttribute('onclick')||heading;
+ const base=`indicator-${scope}-${kind}-${identity.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase()}`;
+ const index=occurrences.get(base)||0;
+ occurrences.set(base,index+1);
+ if(!el.dataset.uvItem) el.dataset.uvItem=index?`${base}-${index+1}`:base;
+ el.dataset.uvLabel=heading;
+ el.dataset.uvIcon='📊';
+ const parent=el.closest('#uoOverviewBand')?'ubndIndicatorOverview':'indicators';
+ const group=el.matches('.uo-kpi,.stc-kpi,.indicator-kpi-tile')
+ ?{id:'summary',label:'Số liệu then chốt',icon:'📊'}
+ :el.matches('.uo-gcard,.stc-gcard')
+ ?{id:'groups',label:'Nhóm lĩnh vực / trục',icon:'🗂️'}
+ :{id:'fields',label:'Danh sách lĩnh vực',icon:'🏢'};
+ el.dataset.uvParent=parent;
+ el.dataset.uvGroup=`${parent}-${group.id}`;
+ el.dataset.uvGroupLabel=group.label;
+ el.dataset.uvGroupIcon=group.icon;
+ });
+ uvApply(false);
+ }
+ function renderCategoryGrid(){
+ const grid=document.getElementById('indicatorGrid');
+ renderCategoryGridContent();
+ uvTagIndicatorItems(grid);
  }
  function setFieldCategoryRole(role){activeCategoryRole=role; renderIndicators();}
  /* Nút ⛶ ở đầu khung "Nhóm chỉ tiêu theo lĩnh vực": phóng khung ra toàn màn hình (cùng cách nút toàn màn hình của bản đồ
@@ -265,12 +303,12 @@
  const totalItems=isApiScoped?null:cats.reduce((s,c)=>s+c.items.length,0);
  const totalRecords=(isApiScoped||(scoped&&scoped.stc&&typeof TC_SHOW_LEGACY!=='undefined'&&!TC_SHOW_LEGACY)||(scoped&&scoped.sgd&&typeof SGD_SHOW_LEGACY!=='undefined'&&!SGD_SHOW_LEGACY)||(scoped&&scoped.hcc))?null:cats.reduce((s,c)=>s+catTotal(c),0);
  const tiles=[
- {label:'Lĩnh vực',value:fmt(cats.length)},
- {label:'Chỉ tiêu con',value:totalItems==null?'—':fmt(totalItems)},
- {label:'Tổng bản ghi',value:totalRecords==null?'—':fmt(totalRecords)},
- {label:'Trục quản lý',value:fmt(scoped?1:roles.length)}
+ {id:'fields',label:'Lĩnh vực',value:fmt(cats.length)},
+ {id:'sub-indicators',label:'Chỉ tiêu con',value:totalItems==null?'—':fmt(totalItems)},
+ {id:'records',label:'Tổng bản ghi',value:totalRecords==null?'—':fmt(totalRecords)},
+ {id:'axes',label:'Trục quản lý',value:fmt(scoped?1:roles.length)}
  ];
- row.innerHTML=tiles.map(t=>`<div class="indicator-kpi-tile"><p class="ikt-label">${t.label}</p><p class="ikt-value">${t.value}</p></div>`).join('');
+ row.innerHTML=tiles.map(t=>`<div class="indicator-kpi-tile" data-uv-item="ubnd-kpi-${t.id}" data-uv-label="${t.label}" data-uv-icon="📊" data-uv-parent="ubndIndicatorOverview"><p class="ikt-label">${t.label}</p><p class="ikt-value">${t.value}</p></div>`).join('');
  }
 
  function renderIndicators(){

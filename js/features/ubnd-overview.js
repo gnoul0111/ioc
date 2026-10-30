@@ -236,13 +236,13 @@ function ubndOvLineHtml(x) {
   if (!UBND_OV_SHOW_COMPARE) return '<div class="uo-gl uo-col"><span class="uo-l">' + uoE(x.l) + '</span><span class="uo-v">' + x.v + '</span><span class="uo-u">' + uoE(x.u) + '</span></div>';
   return '<div class="uo-gl"><span class="uo-l">' + uoE(x.l) + '</span><span class="uo-v">' + x.v + (x.u ? '<small>' + uoE(x.u) + '</small>' : '') + '</span><span class="uo-d">' + (x.d || '') + '</span></div>';
 }
-function ubndOvKpiHtml(k, D, role) {
+function ubndOvKpiHtml(k, D, role, index) {
   const S = D[k.cat], L = S && S.lines, byKey = k.m && L ? L.find((y) => y.k === k.m) : null, x = byKey || (L && (k.m && L.some((y) => y.k) ? null : L[k.line]));
   const d = x && x.d ? x.d : '<span class="stc-dl na">Chưa có kỳ so sánh</span>';
   /* Số và đơn vị cùng một hàng (anh yêu cầu 2026-10-06); "%" dính liền vào số. k.u ghi đè đơn vị khi nhãn ô đã nói rõ. */
   const u = x ? (k.u != null ? k.u : x.u) : '';
   const val = x ? x.v + (u === '%' ? '<small class="uo-pct">%</small>' : u ? '<small>' + uoE(u) + '</small>' : '') : '—';
-  return '<button type="button" class="stc-kpi uo-kpi" onclick="openCategoryDetail(\'' + role + '\',\'' + k.cat + '\')">' +
+  return '<button type="button" class="stc-kpi uo-kpi" data-uv-item="ubnd-kpi-' + index + '" data-uv-label="' + uoE(k.label) + '" data-uv-icon="📊" data-uv-parent="ubndIndicatorOverview" onclick="openCategoryDetail(\'' + role + '\',\'' + k.cat + '\')">' +
     '<div class="stc-lb">' + uoE(k.label) + '</div><div class="stc-v">' + val + '</div>' + (x ? '' : '<div class="stc-u">Chưa có số liệu</div>') +
     (UBND_OV_SHOW_COMPARE ? '<div class="uo-kd">' + (x ? d : '') + '</div>' : '') + '<div class="uo-ksrc">' + uoE((UBND_OV_SHORT[k.cat] || k.cat) + (S && S.ky ? ' · ' + S.ky : '')) + '</div></button>';
 }
@@ -255,7 +255,7 @@ function ubndOvGroupHtml(g, cats, D) {
     return '<div class="uo-gl uo-grow"><span class="uo-l"><b>' + uoE(UBND_OV_SHORT[c.id] || c.name) + '</b><em>' + uoE(x ? x.l : '') + '</em></span><span class="uo-r"><span class="uo-v">' + (x ? x.v + (x.u ? '<small>' + uoE(x.u) + '</small>' : '') : '—') + '</span><span class="uo-d">' + (x && x.d ? x.d : '') + '</span></span></div>';
   }).join('');
   const on = UBND_OV_GROUP === g.id;
-  return '<button type="button" class="stc-gcard uo-gcard' + (on ? ' on' : '') + '" aria-pressed="' + on + '" onclick="ubndOvPick(\'' + g.id + '\')"><div class="stc-gh"><h3>' + uoE(g.label) + '</h3><span>' + list.length + ' sở, ngành · ' + nInd + ' chỉ tiêu</span></div>' + rows +
+  return '<button type="button" class="stc-gcard uo-gcard' + (on ? ' on' : '') + '" data-uv-item="ubnd-group-' + g.id + '" data-uv-label="' + uoE(g.label) + '" data-uv-icon="🗂️" data-uv-parent="ubndIndicatorOverview" aria-pressed="' + on + '" onclick="ubndOvPick(\'' + g.id + '\')"><div class="stc-gh"><h3>' + uoE(g.label) + '</h3><span>' + list.length + ' sở, ngành · ' + nInd + ' chỉ tiêu</span></div>' + rows +
     '<div class="stc-gmore">' + (on ? 'Đang lọc · bấm lần nữa để bỏ lọc' : 'Lọc ' + list.length + ' sở, ngành ›') + '</div></button>';
 }
 function ubndOvGroupOf(id) { const g = UBND_OV_GROUPS.find((x) => x.ids.indexOf(id) >= 0); return g ? g.label : ''; }
@@ -290,9 +290,9 @@ function ubndOverviewHtml(cats) {
   const shown = g ? cats.filter((c) => g.ids.indexOf(c.id) >= 0) : cats;
 
   let h = '<div class="stc-root uo-root">';
-  h += '<section class="uo-band"><div class="uo-head"><div><div class="stc-eyebrow">Tổng quan · UBND Thành phố</div><h2>Số liệu then chốt của ' + nSo + ' sở, ngành</h2></div>' +
+  h += '<section class="uo-band" id="uoOverviewBand"><div class="uo-head"><div><div class="stc-eyebrow">Tổng quan · UBND Thành phố</div><h2>Số liệu then chốt của ' + nSo + ' sở, ngành</h2></div>' +
     '<p class="uo-hint">Mỗi ô ghi rõ sở cung cấp và kỳ số liệu · bấm ô để mở chi tiết của sở' + (UBND_OV_SHOW_DEMO_FLAG ? ' · phần lớn số liệu là giả lập' : '') + '</p></div>';
-  h += '<div class="uo-kscroll"><div class="uo-kpis">' + UBND_OV_KPIS.map((k) => ubndOvKpiHtml(k, D, 'UBND')).join('') + '</div></div>';
+  h += '<div class="uo-kscroll"><div class="uo-kpis">' + UBND_OV_KPIS.map((k, index) => ubndOvKpiHtml(k, D, 'UBND', index)).join('') + '</div></div>';
   h += '<div class="uo-secrow"><div class="stc-sec">Bốn nhóm lĩnh vực · bấm một nhóm để lọc danh sách sở bên dưới</div>' +
     '<button type="button" class="uo-all' + (g ? '' : ' on') + '" onclick="ubndOvPick(\'all\')">Tất cả ' + all.length + ' đơn vị</button></div>';
   h += '<div class="uo-groups">' + UBND_OV_GROUPS.map((x) => ubndOvGroupHtml(x, all, D)).join('') + '</div></section>';
