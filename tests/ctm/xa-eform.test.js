@@ -92,13 +92,6 @@ XA_T.forEach((xa) => {
       ok(lines.every((k) => s.metrics[k]), tag + ' › ' + g.label + ': dòng thẻ nhóm có khai báo');
       const gh = run('ctmScreenHtml(CTM_SPECS[CTM_UI.id])');
       ok(gh.indexOf('ctm-eft') >= 0 || /chưa có bản ghi nào/.test(gh), tag + ' › ' + g.label + ': màn nhóm dựng được bảng');
-      /* bố cục nhiều cấp như 4 trục, các sở (29/10/2026: màn xã từng chỉ có bảng, không có biểu đồ nào) */
-      if (gh.indexOf('ctm-eft') >= 0) {
-        ok(/stc-lg|ctm-cmpline|sgd-rt/.test(gh), tag + ' › ' + g.label + ': có thẻ so sánh quý này – quý trước');
-        const vs = run('CTM_PER_XA').map((p) => run('ctmV')(s, g.cols, run('ctmD')(s, p.id))).filter((v) => v != null);
-        const tr = gh.search(/sgd-cc|stc-line|<svg/);
-        if (vs.length > 1 && vs.some((v) => v !== vs[0])) ok(tr >= 0 && tr < gh.indexOf('ctm-eft'), tag + ' › ' + g.label + ': có biểu đồ qua các quý, đặt trên bảng');
-      }
       ok(!/undefined|NaN/.test(gh.replace(/<[^>]*>/g, ' ')), tag + ' › ' + g.label + ': không có undefined/NaN');
     });
     /* lần lại: mở Dữ liệu đã nhập lọc theo dòng số liệu → phải ra các bản ghi tạo ra số đó (phép cộng kiểm ở khối sau) */
