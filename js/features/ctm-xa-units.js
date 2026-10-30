@@ -15,6 +15,9 @@
 const CTM_XA_ALL_TAB = true;
 /* Tài khoản xã, phường chỉ xem số của chính mình — không có bảng, hạng 126 xã, phường (chốt 27/10/2026). */
 const CTM_XA_SO_SANH = false;
+/* Bảng nhóm đang mở đủ dòng (khóa: mã đơn vị|nhóm) */
+const CTM_XA_FULL = {};
+function ctmXaFull(id) { CTM_XA_FULL[id] = !CTM_XA_FULL[id]; ctmRerender(false); }
 const CTM_PER_XA = XA_EF_QUY.map((x) => ({ id: x[0] + 'Q' + x[1], label: 'Quý ' + x[1] + '/' + x[0], short: 'Q' + x[1] + '/' + x[0].slice(2) }));
 
 /* Xã, phường đang xem (currentXaId là số thứ tự trong wardNames(), login.js) */
@@ -130,7 +133,8 @@ function xaEfHash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { 
      mọi trường Số trừ Năm, Tháng), info: [trường chữ/danh mục ghi kèm dòng],
      kpis: [{ id, where: { trường: mã }, so: trường, l }] — ô số chính = cộng một trường số của các bản ghi khớp điều kiện;
            không ghi thì ô số là số dòng đã nhập của từng nhóm,
-     card: [khóa…] — dòng số trên thẻ ở màn ngoài (mặc định 3 ô số đầu) }) */
+     card: [khóa…] — dòng số trên thẻ ở màn ngoài (mặc định 3 ô số đầu),
+     bieu: trường số vẽ thẻ so sánh, biểu đồ (mặc định trường số đầu) }) */
 function ctmXaEform(def) {
   const ef = XA_EF[def.ef], F = ef.F, nhomF = F[def.nhom], dvtF = F.don_vi_tinh || null;
   const keyF = def.key.map((c) => F[c]).filter(Boolean);
@@ -207,9 +211,13 @@ function ctmXaEform(def) {
   const nP = (spec) => ctmNP(spec);
   const groupRows = (n, g) => { const S = rowsOf(n.p, ctmCtx().xa); return S.rows.filter((r) => r.g === g.v); };
   const prevRow = (n, r) => (n.pp ? rowsOf(n.pp, ctmCtx().xa).by[r.id] : null);
-  /* Bảng một nhóm: mỗi dòng số liệu một hàng; cột mô tả chỉ hiện khi có ít nhất một dòng ghi; bấm tên dòng mở các bản ghi tạo ra số đó */
+  /* trường số vẽ biểu đồ (def.bieu): mặc định trường số đầu; eform có trường kế hoạch đứng trước thì chọn trường thực hiện */
+  const bieuF = F[def.bieu] || soF[0];
+  /* Bảng một nhóm: mỗi dòng số liệu một hàng; cột mô tả chỉ hiện khi có ít nhất một dòng ghi; bấm tên dòng mở các bản ghi tạo ra số đó;
+     bảng dài hiện 12 dòng đầu, bấm "Xem đủ" để mở hết */
   const tableHtml = (spec, n, g) => {
-    const rows = groupRows(n, g);
+    const all = groupRows(n, g), fullId = def.id + '|' + g.v, LIM = 12, more = all.length > LIM + 2;
+    const rows = more && !CTM_XA_FULL[fullId] ? all.slice(0, LIM) : all;
     if (!rows.length) return '<div class="stc-hint">' + ctmE(ctmPLabel(spec, n.p)) + ' chưa có bản ghi nào thuộc nhóm này.</div>';
     const kc = keyF.filter((f) => rows.some((r) => r.keys[f.c])), ic = infoF.filter((f) => rows.some((r) => r.info[f.c]));
     const one = soF.length === 1, f0 = soF[0];
@@ -230,15 +238,55 @@ function ctmXaEform(def) {
     }).join('');
     const pct = soF.some((f) => rows.some((r) => r.units[f.c] === '%' && r.recs.length > 1));
     return '<div class="ctm-scroll"><table class="stc-tbl ctm-eft"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>' +
+      (more ? '<div style="margin-top:8px">' + ctmLnk(CTM_XA_FULL[fullId] ? 'Thu gọn về ' + LIM + ' dòng' : 'Xem đủ ' + ctmF(all.length) + ' dòng ›', 'ctmXaFull(' + ctmJs(fullId) + ')') + '</div>' : '') +
       '<div class="stc-hint" style="margin-top:10px">Mỗi hàng cộng trường số của các bản ghi giống nhau ở mọi cột mô tả. Bấm tên ở cột đầu để xem các bản ghi tạo ra số đó.' + (pct ? ' Ô tỷ lệ (%) có nhiều bản ghi để trống vì không cộng được tỷ lệ.' : '') + '</div>';
   };
-  const groups = G.map((g) => ({
-    id: g.v, label: g.l,
-    note: (D, P, n) => { const k = groupRows(n, g).length; return ef.ten + ' · ' + nhomF.l + ': ' + g.l + ' · ' + k + ' dòng số liệu, ' + ctmPLabel(CTM_SPECS[def.id], n.p); },
-    lines: (n) => groupRows(n, g).slice(0, 4).map((r) => mKey(r, soF[0])),
-    count: (n) => groupRows(n, g).length + ' dòng',
-    rows: [[{ type: 'html', t: g.l, s: (D, P, n) => nhomF.l + ' · ' + ctmPLabel(CTM_SPECS[def.id], n.p) + (n.pp ? ' so với ' + ctmPLabel(CTM_SPECS[def.id], n.pp) : ''), html: (D, P, n) => tableHtml(CTM_SPECS[def.id], n, g) }]]
-  }));
+  /* dòng đưa lên thẻ nhóm, thẻ so sánh: tối đa 4 dòng đầu có số ở trường vẽ biểu đồ */
+  const chartRows = (n, g) => { const rs = groupRows(n, g), has = rs.filter((r) => r.vals[bieuF.c] != null); return has.length ? has : rs; };
+  /* Biểu đồ thanh: các dòng số liệu của nhóm cùng đơn vị với dòng đầu (không đặt cạnh nhau số khác đơn vị, không vẽ tỷ lệ),
+     sắp từ lớn đến nhỏ, tối đa 10 thanh; bấm thanh mở các bản ghi tạo ra số đó */
+  const barRows = (n, g) => {
+    const rs = chartRows(n, g).filter((r) => r.vals[bieuF.c] != null), u0 = rs.length ? rs[0].units[bieuF.c] : null;
+    return u0 === '%' ? [] : rs.filter((r) => r.units[bieuF.c] === u0).sort((a, b) => b.vals[bieuF.c] - a.vals[bieuF.c]);
+  };
+  const barsHtml = (n, g) => {
+    const rs = barRows(n, g), top = rs.slice(0, 10), mx = Math.max.apply(null, top.map((r) => Math.abs(r.vals[bieuF.c]))) || 1, d = dOf(rs[0].units[bieuF.c]);
+    return top.map((r, i) => '<button type="button" class="ef-barbtn" style="display:block;width:100%;background:none;border:0;padding:0;margin:0;text-align:left;color:inherit;font:inherit;cursor:pointer" onclick="ctmRec(' + ctmJs(r.id) + ')">' +
+      ctmPg(r.label, '', Math.abs(r.vals[bieuF.c]) / mx * 100, CTM_PAL[i % CTM_PAL.length], ctmF(r.vals[bieuF.c], d)) + '</button>').join('') +
+      '<div class="stc-hint" style="margin-top:8px">' + (rs.length > top.length ? top.length + ' dòng lớn nhất trong ' + rs.length + ' dòng cùng đơn vị; xem đủ ở bảng dưới. ' : '') + 'Bấm thanh để xem các bản ghi tạo ra số đó.</div>';
+  };
+  /* quý gần nhất có bản ghi của nhóm (CTM_PER_XA xếp quý mới trước) */
+  const kyGanNhat = (g, u) => CTM_PER_XA.find((p) => rowsOf(p.id, u).rows.some((r) => r.g === g.v));
+  const groups = G.map((g) => {
+    const grp = {
+      id: g.v, label: g.l,
+      note: (D, P, n) => { const k = groupRows(n, g).length; return ef.ten + ' · ' + nhomF.l + ': ' + g.l + ' · ' + k + ' dòng số liệu, ' + ctmPLabel(CTM_SPECS[def.id], n.p); },
+      lines: (n) => chartRows(n, g).slice(0, 4).map((r) => mKey(r, bieuF)),
+      count: (n) => groupRows(n, g).length + ' dòng'
+    };
+    /* biểu đồ qua các quý: dòng đầu có số đổi giữa các quý (mọi quý bằng nhau thì khuôn chung bỏ biểu đồ) */
+    Object.defineProperty(grp, 'cols', { enumerable: true, get: () => {
+      const spec = CTM_SPECS[def.id], ks = chartRows(ctmNP(spec), g).map((r) => mKey(r, bieuF));
+      return ks.find((k) => { const vs = CTM_PER_XA.map((p) => ctmV(spec, k, ctmD(spec, p.id))).filter((v) => v != null); return vs.length > 1 && vs.some((v) => v !== vs[0]); }) || ks[0];
+    } });
+    const tableCard = { type: 'html', t: 'Bảng số liệu · ' + g.l, s: (D, P, n) => nhomF.l + ' · ' + ctmPLabel(CTM_SPECS[def.id], n.p) + (n.pp ? ' so với ' + ctmPLabel(CTM_SPECS[def.id], n.pp) : '') + ' · bấm tên dòng để xem bản ghi', html: (D, P, n) => tableHtml(CTM_SPECS[def.id], n, g) };
+    /* Màn nhóm theo bố cục khuôn chung (như 4 trục, các sở): thẻ so sánh quý này – quý trước và biểu đồ qua các quý (ctmAutoRows),
+       biểu đồ thanh các dòng số liệu, rồi bảng. Quý không có bản ghi của nhóm thì nói rõ và chỉ quý gần nhất có số. */
+    Object.defineProperty(grp, 'rows', { enumerable: true, get: () => {
+      const spec = CTM_SPECS[def.id], n = ctmNP(spec), u = ctmCtx().xa;
+      if (!groupRows(n, g).length) {
+        const k = u ? kyGanNhat(g, u) : null;
+        return [[{ type: 'html', t: 'Quý này chưa có bản ghi', s: g.l + ' · ' + ctmPLabel(spec, n.p), html: () => '<div class="stc-hint" style="font-size:13px;line-height:1.6">' + ctmE(ctmPLabel(spec, n.p)) + ' chưa có bản ghi nào thuộc nhóm «' + ctmE(g.l) + '» của eform «' + ctmE(ef.ten) + '», nên chưa có số để vẽ.' +
+          (k ? ' Quý gần nhất có bản ghi là <b>' + ctmE(k.label) + '</b>.</div><div style="margin-top:12px"><button type="button" class="stc-btn primary" onclick="ctmSetPeriod(' + ctmJs(k.id) + ')">Xem ' + ctmE(k.label) + ' ›</button></div>' : ' Nhóm chưa có bản ghi ở quý nào.</div>') }]];
+      }
+      const out = ctmAutoRows(spec, grp);
+      /* thanh chỉ thêm khi nhiều hơn số dòng đã có ở thẻ so sánh (4), để không vẽ lặp */
+      if (barRows(n, g).length > 4) out.push([{ type: 'html', t: bieuF.l + ' theo dòng số liệu', s: () => ctmPLabel(spec, n.p) + (barRows(n, g)[0].units[bieuF.c] ? ' · ' + barRows(n, g)[0].units[bieuF.c] : '') + ' · bấm thanh để xem bản ghi', html: () => barsHtml(n, g) }]);
+      out.push([tableCard]);
+      return out;
+    } });
+    return grp;
+  });
   const kpis = kpiDefs.length
     ? kpiDefs.map((k) => ({ m: 'k' + k.id, sub: () => (metrics['k' + k.id].u ? metrics['k' + k.id].u + ' · ' : '') + 'bấm xem bản ghi', target: 'rec:k' + k.id }))
     : [{ m: 'n', sub: () => 'cả ' + G.length + ' nhóm', target: 'rec' }].concat(G.slice(0, 7).map((g) => ({ m: 'g' + xaEfHash(g.v), sub: () => 'dòng số liệu đã nhập', target: 'g:' + g.v })));
@@ -327,7 +375,7 @@ ctmXaEform({ id: 'ubndxa-gd', role: 'UBND', ef: 'gd', name: 'Giáo dục', org: 
 ctmXaEform({ id: 'ubndxa-yte', role: 'UBND', ef: 'yte', name: 'Y tế', org: 'UBND', nhom: 'nhom_chi_tieu', key: ['ten_chi_tieu', 'tieu_chi_tieu'], info: ['tan_suat'] });
 ctmXaEform({ id: 'ubndxa-vh', role: 'UBND', ef: 'vh', name: 'Văn hóa', org: 'UBND', nhom: 'nhom_chi_tieu', key: ['ten_chi_tieu', 'doi_tuong_thong_ke', 'loai_hinh', 'tinh_chat', 'quy_mo'], so: ['so_luong', 'kinh_phi_doanh_thu', 'so_nguoi_tham_gia'], info: ['muc_do_lan_toa', 'muc_do_quan_tam'] });
 ctmXaEform({ id: 'ubndxa-nv', role: 'UBND', ef: 'nv', name: 'Nội vụ', org: 'UBND', nhom: 'doi_tuong_thong_ke', key: ['ten_chi_tieu', 'phan_loai_ket_qua'] });
-ctmXaEform({ id: 'ubndxa-ktxh', role: 'UBND', ef: 'ktxh', name: 'Kinh tế xã hội', org: 'UBND', nhom: 'nhom_chi_tieu', key: ['phan_nhom', 'chi_tieu', 'don_vi_chu_tri_bao_cao'], so: ['thanh_pho_giao', 'kh_nam', 'uoc_thuc_hien_den_nay', 'danh_gia_muc_do_hoan_thanh'] });
+ctmXaEform({ id: 'ubndxa-ktxh', role: 'UBND', ef: 'ktxh', name: 'Kinh tế xã hội', org: 'UBND', nhom: 'nhom_chi_tieu', key: ['phan_nhom', 'chi_tieu', 'don_vi_chu_tri_bao_cao'], so: ['thanh_pho_giao', 'kh_nam', 'uoc_thuc_hien_den_nay', 'danh_gia_muc_do_hoan_thanh'], bieu: 'uoc_thuc_hien_den_nay' });
 ctmXaEform({ id: 'mttqxa-eform', role: 'MTTQ', ef: 'mttq', name: 'Mặt trận Tổ quốc phường', org: 'Ủy ban MTTQ', nhom: 'nhom_to_chuc', key: ['ten_chi_tieu', 'don_vi_doan_loai_hinh', 'phan_loai_ket_qua'],
   kpis: ['doanvien', 'giamsat', 'phanbienxahoi', 'hienmau', 'mohinh', 'tongthu', 'tongchi', 'tonquy'].map((v, i) => ({ id: i, where: { ten_chi_tieu: v } })) });
 

@@ -16,7 +16,7 @@ if not NODE:
     raise SystemExit('Không tìm thấy Node: đặt biến NODE=<đường dẫn node> (hoặc Electron, tool tự bật ELECTRON_RUN_AS_NODE).')
 D = json.loads(subprocess.run([NODE, 'tools/xa_srs_dump.js'], cwd=ROOT, capture_output=True, check=True,
                               env=dict(os.environ, ELECTRON_RUN_AS_NODE='1')).stdout.decode('utf-8'))
-VER, NGAY = '2.1', '29/10/2026'
+VER, NGAY = '2.2', '30/10/2026'
 SHEET_URL = 'https://docs.google.com/spreadsheets/d/1n1UHGnQ4sULz6_D9J0D2N02B0grCc8RbnLh0h9mY70k'
 TESTS = {'ctm.test.js': 6741, 'ctm-quy-tac.test.js': 1707, 'xa-eform.test.js': 797}
 
@@ -333,10 +333,13 @@ fr('FR-06', 'Popup chi tiết — màn nhóm', [
     ['Mục đích', 'Xem các dòng số liệu của một nhóm.'],
     ['Kích hoạt', 'Bấm thẻ nhóm hoặc ô số chia theo nhóm.'],
     ['Xử lý', ['Tiêu đề "<đơn vị> — <nhóm>", dòng phụ "Nhóm i/N · <kỳ>"; liên kết "← Tổng quan"; dòng "<eform> · <trường nhóm>: <nhóm> · k dòng số liệu, <kỳ>".',
-             'Một bảng: mỗi dòng số liệu một hàng. Cột mô tả theo thứ tự trường của eform, **chỉ hiện cột có ít nhất một dòng ghi**; cột «Đơn vị tính»; cột ghi kèm.',
+             'Bố cục nhiều cấp như 4 trục, các sở: **thẻ so sánh quý này – quý trước** (tối đa 4 dòng số liệu đầu có số, cùng đơn vị; dòng tỷ lệ (%) vẽ thành thẻ tỷ lệ) và **biểu đồ qua các quý** của dòng đầu có số đổi giữa các quý (mọi quý bằng nhau thì không vẽ).',
+             'Nhóm có hơn 4 dòng cùng đơn vị: thêm **biểu đồ thanh** «<trường số> theo dòng số liệu», sắp từ lớn đến nhỏ, tối đa 10 thanh; bấm thanh mở Dữ liệu đã nhập lọc đúng các bản ghi đó.',
+             'Trường số vẽ biểu đồ: trường số đầu của eform; Kinh tế xã hội dùng «Ước thực hiện đến nay» (không vẽ số kế hoạch, Thành phố giao).',
+             'Dưới biểu đồ là **bảng số liệu**: mỗi dòng số liệu một hàng. Cột mô tả theo thứ tự trường của eform, **chỉ hiện cột có ít nhất một dòng ghi**; cột «Đơn vị tính»; cột ghi kèm. Bảng dài hiện 12 dòng đầu, nút "Xem đủ n dòng ›" / "Thu gọn về 12 dòng".',
              'Eform có một trường số: cột "<trường> · kỳ này", "kỳ trước", "Thay đổi". Eform nhiều trường số: mỗi trường một cột (kỳ này).',
              'Cột "Bản ghi": số bản ghi gộp vào dòng. Bấm chữ ở cột đầu mở Dữ liệu đã nhập lọc đúng các bản ghi đó (FR-08).',
-             'Nhóm chưa có bản ghi: ghi "<kỳ> chưa có bản ghi nào thuộc nhóm này."',
+             'Quý đang xem chưa có bản ghi của nhóm: thẻ "Quý này chưa có bản ghi" ghi rõ, kèm quý gần nhất có bản ghi và nút "Xem <quý> ›" (không vẽ thẻ rỗng).',
              'Dòng điều hướng "‹ nhóm trước", "Tổng quan", "nhóm sau ›".']],
 ], ['GPMB nhóm "DỰ ÁN ĐANG TRIỂN KHAI": mỗi dự án, khu vực con một hàng, đủ 13 cột số.',
     'Ô tỷ lệ (%) gộp từ nhiều bản ghi để trống và có ghi chú (BR-03).'])
@@ -580,7 +583,8 @@ table([
 heading('PHỤ LỤC D. LỊCH SỬ PHIÊN BẢN', 1)
 table([['Phiên bản', 'Ngày', 'Nội dung'],
        ['1.0', '27/10/2026', '19 đơn vị theo phòng ban, 161 chỉ tiêu, số giả lập và số dùng chung với cấp Thành phố.'],
-       ['2.1', NGAY, 'Khung eform sinh lại theo file eform sửa ngày 28/10/2026 (tên «Nhóm mục», "Đến ngày", mã danh mục, Giáo dục đổi mã «Bậc học/Loại hình giáo dục»); «Kỳ báo cáo», «Quý» hiện tên theo mã khi file ghi lệch; nút ← quay lại màn trước.'],
+       ['2.2', NGAY, 'Màn nhóm theo bố cục nhiều cấp như 4 trục, các sở: thẻ so sánh quý này – quý trước, biểu đồ qua các quý, biểu đồ thanh các dòng số liệu, bảng đặt dưới biểu đồ (thu gọn 12 dòng); quý chưa có bản ghi báo rõ, có nút sang quý gần nhất có số.'],
+       ['2.1', '29/10/2026', 'Khung eform sinh lại theo file eform sửa ngày 28/10/2026 (tên «Nhóm mục», "Đến ngày", mã danh mục, Giáo dục đổi mã «Bậc học/Loại hình giáo dục»); «Kỳ báo cáo», «Quý» hiện tên theo mã khi file ghi lệch; nút ← quay lại màn trước.'],
        ['2.0', '28/10/2026', f'Làm lại theo {len(U)} eform: bỏ mọi chỉ tiêu ngoài eform; thêm màn Dữ liệu đã nhập đủ mọi trường, lần lại từ số đến bản ghi, đánh dấu bản ghi cần xem lại; khung eform sinh từ sheet và công cụ đối chiếu; so quý trước màu trung tính; bản ghi mẫu theo danh mục eform.']],
       [2.2, 2.6, 11.2], size=10.5)
 
