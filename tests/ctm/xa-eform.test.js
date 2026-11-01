@@ -50,12 +50,32 @@ Object.keys(CFG).filter((k) => /^xa_/.test(k)).forEach((efId) => {
   const cfg = CFG[efId], F = EFK[efId].F, tag = efId;
   const fieldsOf = (m) => [].concat(m.c || [], Object.keys(m.loc || {}), Object.keys(m.td || {}), Object.keys(m.dau || {}), m.theo || []);
   ok(Object.keys(cfg.chi).every((id) => fieldsOf(cfg.chi[id]).every((c) => F[c])), tag + ': mọi chỉ tiêu chỉ dùng trường của eform');
-  ok(Object.keys(cfg.chi).every((id) => { const m = cfg.chi[id]; return Object.keys(m.loc || {}).every((c) => !F[c].dm.length || m.loc[c].every((v) => v === null || F[c].dm.some((o) => o.v === v))); }), tag + ': điều kiện lọc chỉ dùng mã có trong danh mục');
+  ok(Object.keys(cfg.chi).every((id) => { const m = cfg.chi[id]; return Object.keys(m.loc || {}).every((c) => !(F[c].dm || []).length || m.loc[c].every((v) => v === null || (F[c].dm || []).some((o) => o.v === v))); }), tag + ': điều kiện lọc chỉ dùng mã có trong danh mục');
   ok((cfg.khoa || []).concat(cfg.cap || [], cfg.dong ? cfg.dong.theo : [], cfg.dvt ? [cfg.dvt] : []).every((c) => F[c]), tag + ': khóa, chia cấp, dòng số liệu chỉ dùng trường của eform');
   ok(F[cfg.tach] && F[cfg.tach].t === 'dm' && F[cfg.tach].dm.length > 0, tag + ': chia nhóm theo một trường danh mục của eform (' + cfg.tach + ')');
   ok(Object.keys(cfg.chi).every((id) => /^(dem|demdk|dembang|demkhac|demkhoa|cong|td|dau|motlan|nhap|tyle|hieu|tang|thuong|bqts|congtich|tuy)$/.test(cfg.chi[id].loai)), tag + ': mọi chỉ tiêu thuộc các cách tính của khung chung');
   ok(Object.keys(cfg.chi).filter((id) => /^(tyle|hieu|tang|thuong)$/.test(cfg.chi[id].loai)).every((id) => /IOC tính/.test(cfg.chi[id].l)), tag + ': số IOC tính ghi rõ "IOC tính"');
 });
+
+/* Ô số đúng bản đọc (E1, bổ sung 02/11/2026): mỗi đơn vị, mỗi màn ngoài đúng danh sách — thừa hay thiếu đều sai */
+const XA_KPI = { 'dangxa-eform': ['dong'], 'hdndxa-eform': ['gs', 'kh', 'tx', 'dong'], 'ubndxa-hcc': ['tuyen', 'tt', 'bcci', 'dh', 'qh', 'cdh', 'dqh', 'ktn'],
+  'ubndxa-tcns': ['thu', 'chi', 'tlThu', 'tlChi', 'dn', 'htx'], 'ubndxa-qlvb': ['den', 'di', 'chuaXl', 'dangXl', 'hoanTat'], 'ubndxa-gpmb': ['da', 'phai', 'dt', 'tlTh', 'ho', 'bg', 'tlBg', 'kpCt'],
+  'ubndxa-gd': ['hs', 'dong'], 'ubndxa-yte': ['dong'], 'ubndxa-vh': ['ng', 'kp', 'dong'], 'ubndxa-nv': ['dong', 'tlTh', 'tlTra', 'phien', 'luot'], 'ubndxa-ktxh': ['n'],
+  'mttqxa-eform': ['doanvien', 'giamsat', 'phanbien', 'hienmau', 'mohinh', 'tongthu', 'tongchi', 'tonquy'] };
+/* CHUNG-3 */
+const XA_OV_KPI = { 'xa-DANG': ['xa_dang_dong'], 'xa-HDND': ['xa_hdnd_dong'], 'xa-MTTQ': ['xa_mttq_doanvien'],
+  'xa-UBND': ['xa_hcc_tuyen', 'xa_hcc_dh', 'xa_hcc_dqh', 'xa_qlvb_den', 'xa_qlvb_di', 'xa_gpmb_dt', 'xa_gpmb_bg', 'xa_tcns_thu', 'xa_tcns_chi', 'xa_gd_dong', 'xa_yte_dong', 'xa_vh_dong', 'xa_nv_dong', 'xa_ktxh_n'] };
+XA_OV_KPI['xa-4truc'] = XA_OV_KPI['xa-UBND'].concat(XA_OV_KPI['xa-MTTQ'], XA_OV_KPI['xa-DANG'], XA_OV_KPI['xa-HDND']);
+/* X7: bản ghi tạo ra một ô số phải giống nhau ở mọi trường mô tả của dòng số liệu, trừ các trường bản đọc cho cộng (VD «Đơn vị» — HCC-4) */
+const XA_DUOC_KHAC = { 'ubndxa-hcc': ['don_vi'], 'ubndxa-tcns': ['ten_chi_tieu'], 'ubndxa-qlvb': ['ten_can_bo_phong'], 'ubndxa-gpmb': ['ma_du_an', 'ten_du_an_khu_vuc_GPMB', 'loai_dong'],
+  'ubndxa-gd': ['bac_hoc_loai_hinh_giao_duc', 'ten_chi_tieu'], 'ubndxa-nv': ['ten_chi_tieu'], 'mttqxa-eform': ['don_vi_doan_loai_hinh'], 'hdndxa-eform': ['ten_chi_tieu', 'du_an_dau_tu_cong'],
+  'ubndxa-vh': '*' /* «Số người tham gia», «Kinh phí/Doanh thu»: bản đọc VH duyệt diễn biến tổng qua các kỳ */ };
+console.log('== Ô số đúng bản đọc; màn ngoài đúng câu CHUNG-3');
+XS.forEach((id) => {
+  const ef = S[id].groups[0].id.split(':')[0];
+  ok(JSON.stringify(S[id].kpis.map((k) => k.m)) === JSON.stringify(XA_KPI[id].map((m) => ef + '_' + m)), id + ': ô số đúng danh sách bản đọc (' + S[id].kpis.map((k) => k.m.slice(ef.length + 1)).join(', ') + ')');
+});
+Object.keys(XA_OV_KPI).forEach((oid) => { const c = run('CTM_OVERVIEWS').find((x) => x.id === oid); ok(c && JSON.stringify(c.kpis.map((k) => k.m)) === JSON.stringify(XA_OV_KPI[oid]), oid + ': ô số màn ngoài đúng câu CHUNG-3'); });
 
 XA_T.forEach((xa) => {
   setXa(xa);
@@ -94,6 +114,29 @@ XA_T.forEach((xa) => {
       ok(!!key, tag + ' › ô «' + s.metrics[k.m].l + '»: bấm mở thẳng bản ghi (E4)');
       if (key && v != null) ok(trs(html(id, 'rec', null, key), 'ctm-rect').length > 0, tag + ' › ô «' + s.metrics[k.m].l + '» = ' + v + ': mở được bản ghi tạo ra số');
     });
+    /* X7: ô số không cộng các chỉ tiêu, tình trạng, đơn vị tính khác nhau */
+    const P0 = run('efPick')(cfg, n.p), mo = (cfg.dong ? cfg.dong.theo : cfg.khoa).filter((c) => c !== 'dia_ban'), dk = XA_DUOC_KHAC[id] || [];
+    if (dk !== '*') s.kpis.forEach((k) => {
+      const cid = k.m.slice(efId.length + 1), m = cfg.chi[cid];
+      if (/^(tyle|hieu|tang|thuong|dem|demkhoa|demkhac|dembang|demdk)$/.test(m.loai)) return;
+      const rs = run('efRecsOf')(cfg, P0.used, cid), khac = mo.filter((c) => dk.indexOf(c) < 0 && new Set(rs.map((R) => (R[c] == null ? '' : String(R[c])))).size > 1);
+      ok(!khac.length, tag + ' › ô «' + m.l + '»: không cộng các bản ghi khác nhau ở ' + (khac.join(', ') || 'trường mô tả'));
+    });
+    /* X7 cho biểu đồ: mỗi cột / thanh / kỳ không cộng các bản ghi khác nhau ở trường mô tả (trừ trường bản đọc cho cộng; cột theo trường «theo» thì trường đó được khác) */
+    if (dk !== '*') {
+      const nhs = [null].concat(ef.F[cfg.tach].dm.map((o) => o.v)), viec = [];
+      (cfg.bieu || []).forEach((b) => nhs.forEach((nv) => {
+        if (b.loai === 'dong' || (nv == null ? b.chiNhom : b.theo === cfg.tach || (b.nhom && b.nhom.indexOf(nv) < 0))) return;
+        const rs0 = P0.used.filter((R) => nv == null || R[cfg.tach] === nv);
+        (b.ms || [b.m]).forEach((cid) => {
+          const m = cfg.chi[cid];
+          if (!m || /^(tyle|hieu|tang|thuong|dem|demkhoa|demkhac|dembang|demdk)$/.test(m.loai)) return;
+          const parts = b.theo ? [...new Set(rs0.map((R) => R[b.theo]))].map((v) => rs0.filter((R) => R[b.theo] === v)) : [rs0];
+          parts.forEach((rs1) => { const rs = run('efRecsOf')(cfg, rs1, cid), khac = mo.filter((c) => c !== b.theo && dk.indexOf(c) < 0 && new Set(rs.map((R) => (R[c] == null ? '' : String(R[c])))).size > 1); if (khac.length) viec.push('«' + b.t + '» (' + (nv || 'Tất cả nhóm') + '): ' + khac.join(', ')); });
+        });
+      }));
+      ok(!viec.length, tag + ': biểu đồ không cộng các chỉ tiêu khác nhau' + (viec.length ? ' — ' + [...new Set(viec)].slice(0, 3).join('; ') : ''));
+    }
     /* màn nhóm: Tất cả nhóm + mỗi mã của trường chia nhóm; thẻ so sánh và biểu đồ đặt trên bảng; dòng số liệu lần lại được bản ghi */
     ok(s.groups.length === ef.F[cfg.tach].dm.length + 1 && s.groups[0].label === 'Tất cả nhóm', tag + ': màn «Tất cả nhóm» và ' + ef.F[cfg.tach].dm.length + ' màn nhóm');
     let soNhom = 0;

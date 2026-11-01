@@ -146,10 +146,11 @@ function ctmDlM(spec, key, n, big) {
   if (pv == null && big !== true) return spec.periods.length === 1 ? '' : '<span class="stc-dl na" title="' + ctmE(m.na || c.na) + '">—</span>';
   return ctmDl(ctmV(spec, key, n.D), pv, { inv: m.inv, neutral: m.neutral, rate: m.rate || m.u === '%', d: m.d, ref: pv != null ? c.ref : '', na: m.na || c.na });
 }
-/* Kỳ cùng kỳ năm trước: kỳ quý '2026Q2' → '2025Q2' nếu có trong danh sách; kỳ năm → năm liền trước */
+/* Kỳ cùng kỳ năm trước: kỳ quý '2026Q2' → '2025Q2', kỳ tháng '2026-09' → '2025-09' nếu có trong danh sách; kỳ năm → năm liền trước */
 function ctmCkId(spec, pid) {
   const q = String(pid).match(/^(\d{4})Q(\d)$/);
-  const id = q ? (Number(q[1]) - 1) + 'Q' + q[2] : /^\d{4}$/.test(String(pid)) ? String(Number(pid) - 1) : null;
+  const mo = String(pid).match(/^(\d{4})-(\d{2})$/);
+  const id = q ? (Number(q[1]) - 1) + 'Q' + q[2] : mo ? (Number(mo[1]) - 1) + '-' + mo[2] : /^\d{4}$/.test(String(pid)) ? String(Number(pid) - 1) : null;
   return id && spec.periods.some((p) => p.id === id) && ctmD(spec, id) ? id : null;
 }
 /* Số dùng để so của một chỉ tiêu trong thẻ so sánh, bảng (theo mốc của chính chỉ tiêu đó) */

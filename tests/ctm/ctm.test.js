@@ -58,7 +58,8 @@ ok(IDS.length > 0, 'có đơn vị đã khai báo (' + IDS.join(', ') + ')');
 IDS.forEach((id) => {
   const spec = run('CTM_SPECS[' + JSON.stringify(id) + ']');
   ok(spec.periods.length >= (spec.role === 'UBND' && spec.level === 'city' ? 1 : 2), id + ': đủ số kỳ báo cáo (' + spec.periods.length + ')');
-  ok(spec.kpis.length >= 4 && spec.kpis.length <= 8, id + ': 4–8 ô số chính (' + spec.kpis.length + ')');
+  /* đơn vị xã: chỉ ô số có trong bản đọc eform (quy ước E1, 02/11/2026) — có thể ít hơn 4, không tự thêm cho đủ */
+  ok(spec.kpis.length >= (spec.level === 'xa' ? 1 : 4) && spec.kpis.length <= 8, id + ': ' + (spec.level === 'xa' ? '1' : '4') + '–8 ô số chính (' + spec.kpis.length + ')');
   /* nhóm có số dòng theo bản ghi (g.lines là hàm — eform cấp xã) kiểm ở tests/ctm/xa-eform.test.js */
   const keys = new Set(spec.kpis.map((k) => k.m).concat(...(spec.groups || []).map((g) => (Array.isArray(g.lines) ? g.lines : []))));
   ok([...keys].every((k) => spec.metrics[k]), id + ': mọi chỉ tiêu dùng trong ô số / thẻ nhóm đều có khai báo');

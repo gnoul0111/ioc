@@ -28,7 +28,7 @@ const XA_EF_MAU_CFG = {
       { toc_do_tang_truong: 'phan_tram_nam', toc_do_tang: 'phan_tram_nam', thu_ngan_sach: 'ty_dong', thu_nhap: 'trieu_dong_nguoi_nam', ty_le: 'phan_tram', cong_nhan: 'xa', san_pham: 'san_pham', du_an: 'du_an', gia_tri: 'ty_dong' }[L.phan_loai_ket_qua]), hop: {
     doi_tuong_thong_ke: { '1_nghi_quyet_phat_trien_kinh_te_xa_hoi_06_thang_cuoi_nam_2026': ['nghi_quyet_phat_trien_kinh_te_xa_hoi_06_thang_cuoi_nam_2026'],
       '2_nghi_quyet_phat_trien_kinh_te_xa_hoi_5_nam_2026_2030': ['nghi_quyet_phat_trien_kinh_te_xa_hoi_5_nam_2026_2030'], '3_nghi_quyet_ve_dau_tu_cong_trung_han_05_nam_2026_2030': ['nghi_quyet_ve_dau_tu_cong_trung_han_05_nam_2026_2030'],
-      '4_nghi_quyet_quy_che_tiep_cong_dan': ['nghi_quyet_quy_che_tiep_cong_dan'], hoat_dong_giam_sat: ['cuoc_giam_sat', 'ket_qua_thuc_hien_kien_nghi_sau_giam_sat'],
+      '4_nghi_quyet_quy_che_tiep_cong_dan': ['nghi_quyet_quy_che_tiep_cong_dan'], hoat_dong_giam_sat: ['cuoc_giam_sat'],
       hop_tt_hdnd: ['buoi_hop_thuong_truc_hdnd_xa'], ky_hop_hdnd: ['ky_hop_hdnd', 'ky_hop_hdnd_xa'], tiep_xuc_cu_tri_voi_dai_bieu_hdnd_xa: ['cuoc_tiep_xuc_cu_tri'] },
     phan_loai_ket_qua: { '1_nghi_quyet_phat_trien_kinh_te_xa_hoi_06_thang_cuoi_nam_2026': ['toc_do_tang_truong', 'thu_ngan_sach', 'thu_nhap', 'ty_le'],
       '2_nghi_quyet_phat_trien_kinh_te_xa_hoi_5_nam_2026_2030': ['toc_do_tang', 'thu_ngan_sach', 'cong_nhan', 'san_pham'], '3_nghi_quyet_ve_dau_tu_cong_trung_han_05_nam_2026_2030': ['du_an', 'gia_tri'],
@@ -40,12 +40,13 @@ const XA_EF_MAU_CFG = {
     ket_qua_giai_quyet: ['dung_va_truoc_han', 'da_giai_quyet_qua_han'],
     ho_so_dang_giai_quyet: ['chua_den_han', 'dang_giai_quyet_qua_han'],
     tiep_nhan_ho_so: ['ho_so_tthc_cho_tiep_nhan', 'ho_so_khong_duoc_tiep_nhan'] } },
-  tcns: { ky: 'thang', nhom: 'loai_gia_tri_sl_st', field: 'tieu_chi_tieu', ten: 'tieu_chi_tieu', dvtFn: (L) => (L.loai_gia_tri_sl_st === 'st' ? 'dong' : /doanh_nghiep/.test(L.tieu_chi_tieu) ? 'doanh_nghiep' : /htx/.test(L.tieu_chi_tieu) ? 'hop_tac_xa' : /du_an/.test(L.tieu_chi_tieu) ? 'du_an' : 'ho'), td: (L) => L.loai_gia_tri_sl_st === 'sl' && /dang_hoat_dong|so_luong_du_an/.test(L.tieu_chi_tieu), cap: {
+  tcns: { ky: 'thang', nhom: 'loai_gia_tri_sl_st', field: 'tieu_chi_tieu', ten: 'tieu_chi_tieu', dvtFn: (L) => (L.loai_gia_tri_sl_st === 'st' ? 'dong' : /doanh_nghiep/.test(L.tieu_chi_tieu) ? 'doanh_nghiep' : /htx/.test(L.tieu_chi_tieu) ? 'hop_tac_xa' : /du_an/.test(L.tieu_chi_tieu) ? 'du_an' : 'ho'), td: (L) => /dang_hoat_dong/.test(L.tieu_chi_tieu), cap: {
     st: ['tong_thu_ngan_sach_nha_nuoc', 'thu_noi_dia', 'thu_vien_tro', 'thue_gtgt', 'thue_tncn', 'phi_le_phi', 'le_phi', 'tong_chi_ngan_sach_nha_nuoc', 'chi_dau_tu_phat_trien', 'chi_thuong_xuyen', 'chi_khac', 'tong_von_dau_tu'],
     sl: ['so_luong_doanh_nghiep_dang_hoat_dong', 'so_luong_htx_dang_hoat_dong', 'so_htx_thanh_lap_moi', 'so_htx_giai_the', 'so_luong_du_an_dau_tu_cong', 'so_ho_thieu_doi'] } },
-  qlvb: { ky: 'thang', nhom: 'loai_van_ban', field: 'nhom_chi_tieu', td: (L) => ['chua_xu_ly', 'dang_xu_ly', 'van_ban_den_chua_luu', 'van_ban_den_cho_duyet'].indexOf(L.nhom_chi_tieu) >= 0, cap: {
+  qlvb: { ky: 'thang', nhom: 'loai_van_ban', field: 'nhom_chi_tieu', w: { tong_so_van_ban_den: 4, tong_so_van_ban_di: 3, tong_so_cong_van: 2, chua_xu_ly: 0.15, dang_xu_ly: 0.3, da_hoan_tat: 2.5,
+    van_ban_den_chua_luu: 0.15, van_ban_den_cho_duyet: 0.25, van_ban_den_da_chuyen_thuc_hien: 3, van_ban_lien_thong: 1.5, van_ban_noi_bo: 1.2 }, td: (L) => ['chua_xu_ly', 'dang_xu_ly', 'van_ban_den_chua_luu', 'van_ban_den_cho_duyet'].indexOf(L.nhom_chi_tieu) >= 0, cap: {
     van_ban_den: ['tong_so_van_ban_den', 'van_ban_den_chua_luu', 'van_ban_den_cho_duyet', 'van_ban_den_da_chuyen_thuc_hien', 'tong_so_cong_van', 'chua_xu_ly', 'dang_xu_ly', 'da_hoan_tat'],
-    van_ban_di: ['tong_so_van_ban_di', 'van_ban_lien_thong', 'van_ban_noi_bo'] } },
+    van_ban_di: ['tong_so_van_ban_di', 'van_ban_lien_thong', 'van_ban_noi_bo', 'chua_xu_ly', 'dang_xu_ly', 'da_hoan_tat'] } },
   gpmb: { ky: 'thang', nhom: 'nhom_trang_thai' },
   gd: { ky: 'quy', nhom: 'nhom_chi_tieu' },
   yte: { ky: 'thang', nhom: 'nhom_chi_tieu', td: (L) => L.nhom_chi_tieu === 'BAO_TRO_XA_HOI' },
@@ -58,9 +59,9 @@ const XA_EF_MAU_CFG = {
       truyen_thong_bao_chi_mang_xa_hoi: ['su_kien_the_thao', 'le_hoi'], gia_dinh_van_hoa_co_so: ['clb', 'thiet_che_van_hoa'] } },
     dvtMa: { don_vi_nghe_thuat: 'don_vi', chuong_trinh: 'chuong_trinh', lien_hoan: 'hoat_dong', hoi_thi: 'hoat_dong', clb: 'don_vi', di_tich: 'di_tich', di_san_van_hoa_phi_vat_the: 'di_san', nghe_nhan: 'nguoi',
       le_hoi: 'le_hoi', thiet_che: 'thiet_che', khach: 'nguoi', doanh_nghiep: 'don_vi', du_an: 'du_an', bao_chi: 'tin_bai', trang_tin: 'tin_bai', mang_xa_hoi: 'tin_bai', ho_gia_dinh: 'diem', thon: 'diem' } },
-  nv: { ky: 'thang', nhom: 'doi_tuong_thong_ke', rows: 2, ten: 'doi_tuong_thong_ke', td: (L) => L.phan_loai_ket_qua === 'tong_so' || L.phan_loai_ket_qua === 'ke_hoach_giao', hop: { phan_loai_ket_qua: {
+  nv: { ky: 'thang', nhom: 'doi_tuong_thong_ke', rows: 3, ten: 'doi_tuong_thong_ke', td: (L) => L.phan_loai_ket_qua === 'tong_so' || L.phan_loai_ket_qua === 'ke_hoach_giao', hop: { phan_loai_ket_qua: {
     lao_dong_viet_nam: ['tong_so', 'trong_ky'], lao_dong_nuoc_ngoai: ['tong_so', 'trong_ky'], giao_dich_viec_lam: ['so_phien_giao_dich', 'so_luot_nguoi_tham_gia'],
-    bien_che: ['ke_hoach_giao', 'thuc_hien'], tuyen_moi: ['trong_ky', 'tong_so'], nghi_huu: ['trong_ky', 'tong_so'], thoi_viec: ['trong_ky', 'tong_so'],
+    bien_che: ['tong_so', 'ke_hoach_giao', 'thuc_hien'], tuyen_moi: ['trong_ky', 'tong_so'], nghi_huu: ['trong_ky', 'tong_so'], thoi_viec: ['trong_ky', 'tong_so'],
     chuyen_cong_tac: ['trong_ky', 'tong_so'], nguoi_co_cong: ['so_phai_tra', 'so_da_tra'] } } },
   ktxh: { ky: 'quy', nhom: 'nhom_chi_tieu', rows: 2, ten: 'phan_nhom', td: () => true },
   mttq: { ky: 'quy', nhom: 'nhom_to_chuc', rows: 4, td: (L) => ['doanvien', 'socbcc', 'bienchetc', 'tonquy'].indexOf(L.ten_chi_tieu) >= 0,
@@ -133,6 +134,8 @@ function xaEfMauDong(efId, ef, F, C, u) {
       lines.push(Object.assign({}, T, { gioi_tinh: 'nam', _tp: 0.51, _cua: T._s }), Object.assign({}, T, { gioi_tinh: 'nu', _bu: 0.51, _cua: T._s }));
       lines.push(Object.assign({}, T, { dan_toc: 'kinh', _tp: 0.96, _cua: T._s }), Object.assign({}, T, { dan_toc: 'dan_toc_thieu_so', _bu: 0.96, _cua: T._s }));
       lines.push(Object.assign({}, T, { nhom_doi_tuong: 'giao_vien', don_vi_tinh: 'giao_vien', _s: 'gd|gv|' + bh, _w: 0.5 * w }));
+      lines.push(Object.assign({}, T, { nhom_doi_tuong: 'co_so', don_vi_tinh: 'co_so', _s: 'gd|cs|' + bh, _w: 0.02 * w }));
+      lines.push(Object.assign({}, T, { nhom_doi_tuong: 'hoc_sinh', phan_loai_ket_qua: 'tot_nghiep', _s: 'gd|tn|' + bh, _w: 1.8 * w, _td: false }));
       lines.push(Object.assign({}, T, { nhom_doi_tuong: 'hoc_sinh', phan_loai_ket_qua: 'tuyen_moi', _s: 'gd|tm|' + bh, _w: 2.2 * w, _td: false }));
     });
     ['so_cap', 'trung_cap', 'cao_dang'].forEach((td, i) => ['tuyen_moi', 'tot_nghiep'].forEach((pl) => lines.push({ nhom_chi_tieu: 'giao_duc_nghe_nghiep', bac_hoc_loai_hinh_giao_duc: 'giao_duc_nghe_nghiep',
@@ -151,14 +154,17 @@ function xaEfMauDong(efId, ef, F, C, u) {
       L[C.nhom] = g; L[C.field] = v;
       lines.push(L);
       if (efId === 'qlvb' && v === 'tong_so_cong_van') lines.push(Object.assign({}, L, { phan_loai: 'qua_han', _s: L._s + '|qh' }));
-      if (efId === 'qlvb' && v === 'dang_xu_ly') lines.push(Object.assign({}, L, { phan_loai: 'qua_han', _s: L._s + '|qh' }));
+      /* tình trạng xử lý: thêm số tách trong hạn / quá hạn */
+      if (efId === 'qlvb' && ['chua_xu_ly', 'dang_xu_ly', 'da_hoan_tat'].indexOf(v) >= 0) [['trong_han', 0.8], ['qua_han', 0.2]].forEach(([pl, k]) => lines.push(Object.assign({}, L, { phan_loai: pl, _s: L._s + '|' + pl, _goc: L._s, _phan: k })));
       /* số từng phòng của «Tổng số văn bản đến», kèm bản để trống tên là số của xã (bản đọc QLVB-3) */
-      if (efId === 'qlvb' && v === 'tong_so_van_ban_den') ['Văn phòng HĐND và UBND', 'Phòng Kinh tế', 'Phòng Văn hóa - Xã hội'].forEach((ph, i) => lines.push(Object.assign({}, L, { ten_can_bo_phong: ph, _s: L._s + '|ph' + i, _phan: [0.5, 0.3, 0.2][i] })));
+      if (efId === 'qlvb' && v === 'tong_so_van_ban_den') ['Văn phòng HĐND và UBND', 'Phòng Kinh tế', 'Phòng Văn hóa - Xã hội'].forEach((ph, i) => lines.push(Object.assign({}, L, { ten_can_bo_phong: ph, _s: L._s + '|ph' + i, _goc: L._s, _phan: [0.5, 0.3, 0.2][i] })));
     }));
   } else {
     const keys = ef.fields.filter((f) => f.t === 'dm' && f.dm.length && f.c !== C.nhom && f.c !== 'don_vi_tinh' && !/^(ky_bao_cao|quy|dia_ban|linh_vuc|cap_don_vi|tan_suat|nguon_so_lieu|don_vi_chu_tri_bao_cao)$/.test(f.c));
     F[C.nhom].dm.forEach((g, gi) => {
-      for (let j = 0; j < (C.rows || 3); j++) {
+      /* MTTQ: mỗi tổ chức có đủ các mã của ô số chính */
+      const rows = C.uu ? C.uu.length : C.rows || 3;
+      for (let j = 0; j < rows; j++) {
         const L = { _s: efId + '|' + g.v + '|' + j, _j: j };
         L[C.nhom] = g.v;
         keys.forEach((f) => {
@@ -166,7 +172,7 @@ function xaEfMauDong(efId, ef, F, C, u) {
           const hop = ok.length > 0, list = hop ? ok : f.dm;
           L[f.c] = (hop ? list[j % list.length] : xaEfPick(list, L._s + '|' + f.c)).v;
         });
-        if (C.uu) L.ten_chi_tieu = C.uu[(gi * (C.rows || 3) + j) % C.uu.length];
+        if (C.uu) L.ten_chi_tieu = C.uu[j];
         if (efId === 'nv' && L.phan_loai_ket_qua === 'thuc_hien') L._w = 0.1;
         if (efId === 'ktxh') { L.phan_nhom = g.v === 'KINH_TE_TONG_HOP' ? (j % 2 ? 'CHI_NGAN_SACH' : 'THU_NGAN_SACH') : null; L.don_vi_chu_tri_bao_cao = g.v === 'VAN_HOA_XA_HOI' ? 'P_VH_XH' : 'P_KTHT_DT'; }
         lines.push(L);
@@ -229,7 +235,8 @@ function xaEfMau(efId, u) {
     numFields.forEach((f) => {
       const unit = xaEfUnitOf(f.l) || (XA_EF_DVT_SO.test(f.c) ? xaEfUnitOf(dvText) : '') || (/^(thu_nsnn|chi_nsdp)$/.test(f.c) ? 'triệu đồng' : '');
       const w = unit === '%' ? 1 : L._w || (C.w && C.w[L[C.field]]) || 1;
-      let v = xaEfNum(unit, u, L._s + '|' + f.c + '|' + u.name, i) * w / (unit === '%' ? 1 : chia);
+      /* dòng là phần của một dòng khác (số từng phòng, số tách trong hạn / quá hạn): cùng hạt giống với dòng gốc rồi nhân tỷ phần */
+      let v = xaEfNum(unit, u, (L._goc || L._s) + '|' + f.c + '|' + u.name, i) * w / (unit === '%' ? 1 : chia);
       if (L._phan) v *= L._phan;
       R[f.c] = !unit || unit === 'đồng' || unit === 'triệu đồng' || unit === 'm²' || unit === 'ha' ? Math.round(v) : Math.round(v * 10) / 10;
     });
