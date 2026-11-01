@@ -291,6 +291,71 @@ XA_DOC = [
          'MTTQ-2. Có cần kiểm tồn quỹ (tồn kỳ này = tồn kỳ trước + tổng thu − tổng chi) không? Đề xuất: không, vì eform không có trường tồn đầu kỳ.']),
 ]
 
+# ============================== SỬA, BỔ SUNG NGÀY 02/11/2026 (anh duyệt "làm đi" 02/11/2026) ==============================
+# Rà soát 02/11/2026 theo quy ước E1 bổ sung (AGENTS.md mục 1): không thêm gì ngoài eform và bản đọc; không cộng các chỉ tiêu, tình trạng,
+# tổ chức, đơn vị tính khác nhau (X7). Mỗi mục: ghi đè phần đọc (chi, bieu, loai_so…) bằng nội dung đang chạy, kèm 'ghi' — đã đổi gì, vì sao.
+SUA = {
+  'dang': dict(chi=['Mỗi dòng số liệu (Nhóm mục › Đối tượng thống kê › Tên chỉ tiêu › Đơn vị tính): «Giá trị» — cộng các bản ghi (nhóm mục phát sinh) hoặc lấy bản cuối kỳ (nhóm mục tại thời điểm)',
+                    'Số dòng số liệu đã nhập (đếm), theo từng nhóm mục — ô số duy nhất của đơn vị'],
+               ghi=['Bỏ các ô số đã tự thêm ngoài bản đọc: «Số bản ghi», «Nhóm mục có số liệu», «Đối tượng thống kê có số liệu».']),
+  'hdnd': dict(chi=['Mỗi dòng số liệu (Chủ đề › Đối tượng › Tên chỉ tiêu › Đơn vị tính): «Giá trị» — cộng (hoạt động) hoặc bản cuối kỳ (nghị quyết); dòng % chỉ hiện số từng bản ghi',
+                    'Cuộc giám sát đã thực hiện: cộng «Giá trị» các bản ghi «Chủ đề / Nhóm» = Hoạt động giám sát, «Đối tượng thống kê» = Cuộc giám sát, «Phân loại/Kết quả» = Đã thực hiện, «Đơn vị tính» = Cuộc',
+                    'Kỳ họp HĐND xã: cộng «Giá trị» các bản ghi chủ đề Kỳ họp HĐND, đối tượng Kỳ họp HĐND xã, phân loại Số lượng, đơn vị tính Kỳ họp',
+                    'Cuộc tiếp xúc cử tri: cộng «Giá trị» các bản ghi chủ đề Tiếp xúc cử tri, đối tượng Cuộc tiếp xúc cử tri, phân loại Số lượng, đơn vị tính Cuộc tiếp xúc',
+                    'Số dòng số liệu đã nhập (đếm); «Thu NSNN», «Chi NSDP» chỉ hiện ở bảng (câu HDND-3)'],
+               bieu=['Cột: số dòng số liệu theo «Chủ đề / Nhóm»', 'Cột: Cuộc giám sát theo «Phân loại/Kết quả» Đã thực hiện / Đang thực hiện / Chưa thực hiện — thanh riêng từng tình trạng, không cộng',
+                     'Danh sách thanh: cuộc giám sát đã thực hiện, kỳ họp HĐND xã, cuộc tiếp xúc cử tri (thanh riêng)', 'Diễn biến qua các kỳ: cuộc giám sát đã thực hiện',
+                     'Thanh «Giá trị» từng dòng số liệu, mỗi đơn vị tính một khối', 'Bảng nhiều cấp «Chủ đề / Nhóm» › «Đối tượng thống kê» › «Tên chỉ tiêu» › «Đơn vị tính»'],
+               ghi=['Cuộc giám sát: không cộng các tình trạng Đã / Đang / Chưa thực hiện và không cộng đối tượng «Kết quả thực hiện kiến nghị sau giám sát»; ô số lấy Đã thực hiện.',
+                    'Kỳ họp: không cộng hai đối tượng «Kỳ họp HĐND» và «Kỳ họp HĐND xã»; ô số lấy «Kỳ họp HĐND xã» (eform cấp xã).']),
+  'tcns': dict(loai_so='«Giá trị kỳ báo cáo»: phát sinh (cộng các tháng), trừ «Số lượng doanh nghiệp đang hoạt động», «Số lượng HTX đang hoạt động» là số tại thời điểm (lấy bản cuối kỳ). «Giá trị lũy kế»: lũy kế từ đầu năm (bản cuối kỳ, so cùng kỳ năm trước). «Dự toán/KH năm»: kế hoạch năm (bản cuối, không so tăng giảm, không vẽ thành thanh cạnh số thực hiện). «Tỷ lệ so với dự toán/KH»: Chữ — ghi đúng chữ đã nhập',
+               ghi=['Câu bổ sung 02/11: «Số lượng doanh nghiệp / HTX đang hoạt động» là số tại thời điểm, lấy bản cuối kỳ ở cả ô số lẫn dòng số liệu (trước đây dòng số liệu cộng 3 tháng).',
+                    'Số lũy kế (và tỷ lệ lũy kế so với dự toán) so cùng kỳ năm trước, không so quý liền trước.', '«Tỷ lệ so với dự toán/KH» đã nhập ghi ở cột riêng cạnh tỷ lệ IOC tính trong bảng (lấy bản cuối kỳ mỗi khóa).']),
+  'qlvb': dict(chi=['Mỗi mã «Nhóm chỉ tiêu» × «Loại văn bản» × «Phân loại»: «Giá trị» (cộng hoặc cuối kỳ) — không cộng các phân loại trong hạn / quá hạn với nhau',
+                    'Ô số: Tổng số văn bản đến, Tổng số văn bản đi; Chưa xử lý, Đang xử lý, Đã hoàn tất của văn bản đến — chỉ bản ghi để trống «Phân loại» (số không chia hạn)',
+                    'Văn bản quá hạn: cộng «Giá trị» các bản ghi «Phân loại» = Quá hạn, theo từng nhóm chỉ tiêu'],
+               bieu=['Danh sách thanh: văn bản đến (tổng số đến, chưa lưu, chờ duyệt, đã chuyển thực hiện) — thanh riêng', 'Danh sách thanh: văn bản đi (tổng số đi, liên thông, nội bộ)',
+                     'Danh sách thanh ở từng loại văn bản: chưa xử lý, đang xử lý, đã hoàn tất, mỗi tình trạng tách không chia hạn / trong hạn / quá hạn (thanh riêng, không cộng)',
+                     'Cột ở từng loại văn bản: văn bản quá hạn theo nhóm chỉ tiêu', 'Cột: tổng số văn bản đến theo «Tên Cán bộ/Phòng» (số từng phòng đã nhập; bỏ bản để trống tên — số cả xã)',
+                     'Diễn biến qua các kỳ: tổng số văn bản đến', 'Bảng nhiều cấp «Loại văn bản» › «Nhóm chỉ tiêu» › «Phân loại»; bảng phụ «Tên Cán bộ/Phòng» › «Nhóm chỉ tiêu»'],
+               ghi=['Ô số tình trạng xử lý chỉ tính văn bản đến; biểu đồ tình trạng đặt ở màn từng loại văn bản — không cộng văn bản đến với văn bản đi.',
+                    'Biểu đồ theo cán bộ/phòng vẽ «Tổng số văn bản đến» của từng phòng (bản đọc trước ghi "văn bản quá hạn" — số này phải cộng nhiều nhóm chỉ tiêu khác nhau).',
+                    'Bỏ ô số «Văn bản quá hạn» (cộng các nhóm chỉ tiêu khác nhau); vẫn có cột quá hạn theo từng nhóm chỉ tiêu.']),
+  'gpmb': dict(ghi=['Bổ sung biểu đồ đã có trong bản đọc nhưng chưa làm: số hộ đã bàn giao mặt bằng qua các kỳ.']),
+  'gd': dict(chi=['Mỗi dòng số liệu: «Giá trị» (cuối kỳ với Tổng số, cộng với tuyển mới, tốt nghiệp)',
+                  'Số học sinh, giáo viên, cơ sở theo bậc học: «Giá trị» các bản ghi «Phân loại/Kết quả» = Tổng số và các chiều khác = Tổng số hoặc Không áp dụng (G5)',
+                  'Tuyển mới, tốt nghiệp: học sinh và học viên tách riêng (khác đơn vị tính), chỉ dòng "Tổng số"/"Không áp dụng" ở các chiều khác',
+                  'Kiểm tra tổng (X5): Công lập + Ngoài công lập, Nam + Nữ, Kinh + DTTS so với dòng "Tổng số"', 'Ô số: Số học sinh (Tổng số), Số dòng số liệu đã nhập'],
+             bieu=['Cột theo «Bậc học/Loại hình giáo dục»: số học sinh, số giáo viên, số cơ sở; học sinh tuyển mới, học sinh tốt nghiệp', 'Cột: học sinh theo loại cơ sở, giới tính, dân tộc',
+                   'Cột: học viên tuyển mới, tốt nghiệp theo «Trình độ chuyên môn» (giáo dục nghề nghiệp)', 'Diễn biến qua các kỳ: số học sinh (Tổng số)', 'Thanh «Giá trị» từng dòng số liệu, mỗi đơn vị tính một khối',
+                   'Bảng nhiều cấp «Nhóm chỉ tiêu» › «Bậc học» › «Nhóm đối tượng» › «Phân loại/Kết quả»'],
+             ghi=['Tuyển mới, tốt nghiệp không cộng học sinh với học viên; bỏ ô số «Tuyển mới», «Tốt nghiệp», «Số giáo viên» (cộng khác đơn vị tính hoặc chưa có trong danh sách ô số).',
+                  'Bổ sung biểu đồ đã có trong bản đọc nhưng chưa làm: số cơ sở, số giáo viên, học sinh tốt nghiệp theo bậc học.']),
+  'yte': dict(chi=['Mỗi dòng số liệu (Nhóm › Tên chỉ tiêu › Tiểu chỉ tiêu › Đơn vị tính): «Giá trị» — không cộng các chỉ tiêu khác nhau', 'Ô số: Số dòng số liệu đã nhập (câu CHUNG-3)'],
+              bieu=['Thanh «Giá trị» từng chỉ tiêu, mỗi đơn vị tính một khối (bấm thanh ra bản ghi)', 'Màn từng nhóm: thẻ so sánh kỳ này – kỳ trước và diễn biến qua các kỳ theo từng chỉ tiêu',
+                    'Bảng nhiều cấp «Nhóm chỉ tiêu» › «Tên chỉ tiêu» › «Tiểu chỉ tiêu» › «Đơn vị tính»'],
+              ghi=['Câu bổ sung 02/11: bỏ "cộng «Giá trị» theo nhóm và đơn vị tính" (cộng các bệnh, chỉ tiêu khác nhau); bỏ các ô số Số vụ ngộ độc, Số người mắc dịch bệnh, Đối tượng bảo trợ xã hội.']),
+  'vh': dict(ghi=['Ô số: Số người tham gia, Kinh phí/Doanh thu (bản đọc duyệt diễn biến tổng qua các kỳ), Số dòng số liệu (câu CHUNG-3); bỏ ô số «Số tin/bài truyền thông» (chỉ còn trong biểu đồ theo mức độ lan tỏa, quan tâm).']),
+  'nv': dict(chi=['Mỗi dòng số liệu: «Giá trị» (cộng / cuối kỳ / kế hoạch)', 'Tỷ lệ thực hiện (IOC tính) = Thực hiện ÷ Kế hoạch giao × 100; Tỷ lệ đã trả (IOC tính) = Số đã trả ÷ Số phải trả × 100',
+                  'Ô số: Số dòng số liệu, hai tỷ lệ IOC tính, số phiên giao dịch, số lượt người tham gia'],
+             bieu=['Cột: «Giá trị» Tổng số (người) theo «Đối tượng thống kê» — mỗi cột một đối tượng', 'Cột: biến động trong kỳ (người) theo đối tượng — tuyển mới, nghỉ hưu, thôi việc, chuyển công tác, thanh riêng, không cộng',
+                   'Danh sách thanh: giao dịch việc làm — số phiên, số lượt', 'Thẻ tỷ lệ (IOC tính)', 'Diễn biến qua các kỳ: biên chế (Tổng số)', 'Bảng nhiều cấp «Đối tượng thống kê» › «Phân loại/Kết quả» › «Tên chỉ tiêu» › «Đơn vị tính»'],
+             ghi=['Bỏ ô số «Tổng số (người)», «Trong kỳ (người)» (cộng các đối tượng, tình trạng khác nhau); diễn biến qua các kỳ chỉ của biên chế như bản đọc.']),
+  'ktxh': dict(bieu=['Thanh: «Đánh giá mức độ hoàn thành (%)» đã nhập từng chỉ tiêu, thấp đến cao', 'Cột: số chỉ tiêu theo nhóm', 'Diễn biến qua các kỳ: «Ước thực hiện đến nay» của chỉ tiêu chọn ở thẻ "Chọn chỉ tiêu"',
+                     'Bảng nhiều cấp «Nhóm chỉ tiêu» › «Phân nhóm» › «Chỉ tiêu», cột 4 số + mức hoàn thành IOC tính'],
+               ghi=['«Ước thực hiện đến nay», mức hoàn thành IOC tính so cùng kỳ năm trước.', 'Thêm thẻ chọn chỉ tiêu để xem diễn biến (bản đọc ghi "chọn chỉ tiêu"). Bỏ ô số tự thêm: nhóm chỉ tiêu có số liệu, đơn vị chủ trì, số bản ghi.']),
+  'mttq': dict(chi=['Mỗi mã «Tên chỉ tiêu»: «Giá trị» theo «Đơn vị tính» (cộng hoặc cuối kỳ), riêng từng «Nhóm tổ chức»',
+                    'Ô số của Ủy ban MTTQ: 8 mã (Đoàn viên, Giám sát, Phản biện xã hội, Hiến máu, Mô hình, Tổng thu, Tổng chi, Tồn quỹ) của nhóm «MẶT TRẬN TỔ QUỐC», bản ghi để trống «Phân loại/ Kết quả»',
+                    'Không tự tính tồn quỹ từ thu − chi (câu MTTQ-2)'],
+               bieu=['Cột: đoàn viên, giám sát, hiến máu theo «Nhóm tổ chức» — mỗi cột một tổ chức', 'Danh sách thanh ở màn từng tổ chức: tổng thu, tổng chi, tồn quỹ của tổ chức đó',
+                     'Diễn biến qua các kỳ: đoàn viên của nhóm Mặt trận Tổ quốc', 'Thanh «Giá trị» từng dòng số liệu', 'Bảng nhiều cấp «Nhóm tổ chức» › «Tên chỉ tiêu» › «Đơn vị/Đoàn/Loại hình» › «Đơn vị tính»'],
+               ghi=['Không cộng các tổ chức (Mặt trận, Đoàn, các Hội…) với nhau: ô số lấy nhóm «MẶT TRẬN TỔ QUỐC»; số từng đoàn thể xem ở màn nhóm của đoàn thể.',
+                    'Không cộng các «Phân loại/ Kết quả» khác nhau của cùng mã chỉ tiêu.']),
+}
+for c in XA_DOC:
+    c.update({k: v for k, v in SUA.get(c['id'], {}).items() if k != 'ghi'})
+    c['ghi'] = SUA.get(c['id'], {}).get('ghi', [])
+
 # ============================== PHẦN CHUNG ==============================
 CHUNG = [
   ('G1. Chia cấp trên IOC', 'Xã, phường → 4 trục (Đảng ủy, HĐND, UBND, Ủy ban MTTQ) → eform (Đảng ủy, HĐND, MTTQ mỗi trục một eform; UBND 9 eform) → Nhóm (danh mục chia nhóm của eform) → Dòng số liệu → Bản ghi. Giữ bố cục nhiều cấp: Tổng quan → thẻ nhóm → màn nhóm (thẻ so sánh, biểu đồ, bảng) → Dữ liệu đã nhập.'),
@@ -302,6 +367,7 @@ CHUNG = [
   ('G7. Mọi số lần lại được bản ghi (E4)', 'Ô số, dòng bảng, cột/thanh biểu đồ, thẻ so sánh, cột diễn biến qua các kỳ đều bấm được, mở Dữ liệu đã nhập chỉ với các bản ghi tạo ra số đó.'),
   ('G8. Trường Chữ dùng để gộp', 'Ở Đảng ủy, MTTQ «Đơn vị tính», «Phân loại/Kết quả» là Chữ; «Tên chỉ tiêu» là Chữ ở 8 eform. Đề xuất: gộp khi chữ giống nhau sau khi bỏ khoảng trắng thừa, không phân biệt hoa thường; khác thì là dòng khác. Câu CHUNG-2.'),
   ('G9. Dữ liệu', 'Sheet "API cần IOC cung cấp": 11 API xã, phường đều "Chưa cung cấp" → màn hình tiếp tục dùng bản ghi mẫu sinh đúng khung, đúng kiểu, mã trong danh mục, ghi rõ "bản ghi mẫu".'),
+  ('G10. Không thêm, không cộng lẫn (bổ sung 02/11/2026)', 'Chỉ đúng chỉ tiêu, ô số, biểu đồ có trong bản đọc này — kể cả số đếm cũng không tự thêm; kiểm thử, quy tắc trình bày đòi thêm thì hỏi. Không cộng các chỉ tiêu, tình trạng, tổ chức, đơn vị tính khác nhau thành một số; kiểm thử tự động chặn ở mọi ô số và biểu đồ.'),
 ]
 CAU_CHUNG = [
   'CHUNG-1. Quyền xem theo cấp: tài khoản cấp Thành phố có xem được số của từng xã, phường (chọn xã để xem như tài khoản xã) không? Có cần màn "Theo 126 xã, phường" cho các eform xã không? (Tài khoản xã vẫn chỉ xem số của mình, như anh chốt 27/10.)',
@@ -312,7 +378,7 @@ CAU_CHUNG = [
 
 # Trả lời ngày 30/10/2026: anh trả lời "theo đề xuất" cho mọi câu. Câu chỉ hỏi, chưa ghi đề xuất thì chốt theo hướng an toàn
 # (chỉ hiện số đã nhập, không tự cộng, không tự tính) — anh đổi bất cứ lúc nào, sửa ở đây rồi chạy lại.
-DUYET = 'ĐÃ DUYỆT 30/10/2026: anh trả lời "theo đề xuất" cho mọi câu hỏi (cuối bản đọc)'
+DUYET = 'ĐÃ DUYỆT 30/10/2026: anh trả lời "theo đề xuất" cho mọi câu hỏi (cuối bản đọc) · sửa, bổ sung 02/11/2026 (anh duyệt "làm đi")'
 CHOT = {
   'HDND-3': '«Thu NSNN», «Chi NSDP»: cộng các bản ghi cùng dòng số liệu, chỉ hiện ở bảng, không ghi đơn vị (eform không có), không vẽ biểu đồ, không đưa lên ô số.',
   'HCC-4': '«Đơn vị» là cấp 3 của bảng (mô tả dòng), số của xã cộng các đơn vị; «Từ ngày», «Đến ngày» chỉ để xem, không dùng xếp kỳ.',
@@ -351,6 +417,8 @@ def gen_one(c):
     L += ['', '**Biểu đồ, bảng dự kiến** (mọi cột, thanh, thẻ bấm được ra bản ghi — G7):', ''] + [f'- {x}' for x in c['bieu']]
     L += ['', '**Đánh dấu bản ghi cần xem lại** (ngoài các lỗi chung X8: mã ngoài danh mục, ô số không đọc được, ngày không đọc được, thiếu trường khóa, trùng khóa):', ''] + [f'- {x}' for x in c['kt']]
     L += ['', '**Lỗi, chỗ nghi trong file eform:**', ''] + [f'- {x}' for x in c['loi']]
+    if c.get('ghi'):
+        L += ['', '## SỬA, BỔ SUNG NGÀY 02/11/2026', '', 'Rà soát theo quy ước E1 bổ sung (không thêm gì ngoài eform và bản đọc; không cộng các chỉ tiêu, tình trạng, tổ chức, đơn vị tính khác nhau). Các mục trên đã ghi theo nội dung đang chạy.', ''] + [f'- {x}' for x in c['ghi']]
     L += ['', '## CÂU HỎI VÀ TRẢ LỜI', ''] + [f'{n + 1}. {q}' for n, q in enumerate(c['cau'])] + tra_loi(c['cau']) + ['']
     return L
 
@@ -383,7 +451,10 @@ def main():
     T += ['', '## 5. Câu hỏi từng eform và trả lời', '']
     for c in XA_DOC:
         T += [f'**{XE[c["id"]]["ten"]}**', ''] + [f'- {q}' for q in c['cau']] + tra_loi(c['cau']) + ['']
-    T += ['## 6. Lỗi trong file eform (gửi bên eform)', '']
+    T += ['## 6. Sửa, bổ sung ngày 02/11/2026', '']
+    for c in XA_DOC:
+        if c.get('ghi'): T += [f'- **{XE[c["id"]]["ten"]}**: ' + ' '.join(c['ghi'])]
+    T += ['', '## 7. Lỗi trong file eform (gửi bên eform)', '']
     for c in XA_DOC:
         T += [f'- **{XE[c["id"]]["ten"]}**: ' + '; '.join(c['loi'])]
     T.append('')
