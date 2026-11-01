@@ -15,7 +15,7 @@ const escFn = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (m) => ({ '&
 
 const SO_CFG = ['vhtt', 'vpub', 'bql', 'dl', 'dttg', 'ttra', 'khcn', 'nnmt', 'sct', 'sxd', 'snv', 'syt'].map((s) => 'js/core/' + s + '-config.js');
 SO_CFG.unshift('js/core/xa-dan-so.js');
-const FILES = SO_CFG.concat(['js/core/hcc-config.js', 'js/features/hcc-data.js', 'js/core/ctm-xa.js', 'js/core/xa-eform.js', 'js/core/xa-eform-mau.js', 'js/core/line-chart.js', 'js/features/ctm-engine.js', 'js/features/ctm-mttq.js', 'js/features/ctm-dang.js', 'js/features/ctm-hdnd.js', 'js/features/ctm-all.js', 'js/features/ctm-xa-units.js', 'js/features/ctm-so.js']);
+const FILES = SO_CFG.concat(['js/core/hcc-config.js', 'js/features/hcc-data.js', 'js/core/ctm-xa.js', 'js/core/xa-eform.js', 'js/core/xa-eform-mau.js', 'js/core/line-chart.js', 'js/features/ctm-engine.js', 'js/features/ctm-mttq.js', 'js/features/ctm-dang.js', 'js/features/ctm-hdnd.js', 'js/features/ctm-all.js', 'js/features/ctm-xa-units.js', 'js/features/ctm-so.js', 'js/core/eform-khung.js', 'js/features/ctm-eform.js', 'js/features/ctm-xa-eform.js']);
 const ctx = vm.createContext({ console, Math, Number, String, Object, Array, JSON, isFinite, Date, esc: escFn, document: {} });
 /* Số hồ sơ theo xã, phường của TT Phục vụ HCC cần danh sách 126 đơn vị (gdUnitData của dashboard-education.js, file đó cần DOM nên chỉ lấy mảng) */
 const eduM = read('js/features/dashboard-education.js').match(/const gdUnitData=\[([\s\S]*?)\n\s*\];/);
@@ -104,7 +104,7 @@ IDS.forEach((id) => {
   spec.periods.forEach((p) => {
     const D = run('ctmD(CTM_SPECS[' + JSON.stringify(id) + '],' + JSON.stringify(p.id) + ')');
     Object.keys(D).forEach((k) => { if (typeof D[k] === 'number' && D[k] < 0 && k !== 'bd') neg.push(p.id + '.' + k); });
-    Object.keys(spec.metrics).forEach((k) => { if (spec.metrics[k].u === '%' && D[k] != null && D[k] > 100.0001) neg.push(p.id + '.' + k + '>100'); });
+    Object.keys(spec.metrics).forEach((k) => { if (spec.metrics[k].u === '%' && !spec.metrics[k].vuot && D[k] != null && D[k] > 100.0001) neg.push(p.id + '.' + k + '>100'); });
   });
   ok(!neg.length, id + ': không có số âm, tỷ lệ không quá 100%' + (neg.length ? ' (' + neg.slice(0, 4).join(', ') + ')' : ''));
   if (spec.xa && spec.xa.inds.some((I) => I.from)) {
@@ -128,10 +128,10 @@ setXa(null);
 console.log('== Đơn vị cấp xã: 12 eform, tên đổi theo phường / xã');
 {
   const XS = run('Object.keys(CTM_SPECS).filter(function(k){return CTM_SPECS[k].level==="xa"})');
-  ok(XS.length === 12, '12 đơn vị cấp xã, đúng 12 eform của sheet Xã/Phường (' + XS.length + ')');
+  ok(XS.length === 12, '12 đơn vị cấp xã, đúng 12 eform của sheet XãPhường (' + XS.length + ')');
   const seedXa = (read('js/core/central-level.js').match(/xaEformCat\('((?:dang|hdnd|ubnd|mttq)xa-[a-z]+)'/g) || []).map((s) => s.slice(12, -1));
   ok(seedXa.length === 12 && seedXa.every((x) => XS.indexOf(x) >= 0), 'đủ mọi đơn vị trong danh mục cấp xã của IOC (' + seedXa.join(', ') + ')');
-  ok(new Set(XS.map((x) => run('CTM_SPECS[' + JSON.stringify(x) + '].ef'))).size === 12, 'mỗi đơn vị một eform, không trùng');
+  ok(new Set(XS.map((x) => run('CTM_SPECS[' + JSON.stringify(x) + '].groups[0].id'))).size === 12, 'mỗi đơn vị một eform, không trùng');
   const vh = run('ctmXaByName("Phường Việt Hưng")');
   ok(vh.ds === 83188 && vh.dt === 12.91, 'phường Việt Hưng: dân số 83.188, diện tích 12,91 km²');
   setXa('Xã Ba Vì');

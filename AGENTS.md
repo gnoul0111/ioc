@@ -19,4 +19,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 9. **Kiểu trường y hệt eform** (trường Chữ có kèm danh sách vẫn là Chữ); **kỳ xem chọn được Tháng / Quý / Năm**; **quyền xem theo cấp** (cấp trên xem được cấp dưới).
 10. Dữ liệu mẫu được tự sinh thoải mái, đúng kiểu trường, mã trong danh mục; **không sinh thêm trường**; màn hình ghi "bản ghi mẫu".
 
-Mẫu đã làm theo quy ước: chỉ tiêu xã, phường (`js/features/ctm-xa-units.js`, kiểm thử `tests/ctm/xa-eform.test.js`).
+Mẫu đã làm theo quy ước: chỉ tiêu xã, phường — một khung chung `js/features/ctm-eform.js` cho xã, 4 trục, sở; khai báo xã `js/features/ctm-xa-eform.js` theo bản đọc `docs/BAN_DOC_EFORM/XA_*` (sinh bằng `tools/xa_ban_doc_eform.py`), kiểm thử `tests/ctm/xa-eform.test.js`.
