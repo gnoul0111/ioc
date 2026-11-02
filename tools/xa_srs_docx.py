@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Sinh docs/XA_XaPhuong/XA_SRS_CHI_TIEU_XA_PHUONG_2026_10_28.docx + .md — Đặc tả yêu cầu phần mềm (SRS) phân hệ chỉ tiêu cấp xã,
 phường theo 12 eform, bản 3.0 (02/11/2026): 12 eform trên khung chung js/features/ctm-eform.js theo bản đọc docs/BAN_DOC_EFORM/XA_*
-(duyệt 30/10, sửa 02/11/2026). Bản 2.1 lưu ở XA_SRS_CHI_TIEU_XA_PHUONG_2026_10_28_ban2.1.*.
+(duyệt 30/10, sửa 02/11/2026). Bản 2.1 lưu ở docs/_CU_2026_11_02/XA_XaPhuong/XA_SRS_CHI_TIEU_XA_PHUONG_2026_10_28_ban2.1.*.
 Chạy từ thư mục gốc ioc:  python3 tools/xa_srs_docx.py      (cần python-docx; Node lấy từ biến NODE hoặc PATH)
 Khung eform, chỉ tiêu, cách tính, biểu đồ, ô số, số mẫu đọc thẳng từ code (tools/tp_srs_dump.js xa) nên luôn khớp giao diện; phần yêu
 cầu chức năng, phi chức năng viết theo hành vi của ctm-eform.js, ctm-engine.js, ctm-xa-eform.js, login.js, indicators.js, sidebar-org.js.
@@ -36,7 +36,7 @@ para(f'{N_EF} eform của 4 trục Đảng ủy, HĐND, UBND, Ủy ban MTTQ tron
 k.blank(3)
 table([['Phạm vi', f'Màn hình chỉ tiêu của tài khoản xã, phường (và tài khoản cấp trên xem thay một xã, phường); {N_EF} đơn vị đúng {N_EF} eform, {N_FIELD} trường, {N_CHI} chỉ tiêu; áp dụng cho 126 xã, phường'],
        ['Căn cứ', 'Sheet "XãPhường" của "File mô tả đầu vào eform" (bản 30/10/2026); bản đọc eform xã duyệt 30/10/2026, sửa 02/11/2026; quy ước chỉ tiêu theo eform bản 2.0 (bổ sung E1 ngày 02/11/2026); mã nguồn IOC đang chạy'],
-       ['Phiên bản', VER + (' — gộp SRS xã 3.0, tài liệu mô tả chỉ tiêu xã 1.0 và 13 bản đọc eform xã (duyệt 30/10, sửa 02/11/2026) vào một file' if CHUNG_DOC else ' — thay bản 2.1 ngày 29/10/2026 (lưu ở XA_SRS_CHI_TIEU_XA_PHUONG_2026_10_28_ban2.1)')],
+       ['Phiên bản', VER + (' — gộp SRS xã 3.0, tài liệu mô tả chỉ tiêu xã 1.0 và 13 bản đọc eform xã (duyệt 30/10, sửa 02/11/2026) vào một file' if CHUNG_DOC else ' — thay bản 2.1 ngày 29/10/2026 (lưu ở docs/_CU_2026_11_02/XA_XaPhuong/)')],
        ['Ngày lập', NGAY]], [3.5, 12.5], header=False, key_col=True, size=12)
 k.page_break(); k.toc(); k.page_break()
 
