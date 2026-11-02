@@ -24,9 +24,9 @@ const ok = (c, m) => { if (c) pass++; else { fail++; console.log('✗ ' + m); } 
 const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 // Danh mục
-ok(B.length === 15 && new Set(B.map((b) => b.id)).size === 15, '15 mục, id không trùng');
+ok(B.length === 14 && new Set(B.map((b) => b.id)).size === 14, '14 mục, id không trùng');
 ok(B.every((b) => (b.sel || b.virtual) && b.label && b.icon), 'mỗi mục đủ selector hoặc cờ virtual, nhãn, biểu tượng');
-ok(B.some((b) => b.id === 'assignPopup' && b.virtual), 'cửa sổ giao nhiệm vụ có thể ẩn riêng');
+ok(!B.some((b) => b.id === 'assignPopup'), 'không có mục ẩn cửa sổ giao nhiệm vụ');
 ok(eq(B.filter((b) => b.parent === 'overview').map((b) => b.id), ['overview-documents', 'overview-assigned', 'overview-received']), 'ba thẻ con của tổng quan có thể ẩn riêng');
 ok(B.some((b) => b.id === 'ubndIndicatorOverview' && b.parent === 'indicators'), 'tổng quan chỉ tiêu UBND có thể ẩn riêng');
 ok(B.some((b) => b.id === 'gisCadBlock' && b.parent === 'gis' && b.unavailableAttr === 'hidden'), 'Điều phối CAD là mục con GIS, ẩn khỏi popup khi không áp dụng');

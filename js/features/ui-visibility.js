@@ -21,7 +21,6 @@ const UV_BLOCKS = [
   { id: 'overview-documents', icon: '📄', label: 'Văn bản',                 sel: '#overview-documents',     parent: 'overview' },
   { id: 'overview-assigned',  icon: '📤', label: 'Nhiệm vụ giao',           sel: '#overview-assigned',      parent: 'overview' },
   { id: 'overview-received',  icon: '📥', label: 'Nhiệm vụ nhận',           sel: '#overview-received',      parent: 'overview' },
-  { id: 'assignPopup', icon: '📨', label: 'Cửa sổ giao nhiệm vụ',          virtual: true },
   { id: 'taskTally',  icon: '🧮', label: 'Kiểm đếm nhiệm vụ (BTCTW)',      sel: '#btctwTaskTally',          unavailableClass: 'hidden' },
   { id: 'natMap',     icon: '🗺️', label: 'Bản đồ số toàn quốc',            sel: '#btctwMapWidget',          unavailableClass: 'hidden' },
   { id: 'gis',        icon: '📍', label: 'Bản đồ GIS & điểm nghẽn',        sel: '#gismap',                  unavailableClass: 'btm-role-hidden', inGrid: true },
@@ -281,10 +280,6 @@ function openUiEditMode() {
   uvSetEditMode(true);
 }
 
-function uvAssignmentPopupHidden() {
-  return UV_STATE.hidden.includes('assignPopup');
-}
-
 function uvShowAll() {
   UV_STATE.hidden = [];
   uvSave();
@@ -430,18 +425,4 @@ window.addEventListener('resize', () => { if (UV_STATE.panel && UV_STATE.panel.c
   };
   wrapped.__uvHooked = true;
   window.renderAll = wrapped;
-})();
-
-(function hookAssignmentForm() {
-  if (typeof window.openAssignmentForm !== 'function' || window.openAssignmentForm.__uvHooked) return;
-  const original = window.openAssignmentForm;
-  const wrapped = function () {
-    if (uvAssignmentPopupHidden()) {
-      if (typeof toast === 'function') toast('Cửa sổ giao nhiệm vụ đang bị ẩn. Bật lại trong Ẩn/Hiện.');
-      return;
-    }
-    return original.apply(this, arguments);
-  };
-  wrapped.__uvHooked = true;
-  window.openAssignmentForm = wrapped;
 })();
