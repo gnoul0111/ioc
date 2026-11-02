@@ -4,20 +4,24 @@ phường theo 12 eform, bản 3.0 (02/11/2026): 12 eform trên khung chung js/f
 (duyệt 30/10, sửa 02/11/2026). Bản 2.1 lưu ở XA_SRS_CHI_TIEU_XA_PHUONG_2026_10_28_ban2.1.*.
 Chạy từ thư mục gốc ioc:  python3 tools/xa_srs_docx.py      (cần python-docx; Node lấy từ biến NODE hoặc PATH)
 Khung eform, chỉ tiêu, cách tính, biểu đồ, ô số, số mẫu đọc thẳng từ code (tools/tp_srs_dump.js xa) nên luôn khớp giao diện; phần yêu
-cầu chức năng, phi chức năng viết theo hành vi của ctm-eform.js, ctm-engine.js, ctm-xa-eform.js, login.js, indicators.js, sidebar-org.js."""
+cầu chức năng, phi chức năng viết theo hành vi của ctm-eform.js, ctm-engine.js, ctm-xa-eform.js, login.js, indicators.js, sidebar-org.js.
+Thêm --chung: sinh TÀI LIỆU CHUNG chỉ tiêu xã, phường (docs/XA_XaPhuong/XA_TAI_LIEU_CHUNG_CHI_TIEU_XA_PHUONG.docx + .md) — gộp SRS, mô tả
+chỉ tiêu và bản đọc eform vào một file: mỗi eform một mục có thêm loại số, câu hỏi đã chốt, lỗi file của bản đọc."""
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from doc_kit import Kit, CENTER, NAVY, GREY
 from xa_doc_chung import ROOT, D, U, EFS, N_EF, N_FIELD, N_CHI, TRUC, BD, CHUNG, CAU_CHUNG, eform_detail
 
-OUT = os.path.join(ROOT, 'docs', 'XA_XaPhuong', 'XA_SRS_CHI_TIEU_XA_PHUONG_2026_10_28.docx')
-VER, NGAY = '3.0', '02/11/2026'
+CHUNG_DOC = '--chung' in sys.argv
+OUT = os.path.join(ROOT, 'docs', 'XA_XaPhuong', 'XA_TAI_LIEU_CHUNG_CHI_TIEU_XA_PHUONG.docx' if CHUNG_DOC else 'XA_SRS_CHI_TIEU_XA_PHUONG_2026_10_28.docx')
+VER, NGAY = ('1.0' if CHUNG_DOC else '3.0'), '02/11/2026'
+TEN = 'Tài liệu chung chỉ tiêu xã, phường theo eform' if CHUNG_DOC else 'Đặc tả yêu cầu phần mềm (SRS) — Phân hệ chỉ tiêu cấp xã, phường theo eform'
 SHEET_URL = 'https://docs.google.com/spreadsheets/d/1n1UHGnQ4sULz6_D9J0D2N02B0grCc8RbnLh0h9mY70k'
 TESTS = {'xa-eform.test.js': 1792, 'tp-eform.test.js': 1431, 'ctm.test.js': 7563, 'ctm-quy-tac.test.js': 1996}
 OV = {o['id']: o for o in D['overviews']}
 Fl = D['flags']
 
-k = Kit('Đặc tả yêu cầu phần mềm · Chỉ tiêu cấp xã, phường theo eform · IOC Hà Nội')
+k = Kit(('Tài liệu chung' if CHUNG_DOC else 'Đặc tả yêu cầu phần mềm') + ' · Chỉ tiêu cấp xã, phường theo eform · IOC Hà Nội')
 para, table, box, heading, note, bullets = k.para, k.table, k.box, k.heading, k.note, k.bullets
 
 # ======================================================= TRANG BÌA
@@ -25,20 +29,21 @@ k.blank(3)
 para('HỆ THỐNG ĐIỀU HÀNH IOC/CAD', 13, CENTER, 0, bold=True)
 para('THÀNH PHỐ HÀ NỘI', 13, CENTER, 0, bold=True)
 k.rule(); k.blank(3)
-para('ĐẶC TẢ YÊU CẦU PHẦN MỀM (SRS)', 22, CENTER, 6, bold=True, color=NAVY, md=False)
-k.md.title('Đặc tả yêu cầu phần mềm (SRS) — Phân hệ chỉ tiêu cấp xã, phường theo eform')
+para('TÀI LIỆU CHUNG' if CHUNG_DOC else 'ĐẶC TẢ YÊU CẦU PHẦN MỀM (SRS)', 22, CENTER, 6, bold=True, color=NAVY, md=False)
+k.md.title(TEN)
 para('Phân hệ chỉ tiêu cấp xã, phường', 16, CENTER, 4, bold=True, color=NAVY)
 para(f'{N_EF} eform của 4 trục Đảng ủy, HĐND, UBND, Ủy ban MTTQ trong mỗi xã, phường', 13, CENTER, 4, italic=True, color=GREY)
 k.blank(3)
 table([['Phạm vi', f'Màn hình chỉ tiêu của tài khoản xã, phường (và tài khoản cấp trên xem thay một xã, phường); {N_EF} đơn vị đúng {N_EF} eform, {N_FIELD} trường, {N_CHI} chỉ tiêu; áp dụng cho 126 xã, phường'],
        ['Căn cứ', 'Sheet "XãPhường" của "File mô tả đầu vào eform" (bản 30/10/2026); bản đọc eform xã duyệt 30/10/2026, sửa 02/11/2026; quy ước chỉ tiêu theo eform bản 2.0 (bổ sung E1 ngày 02/11/2026); mã nguồn IOC đang chạy'],
-       ['Phiên bản', VER + ' — thay bản 2.1 ngày 29/10/2026 (lưu ở XA_SRS_CHI_TIEU_XA_PHUONG_2026_10_28_ban2.1)'], ['Ngày lập', NGAY]], [3.5, 12.5], header=False, key_col=True, size=12)
+       ['Phiên bản', VER + (' — gộp SRS xã 3.0, tài liệu mô tả chỉ tiêu xã 1.0 và 13 bản đọc eform xã (duyệt 30/10, sửa 02/11/2026) vào một file' if CHUNG_DOC else ' — thay bản 2.1 ngày 29/10/2026 (lưu ở XA_SRS_CHI_TIEU_XA_PHUONG_2026_10_28_ban2.1)')],
+       ['Ngày lập', NGAY]], [3.5, 12.5], header=False, key_col=True, size=12)
 k.page_break(); k.toc(); k.page_break()
 
 # ======================================================= 1. GIỚI THIỆU
 heading('1. GIỚI THIỆU', 1)
 heading('1.1. Mục đích', 2)
-para('Tài liệu đặc tả yêu cầu của phân hệ chỉ tiêu cấp xã, phường trên IOC: mỗi xã, phường xem số liệu chính mình đã nhập vào 12 eform, theo đúng trường của eform, đối chiếu được từng số với bản ghi đã nhập. Tài liệu dùng cho nhóm phát triển, kiểm thử và nghiệm thu.')
+para('Tài liệu ' + ('chung (yêu cầu, chỉ tiêu, cách đọc từng eform)' if CHUNG_DOC else 'đặc tả yêu cầu') + ' của phân hệ chỉ tiêu cấp xã, phường trên IOC: mỗi xã, phường xem số liệu chính mình đã nhập vào 12 eform, theo đúng trường của eform, đối chiếu được từng số với bản ghi đã nhập. Tài liệu dùng cho nhóm phát triển, kiểm thử' + (', nghiệm thu và người duyệt chỉ tiêu; mỗi eform có đủ cách đọc, câu hỏi đã chốt, lỗi file eform.' if CHUNG_DOC else ' và nghiệm thu.'))
 heading('1.2. Phạm vi', 2)
 bullets([f'Trong phạm vi: {N_EF} eform của sheet "XãPhường" — Đảng ủy, HĐND, Ủy ban MTTQ mỗi trục một eform; UBND 9 eform (Hành chính công, Tài chính - Ngân sách, Quản lý văn bản, GPMB, Giáo dục, Y tế, Văn hóa, Nội vụ, Kinh tế xã hội).',
          'Màn ngoài tài khoản xã, phường (tab "Tất cả" và tab từng trục), popup chi tiết từng eform (tổng quan, «Tất cả nhóm», từng nhóm, Dữ liệu đã nhập), xuất Excel.',
@@ -140,9 +145,9 @@ para('Bản ghi theo tháng hoặc quý tùy eform, từ tháng 7/2025; số the
 
 # ======================================================= 5. 12 EFORM
 heading(f'5. DANH MỤC {N_EF} EFORM', 1)
-para(f'Mỗi mục đọc thẳng từ cấu hình đang chạy; số mẫu của {D["xa"]}. Chi tiết lý do từng lựa chọn ở bản đọc eform.')
+para(f'Mỗi mục đọc thẳng từ cấu hình đang chạy; số mẫu của {D["xa"]}.' + (' Mỗi mục có thêm phần của bản đọc eform: loại số, câu hỏi và trả lời đã chốt, lỗi file, sửa đổi 02/11/2026.' if CHUNG_DOC else ' Chi tiết lý do từng lựa chọn ở bản đọc eform.'))
 for i, (u, e) in enumerate(EFS):
-    eform_detail(k, u, e, f'5.{i + 1}', D['xa'])
+    eform_detail(k, u, e, f'5.{i + 1}', D['xa'], CHUNG_DOC)
 
 # ======================================================= 6. PHI CHỨC NĂNG
 heading('6. YÊU CẦU PHI CHỨC NĂNG', 1)
@@ -184,9 +189,12 @@ table([['#', 'Hạn chế', 'Hướng xử lý'],
 # ======================================================= PHỤ LỤC
 heading('PHỤ LỤC A. CÂU HỎI ĐÃ CHỐT KHI ĐỌC EFORM', 1)
 bullets(CAU_CHUNG, 10)
-for _, e in EFS:
-    bd = BD[e['ef']]
-    para(f'**{e["efTen"]}**: ' + ' '.join(bd['cau']) + ' Trả lời: theo đề xuất.' + (' ' + ' '.join(bd['traloi']) if bd['traloi'] else ''), 10)
+if CHUNG_DOC:
+    para('Câu hỏi riêng của từng eform và trả lời đã chốt ghi ngay trong mục của eform đó (mục 5).', 10)
+else:
+    for _, e in EFS:
+        bd = BD[e['ef']]
+        para(f'**{e["efTen"]}**: ' + ' '.join(bd['cau']) + ' Trả lời: theo đề xuất.' + (' ' + ' '.join(bd['traloi']) if bd['traloi'] else ''), 10)
 heading('PHỤ LỤC B. LỖI TRONG FILE EFORM CẦN BÊN EFORM SỬA', 1)
 loi = [(e['efTen'], x) for _, e in EFS for x in BD[e['ef']]['loi']]
 table([['#', 'Eform', 'Lỗi, chỗ nghi']] + [[str(j + 1), a, b] for j, (a, b) in enumerate(loi)], [0.8, 4.2, 11.0], size=9)
@@ -196,13 +204,13 @@ table([['Tệp', 'Nội dung'],
        ['js/features/ctm-eform.js', 'Khung chỉ tiêu theo eform dùng chung: kỳ, bản ghi, cách tính, nhóm, dòng số liệu, bảng, biểu đồ, Dữ liệu đã nhập'],
        ['js/features/ctm-xa-eform.js', 'Khai báo 12 eform xã theo bản đọc; màn ngoài tài khoản xã'], ['js/features/ctm-xa-units.js', 'Hàm dùng chung: xã đang xem, đọc mã, tên hiển thị; cờ CTM_XA_ALL_TAB, CTM_XA_SO_SANH'],
        ['js/features/ctm-engine.js', 'Màn hình chung: ô số, thẻ so sánh, cột qua các kỳ, popup, lần lại bản ghi'], ['css/ctm.css', 'Giao diện popup chỉ tiêu'],
-       ['tests/ctm/xa-eform.test.js', 'Kiểm thử chỉ tiêu xã'], ['tools/xa_ban_doc_eform.py', 'Sinh bản đọc eform xã'], ['tools/tp_srs_dump.js xa, tools/xa_srs_docx.py, tools/xa_mo_ta_docx.py', 'Sinh tài liệu từ cấu hình đang chạy']], [6.0, 10.0], size=10)
+       ['tests/ctm/xa-eform.test.js', 'Kiểm thử chỉ tiêu xã'], ['tools/xa_ban_doc_eform.py', 'Sinh bản đọc eform xã'], ['tools/tp_srs_dump.js xa, tools/xa_srs_docx.py [--chung], tools/xa_mo_ta_docx.py', ('Sinh tài liệu từ cấu hình đang chạy (tài liệu chung này: xa_srs_docx.py --chung)' if CHUNG_DOC else 'Sinh tài liệu từ cấu hình đang chạy (SRS này: xa_srs_docx.py; tài liệu chung: --chung)')]], [6.0, 10.0], size=10)
 heading('PHỤ LỤC D. LỊCH SỬ PHIÊN BẢN', 1)
 table([['Phiên bản', 'Ngày', 'Nội dung'],
        ['1.0', '27/10/2026', '19 đơn vị theo phòng ban, 161 chỉ tiêu, số giả lập và số dùng chung với cấp Thành phố.'],
        ['2.0', '28/10/2026', 'Làm lại theo 12 eform: bỏ mọi chỉ tiêu ngoài eform; màn Dữ liệu đã nhập đủ mọi trường; lần lại từ số đến bản ghi; khung eform sinh từ sheet.'],
        ['2.1', '29/10/2026', 'Khung eform sinh lại theo file eform sửa 28/10/2026; «Kỳ báo cáo», «Quý» hiện tên theo mã; nút ← quay lại màn trước.'],
-       [VER, NGAY, 'Theo bản đọc 12 eform (duyệt 30/10, sửa 02/11/2026) trên khung chung ctm-eform.js: khung sinh lại theo file 30/10/2026; xem Tháng / Quý / Năm; X1, X2, X5; chia nhóm, dòng số liệu; mọi số lần lại được bản ghi; ô số đúng bản đọc; không cộng các chỉ tiêu khác nhau.']],
+       ['3.0' if CHUNG_DOC else VER, NGAY, 'Theo bản đọc 12 eform (duyệt 30/10, sửa 02/11/2026) trên khung chung ctm-eform.js: khung sinh lại theo file 30/10/2026; xem Tháng / Quý / Năm; X1, X2, X5; chia nhóm, dòng số liệu; mọi số lần lại được bản ghi; ô số đúng bản đọc; không cộng các chỉ tiêu khác nhau.']] + ([['Tài liệu chung 1.0', NGAY, 'Gộp SRS xã 3.0, tài liệu mô tả chỉ tiêu xã 1.0 và 13 bản đọc eform xã vào một file.']] if CHUNG_DOC else []),
       [2.2, 2.6, 11.2], size=10)
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
