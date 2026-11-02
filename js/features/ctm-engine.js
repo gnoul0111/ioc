@@ -146,10 +146,11 @@ function ctmDlM(spec, key, n, big) {
   if (pv == null && big !== true) return spec.periods.length === 1 ? '' : '<span class="stc-dl na" title="' + ctmE(m.na || c.na) + '">—</span>';
   return ctmDl(ctmV(spec, key, n.D), pv, { inv: m.inv, neutral: m.neutral, rate: m.rate || m.u === '%', d: m.d, ref: pv != null ? c.ref : '', na: m.na || c.na });
 }
-/* Kỳ cùng kỳ năm trước: kỳ quý '2026Q2' → '2025Q2' nếu có trong danh sách; kỳ năm → năm liền trước */
+/* Kỳ cùng kỳ năm trước: kỳ quý '2026Q2' → '2025Q2', kỳ tháng '2026-09' → '2025-09' nếu có trong danh sách; kỳ năm → năm liền trước */
 function ctmCkId(spec, pid) {
   const q = String(pid).match(/^(\d{4})Q(\d)$/);
-  const id = q ? (Number(q[1]) - 1) + 'Q' + q[2] : /^\d{4}$/.test(String(pid)) ? String(Number(pid) - 1) : null;
+  const mo = String(pid).match(/^(\d{4})-(\d{2})$/);
+  const id = q ? (Number(q[1]) - 1) + 'Q' + q[2] : mo ? (Number(mo[1]) - 1) + '-' + mo[2] : /^\d{4}$/.test(String(pid)) ? String(Number(pid) - 1) : null;
   return id && spec.periods.some((p) => p.id === id) && ctmD(spec, id) ? id : null;
 }
 /* Số dùng để so của một chỉ tiêu trong thẻ so sánh, bảng (theo mốc của chính chỉ tiêu đó) */
@@ -238,6 +239,14 @@ function ctmCmpRow(label, now, prev, mx, d, dl, first) {
   return '<div class="stc-cmp"' + (first ? ' style="border-top:0"' : '') + '><div class="stc-nm">' + ctmE(label) + '</div><div class="stc-bars"><div class="stc-br"><div class="stc-tr"><div class="stc-b" style="width:' + w(now) + '%"></div></div><span class="stc-val">' + ctmF(now, d) + '</span></div>' +
     (prev != null ? '<div class="stc-br"><div class="stc-tr"><div class="stc-b p" style="width:' + w(prev) + '%"></div></div><span class="stc-val p">' + ctmF(prev, d) + '</span></div>' : '') + '</div>' + dl + '</div>';
 }
+/* E4: dòng, cột bấm được khi chỉ tiêu có khóa bản ghi (m.rec — chỉ tiêu theo eform): mở Dữ liệu đã nhập với các bản ghi tạo ra số;
+   pid: kỳ của cột (cột qua các kỳ chuyển sang kỳ đó rồi mở bản ghi) */
+function ctmRecAttr(spec, k, pid) {
+  const r = ctmM(spec, k).rec;
+  if (!r) return '';
+  return ' data-rec="1" role="button" tabindex="0" title="Bấm để xem các bản ghi tạo ra số này" onkeydown="if(event.key===\'Enter\')this.click()" onclick="' + (pid != null ? 'ctmRecAt(' + ctmJs(pid) + ',' + ctmJs(r) + ')' : 'ctmRec(' + ctmJs(r) + ')') + '"';
+}
+function ctmRecWrap(spec, k, html) { const a = ctmRecAttr(spec, k); return a ? '<div' + a + '>' + html + '</div>' : html; }
 function ctmPg(label, small, pct, color, val, dl) {
   return '<div class="stc-pg"><div class="stc-row"><span class="stc-nm">' + ctmE(label) + (small ? '<small>' + ctmE(small) + '</small>' : '') + '</span><span class="stc-pv">' + (val != null ? val : ctmF(pct, 1) + '%') + (dl ? ' <span class="ctm-pgdl">' + dl + '</span>' : '') + '</span></div><div class="stc-trk"><div class="stc-fill" style="width:' + Math.max(pct > 0 ? 1 : 0, Math.min(100, pct || 0)).toFixed(1) + '%;background:' + (color || 'var(--s1)') + '"></div></div></div>';
 }
@@ -277,7 +286,7 @@ function ctmRateRows(spec, keys, n) {
     const note = mv != null ? '<small class="ctm-mkl">' + ctmE((mm.short || mm.l) + ' ' + ctmF(mv, mm.d == null ? 1 : mm.d) + '%' + (v != null ? (v >= mv ? ' · đạt' : ' · chưa đạt') : '')) + '</small>' : '';
     /* thanh từ 0 đến 100: tỷ lệ ghi %, điểm (thang 100) ghi "điểm" */
     const suf = m.u === '%' || !m.u ? '%' : ' ' + m.u;
-    return '<div class="sgd-rt"' + (i ? '' : ' style="border-top:0"') + '><span class="sgd-nm">' + ctmE(m.short || m.l) + note + '</span><span class="sgd-tk ctm-tkm"><i style="width:' + Math.max(0, Math.min(100, v || 0)).toFixed(1) + '%;background:' + (m.inv ? 'var(--s2)' : 'var(--s1)') + '"></i>' + mark + '</span><span class="sgd-r">' + ctmF(v, m.d == null ? 1 : m.d) + ctmE(suf) + '</span>' + ctmDlM(spec, k, n) + '</div>';
+    return '<div class="sgd-rt"' + (i ? '' : ' style="border-top:0"') + ctmRecAttr(spec, k) + '><span class="sgd-nm">' + ctmE(m.short || m.l) + note + '</span><span class="sgd-tk ctm-tkm"><i style="width:' + Math.max(0, Math.min(100, v || 0)).toFixed(1) + '%;background:' + (m.inv ? 'var(--s2)' : 'var(--s1)') + '"></i>' + mark + '</span><span class="sgd-r">' + ctmF(v, m.d == null ? 1 : m.d) + ctmE(suf) + '</span>' + ctmDlM(spec, k, n) + '</div>';
   }).join('');
 }
 /* Thẻ trong màn nhóm */
@@ -311,7 +320,7 @@ function ctmCardHtml(spec, c, n) {
       if (pv != null && cid != null) b += '<div class="ctm-cmpline">' + ctmE(ctmCmpLabel(spec, cid, n)) + ': <b>' + ctmFmtM(spec, big, pv) + '</b>' + (ctmUnit(spec, big) ? ' ' + ctmE(ctmUnit(spec, big)) : '') + '</div>';
     } else {
       const lg = '<div class="stc-lg"><span><i style="background:var(--s1)"></i>' + ctmE(ctmPLabel(spec, n.p)) + '</span>' + (cid != null ? '<span><i style="background:var(--prev)"></i>' + ctmE(ctmCmpLabel(spec, cid, n)) + '</span>' : '') + '</div>';
-      b += lg + rowKeys.map((k, i) => { const m = ctmM(spec, k); return ctmCmpRow(m.short || m.l, ctmV(spec, k, n.D), ctmPrevV(spec, k, n), mx, m.d, ctmDlM(spec, k, n), i === 0); }).join('');
+      b += lg + rowKeys.map((k, i) => { const m = ctmM(spec, k); return ctmRecWrap(spec, k, ctmCmpRow(m.short || m.l, ctmV(spec, k, n.D), ctmPrevV(spec, k, n), mx, m.d, ctmDlM(spec, k, n), i === 0)); }).join('');
     }
     CTM_SHOWN[ctmFmtM(spec, big, ctmV(spec, big, n.D)) + '|' + ctmUnit(spec, big)] = 1;
     /* một tỷ lệ của nhóm ghi ngay trong thẻ (thay cho thẻ Tỷ lệ riêng chỉ có một thanh) */
@@ -338,7 +347,7 @@ function ctmCardHtml(spec, c, n) {
     const cols = '<div class="sgd-cc">' + per.map((p, i) => {
       const on = p.id === n.p, a = vals[i][0], b2 = vals[i][1];
       const bg = m1.ck && yr(p) !== lastY ? 'background:var(--s3);' : '';
-      return '<div class="sgd-col"><span class="sgd-cv">' + (a == null ? '—' : ctmF(a, c.d != null ? c.d : (m1.d > 1 ? 1 : m1.d))) + '</span><div class="sgd-pair"><div class="sgd-b1 ctm-cb" style="height:' + ((a || 0) / top * 150).toFixed(0) + 'px;' + bg + (on ? '' : 'opacity:.5') + '"></div>' +
+      return '<div class="sgd-col"' + (a != null ? ctmRecAttr(spec, c.m, p.id) : '') + '><span class="sgd-cv">' + (a == null ? '—' : ctmF(a, c.d != null ? c.d : (m1.d > 1 ? 1 : m1.d))) + '</span><div class="sgd-pair"><div class="sgd-b1 ctm-cb" style="height:' + ((a || 0) / top * 150).toFixed(0) + 'px;' + bg + (on ? '' : 'opacity:.5') + '"></div>' +
         (m2 ? '<div class="sgd-b0" style="height:' + ((b2 || 0) / top * 150).toFixed(0) + 'px"></div>' : '') + '</div></div>';
     }).join('') + '</div><div class="sgd-ccl">' + per.map((p) => '<span>' + ctmE(p.short || p.label) + '</span>').join('') + '</div>';
     const hint = ctmText(c.hint, n.D, n.P, n);
@@ -712,6 +721,7 @@ function ctmXaQ(v) { CTM_UI.xa.q = v; CTM_UI.focusQ = true; ctmRerender(false); 
 function ctmXaSel(name) { const X = CTM_UI.xa; X.anim = !!name && !X.sel; X.sel = name || null; ctmRerender(false); }
 function ctmXaStep(d) { const X = CTM_UI.xa, at = X.order.indexOf(X.sel); if (at < 0 || !X.order[at + d]) return; X.sel = X.order[at + d]; ctmRerender(false); }
 /* Màn Dữ liệu đã nhập: key = dòng số liệu hoặc ô số (chỉ hiện các bản ghi tạo ra số đó), null = mọi bản ghi của kỳ */
+function ctmRecAt(pid, key) { CTM_UI.period = String(pid); ctmRec(key); }
 function ctmRec(key) { if (CTM_UI.screen !== 'rec') ctmPush(); CTM_UI.dd = null; CTM_UI.screen = 'rec'; CTM_UI.rec = { f: 'all', q: '', key: key || null, ef: CTM_UI.rec.ef }; ctmRerender(true); }
 function ctmSetGran(g) { CTM_UI.dd = null; CTM_UI.gran = String(g); CTM_UI.period = null; ctmRerender(false); }
 function ctmRecF(f) { CTM_UI.rec.f = f; ctmRerender(false); }

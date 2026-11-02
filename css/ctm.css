@@ -77,3 +77,7 @@
 .stc-root .ctm-rect .ctm-nil{color:var(--mute);opacity:.6}
 /* #modalBody là lưới (display:grid): khung màn chỉ tiêu phải co theo popup, bảng rộng tự cuộn ngang trong khung của nó */
 #modalBody > .stc-root.ctm-root{min-width:0}
+/* E4: dòng thẻ so sánh, cột qua các kỳ, dòng tỷ lệ bấm được ra bản ghi (ctmRecAttr) */
+.stc-root [data-rec]{cursor:pointer;border-radius:6px}
+.stc-root [data-rec]:hover{background:rgba(127,160,220,.08)}
+.stc-root [data-rec]:focus-visible{outline:2px solid var(--s1);outline-offset:2px}

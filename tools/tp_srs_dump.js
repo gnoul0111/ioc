@@ -3,7 +3,8 @@
    (tools/so_mo_ta_docx.py) theo eform ra JSON — mọi đơn vị dựng theo khung eform (4 trục, VP UBND, 11 sở). Đọc thẳng cấu hình đang chạy
    — nạp code vào vm như tests/ctm/tp-eform.test.js: khung eform (js/core/eform-khung.js), đơn vị và cấu hình eform
    (js/features/ctm-truc-eform.js), cách tính từng chỉ tiêu (efMoTa), vai trò từng trường suy từ cấu hình, màn ngoài, cờ, số mẫu.
-   Chạy từ thư mục gốc ioc:  node tools/tp_srs_dump.js > scratch.json */
+   Chạy từ thư mục gốc ioc:  node tools/tp_srs_dump.js > scratch.json
+   Thêm đối số xa: xuất 12 đơn vị cấp xã, phường (js/features/ctm-xa-eform.js), số mẫu của một xã, phường (mặc định Phường Việt Hưng). */
 const fs = require('fs'), vm = require('vm'), path = require('path');
 const root = path.resolve(__dirname, '..');
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
@@ -12,18 +13,21 @@ SO.unshift('js/core/xa-dan-so.js');
 const FILES = SO.concat(['js/core/hcc-config.js', 'js/features/hcc-data.js', 'js/core/ctm-xa.js', 'js/core/xa-eform.js', 'js/core/xa-eform-mau.js', 'js/core/line-chart.js', 'js/features/ctm-engine.js', 'js/features/ctm-mttq.js',
   'js/features/ctm-dang.js', 'js/features/ctm-hdnd.js', 'js/features/ctm-all.js', 'js/features/ctm-xa-units.js', 'js/features/ctm-so.js',
   'js/core/eform-khung.js', 'js/core/eform-mau.js', 'js/features/ctm-eform.js', 'js/features/ctm-truc-eform.js',
-  'js/features/ctm-so-eform.js', 'js/features/ctm-so-eform2.js']);
+  'js/features/ctm-so-eform.js', 'js/features/ctm-so-eform2.js', 'js/features/ctm-xa-eform.js']);
+const XA = process.argv[2] === 'xa', XA_TEN = process.argv[3] || 'Phường Việt Hưng';
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 const ctx = vm.createContext({ console, Math, Number, String, Object, Array, JSON, isFinite, Date, esc, document: { getElementById: () => null } });
 const edu = read('js/features/dashboard-education.js').match(/const gdUnitData=\[([\s\S]*?)\n\s*\];/);
 vm.runInContext('const gdUnitData=[' + edu[1] + '];', ctx);
 FILES.forEach((f) => vm.runInContext(read(f), ctx, { filename: f }));
 vm.runInContext('var currentXaId=null;function wardNames(){return gdUnitData.map(function(u){return u[0]})}', ctx);
+if (XA) vm.runInContext('currentXaId=String(wardNames().indexOf(' + JSON.stringify(XA_TEN) + '))', ctx);
 const run = (c) => vm.runInContext(c, ctx);
 const S = run('CTM_SPECS'), EFK = run('EFK'), K = run('EFORM_KHUNG'), efMoTa = run('efMoTa'), efUnit = run('efUnit'), efPick = run('efPick'), efVals = run('efVals'), efAll = run('efAll');
 const efKhongKy = run('efKhongKy'), efFmt = run('efFmt'), EF_XA = run('EF_XA'), EF_LOC = run('EF_LOC');
 const ROLES = ['DANG', 'HDND', 'UBND', 'MTTQ'];
-const ids = Object.keys(S).filter((k) => S[k].efDonVi && ROLES.indexOf(S[k].role) >= 0);
+const ids = Object.keys(S).filter((k) => S[k].efDonVi && ROLES.indexOf(S[k].role) >= 0 && (S[k].level === 'xa') === XA);
+const nameOf = (s) => (typeof s.name === 'function' ? s.name(run('ctmCtx()')) : s.name), orgOf = (s) => (typeof s.org === 'function' ? s.org(run('ctmCtx()')) : s.org);
 const PID = '2026Q3', PLB = (p) => run('EF_KY').quy.concat(run('EF_KY').thang, run('EF_KY').nam).find((x) => x.id === p).label;
 const KY = { ky_bao_cao: 'Kỳ: xếp bản ghi vào kỳ', nam: 'Kỳ', thang: 'Kỳ', quy: 'Kỳ' };
 
@@ -52,22 +56,24 @@ function vaiTro(cfg, unitId, c) {
   if (cfg.bo && cfg.bo[c]) out.push('Bỏ bản ' + cfg.bo[c].map((v) => '«' + (run('xaEfLb')(EFK[cfg.ef].F[c], v) || v) + '»').join(', ') + ' khỏi phần tính');
   return out.length ? out : ['Chỉ xem ở Dữ liệu đã nhập'];
 }
-const BIEU = { cot: 'Thanh ngang', chong: 'Cơ cấu, thanh xếp chồng', xu: 'Cột qua các kỳ', phan: 'Cơ cấu theo chỉ tiêu thành phần', ds: 'Thanh các chỉ tiêu' };
+const BIEU = { cot: 'Thanh ngang', chong: 'Cơ cấu, thanh xếp chồng', xu: 'Cột qua các kỳ', phan: 'Cơ cấu theo chỉ tiêu thành phần', ds: 'Thanh các chỉ tiêu', dong: 'Thanh từng dòng số liệu (mỗi đơn vị tính một khối)' };
 const units = ids.map((id) => {
   const s = S[id];
-  const efs = s.groups.map((g) => run('EF_CFG')[g.id]).map((cfg) => {
+  const efs = [...new Set(s.groups.map((g) => g.id.split(':')[0]))].map((e) => run('EF_CFG')[e]).map((cfg) => {
     const ef = EFK[cfg.ef];
     let pid = PID, P = efPick(cfg, pid);
     if (!P.used.length && !efKhongKy(cfg.ef)) { const k = run('efKyGanNhat')(cfg); if (k) { pid = k.p; P = efPick(cfg, pid); } }
     const V = P.used.length ? efVals(cfg, P.used) : {};
     return {
       ef: cfg.ef, ten: cfg.ten || ef.ten, efTen: ef.ten, sheet: ef.sheet, dong: ef.dong, banGhi: cfg.banGhi, khongKy: efKhongKy(cfg.ef),
+      tach: cfg.tach ? { l: ef.F[cfg.tach].l, nhom: ef.F[cfg.tach].dm.map((o) => o.l) } : null, dongTheo: cfg.dong ? cfg.dong.theo.map((c) => ef.F[c].l) : [],
+      chonDong: !!cfg.chonDong, cotChu: (cfg.cotChu || []).map((c) => ef.F[c].l),
       luuY: cfg.luuY || '', boNote: run('efBoNote')(cfg), kyCuoi: !!cfg.kyCuoi, uuTien: cfg.uuTien ? '«' + ef.F[cfg.uuTien.c].l + '» = ' + (run('xaEfLb')(ef.F[cfg.uuTien.c], cfg.uuTien.v) || cfg.uuTien.v) : '',
       dvt: cfg.dvt ? ef.F[cfg.dvt].l : '', bangLoc: (cfg.bang || []).some((b) => b.loc),
       khoa: (cfg.khoa || []).map((c) => ef.F[c].l), khoaRong: (cfg.khoaRong || []).map((c) => ef.F[c].l), cap: (cfg.cap || []).map((c) => ef.F[c].l),
-      chi: Object.keys(cfg.chi).map((cid) => ({ id: cid, l: cfg.chi[cid].l, loai: cfg.chi[cid].loai, u: efUnit(cfg, cid), mota: efMoTa(cfg, cid),
+      chi: Object.keys(cfg.chi).map((cid) => ({ id: cid, l: cfg.chi[cid].l, loai: cfg.chi[cid].loai, u: efUnit(cfg, cid), mota: efMoTa(cfg, cid), plan: !!cfg.chi[cid].plan, ck: !!cfg.chi[cid].ck, motDong: !!cfg.chi[cid].motDong,
         the: (cfg.the || []).indexOf(cid) >= 0, cot: (cfg.cot || []).indexOf(cid) >= 0, kpi: (s.kpis || []).some((k) => k.m === cfg.ef + '_' + cid), v: V[cid] == null ? null : efFmt(cfg, cid, V[cid]) })),
-      bieu: (cfg.bieu || []).map((b) => ({ t: b.t, loai: BIEU[b.loai] || b.loai, theo: b.theo ? ef.F[b.theo].l : null })),
+      bieu: (cfg.bieu || []).map((b) => ({ t: b.t, loai: BIEU[b.loai] || b.loai, theo: b.theo ? ef.F[b.theo].l : null, cho: b.chiNhom ? 'màn từng nhóm' : b.nhom ? (b.nhom.length ? b.nhom.map((v) => run('xaEfLb')(ef.F[cfg.tach], v) || v).join(', ') : 'màn Tất cả nhóm') : '' })),
       bang: (cfg.bang || []).map((b) => ({ t: b.t, cap: b.cap.map((c) => ef.F[c].l) })),
       xa: (EF_XA[id] || []).filter((I) => I.ef === cfg.ef).map((I) => I.l), xaTruong: cfg.xaTruong || cfg.diaBan ? ef.F[cfg.xaTruong || cfg.diaBan].l : null,
       kt: (cfg.kt || []).map((k) => k.l),
@@ -75,14 +81,14 @@ const units = ids.map((id) => {
       fields: ef.fields.map((f) => ({ l: f.l, c: f.c, t: f.t, mau: f.mau || '', dong: f.dong, dm: (f.dm || []).map((o) => o.l || o.v), vai: vaiTro(cfg, id, f.c) }))
     };
   });
-  return { id: id, role: s.role, name: s.name, org: s.org, kpis: s.kpis.map((k) => ({ l: k.l || s.metrics[k.m].l, m: k.m })), card: (s.card || []).map((k) => s.metrics[k] ? s.metrics[k].l : k),
+  return { id: id, role: s.role, name: nameOf(s), org: orgOf(s), kpis: s.kpis.map((k) => ({ l: k.l || s.metrics[k.m].l, m: k.m })), card: (s.card || []).map((k) => s.metrics[k] ? s.metrics[k].l : k),
     xa: !!s.xa, loc: EF_LOC[id] ? { c: EFK[EF_LOC[id].ef].F[EF_LOC[id].c].l, tk: EF_LOC[id].tk } : null, eforms: efs };
 });
-const ov = run('CTM_OVERVIEWS').filter((o) => /-ef$/.test(o.id)).map((o) => ({ id: o.id, roles: o.roles, title: o.eyebrow,
+const ov = run('CTM_OVERVIEWS').filter((o) => (XA ? (o.level || 'city') === 'xa' && /^xa-/.test(o.id) : /-ef$/.test(o.id))).map((o) => ({ id: o.id, roles: o.roles, title: o.eyebrow,
   kpis: o.kpis.map((k) => ({ cat: k.cat, unit: S[k.cat] ? (typeof S[k.cat].name === 'string' ? S[k.cat].name : k.cat) : k.cat, l: k.l || (S[k.cat] && S[k.cat].metrics[k.m] ? S[k.cat].metrics[k.m].l : 'dòng ' + k.line + ' (nguồn cũ)'), eform: !!(S[k.cat] && S[k.cat].efDonVi) })) }));
 const old = run('CTM_OVERVIEWS').filter((o) => ['dang-tp', 'hdnd-tp', 'mttq-tp', 'tu-all'].indexOf(o.id) >= 0 && (o.level || 'city') === 'city').map((o) => ({ id: o.id, enabled: o.enabled }));
 const khoi = K.filter((k) => k.eforms.some((e) => /^(dang|hdnd|mttq|vpub|ubnd)\d/.test(e.id))).map((k) => ({ id: k.id, sheet: k.sheet, n: k.eforms.length }));
 process.stdout.write(JSON.stringify({
-  pid: PID, plabel: PLB(PID), units: units, overviews: ov, oldOverviews: old, khoi: khoi, nKhoi: K.length, nEform: K.reduce((a, k) => a + k.eforms.length, 0),
-  flags: { CTM_ENABLED: run('CTM_ENABLED'), CTM_OVERVIEW_ENABLED: run('CTM_OVERVIEW_ENABLED'), EF_LA_MAU: run('EF_LA_MAU') }
+  pid: PID, plabel: PLB(PID), units: units, xa: XA ? XA_TEN : null, overviews: ov, oldOverviews: old, khoi: khoi, nKhoi: K.length, nEform: K.reduce((a, k) => a + k.eforms.length, 0),
+  flags: { CTM_ENABLED: run('CTM_ENABLED'), CTM_OVERVIEW_ENABLED: run('CTM_OVERVIEW_ENABLED'), EF_LA_MAU: run('EF_LA_MAU'), XA_EF_LA_MAU: run('XA_EF_LA_MAU'), CTM_XA_ALL_TAB: run('CTM_XA_ALL_TAB'), CTM_XA_SO_SANH: run('CTM_XA_SO_SANH') }
 }));
