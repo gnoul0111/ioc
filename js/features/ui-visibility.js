@@ -49,7 +49,7 @@ function uvComputeLayout(hiddenIds, isTwLayout) {
   return { gridOn, fullIds };
 }
 
-const UV_STATE = { hidden: [], key: null, panel: null, editing: false, editBar: null, collapsed: [], panelPosition: null, panelDrag: null };
+const UV_STATE = { hidden: [], key: null, panel: null, editing: false, editBar: null, collapsed: [], panelPosition: null, panelDrag: null, panelResize: null };
 
 function uvAccountKey() {
   let who = 'guest';
@@ -297,12 +297,40 @@ function uvEnsurePanel() {
   p.setAttribute('aria-label', 'Ẩn/Hiện giao diện');
   p.addEventListener('click', (e) => e.stopPropagation());
   p.addEventListener('pointerdown', (event) => {
-    if (!event.target.closest('.uv-head') || event.button !== 0) return;
     const rect = p.getBoundingClientRect();
+    if (event.button !== 0) return;
+    if (event.target.closest('.uv-resize-handle')) {
+      UV_STATE.panelResize = {
+        pointerId: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        width: rect.width,
+        height: rect.height,
+        left: rect.left,
+        top: rect.top
+      };
+      UV_STATE.panelPosition = { left: rect.left, top: rect.top };
+      p.style.left = `${rect.left}px`;
+      p.style.top = `${rect.top}px`;
+      p.style.right = 'auto';
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    if (!event.target.closest('.uv-head')) return;
     UV_STATE.panelDrag = { pointerId: event.pointerId, x: event.clientX - rect.left, y: event.clientY - rect.top };
     event.preventDefault();
   });
   document.addEventListener('pointermove', (event) => {
+    const resize = UV_STATE.panelResize;
+    if (resize && resize.pointerId === event.pointerId) {
+      const maxWidth = Math.max(240, window.innerWidth - resize.left - 10);
+      const maxHeight = Math.max(220, window.innerHeight - resize.top - 10);
+      p.style.width = `${Math.max(Math.min(320, maxWidth), Math.min(maxWidth, resize.width + event.clientX - resize.x))}px`;
+      p.style.height = `${Math.max(Math.min(280, maxHeight), Math.min(maxHeight, resize.height + event.clientY - resize.y))}px`;
+      event.preventDefault();
+      return;
+    }
     const drag = UV_STATE.panelDrag;
     if (!drag || drag.pointerId !== event.pointerId) return;
     const left = Math.max(0, Math.min(window.innerWidth - p.offsetWidth, event.clientX - drag.x));
@@ -314,6 +342,7 @@ function uvEnsurePanel() {
   });
   const stopDrag = (event) => {
     if (UV_STATE.panelDrag && UV_STATE.panelDrag.pointerId === event.pointerId) UV_STATE.panelDrag = null;
+    if (UV_STATE.panelResize && UV_STATE.panelResize.pointerId === event.pointerId) UV_STATE.panelResize = null;
   };
   document.addEventListener('pointerup', stopDrag);
   document.addEventListener('pointercancel', stopDrag);
@@ -355,7 +384,8 @@ function uvRenderPanel() {
     + '<small>Kéo tiêu đề để di chuyển. Bấm mũi tên để thu gọn hoặc mở nhóm.</small></div>'
     + `<div class="uv-list">${rows}</div>`
     + '<div class="uv-foot"><button type="button" class="ghost" onclick="uvShowAll()">Hiện tất cả</button>'
-    + '<button type="button" class="ghost" onclick="uvClosePanel()">Đóng</button></div>';
+    + '<button type="button" class="ghost" onclick="uvClosePanel()">Đóng</button></div>'
+    + '<div class="uv-resize-handle" aria-hidden="true"></div>';
   p.querySelectorAll('input[data-uv-id]').forEach((inp) => {
     inp.addEventListener('change', () => {
       uvSetVisible(inp.getAttribute('data-uv-id'), inp.checked);
