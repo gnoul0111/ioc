@@ -38,48 +38,56 @@ body.uv-editing .uv-editable>.uv-remove{display:grid}
 .uv-empty button{margin-top:12px}
 
 /* ---- Bảng chọn ---- */
-.uv-panel{position:fixed;z-index:80;width:min(340px,calc(100vw - 20px));max-height:calc(var(--vh,1vh)*80);overflow:auto;display:none;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2);color:var(--text);box-shadow:0 18px 50px rgba(0,0,0,.4)}
-.uv-panel.open{display:block}
-.uv-head{padding:13px 15px 9px;border-bottom:1px solid var(--line-soft)}
+.uv-panel{position:fixed;z-index:80;width:min(560px,calc(100vw - 32px));max-width:calc(100vw - 20px);max-height:calc(var(--vh,1vh)*82);display:none;flex-direction:column;overflow:hidden;border:1px solid var(--line-soft);border-radius:16px;background:var(--panel2);color:var(--text);box-shadow:0 20px 56px rgba(0,0,0,.46)}
+.uv-panel.open{display:flex}
+.uv-resize-handle{position:absolute;right:2px;bottom:2px;width:20px;height:20px;z-index:2;cursor:nwse-resize;touch-action:none}
+.uv-resize-handle::after{content:"";position:absolute;right:4px;bottom:4px;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);opacity:.8}
+.uv-resize-handle:hover::after{border-color:var(--blue);opacity:1}
+.uv-head{flex:0 0 auto;padding:16px 19px 12px;border-bottom:1px solid var(--line-soft)}
 .uv-head{cursor:move;touch-action:none;user-select:none}
-.uv-head b{display:block;font-size:14px;font-weight:900}
-.uv-head small{display:block;margin-top:3px;font-size:11.5px;line-height:1.4;color:var(--muted)}
-.uv-list{padding:6px 8px}
+.uv-head b{display:block;font-size:16px;font-weight:900}
+.uv-head small{display:block;margin-top:5px;font-size:12.5px;line-height:1.45;color:var(--muted)}
+.uv-list{min-height:0;padding:9px 11px;overflow-y:auto;overscroll-behavior:contain}
 .uv-node{position:relative}
-.uv-node+.uv-node{margin-top:3px}
-.uv-root-node{padding:3px 0;border-bottom:1px solid rgba(87,178,255,.12)}
+.uv-node+.uv-node{margin-top:5px}
+.uv-root-node{padding:4px 0;border-bottom:1px solid rgba(87,178,255,.12)}
 .uv-root-node:last-child{border-bottom:0}
 .uv-root-row .uv-lb{font-weight:900}
-.uv-group-row{margin-top:5px;padding-top:7px;padding-bottom:7px;border-radius:6px;background:rgba(87,178,255,.08);color:var(--muted)}
-.uv-group-row .uv-lb{font-size:11.5px;font-weight:900}
-.uv-children{margin:2px 0 5px 13px;padding-left:9px;border-left:1px solid rgba(87,178,255,.28)}
+.uv-group-row{margin-top:6px;padding-top:8px;padding-bottom:8px;border-radius:8px;background:rgba(87,178,255,.08);color:var(--muted)}
+.uv-group-row .uv-lb{font-size:12.5px;font-weight:900}
+.uv-children{margin:3px 0 6px 15px;padding-left:10px;border-left:1px solid rgba(87,178,255,.28)}
 .uv-children.collapsed{display:none}
-.uv-child-row{padding-top:7px;padding-bottom:7px}
-.uv-node[data-depth="2"]>.uv-row{padding-left:12px}
+.uv-child-row{padding-top:8px;padding-bottom:8px}
+.uv-node[data-depth="2"]>.uv-row{padding-left:14px}
 .uv-row:has(input:disabled){opacity:.5;cursor:not-allowed}
-.uv-row{display:flex;align-items:center;gap:7px;padding:9px 8px;border-radius:10px;user-select:none}
+.uv-row{display:flex;align-items:center;gap:9px;padding:10px 10px;border-radius:11px;user-select:none}
 .uv-row:hover{background:rgba(87,178,255,.12)}
-.uv-collapse,.uv-tree-spacer{flex:0 0 18px;width:18px;height:22px;display:grid;place-items:center;padding:0;border:0;background:transparent;color:var(--muted);font-size:15px;font-weight:900}
+.uv-collapse,.uv-tree-spacer{flex:0 0 20px;width:20px;height:24px;display:grid;place-items:center;padding:0;border:0;background:transparent;color:var(--muted);font-size:16px;font-weight:900}
 .uv-collapse{cursor:pointer}
 .uv-collapse:hover{color:var(--text);background:rgba(87,178,255,.14)}
-.uv-toggle{display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer}
+.uv-toggle{display:flex;align-items:center;gap:12px;flex:1;min-width:0;cursor:pointer}
 .uv-toggle:has(input:disabled){cursor:not-allowed}
-.uv-row .uv-ic{flex:0 0 22px;text-align:center;font-size:15px}
-.uv-row .uv-lb{flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.3}
+.uv-row .uv-ic{flex:0 0 24px;text-align:center;font-size:17px}
+.uv-row .uv-lb{flex:1;min-width:0;font-size:14px;font-weight:700;line-height:1.4}
 .uv-row input{position:absolute;opacity:0;pointer-events:none}
-.uv-switch{flex:0 0 38px;height:22px;border-radius:11px;background:rgba(128,150,170,.45);position:relative;transition:background .15s}
-.uv-switch::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .15s}
+.uv-switch{flex:0 0 42px;height:24px;border-radius:12px;background:rgba(128,150,170,.45);position:relative;transition:background .15s}
+.uv-switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .15s}
 .uv-row input:checked+.uv-switch{background:var(--blue)}
-.uv-row input:checked+.uv-switch::after{transform:translateX(16px)}
+.uv-row input:checked+.uv-switch::after{transform:translateX(18px)}
 .uv-row input:focus-visible+.uv-switch{outline:2px solid var(--gold);outline-offset:2px}
 .uv-none{padding:14px 10px;font-size:12.5px;color:var(--muted)}
-.uv-foot{display:flex;gap:8px;padding:9px 12px 12px;border-top:1px solid var(--line-soft)}
-.uv-foot button{flex:1;padding:8px 10px;font-size:12.5px;white-space:nowrap}
+.uv-foot{flex:0 0 auto;display:flex;gap:10px;padding:11px 15px 14px;border-top:1px solid var(--line-soft);background:var(--panel2)}
+.uv-foot button{flex:1;padding:10px 12px;font-size:13px;white-space:nowrap}
 
-/* ---- Điện thoại: 3 nút hành động chung 1 hàng, bảng chọn bung full ngang ---- */
+/* ---- Điện thoại: 3 nút hành động chung 1 hàng, bảng chọn gần full ngang ---- */
 @media (max-width:640px){
   .rt-actions-grid button{flex:1 1 calc(33.333% - 6px)!important;padding:9px 4px!important;font-size:11.5px!important;white-space:normal!important}
-  .uv-panel{width:min(340px,calc(100vw - 20px))}
+  .uv-panel{width:calc(100vw - 24px);max-width:calc(100vw - 16px);max-height:calc(var(--vh,1vh)*78);border-radius:14px}
+  .uv-head{padding:13px 15px 10px}
+  .uv-head b{font-size:15px}
+  .uv-list{padding:7px 8px}
+  .uv-row{padding:9px 7px}
+  .uv-row .uv-lb{font-size:13px}
   .uv-edit-bar{left:10px;right:10px;bottom:10px;justify-content:center;transform:none}
   .uv-edit-bar b{flex:1;min-width:0}
 }
