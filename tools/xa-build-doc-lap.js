@@ -3,9 +3,10 @@
    Cách làm giống trang độc lập Thành ủy/HĐND/MTTQ (tools/dang-hdnd-mttq-build-doc-lap.js): nhúng nguyên CSS + JS gốc của khuôn
    chỉ tiêu mới cộng một khung tối thiểu.
    - Chọn 1 trong 126 xã, phường (ô chọn trên đầu trang); mỗi tab là màn ngoài như tài khoản xã, phường trong IOC xem trục đó.
-   - Bấm thẻ / ô số: mở popup chi tiết khuôn mới (Tổng quan → nhóm → So với 126 xã, phường; chọn kỳ, xuất Excel).
-   - Số khớp IOC: nhúng cả các đơn vị cấp Thành phố mà số xã lấy từ đó (ctm-dang/hdnd/mttq.js), số Trung tâm Phục vụ HCC
-     (hcc-config.js, hcc-data.js + bảng gdUnitData của dashboard-education.js) và số Sở Y tế (syt-config.js).
+   - Bấm thẻ / ô số: mở popup chi tiết như IOC (Tổng quan → Tất cả nhóm, từng nhóm → Dữ liệu đã nhập; chọn Tháng / Quý / Năm, xuất Excel).
+   - Số khớp IOC: nhúng đúng các file chỉ tiêu xã của IOC (từ 02/11/2026): khung eform xã (js/core/xa-eform.js), bản ghi mẫu
+     (js/core/xa-eform-mau.js), khung chỉ tiêu chung (js/features/ctm-eform.js — cần js/core/eform-khung.js), khai báo 12 eform xã
+     (js/features/ctm-xa-eform.js) theo bản đọc docs/BAN_DOC_EFORM/XA_*.
    Danh sách đơn vị lấy từ DANG/HDND/UBND/MTTQ_XA_CATEGORIES trong js/core/central-level.js (chạy thử trong vm lúc dựng).
    Chạy lại mỗi khi sửa số liệu hoặc khuôn chỉ tiêu:   node tools/xa-build-doc-lap.js */
 'use strict';
@@ -24,9 +25,10 @@ const s1 = stc.indexOf('/* ============================== SỞ TÀI CHÍNH', s0)
 if (s0 < 7 || s1 < 0) throw new Error('Không tìm thấy khung CSS trong stc-chi-tieu-doc-lap.html');
 const frameCss = stc.slice(s0, s1).replace('bộ chỉ tiêu Sở Tài chính cần', 'bộ chỉ tiêu cần');
 
-/* 2. Danh sách đơn vị 4 trục cấp xã: cắt từ "const DANG_XA_CATEGORIES" đến hết dòng XA_CATEGORIES_BY_ROLE rồi chạy trong vm */
+/* 2. Danh sách đơn vị 4 trục cấp xã: cắt từ "function xaEformCat" đến hết dòng XA_CATEGORIES_BY_ROLE rồi chạy trong vm */
 const cl = read('js/core/central-level.js');
-const x0 = cl.indexOf('const DANG_XA_CATEGORIES');
+/* từ hàm xaEformCat (danh mục 12 eform xã, 28/10/2026) */
+const x0 = cl.indexOf('function xaEformCat');
 const x1 = cl.indexOf('const XA_CATEGORIES_BY_ROLE', x0);
 const x2 = cl.indexOf('\n', x1);
 if (x0 < 0 || x1 < 0) throw new Error('Không tìm thấy *_XA_CATEGORIES trong central-level.js');
@@ -34,10 +36,11 @@ const ctx = { console: console };
 vm.createContext(ctx);
 vm.runInContext(P_HELPERS + '\n' + cl.slice(x0, x2) + '\nthis.__seed = XA_CATEGORIES_BY_ROLE;', ctx);
 const ROLES = [['DANG', 'Đảng ủy phường'], ['HDND', 'HĐND phường'], ['UBND', 'UBND phường'], ['MTTQ', 'Ủy ban MTTQ phường']];
+const ALL_TAB = ['ALL', 'Tất cả'];
 const seed = {};
 ROLES.forEach(([r]) => {
   const list = ctx.__seed[r];
-  if (!list || list.length < 3) throw new Error('Danh sách đơn vị ' + r + ' bất thường');
+  if (!list || !list.length) throw new Error('Danh sách đơn vị ' + r + ' bất thường');
   seed[r] = list.map((c) => ({ id: c.id, name: c.name, desc: c.desc, types: c.types || [], items: (c.items || []).map((it) => [it[0]]) }));
 });
 
@@ -70,8 +73,8 @@ ${gdJs}
 /* currentXaId: số thứ tự trong wardNames() (như login.js của IOC) — ở đây wardNames() là danh sách 126 xã, phường của ctm-xa.js */
 let currentXaId=null;
 function wardNames(){ return CTM_XA.map((u)=>u.name); }
-const CTM_ROLES=${JSON.stringify(ROLES)};
-const CTM_SEED=${JSON.stringify(seed)};
+const CTM_ROLES=${JSON.stringify([ALL_TAB].concat(ROLES))};
+const CTM_SEED=${JSON.stringify(Object.assign({ ALL: [].concat(...ROLES.map(([r]) => seed[r].map((c) => Object.assign({ role: r }, c)))) }, seed))};
 const STORE_KEY=${JSON.stringify(KEY)};
 let currentRole=CTM_ROLES[0][0];
 function categorySeedForRole(r){ return CTM_SEED[r] || []; }
@@ -113,8 +116,8 @@ function renderXaPick(){
 }
 function renderCategoryGrid(){
   const q = (document.getElementById('uoSearch').value || '').toLowerCase();
-  const list = CTM_SEED[currentRole].map((c)=>Object.assign({}, c, {role:currentRole})).filter((c)=>!q || xaRn(c.name).toLowerCase().includes(q));
-  const cfg = ctmOverviewFor([currentRole]);
+  const list = CTM_SEED[currentRole].map((c)=>Object.assign({role:currentRole}, c)).filter((c)=>!q || xaRn(c.name).toLowerCase().includes(q));
+  const cfg = ctmOverviewFor(currentRole==='ALL' ? ['DANG','HDND','UBND','MTTQ'] : [currentRole]);
   document.getElementById('uoOuterGrid').innerHTML = cfg ? ctmOverviewHtml(cfg, list) : '<div class="access-lock">Chưa có màn tổng quan cho trục này.</div>';
 }
 const renderIndicators = renderCategoryGrid;
@@ -156,10 +159,9 @@ html.theme-light .xa-pick option,html.theme-light .xa-pick optgroup,html.theme-g
 @media(max-width:600px){.stc-page{padding:18px 16px 40px}.uo-tools,.uo-tools>label{width:100%}.uo-search,.xa-pick{width:100%;max-width:none}.uo-grid{grid-template-columns:minmax(0,1fr)}}
 `;
 const css = frameCss + part('css/stc.css') + part('css/sgd.css') + part('css/ubnd-overview.css') + part('css/ctm.css') + extraCss;
-/* Thứ tự như demo_ioc.html: số Sở Y tế, HCC trước; rồi khuôn chỉ tiêu mới; đơn vị cấp Thành phố trước đơn vị cấp xã */
-const ctmJsSrc = part('js/core/xa-dan-so.js') + part('js/core/syt-config.js') + part('js/core/hcc-config.js') + part('js/features/hcc-data.js') +
-  part('js/core/line-chart.js') + part('js/core/ctm-xa.js') + part('js/features/ctm-engine.js') +
-  part('js/features/ctm-mttq.js') + part('js/features/ctm-dang.js') + part('js/features/ctm-hdnd.js') + part('js/features/ctm-xa-units.js');
+/* đúng thứ tự nạp trong demo_ioc.html (chỉ phần chỉ tiêu xã) */
+const ctmJsSrc = part('js/core/xa-dan-so.js') + part('js/core/line-chart.js') + part('js/core/ctm-xa.js') + part('js/core/xa-eform.js') + part('js/core/xa-eform-mau.js') +
+  part('js/features/ctm-engine.js') + part('js/features/ctm-xa-units.js') + part('js/core/eform-khung.js') + part('js/features/ctm-eform.js') + part('js/features/ctm-xa-eform.js');
 if (/<\/script/i.test(ctmJsSrc) || /<\/style/i.test(css)) throw new Error('Mã nhúng chứa thẻ đóng </script> hoặc </style>');
 
 const built = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
@@ -182,7 +184,7 @@ const html = `<!DOCTYPE html>
   <div class="stc-page-head">
     <div>
       <h1 id="xaH1">Nhóm chỉ tiêu theo lĩnh vực · xã, phường</h1>
-      <p>Trang độc lập, tách riêng từ Trung tâm Điều hành thông minh (IOC) Hà Nội · 126 xã, phường · số liệu mô phỏng theo dân số, diện tích thật, đối chiếu số công bố</p>
+      <p>Trang độc lập, tách riêng từ Trung tâm Điều hành thông minh (IOC) Hà Nội · 126 xã, phường · 12 eform của sheet "XãPhường" · đang là bản ghi mẫu dựng theo khung eform (chưa nối dữ liệu thật)</p>
     </div>
     <div class="uo-tools">
       <label><span class="sr-only">Chọn xã, phường</span><select id="xaPick" class="uo-search xa-pick" onchange="pickXa(this.value)"></select></label>
@@ -214,4 +216,4 @@ ${ctmJsSrc}
 `;
 const OUT = 'xa-phuong-chi-tieu-doc-lap.html';
 fs.writeFileSync(path.join(root, 'standalone', OUT), html, 'utf8');
-console.log('Đã dựng ' + OUT + ' (' + Math.round(html.length / 1024) + ' KB · ' + ROLES.map(([r, l]) => l + ' ' + seed[r].length).join(', ') + ' đơn vị)');
+console.log('Đã dựng ' + OUT + ' (' + Math.round(html.length / 1024) + ' KB · ' + ROLES.map(([r, l]) => l + ' ' + seed[r].length).join(', ') + ' eform)');

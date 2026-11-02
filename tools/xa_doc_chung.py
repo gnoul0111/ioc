@@ -46,7 +46,8 @@ def ban_doc(ef):
         raise SystemExit('Thiếu bản đọc ' + p + ' — chạy python3 tools/xa_ban_doc_eform.py trước')
     t = open(p, encoding='utf-8').read()
     cq = _sec(t, 'CÂU HỎI VÀ TRẢ LỜI')
-    return {'loi': _items(t, '**Lỗi, chỗ nghi trong file eform:**'), 'cau': [x for x in _items(cq) if re.match(r'[A-Z]+-\d', x)],
+    ls = re.search(r'- \*\*Loại số\*\*: (.*)', t)
+    return {'loai_so': ls.group(1).strip() if ls else '', 'loi': _items(t, '**Lỗi, chỗ nghi trong file eform:**'), 'cau': [x for x in _items(cq) if re.match(r'[A-Z]+-\d', x)],
             'traloi': [x for x in _items(cq.split('**Trả lời', 1)[1]) if not x.startswith('theo đề xuất')] if '**Trả lời' in cq else [],
             'sua': _items(_sec(t, 'SỬA, BỔ SUNG NGÀY 02/11/2026'))}
 
@@ -69,13 +70,15 @@ def unit_of(c):
     return f' ({c["u"]})' if c['u'] and c['u'] != '%' and '(' + c['u'] + ')' not in c['l'] else ''
 
 
-def eform_detail(k, u, e, so, mau_xa):
-    """Mục chi tiết một eform (dùng ở SRS mục 5 và tài liệu mô tả Phần III)"""
+def eform_detail(k, u, e, so, mau_xa, chung=False):
+    """Mục chi tiết một eform (SRS mục 5, tài liệu mô tả Phần III; chung=True: tài liệu chung — thêm loại số, câu hỏi đã chốt, lỗi file của bản đọc)"""
     para, table, heading, note, bullets = k.para, k.table, k.heading, k.note, k.bullets
     heading(f'{so}. {u["name"]} — eform «{e["efTen"]}»', 2)
     para(f'Trục {TRUC[u["role"]]} · sheet "{e["sheet"]}" từ dòng {e["dong"]} · {len(e["fields"])} trường, {len(e["chi"])} chỉ tiêu, {len(e["bieu"])} biểu đồ.')
     bl = [f'**Một bản ghi là**: {e["banGhi"]}',
           '**Khóa bản ghi**: ' + ' + '.join(f'«{x}»' for x in e['khoa']) + ' + kỳ' + (f' (được để trống: {", ".join("«" + x + "»" for x in e["khoaRong"])})' if e['khoaRong'] else '')]
+    if chung and BD[e['ef']]['loai_so']:
+        bl.append('**Loại số (bản đọc)**: ' + BD[e['ef']]['loai_so'])
     if e['tach']:
         bl.append(f'**Chia nhóm** theo «{e["tach"]["l"]}»: màn «Tất cả nhóm» và {len(e["tach"]["nhom"])} màn nhóm — ' + ', '.join(e['tach']['nhom']))
     if e['dongTheo']:
@@ -114,5 +117,11 @@ def eform_detail(k, u, e, so, mau_xa):
           [[str(j + 1), f['l'], f['c'], KIEU.get(f['t'], '(để trống trong file)'), dm_text(f), '; '.join(f['vai'])] for j, f in enumerate(e['fields'])],
           [0.7, 3.4, 3.0, 1.6, 3.4, 3.9], size=8)
     bd = BD[e['ef']]
+    if chung:
+        note('Câu hỏi khi đọc eform và trả lời đã chốt (duyệt 30/10/2026: theo đề xuất)')
+        bullets(bd['cau'] + ['**Chốt thêm**: ' + x for x in bd['traloi']], 10)
+        if bd['loi']:
+            note('Lỗi, chỗ nghi trong file eform (đề nghị bên eform rà soát)')
+            bullets(bd['loi'], 10)
     if bd['sua']:
         para('**Sửa, bổ sung ngày 02/11/2026**: ' + ' '.join(bd['sua']), 10.5)

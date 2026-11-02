@@ -14,7 +14,7 @@
 .uo-kpi .stc-lb{font-size:11px;min-height:30px;line-height:1.35}
 /* Số + đơn vị luôn trên MỘT hàng: cỡ chữ co theo bề rộng ô (đơn vị cqi của ô), ô rộng thì giữ 20px. */
 .stc-root button.uo-kpi{container-type:inline-size}
-.uo-kpi .stc-v{font-size:clamp(14px,15cqi,20px);margin-top:4px;white-space:nowrap;display:flex;flex-wrap:nowrap;align-items:baseline;column-gap:4px;overflow:hidden}
+.uo-kpi .stc-v{font-size:clamp(14px,15cqi,20px);margin-top:4px;white-space:nowrap;display:flex;flex-wrap:wrap;align-items:baseline;column-gap:4px;overflow:hidden}
 .uo-kpi .stc-v small{font-size:clamp(9.5px,9cqi,11.5px);font-weight:500;color:var(--mute);letter-spacing:0}
 .uo-kpi .stc-v small.uo-pct{font-size:inherit;font-weight:700;color:inherit;margin-left:-4px;letter-spacing:-.015em}
 .uo-kpi .stc-u{font-size:11px}
@@ -51,7 +51,7 @@
 .uo-gl .uo-d .stc-dl{font-size:11.5px}
 .uo-gl .uo-d .stc-ref{font-size:10.5px}
 /* Không so sánh (UBND_OV_SHOW_COMPARE=false): 3 cột cố định tên | số (căn phải) | đơn vị — mọi dòng, mọi thẻ thẳng cột */
-.uo-gl.uo-col{grid-template-columns:minmax(0,1fr) 78px 72px;column-gap:0;align-items:baseline;padding:7px 0 6px}
+.uo-gl.uo-col{grid-template-columns:minmax(0,1fr) minmax(78px,auto) 72px;column-gap:0;align-items:baseline;padding:7px 0 6px}
 .uo-gl.uo-col .uo-l{padding-right:10px}
 .uo-gl.uo-col .uo-v{text-align:right}
 .uo-gl.uo-col .uo-u{padding-left:6px;font-size:10.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

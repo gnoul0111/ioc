@@ -81,3 +81,6 @@
 .stc-root [data-rec]{cursor:pointer;border-radius:6px}
 .stc-root [data-rec]:hover{background:rgba(127,160,220,.08)}
 .stc-root [data-rec]:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+/* Thanh công cụ popup chỉ tiêu trên màn hẹp (điện thoại): khung nút co theo bề rộng popup, các nút xuống dòng (trước đây «Nhập chỉ tiêu»,
+   «Xuất Excel» nằm ngoài popup ở bề rộng 390px); màn rộng vẫn canh phải như cũ */
+.stc-root.ctm-root .stc-ctrls{flex:1 1 auto;min-width:0;max-width:100%;justify-content:flex-end}

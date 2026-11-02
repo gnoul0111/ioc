@@ -830,7 +830,7 @@ function ctmOvKpi(cfg, k, catsAll) {
   const n = ctmNP(spec), m = ctmM(spec, k.m), v = ctmV(spec, k.m, n.D), u = k.u != null ? k.u : m.u, txt = ctmF(v, m.d);
   const val = txt + (u === '%' ? '<small class="uo-pct">%</small>' : u ? '<small>' + ctmE(u) + '</small>' : '');
   /* số dài (VD số tiền tính bằng đồng) thu nhỏ chữ cho vừa ô */
-  return '<button type="button" class="stc-kpi uo-kpi" onclick="openCategoryDetail(\'' + c.role + '\',\'' + c.id + '\',' + ctmJs(k.target || 'home') + ')"><div class="stc-lb">' + ctmE(k.l || m.l) + '</div><div class="stc-v"' + (txt.length > 9 ? ' style="font-size:' + (txt.length > 13 ? 15 : 18) + 'px"' : '') + '>' + val + '</div><div class="uo-ksrc">' + ctmE(ctmOvShort(c, cfg) + ' · ' + ctmPLabel(spec, n.p)) + '</div></button>';
+  return '<button type="button" class="stc-kpi uo-kpi" onclick="openCategoryDetail(\'' + c.role + '\',\'' + c.id + '\',' + ctmJs(k.target || 'home') + ')"><div class="stc-lb">' + ctmE(k.l || m.l) + '</div><div class="stc-v"' + (txt.length > 9 ? ' style="font-size:' + (txt.length > 13 ? 11.5 : txt.length > 11 ? 14 : 18) + 'px"' : '') + '>' + val + '</div><div class="uo-ksrc">' + ctmE(ctmOvShort(c, cfg) + ' · ' + ctmPLabel(spec, n.p)) + '</div></button>';
 }
 function ctmOvGroup(cfg, g, catsAll) {
   const list = ctmOvIds(g, catsAll).map((id) => catsAll.find((c) => c.id === id)).filter(Boolean), on = CTM_OV_PICK[cfg.id] === g.id, w = cfg.unitWord || 'đơn vị';
