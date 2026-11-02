@@ -1,5 +1,13 @@
 {
   "framework": null,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" }
+      ]
+    }
+  ],
   "rewrites": [
     { "source": "/api/ioc/:path*", "destination": "https://administrator.lifetex.vn:324/api/v1/ioc/:path*" },
     { "source": "/", "destination": "/demo_ioc.html" }
