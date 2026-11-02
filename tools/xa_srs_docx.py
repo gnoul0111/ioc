@@ -177,7 +177,8 @@ table([['Mã', 'Thao tác', 'Kết quả mong đợi', 'Yêu cầu'],
        ['TC-06', 'Tài chính - Ngân sách, Quý 3/2026', 'Tỷ lệ lũy kế so với dự toán so cùng kỳ Quý 3/2025; cột tỷ lệ đã nhập cạnh tỷ lệ IOC tính', 'FR-07'],
        ['TC-07', 'Dữ liệu đã nhập của GPMB', 'Đủ 28 cột; bản gửi lại ghi lý do; bản lệch tổng khu vực con tô màu', 'FR-05, BR-01, BR-05'],
        ['TC-08', 'Tài khoản Thành ủy "Xem theo cơ cấu tổ chức" Xã Ba Vì', 'Thấy đúng màn của Xã Ba Vì, tên ghi "xã"', 'FR-01'],
-       ['TC-09', 'Điện thoại 390px, popup Dữ liệu đã nhập', 'Không tràn ngang trang; bảng cuộn ngang trong khung', 'NFR-02']], [1.6, 5.0, 7.2, 2.2], size=9.5)
+       ['TC-09', 'Điện thoại 390px, popup màn nhóm và Dữ liệu đã nhập', 'Không tràn ngang trang; nút trên thanh công cụ nằm trong popup; bảng cuộn ngang trong khung', 'NFR-02']], [1.6, 5.0, 7.2, 2.2], size=9.5)
+para('**Đã chạy thử ngày 02/11/2026** trên bản ghi mẫu (Phường Việt Hưng, Xã Ba Vì; kiểm thử tự động và trang thật mở bằng trình duyệt): TC-01 đến TC-09 đạt. TC-09 đạt sau khi sửa thanh công cụ popup trên màn hẹp (trước đó nút «Nhập chỉ tiêu», «Xuất Excel» nằm ngoài popup ở bề rộng 390px).', 10)
 
 # ======================================================= 9. HẠN CHẾ
 heading('9. HẠN CHẾ HIỆN TẠI VÀ VẤN ĐỀ MỞ', 1)
@@ -204,7 +205,8 @@ table([['Tệp', 'Nội dung'],
        ['js/features/ctm-eform.js', 'Khung chỉ tiêu theo eform dùng chung: kỳ, bản ghi, cách tính, nhóm, dòng số liệu, bảng, biểu đồ, Dữ liệu đã nhập'],
        ['js/features/ctm-xa-eform.js', 'Khai báo 12 eform xã theo bản đọc; màn ngoài tài khoản xã'], ['js/features/ctm-xa-units.js', 'Hàm dùng chung: xã đang xem, đọc mã, tên hiển thị; cờ CTM_XA_ALL_TAB, CTM_XA_SO_SANH'],
        ['js/features/ctm-engine.js', 'Màn hình chung: ô số, thẻ so sánh, cột qua các kỳ, popup, lần lại bản ghi'], ['css/ctm.css', 'Giao diện popup chỉ tiêu'],
-       ['tests/ctm/xa-eform.test.js', 'Kiểm thử chỉ tiêu xã'], ['tools/xa_ban_doc_eform.py', 'Sinh bản đọc eform xã'], ['tools/tp_srs_dump.js xa, tools/xa_srs_docx.py [--chung], tools/xa_mo_ta_docx.py', ('Sinh tài liệu từ cấu hình đang chạy (tài liệu chung này: xa_srs_docx.py --chung)' if CHUNG_DOC else 'Sinh tài liệu từ cấu hình đang chạy (SRS này: xa_srs_docx.py; tài liệu chung: --chung)')]], [6.0, 10.0], size=10)
+       ['tests/ctm/xa-eform.test.js', 'Kiểm thử chỉ tiêu xã'], ['tools/xa_ban_doc_eform.py', 'Sinh bản đọc eform xã'],
+       ['tools/xa-build-doc-lap.js → standalone/xa-phuong-chi-tieu-doc-lap.html', 'Trang chỉ tiêu xã, phường độc lập (một file, mở thẳng bằng trình duyệt), nhúng đúng các file chỉ tiêu xã của IOC'], ['tools/tp_srs_dump.js xa, tools/xa_srs_docx.py [--chung], tools/xa_mo_ta_docx.py', ('Sinh tài liệu từ cấu hình đang chạy (tài liệu chung này: xa_srs_docx.py --chung)' if CHUNG_DOC else 'Sinh tài liệu từ cấu hình đang chạy (SRS này: xa_srs_docx.py; tài liệu chung: --chung)')]], [6.0, 10.0], size=10)
 heading('PHỤ LỤC D. LỊCH SỬ PHIÊN BẢN', 1)
 table([['Phiên bản', 'Ngày', 'Nội dung'],
        ['1.0', '27/10/2026', '19 đơn vị theo phòng ban, 161 chỉ tiêu, số giả lập và số dùng chung với cấp Thành phố.'],
