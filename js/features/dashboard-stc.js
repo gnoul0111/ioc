@@ -273,7 +273,7 @@ function stcViewScales(ind, res) {
   let h = '<div class="stc-g3">';
   ind.kids.forEach((k) => {
     const v = k.now, lo = Math.min(80, Math.floor((v || 0) / 10) * 10 - 10), hi = Math.max(120, Math.ceil(((v || 0) + 10) / 20) * 20), span = hi - lo;
-    h += '<div id="stc-ind-' + k.id + '" class="stc-card' + (STC_UI.zoom === k.id ? ' stc-zoomed' : '') + '"><div class="stc-ch"><div><h3 class="stc-ct">' + stcE(k.label) + '</h3><div class="stc-cs">' + stcE(ind.unit) + '</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">' + stcZoomBtn(k.id) + (STC_SHOW_TECH ? '<span class="stc-bd">' + stcE(ind.apis[0]) + '</span>' : '') + '</div></div>';
+    h += '<div id="stc-ind-' + k.id + '" class="stc-card' + (STC_UI.focus === k.id ? ' stc-focus' : '') + (STC_UI.zoom === k.id ? ' stc-zoomed' : '') + '"><div class="stc-ch"><div><h3 class="stc-ct">' + stcE(k.label) + '</h3><div class="stc-cs">' + stcE(ind.unit) + '</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">' + stcZoomBtn(k.id) + (STC_SHOW_TECH ? '<span class="stc-bd">' + stcE(ind.apis[0]) + '</span>' : '') + '</div></div>';
     if (!(v > 0)) h += '<div class="stc-bigrow"><div class="stc-big">—</div></div><div class="stc-hint">Chưa có số liệu</div>';
     else h += '<div class="stc-bigrow"><div class="stc-big">' + stcFmt(v, 1) + '</div>' + stcDl(k, true) + '</div><div class="stc-scale"><div class="stc-tick" style="left:' + (((100 - lo) / span) * 100).toFixed(2) + '%"></div><div class="stc-dot" style="left:' + (((v - lo) / span) * 100).toFixed(2) + '%"></div></div><div class="stc-scale-cap"><span>' + lo + '</span><span>Vạch đứng: mốc 100</span><span>' + hi + '</span></div>';
     h += '</div>';
@@ -313,7 +313,7 @@ function stcKpiTile(k, res, onclick) {
     /* 2 cột: so kỳ trước | so cùng kỳ (không tính được thì "—", rê chuột xem lý do) */
     d = '<div class="stc-kdl"><div><small>So kỳ trước</small>' + stcDlOne(n, 'kq', false) + '</div><div><small>So cùng kỳ</small>' + stcDlOne(n, 'cq', false) + '</div></div>';
   }
-  return '<button type="button" class="stc-kpi" onclick="' + (onclick || ("stcGo('group','" + k.target + "')")) + '"><div class="stc-lb">' + stcE(k.label) + '</div><div class="stc-v">' + v + '</div><div class="stc-u">' + stcE(u) + '</div><div class="stc-dlw" style="min-height:18px">' + d + '</div></button>';
+  return '<button type="button" class="stc-kpi" onclick="' + (onclick || ("stcGoFocus('" + k.target + "','" + k.ind + "')")) + '"><div class="stc-lb">' + stcE(k.label) + '</div><div class="stc-v">' + v + '</div><div class="stc-u">' + stcE(u) + '</div><div class="stc-dlw" style="min-height:18px">' + d + '</div></button>';
 }
 /* Một dòng trong thẻ nhóm: nhãn, giá trị + đơn vị, tăng giảm */
 function stcLine(label, n, root, unitOverride, valOverride) {
@@ -613,9 +613,14 @@ function stcRerender(resetScroll) {
   body.innerHTML = '<div class="stc-root stc-wrap">' + stcScreenHtml() + '</div>' + stcTasksHtml();
   if (typeof lcFit === 'function') lcFit(body);
   body.scrollTop = resetScroll ? 0 : top;
-  if (resetScroll && STC_UI.focus && STC_UI.screen === 'group') {
+  /* ô số → thẻ của chính chỉ tiêu đó: cuộn tới, viền sáng một lúc rồi thôi (lần vẽ lại sau không còn viền) */
+  if (resetScroll && STC_UI.focus && STC_UI.screen === 'group' && body.getClientRects().length) {
     const el = body.querySelector('#stc-ind-' + STC_UI.focus);
-    if (el) body.scrollTop = Math.max(0, el.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12);
+    if (el) {
+      body.scrollTop = Math.max(0, el.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12);
+      STC_UI.focus = null;
+      setTimeout(() => { el.classList.remove('stc-focus'); }, 2600);
+    }
   }
   stcApplyZoom(body);
 }
@@ -666,7 +671,8 @@ function stcOpenForm(itemIndex, role) {
   /* itemIndex tra theo STC_ITEMS (thẻ 0 = Tổng quan, thẻ 1–4 = 4 nhóm), không dùng chỉ số thô để không lệch khi đổi thứ tự thẻ.
      Không chỉ định thẻ nào (vd. quay về từ luồng giao nhiệm vụ) → giữ nhóm đang xem gần nhất, không phải Tổng quan. */
   const it = typeof itemIndex === 'number' ? STC_ITEMS[itemIndex] : null;
-  STC_UI.focus = null; STC_UI.dd = null; STC_UI.zoom = null;
+  /* STC_UI.focusNext: ô số ở băng ngoài lưới — mở nhóm rồi cuộn tới thẻ của chỉ tiêu đó */
+  STC_UI.focus = STC_UI.focusNext || null; STC_UI.focusNext = null; STC_UI.dd = null; STC_UI.zoom = null;
   if (it && it.stcKey === 'home') {
     STC_UI.screen = 'home'; STC_UI.pick = null;
   } else {
@@ -741,6 +747,8 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
   STC_UI.pick = null;
   stcRerender(true);
 }
+/* Ô số ở Trang chủ: mở nhóm chứa chỉ tiêu, cuộn thẳng tới thẻ của chỉ tiêu đó và viền sáng */
+function stcGoFocus(group, ind) { STC_UI.dd = null; STC_UI.zoom = null; STC_UI.pick = null; STC_UI.screen = 'group'; STC_UI.group = group; STC_UI.focus = ind; stcRerender(true); }
 function stcDetail(indId) { STC_UI.focus = null; STC_UI.dd = null; STC_UI.zoom = null; STC_UI.screen = 'detail'; if (indId) STC_UI.ind = (stcRes() && stcRes().rootOf[indId] ? stcRes().rootOf[indId].id : indId); STC_UI.pick = null; stcRerender(true); }
 function stcPick(id) { STC_UI.pick = STC_UI.pick === id ? null : id; stcRerender(false); }
 function stcStep(d) {
@@ -874,7 +882,7 @@ function stcOverviewBandHtml(cat, idx) {
   if (!res) {
     body = '<p class="cpi-legend">Chưa có bản chụp số liệu.</p>';
   } else {
-    body = '<div class="stc-kpis">' + STC_KPIS.map((k) => stcKpiTile(k, res, 'openCategoryDetail(' + openArgs(groupIdx(k.target)) + ')')).join('') + '</div>';
+    body = '<div class="stc-kpis">' + STC_KPIS.map((k) => stcKpiTile(k, res, "STC_UI.focusNext='" + k.ind + "';openCategoryDetail(" + openArgs(groupIdx(k.target)) + ')')).join('') + '</div>';
     body += '<div class="stc-sec" style="margin:4px 0 12px">Bốn nhóm chỉ tiêu · mỗi nhóm một màn hình</div>';
     body += '<div class="stc-g2">' + res.groups.map((g, i) => stcGroupCardHome(g, i, res, 'openCategoryDetail(' + openArgs(groupIdx(g.id)) + ')')).join('') + '</div>';
     body += stcHomeQualityNote(res);

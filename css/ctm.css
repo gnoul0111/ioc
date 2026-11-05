@@ -84,3 +84,52 @@
 /* Thanh công cụ popup chỉ tiêu trên màn hẹp (điện thoại): khung nút co theo bề rộng popup, các nút xuống dòng (trước đây «Nhập chỉ tiêu»,
    «Xuất Excel» nằm ngoài popup ở bề rộng 390px); màn rộng vẫn canh phải như cũ */
 .stc-root.ctm-root .stc-ctrls{flex:1 1 auto;min-width:0;max-width:100%;justify-content:flex-end}
+/* Chọn kỳ xem (03/11/2026): nút «Kỳ xem» + bảng Tháng · Quý · Năm · Lũy kế · Khoảng · So nhiều kỳ (ctm-eform.js, efKyPanel) */
+.stc-root .ctm-kydd .stc-ddb b{max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stc-root .ctm-kytag{font-style:normal;font-size:11px;font-weight:600;color:var(--accent);background:var(--chip);border-radius:999px;padding:2px 8px}
+.stc-root .ctm-ky{position:absolute;z-index:45;top:calc(100% + 6px);right:0;width:min(470px,calc(100vw - 32px));padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card2);box-shadow:0 14px 34px rgba(0,0,0,.42);display:flex;flex-direction:column;gap:10px;text-align:left}
+html.theme-light .stc-root .ctm-ky,html.theme-green .stc-root .ctm-ky{background:#fff;box-shadow:0 12px 28px rgba(15,23,42,.18)}
+.stc-root .ctm-kytabs{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.stc-root .ctm-kyt{height:30px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink2);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.stc-root .ctm-kyt:hover{border-color:var(--accent)}
+.stc-root .ctm-kyt.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.stc-root .ctm-kyy{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.stc-root .ctm-kyy b{font-size:14px}
+.stc-root .ctm-kyg{display:grid;gap:6px}
+.stc-root .ctm-kyg.c6{grid-template-columns:repeat(6,minmax(0,1fr))}
+.stc-root .ctm-kyg.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stc-root .ctm-kyg.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.stc-root .ctm-kyb{height:32px;min-width:0;padding:0 6px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stc-root .ctm-kyb:hover:not(:disabled){border-color:var(--accent)}
+.stc-root .ctm-kyb.on{background:var(--chip);border-color:var(--accent);color:var(--accent)}
+.stc-root .ctm-kyb:disabled{opacity:.35;cursor:not-allowed}
+.stc-root .ctm-kyb:focus-visible,.stc-root .ctm-kyt:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.stc-root .ctm-kyn{width:36px;flex:0 0 36px;font-size:16px}
+.stc-root .ctm-kyx{visibility:hidden}
+.stc-root .ctm-kyr{display:grid;grid-template-columns:42px minmax(0,1fr);gap:8px;align-items:center}
+.stc-root .ctm-kyr>span{font-size:12px;font-weight:700;color:var(--ink2)}
+.stc-root .ctm-kysec{font-size:11.5px;font-weight:600;color:var(--mute);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.stc-root .ctm-kysec span{color:var(--ink)}
+.stc-root .ctm-kyrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stc-root .ctm-kysel{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--mute)}
+.stc-root .ctm-kysel select{height:34px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;font-size:13px;font-weight:600;padding:0 8px}
+.stc-root .ctm-kyhint{font-size:11.5px;line-height:1.5;color:var(--mute)}
+.stc-root .ctm-kyact{display:flex;justify-content:flex-end}
+.stc-root .ctm-kyact .stc-btn:disabled{opacity:.45;cursor:not-allowed}
+.stc-root .ctm-kybar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 14px;font-size:12.5px;color:var(--ink2)}
+.stc-root .ctm-kybar .sgd-pill{height:30px}
+/* Bảng So nhiều kỳ: mỗi kỳ một cột; cột tô là kỳ xem chi tiết */
+.stc-root .ctm-multi th.ctm-n,.stc-root .ctm-multi td.ctm-n{text-align:right;white-space:nowrap}
+.stc-root .ctm-multi .ctm-on{background:var(--chip)}
+.stc-root .ctm-multi .ctm-nil{color:var(--mute);opacity:.6}
+.stc-root .ctm-multicard{margin-bottom:14px}
+@media (max-width:560px){.stc-root .ctm-ky{position:fixed;left:16px;right:16px;top:auto;width:auto;max-height:70vh;overflow:auto}.stc-root .ctm-kydd .stc-ddb b{max-width:180px}}
+/* Theo 126 xã, phường khi So nhiều kỳ: thêm một cột cho mỗi kỳ khác; màn hẹp ẩn các cột thêm */
+.stc-root .sgd-xt-row.ctm-xr.ctm-xrm{grid-template-columns:44px minmax(0,1fr) 72px repeat(var(--ctm-xk,1),76px) 90px 76px}
+@media (max-width:600px){.stc-root .sgd-xt-row.ctm-xr.ctm-xrm{grid-template-columns:34px minmax(0,1fr) 70px 70px}.stc-root .sgd-xt-row.ctm-xr .ctm-xmc{display:none}}
+/* Ô số → thẻ: tô nổi đúng dòng của số vừa bấm (ctmFocusApply), 4 giây */
+.stc-root .ctm-focusrow{background:var(--chip);box-shadow:inset 3px 0 0 var(--accent);border-radius:8px;animation:ctmfr 4s ease-out 1}
+.stc-root tr.ctm-focusrow td{background:var(--chip)}
+@keyframes ctmfr{0%{background:rgba(57,135,229,.38)}100%{background:var(--chip)}}
+@media (prefers-reduced-motion:reduce){.stc-root .ctm-focusrow{animation:none}}
+.stc-root div.ctm-focusrow{margin-left:-10px;margin-right:-10px;padding-left:10px;padding-right:10px}

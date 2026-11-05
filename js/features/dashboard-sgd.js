@@ -123,7 +123,7 @@ function sgdFoot() {
 function sgdCard(o) {
   const title = o.xa ? '<button type="button" class="sgd-ctl" onclick="sgdXa(\'' + o.xa + '\')" title="Xem theo 126 phường/xã">' + sgdE(o.title) + '</button>' : '<h3 class="stc-ct">' + sgdE(o.title) + '</h3>';
   const right = (o.tree ? sgdLnk('Chi tiết ›', "sgdDetail('" + o.tree + "')") : '') + (o.src && (SGD_SHOW_TECH || o.warn) ? '<span class="stc-bd' + (o.warn ? ' warn' : '') + '">' + sgdE(o.src) + '</span>' : '');
-  return '<div class="stc-card"><div class="stc-ch"><div>' + title + '<div class="stc-cs">' + sgdE(o.sub || '') + '</div></div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end">' + right + '</div></div>' + o.body + '</div>';
+  return '<div class="stc-card" data-fc="' + sgdE(o.title) + '"><div class="stc-ch"><div>' + title + '<div class="stc-cs">' + sgdE(o.sub || '') + '</div></div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end">' + right + '</div></div>' + o.body + '</div>';
 }
 function sgdSubY(unit) { const n = sgdNP(); return 'Năm học ' + sgdYearLabel(n.y) + (n.py != null ? ' so với ' + sgdYearLabel(n.py) : '') + (unit ? ' · ' + unit : ''); }
 
@@ -159,9 +159,12 @@ const SGD_KPIS = [
   { label: 'Sĩ số bình quân', target: 'hs', v: (M) => sgdFmt(M.siso[0], 1), u: () => 'học sinh / lớp', dl: (M) => sgdDl(M.siso[0], M.siso[1], { abs: true, neutral: true, ref: 'học sinh' }) },
   { label: 'Tỷ lệ học sinh cận thị', target: 'sk', v: (M) => sgdFmt(M.canR[0], 1) + '%', u: () => 'Tiểu học và THCS', dl: (M) => sgdDl(M.canR[0], M.canR[1], { rate: true, inv: true }) }
 ];
+/* Thẻ chứa số của từng ô số (cùng thứ tự SGD_KPIS): bấm ô số → mở nhóm, cuộn tới thẻ đó, viền sáng một lúc */
+const SGD_KPI_CARD = ['Số trường theo cấp học', 'Học sinh theo cấp học', 'Nhân sự theo vị trí', 'Trường đạt chuẩn quốc gia theo cấp học', 'Tỷ lệ phòng học kiên cố theo cấp', 'Lớp học và sĩ số bình quân', 'Tật khúc xạ và bệnh về mắt'];
+SGD_KPIS.forEach((k, i) => { k.fc = SGD_KPI_CARD[i]; });
 function sgdKpiTile(k, M, onclick) {
   const d = k.dl(M) || '<span class="stc-dl flat"><span class="stc-ref">Chưa có năm học so sánh</span></span>';
-  return '<button type="button" class="stc-kpi" onclick="' + (onclick || ("sgdGo('group','" + k.target + "')")) + '"><div class="stc-lb">' + sgdE(k.label) + '</div><div class="stc-v">' + k.v(M) + '</div><div class="stc-u">' + sgdE(k.u(M)) + '</div><div style="margin-top:10px;min-height:18px">' + d + '</div></button>';
+  return '<button type="button" class="stc-kpi" onclick="' + (onclick || ('sgdGoFocus(' + sgdE(JSON.stringify(k.target)) + ',' + sgdE(JSON.stringify(k.fc)) + ')')) + '"><div class="stc-lb">' + sgdE(k.label) + '</div><div class="stc-v">' + k.v(M) + '</div><div class="stc-u">' + sgdE(k.u(M)) + '</div><div style="margin-top:10px;min-height:18px">' + d + '</div></button>';
 }
 function sgdGl(label, val, unit, dl) {
   return '<div class="stc-gl"><span>' + sgdE(label) + '</span><span class="stc-v">' + val + (unit ? '<small>' + sgdE(unit) + '</small>' : '') + '</span><span>' + (dl || '') + '</span></div>';
@@ -695,6 +698,7 @@ function sgdRerender(resetScroll) {
   body.innerHTML = '<div class="stc-root sgd-root stc-wrap">' + html + '</div>' + sgdTasksHtml();
   if (typeof lcFit === 'function') lcFit(body);
   body.scrollTop = resetScroll ? 0 : top;
+  if (SGD_UI.focus) sgdFocusApply(body);
   if (SGD_UI.focusQ) {
     const inp = body.querySelector('#sgdQ');
     if (inp) { inp.focus(); const L = inp.value.length; try { inp.setSelectionRange(L, L); } catch (e) { /* bỏ qua */ } }
@@ -705,6 +709,8 @@ function sgdOpenForm(itemIndex, role) {
   if (role) SGD_UI.role = role;
   const it = typeof itemIndex === 'number' ? SGD_ITEMS[itemIndex] : null;
   const key = it ? it.sgdKey : 'home';
+  /* SGD_UI.focusNext: ô số ở băng ngoài lưới — mở nhóm rồi cuộn tới thẻ của số đó */
+  SGD_UI.focus = SGD_UI.focusNext || null; SGD_UI.focusNext = null;
   SGD_UI.dd = null; SGD_UI.pick = null; SGD_UI.xa.sel = null;
   if (key === 'xa') SGD_UI.screen = 'xa';
   else if (SGD_GROUPS.some((g) => g.id === key)) { SGD_UI.screen = 'group'; SGD_UI.group = key; }
@@ -716,8 +722,21 @@ function sgdOpenForm(itemIndex, role) {
   if (typeof openModal === 'function') openModal();
   /* lần dựng đầu popup còn ẩn: vẽ lại biểu đồ đường khi popup đã hiện */
   if (typeof lcFit === 'function') lcFit(document.getElementById('modalBody'));
+  if (SGD_UI.focus) setTimeout(() => sgdFocusApply(document.getElementById('modalBody')), 280);
 }
 function sgdClose() { SGD_UI.open = false; if (typeof closeModal === 'function') closeModal(); }
+function sgdGoFocus(group, fc) { SGD_UI.focus = fc || null; sgdGo('group', group); }
+/* Cuộn tới thẻ có tiêu đề = SGD_UI.focus, viền sáng một lúc; popup chưa hiện thì để lại, sgdOpenForm gọi lại */
+function sgdFocusApply(body) {
+  const fc = SGD_UI.focus;
+  if (!fc || !body || !body.getClientRects().length) return;
+  SGD_UI.focus = null;
+  const el = Array.prototype.find.call(body.querySelectorAll('[data-fc]'), (e) => e.getAttribute('data-fc') === fc);
+  if (!el) return;
+  body.scrollTop = Math.max(0, el.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12);
+  el.classList.add('stc-focus');
+  setTimeout(() => { el.classList.remove('stc-focus'); }, 2600);
+}
 function sgdGo(screen, arg) { SGD_UI.dd = null; SGD_UI.pick = null; SGD_UI.screen = screen; if (screen === 'group' && arg) SGD_UI.group = arg; sgdRerender(true); }
 function sgdDetail(id) { SGD_UI.dd = null; SGD_UI.pick = null; SGD_UI.screen = 'detail'; if (id) SGD_UI.tree = id; sgdRerender(true); }
 function sgdPick(id) { SGD_UI.pick = SGD_UI.pick === id ? null : id; sgdRerender(false); }
@@ -795,7 +814,7 @@ function sgdOverviewBandHtml(cat, idx) {
   const M = sgdMetrics();
   const openArgs = (i) => "'" + cat.role + "','" + cat.id + "'," + i;
   const itemIdx = (key) => { const i = SGD_ITEMS.findIndex((x) => x.sgdKey === key); return i < 0 ? idx : i; };
-  let body = '<div class="stc-kpis">' + SGD_KPIS.map((k) => sgdKpiTile(k, M, 'openCategoryDetail(' + openArgs(itemIdx(k.target)) + ')')).join('') + '</div>';
+  let body = '<div class="stc-kpis">' + SGD_KPIS.map((k) => sgdKpiTile(k, M, 'SGD_UI.focusNext=' + sgdE(JSON.stringify(k.fc)) + ';openCategoryDetail(' + openArgs(itemIdx(k.target)) + ')')).join('') + '</div>';
   body += '<div class="stc-sec" style="margin:4px 0 12px">Năm nhóm chỉ tiêu · mỗi nhóm một màn hình</div>';
   body += '<div class="sgd-g3">' + SGD_GROUPS.map((g) => sgdGroupCard(g, M, 'openCategoryDetail(' + openArgs(itemIdx(g.id)) + ')')).join('') + sgdXaCard('openCategoryDetail(' + openArgs(itemIdx('xa')) + ')') + '</div>';
   const foot = '<p class="cpi-legend" style="margin:10px 0 0;font-size:11px;display:flex;justify-content:space-between;gap:8px"><span>Năm học ' + sgdYearLabel(SGD_UI.year) + ' · 5 nhóm · ' + SGD_XA_INDS.length + ' chỉ tiêu theo 126 phường/xã</span><span style="color:#f2b636;font-weight:700;font-size:10.5px;letter-spacing:.3px">DỮ LIỆU GIẢ LẬP</span></p>';

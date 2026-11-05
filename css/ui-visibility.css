@@ -8,15 +8,33 @@
 
 /* ---- Chế độ chỉnh sửa màn hình chính ---- */
 body.uv-editing{padding-bottom:76px}
-body.uv-editing .uv-editable{position:relative;outline:2px solid rgba(255,213,75,.62);outline-offset:3px;border-radius:12px}
-body.uv-editing .uv-editable.uv-hide-action{position:relative}
-body.uv-editing .uv-editable.uv-hide-action::after{content:"−";position:absolute;z-index:21;top:3px;left:3px;width:24px;height:24px;display:grid;place-items:center;border:2px solid #fff;border-radius:50%;background:#ef4444;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.35);font-size:18px;font-weight:900;line-height:1;pointer-events:none}
-.uv-remove{position:absolute;z-index:20;top:8px;left:8px;width:28px;height:28px;display:none;place-items:center;padding:0;border:2px solid #fff;border-radius:50%;background:#ef4444;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.35);cursor:pointer}
-body.uv-editing .uv-editable>.uv-remove{display:grid}
-.uv-remove i{font-size:18px;font-weight:900}
+body.uv-editing .uv-editable{outline:2px solid rgba(255,213,75,.62);outline-offset:3px;border-radius:12px}
+/* Mục con vẽ động (tab Notify, ô số liệu, thẻ trục...) thường nằm trong vùng cuộn: viền vẽ ra ngoài sẽ bị vùng cuộn
+   cắt mất cạnh trên/dưới → vẽ viền vào bên trong. */
+body.uv-editing [data-uv-item].uv-editable{outline-offset:-2px}
+/* Nút "−" nằm trong lớp nổi #uvBadges (ui-visibility.js đặt toạ độ theo góc khối), không nằm trong khối nên không
+   đè lên chữ và không bị vùng cuộn cắt. Lớp nổi thấp hơn bảng chọn (80), thanh chỉnh sửa (81), menu bên (69/70),
+   hộp thoại (90) để không nổi lên trên các lớp đó. */
+.uv-badges{position:fixed;inset:0;z-index:60;pointer-events:none}
+.uv-remove{position:absolute;left:0;top:0;width:24px;height:24px;display:grid;place-items:center;padding:0;border:2px solid #fff;border-radius:50%;background:#ef4444;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.35);cursor:pointer;pointer-events:auto;font-size:18px;font-weight:900;line-height:1;will-change:transform}
+.uv-remove[hidden]{display:none}
+.uv-remove:hover{background:#dc2626}
+.uv-remove span{display:block;margin-top:-2px}
 .uv-edit-bar{position:fixed;z-index:81;left:50%;bottom:16px;display:none;align-items:center;gap:8px;padding:8px 10px 8px 14px;border:1px solid var(--line-soft);border-radius:14px;background:var(--panel2);color:var(--text);box-shadow:0 10px 32px rgba(0,0,0,.35);transform:translateX(-50%)}
 .uv-edit-bar.open{display:flex}
-.uv-edit-bar b{margin-right:4px;font-size:13px;white-space:nowrap}
+.uv-edit-title{display:flex;flex-direction:column;margin-right:6px;line-height:1.25}
+.uv-edit-bar b{font-size:13px;white-space:nowrap}
+.uv-count{font-size:11.5px;color:var(--muted);white-space:nowrap}
+.uv-count.has{color:var(--gold,#ffd54b);font-weight:800}
+
+
+/* Nút "Sửa màn hình" ở đầu trang + số mục đang ẩn */
+.uv-open-btn{position:relative}
+.uv-open-btn.active{border-color:var(--gold,#ffd54b)!important;color:var(--gold,#ffd54b)!important}
+.uv-count-badge{display:inline-grid;place-items:center;min-width:18px;height:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:#ef4444;color:#fff;font-size:11px;font-weight:900;line-height:1}
+.uv-count-badge[hidden]{display:none}
+.uv-menu-count{margin-left:auto;padding:1px 7px;border-radius:9px;background:rgba(239,68,68,.18);color:#fca5a5;font-size:11px;font-weight:800}
+.uv-menu-count[hidden]{display:none}
 .uv-edit-bar button{display:inline-flex;align-items:center;gap:5px;padding:8px 10px;font-size:12px;white-space:nowrap}
 
 /* ---- Bố cục lưới tự co giãn ---- */
@@ -31,6 +49,23 @@ body.uv-editing .uv-editable>.uv-remove{display:grid}
 /* Màn hình hẹp (lưới 2 cột): Notify mặc định chỉ chiếm cột trái; khi đang ở chế độ co giãn thì cho kín ngang, không để nửa phải trống. */
 @media (max-width:1450px){.dashboard-grid.uv-on #notificationsWidget{grid-column:1/-1!important}}
 
+/* ---- Không để hở/lệch ở mọi cỡ màn hình (rà 02/11/2026: 1920, 1600, 1366, 1280, 1100, 900, điện thoại) ----
+   1) Lưới 2 cột (≤1450px) và 1 cột (≤1000px) của theme-base.css đặt cứng số hàng cho từng khối; khối "Nguồn dữ liệu"
+      đã ẩn vĩnh viễn từ 08/10/2026 (và khối "Dashboard kết quả xử lý" luôn ẩn) vẫn giữ chỗ → Notify đứng một mình nửa
+      hàng (trống ~800px bên phải) và có hàng trống giữa các khối. Bỏ số hàng cứng, xếp theo `order`, Notify kéo hết
+      hàng. */
+@media (max-width:1450px){
+  .dashboard-grid>.widget{grid-row:auto!important}
+  .dashboard-grid>.gis-widget{order:1}
+  .dashboard-grid>#notificationsWidget{order:2;grid-column:1/-1!important}
+  .dashboard-grid>#indicatorsWidget{order:3}
+  .dashboard-grid.btm-tw-layout>#indicatorsWidget{order:1}
+}
+/* 2) Ba thẻ Tổng quan (Văn bản / Nhiệm vụ giao / Nhiệm vụ nhận): lưới 2 cột cứng ở ≤1500px làm thẻ thứ 3 đứng lẻ nửa
+      hàng, ẩn bớt thẻ cũng để hở. Đổi sang xếp tràn: đủ chỗ thì cạnh nhau, thẻ lẻ cuối hàng tự giãn kín hàng. */
+#roleScopeCards .pie-grid{display:flex;flex-wrap:wrap}
+#roleScopeCards .pie-grid>.pie-card{flex:1 1 360px;min-width:0}
+
 /* Khi mọi khối đều ẩn */
 .uv-empty{display:none;margin:14px 0;padding:34px 18px;text-align:center;border:1px dashed var(--line-soft);border-radius:16px;color:var(--muted)}
 .uv-empty.show{display:block}
@@ -38,15 +73,18 @@ body.uv-editing .uv-editable>.uv-remove{display:grid}
 .uv-empty button{margin-top:12px}
 
 /* ---- Bảng chọn ---- */
-.uv-panel{position:fixed;z-index:80;width:min(560px,calc(100vw - 32px));max-width:calc(100vw - 20px);max-height:calc(var(--vh,1vh)*82);display:none;flex-direction:column;overflow:hidden;border:1px solid var(--line-soft);border-radius:16px;background:var(--panel2);color:var(--text);box-shadow:0 20px 56px rgba(0,0,0,.46)}
+.uv-panel{position:fixed;z-index:80;width:min(780px,calc(100vw - 32px));container-type:inline-size;container-name:uvpanel;max-width:calc(100vw - 20px);max-height:calc(var(--vh,1vh)*82);display:none;flex-direction:column;overflow:hidden;border:1px solid var(--line-soft);border-radius:16px;background:var(--panel2);color:var(--text);box-shadow:0 20px 56px rgba(0,0,0,.46)}
 .uv-panel.open{display:flex}
 .uv-resize-handle{position:absolute;right:2px;bottom:2px;width:20px;height:20px;z-index:2;cursor:nwse-resize;touch-action:none}
 .uv-resize-handle::after{content:"";position:absolute;right:4px;bottom:4px;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);opacity:.8}
 .uv-resize-handle:hover::after{border-color:var(--blue);opacity:1}
-.uv-head{flex:0 0 auto;padding:16px 19px 12px;border-bottom:1px solid var(--line-soft)}
+.uv-head{flex:0 0 auto;padding:12px 16px 9px;border-bottom:1px solid var(--line-soft)}
 .uv-head{cursor:move;touch-action:none;user-select:none}
-.uv-head b{display:block;font-size:16px;font-weight:900}
-.uv-head small{display:block;margin-top:5px;font-size:12.5px;line-height:1.45;color:var(--muted)}
+.uv-head b{display:block;font-size:15px;font-weight:900}
+.uv-head small{display:block;margin-top:3px;font-size:12px;line-height:1.4;color:var(--muted)}
+.uv-search{flex:0 0 auto;padding:9px 14px}
+.uv-search input{width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid var(--line-soft);border-radius:10px;background:rgba(0,0,0,.18);color:var(--text);font-size:13px}
+.uv-search input:focus{outline:2px solid var(--blue);outline-offset:0}
 .uv-list{min-height:0;padding:9px 11px;overflow-y:auto;overscroll-behavior:contain}
 .uv-node{position:relative}
 .uv-node+.uv-node{margin-top:5px}
@@ -57,10 +95,10 @@ body.uv-editing .uv-editable>.uv-remove{display:grid}
 .uv-group-row .uv-lb{font-size:12.5px;font-weight:900}
 .uv-children{margin:3px 0 6px 15px;padding-left:10px;border-left:1px solid rgba(87,178,255,.28)}
 .uv-children.collapsed{display:none}
-.uv-child-row{padding-top:8px;padding-bottom:8px}
+.uv-child-row{padding-top:7px;padding-bottom:7px}
 .uv-node[data-depth="2"]>.uv-row{padding-left:14px}
 .uv-row:has(input:disabled){opacity:.5;cursor:not-allowed}
-.uv-row{display:flex;align-items:center;gap:9px;padding:10px 10px;border-radius:11px;user-select:none}
+.uv-row{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;user-select:none}
 .uv-row:hover{background:rgba(87,178,255,.12)}
 .uv-collapse,.uv-tree-spacer{flex:0 0 20px;width:20px;height:24px;display:grid;place-items:center;padding:0;border:0;background:transparent;color:var(--muted);font-size:16px;font-weight:900}
 .uv-collapse{cursor:pointer}
@@ -68,16 +106,46 @@ body.uv-editing .uv-editable>.uv-remove{display:grid}
 .uv-toggle{display:flex;align-items:center;gap:12px;flex:1;min-width:0;cursor:pointer}
 .uv-toggle:has(input:disabled){cursor:not-allowed}
 .uv-row .uv-ic{flex:0 0 24px;text-align:center;font-size:17px}
-.uv-row .uv-lb{flex:1;min-width:0;font-size:14px;font-weight:700;line-height:1.4}
+.uv-row .uv-lb{flex:1;min-width:0;font-size:13.5px;font-weight:700;line-height:1.35}
 .uv-row input{position:absolute;opacity:0;pointer-events:none}
 .uv-switch{flex:0 0 42px;height:24px;border-radius:12px;background:rgba(128,150,170,.45);position:relative;transition:background .15s}
 .uv-switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .15s}
-.uv-row input:checked+.uv-switch{background:var(--blue)}
-.uv-row input:checked+.uv-switch::after{transform:translateX(18px)}
-.uv-row input:focus-visible+.uv-switch{outline:2px solid var(--gold);outline-offset:2px}
+.uv-panel input:checked+.uv-switch{background:var(--blue)}
+.uv-panel input:checked+.uv-switch::after{transform:translateX(18px)}
+.uv-panel input:focus-visible+.uv-switch{outline:2px solid var(--gold);outline-offset:2px}
 .uv-none{padding:14px 10px;font-size:12.5px;color:var(--muted)}
-.uv-foot{flex:0 0 auto;display:flex;gap:10px;padding:11px 15px 14px;border-top:1px solid var(--line-soft);background:var(--panel2)}
+.uv-foot{flex:0 0 auto;display:flex;gap:10px;padding:10px 14px 12px;border-top:1px solid var(--line-soft);background:var(--panel2)}
 .uv-foot button{flex:1;padding:10px 12px;font-size:13px;white-space:nowrap}
+
+/* ---- Bảng 2 cột: trái = các khối lớn, phải = mục con của khối đang chọn ----
+   Mỗi cột tự cuộn; bảng không còn 1 danh sách dài kéo hết các khối. */
+.uv-list.uv-2col{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(220px,34%) minmax(0,1fr);grid-template-rows:minmax(0,1fr);padding:0;overflow:hidden;border-top:1px solid var(--line-soft)}
+.uv-roots{min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:4px;padding:8px;border-right:1px solid var(--line-soft)}
+.uv-root-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border:1px solid transparent;border-radius:10px;cursor:pointer;user-select:none}
+.uv-root-item:hover{background:rgba(87,178,255,.08)}
+.uv-root-item.on{background:rgba(87,178,255,.16);border-color:rgba(87,178,255,.45)}
+.uv-root-item:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.uv-root-item .uv-ic{flex:0 0 22px;text-align:center;font-size:16px}
+.uv-root-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.uv-root-txt .uv-lb{font-size:13.5px;font-weight:800;line-height:1.3}
+.uv-root-txt small{font-size:11.5px;color:var(--muted);line-height:1.3}
+.uv-root-txt small em{font-style:normal;font-weight:800;color:var(--gold,#ffd54b)}
+html.theme-light .uv-root-txt small em,html.theme-green .uv-root-txt small em{color:#b45309}
+.uv-root-item.off .uv-root-txt .uv-lb{opacity:.6;text-decoration:line-through}
+.uv-root-switch{flex:0 0 auto;display:flex;align-items:center;cursor:pointer}
+.uv-root-switch input{position:absolute;opacity:0;pointer-events:none}
+.uv-detail{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:8px 10px}
+.uv-detail-head{display:flex;align-items:center;gap:8px;padding:4px 8px 9px;margin-bottom:4px;border-bottom:1px solid rgba(87,178,255,.14);font-size:14px}
+.uv-detail-note{margin:6px 4px 8px;padding:8px 10px;border-radius:9px;background:rgba(255,213,75,.1);color:var(--muted);font-size:12px;line-height:1.4}
+.uv-detail>.uv-node+.uv-node{margin-top:2px}
+/* Bảng hẹp (điện thoại, hoặc bị kéo nhỏ): cột trái thành 1 hàng khối cuộn ngang phía trên, mục con bên dưới */
+@container uvpanel (max-width:520px){
+  .uv-list.uv-2col{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+  .uv-roots{flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:0;border-bottom:1px solid var(--line-soft);padding:8px}
+  .uv-root-item{flex:0 0 auto;max-width:210px;padding:7px 9px}
+  .uv-root-txt .uv-lb{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .uv-root-txt small{display:none}
+}
 
 /* ---- Điện thoại: 3 nút hành động chung 1 hàng, bảng chọn gần full ngang ---- */
 @media (max-width:640px){
@@ -91,3 +159,15 @@ body.uv-editing .uv-editable>.uv-remove{display:grid}
   .uv-edit-bar{left:10px;right:10px;bottom:10px;justify-content:center;transform:none}
   .uv-edit-bar b{flex:1;min-width:0}
 }
+
+/* Đầu trang chật (≤1700px, kể cả điện thoại): nút "Sửa màn hình" chỉ còn biểu tượng ✏️ + số đỏ, để tên trung tâm
+   không phải xuống thêm dòng và hàng nút trên điện thoại không cao lên; rê chuột vẫn có chú thích đủ. */
+@media (max-width:1700px){
+  .uv-open-label{display:none}
+  .rt-actions-grid .uv-open-btn{flex:0 0 auto!important;padding-left:11px!important;padding-right:11px!important;white-space:nowrap!important}
+}
+/* 641–1320px: biểu tượng vẫn đẩy tên trung tâm xuống thêm dòng → ẩn nút đầu trang, vào bằng menu tài khoản (menu vẫn
+   hiện "đang ẩn N"). */
+@media (min-width:641px) and (max-width:1320px){ .rt-actions-grid .uv-open-btn{display:none} }
+/* Nền sáng: chữ "Đang ẩn N mục" màu vàng khó đọc → đổi sang cam đậm. */
+html.theme-light .uv-count.has,html.theme-green .uv-count.has{color:#b45309}
