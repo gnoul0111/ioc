@@ -311,7 +311,7 @@ const XA_EF_KTXH = {
   },
   cot: ['tpg', 'kh', 'uoc', 'ht', 'htIoc'],
   bieu: [{ loai: 'dong', t: 'Mức độ hoàn thành đã nhập từng chỉ tiêu (thấp đến cao)', m: 'ht', tang: true }, { loai: 'cot', t: 'Số chỉ tiêu theo nhóm', theo: 'nhom_chi_tieu', m: 'n' }],
-  kt: [{ l: '«Đánh giá mức độ hoàn thành (%)» lệch IOC tính quá 0,1 điểm (bản đọc KTXH-1)', c: ['danh_gia_muc_do_hoan_thanh'], f: (R) => efNum(R.kh_nam) > 0 && xaLech(efNum(R.danh_gia_muc_do_hoan_thanh), Math.round(R.uoc_thuc_hien_den_nay / R.kh_nam * 1000) / 10) }],
+  /* không đánh dấu «Đánh giá mức độ hoàn thành (%)» lệch IOC tính — số xã nhập, anh bỏ cảnh báo 03/11/2026 (bản đọc KTXH-1); cột IOC tính vẫn đặt cạnh */
   luuY: '«Thành phố Giao», «Kế hoạch năm» là số kế hoạch của eform: chỉ hiện, không so tăng giảm, không làm mốc chấm điểm. «Ước thực hiện đến nay» là lũy kế: xem quý, năm lấy bản cuối kỳ, so cùng kỳ năm trước.'
 };
 

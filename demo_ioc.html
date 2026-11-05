@@ -46,6 +46,8 @@
  <link rel="stylesheet" href="css/oua-data-sources.css?v=20261022" />
  <link rel="stylesheet" href="css/login-history.css?v=20261009c" />
  <link rel="stylesheet" href="css/ui-visibility.css?v=20261029-5" />
+ <link rel="stylesheet" href="css/ioc-xuat.css?v=20261105-9" />
+ <link rel="stylesheet" href="css/ioc-moc.css?v=20261105-2" />
  <!-- CSS bổ sung cho "Cài đặt cây thư mục" (Phase 7, kéo-thả) — để riêng thay vì sửa vào css/oua.css (1 dòng minified) cho an toàn, vẫn scoped dưới #ouaScreen. -->
  <style>
    #ouaScreen .oua-dnd-node{cursor:grab}
@@ -751,6 +753,8 @@
  <div class="right-tools">
  <div class="rt-actions-grid">
  <button class="ghost" onclick="toggleSideNav()">🗂️ Cơ cấu tổ chức</button>
+ <!-- Xuất báo cáo PDF: chọn kiểu (tổng quan / chi tiết) và nội dung; mỗi lần xuất IOC chốt dữ liệu (js/features/ioc-xuat.js) — bản dựng giao diện 05/11/2026. -->
+ <button class="ghost ix-open-btn" type="button" onclick="ixOpen()" title="Xuất báo cáo PDF: chọn kiểu báo cáo và nội dung muốn xuất" aria-label="Xuất báo cáo">⬇<span class="ix-open-label"> Xuất báo cáo</span></button>
  <button class="ghost" onclick="openActionLogModal()" hidden>📜 Nhật ký thao tác</button>
  <select id="themeSelect" onchange="setTheme(this.value)" title="Đổi giao diện" style="border:1px solid rgba(87,178,255,.34);background:rgba(8,34,61,.8);border-radius:12px;padding:10px 12px;font-weight:800;color:#d9efff;cursor:pointer">
  <option value="dark">🌙 Chế độ tối</option>
@@ -759,13 +763,15 @@
  </select>
  </div>
  <div class="rt-account-col">
- <div class="clock-card"><b id="clock">--:--:--</b><br/><span class="muted" id="dateText">--</span></div>
+ <!-- Bấm ô đồng hồ → lịch «Dữ liệu đã chốt»: các mốc xuất báo cáo, xem lại trên IOC hoặc tải PDF (js/features/ioc-moc.js) — bản dựng giao diện 05/11/2026. -->
+ <div class="clock-card" id="clockCard" role="button" tabindex="0" aria-haspopup="dialog" aria-expanded="false" title="Xem dữ liệu đã chốt" onclick="mcOpen()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();mcOpen()}"><b id="clock">--:--:--</b><br/><span class="muted" id="dateText">--</span></div>
  <!-- Bấm vào khối tên người dùng → menu tài khoản (js/core/login-history.js). -->
  <div class="user-pill" id="userPill" role="button" tabindex="0" aria-haspopup="menu" aria-expanded="false" onclick="toggleAccountMenu()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAccountMenu()}">
  <div class="role-icon" id="currentIcon"></div>
  <div class="truncate"><b id="currentRoleName">--</b><small id="currentRoleDesc">--</small></div>
  <div class="acct-menu hidden" id="acctMenu" role="menu" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()">
  <button type="button" role="menuitem" onclick="openUiEditMode()"><i class="ti ti-layout-dashboard"></i>Chỉnh sửa màn hình</button>
+ <button type="button" role="menuitem" onclick="ixOpen()"><i class="ti ti-download"></i>Xuất báo cáo</button>
  <button type="button" role="menuitem" onclick="openChangePassword()"><i class="ti ti-key"></i>Đổi mật khẩu</button>
  <button type="button" role="menuitem" onclick="openLoginHistory()"><i class="ti ti-file-text"></i>Xem nhật ký đăng nhập</button>
  </div>
@@ -1068,7 +1074,7 @@
  <script src="js/core/demo-data-generator.js"></script>
  <script src="js/core/init-data.js"></script>
  <script src="js/core/schedule.js"></script>
- <script src="js/core/login.js?v=20261009"></script>
+ <script src="js/core/login.js?v=20261105b"></script>
  <script src="js/core/modal-drawer-toast.js"></script>
  <script src="js/core/overview.js"></script>
  <script src="js/core/results-dashboard.js"></script>
@@ -1142,7 +1148,7 @@
 <script src="js/features/ctm-truc-eform.js?v=20261028g"></script>
 <script src="js/features/ctm-so-eform.js?v=20261028k"></script>
 <script src="js/features/ctm-so-eform2.js?v=20261028k"></script>
-<script src="js/features/ctm-xa-eform.js?v=20261102a"></script>
+<script src="js/features/ctm-xa-eform.js?v=20261104a"></script>
  <script src="js/features/sidebar-org.js?v=20261009"></script>
  <script src="js/data/vn34-map-data.js"></script>
  <script src="js/features/btctw-national-map.js"></script>
@@ -1150,5 +1156,7 @@
  <script src="js/features/btctw-task-tally.js"></script>
  <script src="js/features/render-all.js"></script>
  <script src="js/features/ui-visibility.js?v=20261029-12"></script>
+<script src="js/features/ioc-xuat.js?v=20261105-9"></script>
+<script src="js/features/ioc-moc.js?v=20261105-2"></script>
 </body>
 </html>
