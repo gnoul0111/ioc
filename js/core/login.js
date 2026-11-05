@@ -218,10 +218,13 @@
  function logout(){
  if(currentAccount) pushActionLog({category:'auth',icon:'',title:`${currentAccount.title} đăng xuất hệ thống`,sub:`Kết thúc phiên làm việc · Trục ${roleMeta(currentRole).name||currentRole}`,detail:`Tài khoản: ${currentAccount.user||currentAccount.title} · Đăng xuất chủ động.`});
  if(typeof closeLoginHistory==='function'){closeLoginHistory();toggleAccountMenu(false);}
+ if(typeof mcReset==='function') mcReset();
  currentAccount=null;currentRole=null;currentSoId=null;currentXaId=null;currentOfficeId=null;window.__homeScope=null;window.__viewingLabel=null;window.__viewingIcon=null;closePanels();document.getElementById('app').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');resetLoginCombo();
  if(typeof btctwEmbedSync==='function') btctwEmbedSync()
  }
  function updateClock(){
+ /* Đang xem dữ liệu đã chốt (js/features/ioc-moc.js): đồng hồ dừng ở giờ của mốc */
+ if(typeof mcClockFrozen==='function'&&mcClockFrozen()) return;
  const d=new Date();
  const timeStr=`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
  const dateStr=d.toLocaleDateString('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
