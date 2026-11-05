@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Sinh tài liệu mô tả chỉ tiêu theo eform của từng sở, ngành cấp Thành phố: docs/<ĐƠN VỊ>/<MÃ>_MO_TA_CHI_TIEU.docx + .md
-(bản 2.0, thay bản 27/10/2026 theo bộ chỉ tiêu cũ — bản cũ lưu ở docs/_CU_2026_10_27/).
+(bản 2.0, thay bản 27/10/2026 theo bộ chỉ tiêu cũ).
 Chạy từ thư mục gốc ioc:  python3 tools/so_mo_ta_docx.py [mã đơn vị …]   (cần python-docx; Node lấy từ biến NODE hoặc PATH)
 Eform, chỉ tiêu, cách tính, biểu đồ, kiểm tra, vai trò từng trường và số mẫu đọc thẳng từ code qua tools/tp_srs_dump.js nên luôn
 khớp giao diện; lỗi file eform và các câu đã chốt lấy từ bản đọc eform (docs/BAN_DOC_EFORM). Phần màn hình viết theo hành vi chung
@@ -90,7 +90,7 @@ def gen(uid):
     tren = (f'Thuộc đơn vị «{u["name"]}» trên IOC (eform của sheet "Sở Du lịch")' if uid == 'dl' else f'Đơn vị «{u["name"]}» trên IOC, mỗi eform một thẻ')
     table([['Phạm vi', f'{tren}; màn hình chỉ tiêu, cách tính, Dữ liệu đã nhập của {len(efs)} eform'],
            ['Căn cứ', f'File mô tả đầu vào eform (sheet của đơn vị); bản đọc eform đã duyệt (docs/BAN_DOC_EFORM/{", ".join(docs)}); quy ước chỉ tiêu theo eform bản 2.0; mã nguồn IOC đang chạy'],
-           ['Phiên bản', f'{VER} — thay bản 27/10/2026 (bộ chỉ tiêu cũ, lưu ở docs/_CU_2026_10_27/)'], ['Ngày lập', NGAY]], [3.5, 12.5], header=False, key_col=True, size=12)
+           ['Phiên bản', f'{VER} — thay bản 27/10/2026 (bộ chỉ tiêu cũ)'], ['Ngày lập', NGAY]], [3.5, 12.5], header=False, key_col=True, size=12)
     k.page_break(); k.toc(); k.page_break()
     # ---------- I. quy ước ----------
     heading('PHẦN I. QUY ƯỚC CHUNG', 1)
@@ -181,7 +181,7 @@ def gen(uid):
            ['js/features/' + ('ctm-truc-eform.js' if uid == 'ubnd-vpubnd' else 'ctm-so-eform.js' if uid in ('ubnd-thanhtra', 'ubnd-congthuong', 'ubnd-noivu', 'ubnd-nnmt') else 'ctm-so-eform2.js'), 'Khai báo eform, chỉ tiêu của đơn vị'],
            ['js/core/eform-mau.js', 'Bản ghi mẫu theo khung eform (cờ EF_LA_MAU)'],
            ['tools/tp_srs_dump.js, tools/so_mo_ta_docx.py', 'Sinh tài liệu này từ cấu hình đang chạy']], [6.0, 10.0], size=10)
-    table([['Phiên bản', 'Ngày', 'Nội dung'], ['1.0', '27/10/2026', 'Bộ chỉ tiêu cũ (lưu ở docs/_CU_2026_10_27/)'],
+    table([['Phiên bản', 'Ngày', 'Nội dung'], ['1.0', '27/10/2026', 'Bộ chỉ tiêu cũ'],
            [VER, NGAY, f'Làm lại theo {len(efs)} eform: chỉ dùng trường của eform; hiện đủ trường ở Dữ liệu đã nhập; số đã nhập hiện đúng, IOC tính ghi rõ; lần lại bản ghi; kỳ Tháng/Quý/Năm']],
           [2.2, 2.6, 11.2], size=10.5)
     from docx.oxml import OxmlElement

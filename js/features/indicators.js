@@ -242,30 +242,41 @@
  function uvTagIndicatorItems(grid){
  if(!grid || typeof uvApply!=='function') return;
  const selectors='.field-category-card,.uo-kpi,.uo-gcard,.uo-card,.stc-kpi,.stc-gcard,.stc-card,.indicator-kpi-tile';
- const occurrences=new Map();
+ const occurrences=new Map(), legacyOccurrences=new Map(), aliases=[];
  grid.querySelectorAll(selectors).forEach(el=>{
  const heading=el.querySelector('h2,h3,h4,.stc-lb,.ikt-label')?.textContent.trim()||el.textContent.trim().slice(0,120);
  if(!heading) return;
+ const group=el.matches('.uo-kpi,.stc-kpi,.indicator-kpi-tile')
+ ?{id:'summary',kind:'kpi',label:'Số liệu then chốt',icon:'📊'}
+ :el.matches('.uo-gcard,.stc-gcard')
+ ?{id:'groups',kind:'group',label:'Nhóm lĩnh vực / trục',icon:'🗂️'}
+ :{id:'fields',kind:'unit',label:'Danh sách lĩnh vực',icon:'🏢'};
+ /* Mã cố định (ui-visibility.js → uvIndicatorItemId): theo việc ô làm khi bấm + tên ô, KHÔNG theo bộ lọc đang chọn,
+ KHÔNG theo số thứ tự → ẩn ở bộ lọc "Tất cả" thì sang "Thành ủy"/"UBND TP" ô đó vẫn ẩn. */
+ const base=uvIndicatorItemId(group.kind,el.getAttribute('onclick')||el.id||'',heading);
+ const index=occurrences.get(base)||0;
+ occurrences.set(base,index+1);
+ const id=index?`${base}-${index+1}`:base;
+ /* Mã cũ (trước 02/11/2026: kèm bộ lọc + class, hoặc mã theo số thứ tự do ubnd-overview.js gắn) → báo cho
+ ui-visibility.js chuyển các lựa chọn đã lưu sang mã mới, không phải ẩn lại. */
  const scope=typeof activeCategoryRole!=='undefined'&&activeCategoryRole?activeCategoryRole:(typeof currentRole!=='undefined'?currentRole:'all');
  const kind=[...el.classList].filter(c=>c!=='uv-hidden'&&c!=='uv-editable').sort().join('-')||'item';
  const identity=el.id||el.getAttribute('onclick')||heading;
- const base=`indicator-${scope}-${kind}-${identity.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase()}`;
- const index=occurrences.get(base)||0;
- occurrences.set(base,index+1);
- if(!el.dataset.uvItem) el.dataset.uvItem=index?`${base}-${index+1}`:base;
+ const legacyBase=`indicator-${scope}-${kind}-${identity.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase()}`;
+ const legacyIndex=legacyOccurrences.get(legacyBase)||0;
+ legacyOccurrences.set(legacyBase,legacyIndex+1);
+ const legacy=el.dataset.uvItem&&el.dataset.uvItem!==id?el.dataset.uvItem:(legacyIndex?`${legacyBase}-${legacyIndex+1}`:legacyBase);
+ aliases.push([legacy,id]);
+ el.dataset.uvItem=id;
  el.dataset.uvLabel=heading;
  el.dataset.uvIcon='📊';
  const parent=el.closest('#uoOverviewBand')?'ubndIndicatorOverview':'indicators';
- const group=el.matches('.uo-kpi,.stc-kpi,.indicator-kpi-tile')
- ?{id:'summary',label:'Số liệu then chốt',icon:'📊'}
- :el.matches('.uo-gcard,.stc-gcard')
- ?{id:'groups',label:'Nhóm lĩnh vực / trục',icon:'🗂️'}
- :{id:'fields',label:'Danh sách lĩnh vực',icon:'🏢'};
  el.dataset.uvParent=parent;
  el.dataset.uvGroup=`${parent}-${group.id}`;
  el.dataset.uvGroupLabel=group.label;
  el.dataset.uvGroupIcon=group.icon;
  });
+ if(typeof uvAddIdAliases==='function') uvAddIdAliases(aliases);
  uvApply(false);
  }
  function renderCategoryGrid(){

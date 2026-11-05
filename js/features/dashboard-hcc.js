@@ -138,7 +138,7 @@ function hccFoot() {
 function hccCard(o) {
   const title = o.xa ? '<button type="button" class="sgd-ctl" onclick="hccXa(\'' + o.xa + '\')" title="Xem theo sở, ngành và 126 phường/xã">' + hccE(o.title) + '</button>' : '<h3 class="stc-ct">' + hccE(o.title) + '</h3>';
   const right = (o.tree ? hccLnk('Chi tiết ›', "hccDetail('" + o.tree + "')") : '') + (o.src && (HCC_SHOW_TECH || o.warn) ? '<span class="stc-bd' + (o.warn ? ' warn' : '') + '">' + hccE(o.src) + '</span>' : '');
-  return '<div class="stc-card"><div class="stc-ch"><div>' + title + '<div class="stc-cs">' + hccE(o.sub || '') + '</div></div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end">' + right + '</div></div>' + o.body + '</div>';
+  return '<div class="stc-card" data-fc="' + hccE(o.title) + '"><div class="stc-ch"><div>' + title + '<div class="stc-cs">' + hccE(o.sub || '') + '</div></div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end">' + right + '</div></div>' + o.body + '</div>';
 }
 function hccSubP(unit) { const n = hccNP(); return hccPeriodLabel(n.p) + (n.pp != null ? ' so với ' + hccPeriodLabel(n.pp) : '') + (unit ? ' · ' + unit : ''); }
 
@@ -167,9 +167,12 @@ const HCC_KPIS = [
   { label: 'Tỷ lệ số hóa hồ sơ', target: 'sh', v: (M) => hccFmt(M.shR[0], 1) + '%', u: () => 'hồ sơ số hóa khi tiếp nhận', dl: (M) => hccDl(M.shR[0], M.shR[1], { rate: true }) },
   { label: 'Tỷ lệ hài lòng', target: 'hl', v: (M) => hccFmt(M.hlR[0], 1) + '%', u: (M) => hccFmt(M.dg[0]) + ' lượt đánh giá', dl: (M) => hccDl(M.hlR[0], M.hlR[1], { rate: true }) }
 ];
+/* Thẻ chứa số của từng ô số (cùng thứ tự HCC_KPIS): bấm ô số → mở nhóm, cuộn tới thẻ đó, viền sáng một lúc */
+const HCC_KPI_CARD = ['Hồ sơ tiếp nhận theo kênh nộp', 'Hồ sơ tiếp nhận theo kênh nộp', 'Tỷ lệ giải quyết đúng hạn theo khối', 'Kết quả giải quyết hồ sơ', 'Hồ sơ đang xử lý trễ hạn', 'Mức độ cung cấp thủ tục trực tuyến', 'Tỷ lệ số hóa hồ sơ theo khối', 'Mức độ hài lòng'];
+HCC_KPIS.forEach((k, i) => { k.fc = HCC_KPI_CARD[i]; });
 function hccKpiTile(k, M, onclick) {
   const d = k.dl(M) || '<span class="stc-dl flat"><span class="stc-ref">Chưa có kỳ so sánh</span></span>';
-  return '<button type="button" class="stc-kpi" onclick="' + (onclick || ("hccGo('group','" + k.target + "')")) + '"><div class="stc-lb">' + hccE(k.label) + '</div><div class="stc-v">' + k.v(M) + '</div><div class="stc-u">' + hccE(k.u(M)) + '</div><div style="margin-top:10px;min-height:18px">' + d + '</div></button>';
+  return '<button type="button" class="stc-kpi" onclick="' + (onclick || ('hccGoFocus(' + hccE(JSON.stringify(k.target)) + ',' + hccE(JSON.stringify(k.fc)) + ')')) + '"><div class="stc-lb">' + hccE(k.label) + '</div><div class="stc-v">' + k.v(M) + '</div><div class="stc-u">' + hccE(k.u(M)) + '</div><div style="margin-top:10px;min-height:18px">' + d + '</div></button>';
 }
 function hccGl(label, val, unit, dl) {
   return '<div class="stc-gl"><span>' + hccE(label) + '</span><span class="stc-v">' + val + (unit ? '<small>' + hccE(unit) + '</small>' : '') + '</span><span>' + (dl || '') + '</span></div>';
@@ -731,6 +734,7 @@ function hccRerender(resetScroll) {
   body.innerHTML = '<div class="stc-root hcc-root stc-wrap">' + html + '</div>' + hccTasksHtml();
   if (typeof lcFit === 'function') lcFit(body);
   body.scrollTop = resetScroll ? 0 : top;
+  if (HCC_UI.focus) hccFocusApply(body);
   if (HCC_UI.focusQ) {
     const inp = body.querySelector('#hccQ');
     if (inp) { inp.focus(); const L = inp.value.length; try { inp.setSelectionRange(L, L); } catch (e) { /* bỏ qua */ } }
@@ -741,6 +745,8 @@ function hccOpenForm(itemIndex, role) {
   if (role) HCC_UI.role = role;
   const it = typeof itemIndex === 'number' ? HCC_ITEMS[itemIndex] : null;
   const key = it ? it.hccKey : 'home';
+  /* HCC_UI.focusNext: ô số ở băng ngoài lưới — mở nhóm rồi cuộn tới thẻ của số đó */
+  HCC_UI.focus = HCC_UI.focusNext || null; HCC_UI.focusNext = null;
   HCC_UI.dd = null; HCC_UI.pick = null; HCC_UI.xa.sel = null;
   if (key === 'xa') HCC_UI.screen = 'xa';
   else if (HCC_GROUPS.some((g) => g.id === key)) { HCC_UI.screen = 'group'; HCC_UI.group = key; }
@@ -752,8 +758,21 @@ function hccOpenForm(itemIndex, role) {
   if (typeof openModal === 'function') openModal();
   /* lần dựng đầu popup còn ẩn: vẽ lại biểu đồ đường khi popup đã hiện */
   if (typeof lcFit === 'function') lcFit(document.getElementById('modalBody'));
+  if (HCC_UI.focus) setTimeout(() => hccFocusApply(document.getElementById('modalBody')), 280);
 }
 function hccClose() { HCC_UI.open = false; if (typeof closeModal === 'function') closeModal(); }
+function hccGoFocus(group, fc) { HCC_UI.focus = fc || null; hccGo('group', group); }
+/* Cuộn tới thẻ có tiêu đề = HCC_UI.focus, viền sáng một lúc; popup chưa hiện thì để lại, hccOpenForm gọi lại */
+function hccFocusApply(body) {
+  const fc = HCC_UI.focus;
+  if (!fc || !body || !body.getClientRects().length) return;
+  HCC_UI.focus = null;
+  const el = Array.prototype.find.call(body.querySelectorAll('[data-fc]'), (e) => e.getAttribute('data-fc') === fc);
+  if (!el) return;
+  body.scrollTop = Math.max(0, el.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 12);
+  el.classList.add('stc-focus');
+  setTimeout(() => { el.classList.remove('stc-focus'); }, 2600);
+}
 function hccGo(screen, arg) { HCC_UI.dd = null; HCC_UI.pick = null; HCC_UI.screen = screen; if (screen === 'group' && arg) HCC_UI.group = arg; hccRerender(true); }
 function hccDetail(id) { HCC_UI.dd = null; HCC_UI.pick = null; HCC_UI.screen = 'detail'; if (id) HCC_UI.tree = id; hccRerender(true); }
 function hccPick(id) { HCC_UI.pick = HCC_UI.pick === id ? null : id; hccRerender(false); }
@@ -834,7 +853,7 @@ function hccOverviewBandHtml(cat, idx) {
   const M = hccMetrics();
   const openArgs = (i) => "'" + cat.role + "','" + cat.id + "'," + i;
   const itemIdx = (key) => { const i = HCC_ITEMS.findIndex((x) => x.hccKey === key); return i < 0 ? idx : i; };
-  let body = '<div class="stc-kpis">' + HCC_KPIS.map((k) => hccKpiTile(k, M, 'openCategoryDetail(' + openArgs(itemIdx(k.target)) + ')')).join('') + '</div>';
+  let body = '<div class="stc-kpis">' + HCC_KPIS.map((k) => hccKpiTile(k, M, 'HCC_UI.focusNext=' + hccE(JSON.stringify(k.fc)) + ';openCategoryDetail(' + openArgs(itemIdx(k.target)) + ')')).join('') + '</div>';
   body += '<div class="stc-sec" style="margin:4px 0 12px">Năm nhóm chỉ tiêu · mỗi nhóm một màn hình</div>';
   body += '<div class="sgd-g3">' + HCC_GROUPS.map((g) => hccGroupCard(g, M, 'openCategoryDetail(' + openArgs(itemIdx(g.id)) + ')')).join('') + hccXaCard('openCategoryDetail(' + openArgs(itemIdx('xa')) + ')') + '</div>';
   const foot = '<p class="cpi-legend" style="margin:10px 0 0;font-size:11px;display:flex;justify-content:space-between;gap:8px"><span>' + hccPeriodLabel(HCC_UI.period) + ' · 5 nhóm · ' + HCC_XA_INDS.length + ' chỉ tiêu theo ' + (HCC_SO.length + 126) + ' đơn vị</span><span style="color:#f2b636;font-weight:700;font-size:10.5px;letter-spacing:.3px">DỮ LIỆU GIẢ LẬP</span></p>';

@@ -55,3 +55,6 @@ next-env.d.ts
 
 # file rác Python tự sinh
 __pycache__/
+
+# bản dump database: không đưa lên repo (repo public)
+/api/*.sql

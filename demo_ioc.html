@@ -32,20 +32,20 @@
  HTML bao quanh, nên cần html2canvas để rasterize cả khối DOM. -->
  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
- <link rel="stylesheet" href="css/theme-base.css?v=20261006b" />
+ <link rel="stylesheet" href="css/theme-base.css?v=20261102b" />
  <link rel="stylesheet" href="css/theme-light.css" />
  <link rel="stylesheet" href="css/theme-green.css" />
 <!-- ===== OUA (Quản trị Đơn vị & Người dùng) — màn hình riêng biệt, CSS scoped dưới #ouaScreen để không đụng UI chính ===== -->
- <link rel="stylesheet" href="css/stc.css" />
+ <link rel="stylesheet" href="css/stc.css?v=20261102a" />
  <link rel="stylesheet" href="css/sgd.css" />
  <link rel="stylesheet" href="css/hcc.css" />
  <link rel="stylesheet" href="css/ubnd-overview.css?v=20261102a" />
- <link rel="stylesheet" href="css/ctm.css?v=20261102a" />
- <link rel="stylesheet" href="css/oua.css" />
+ <link rel="stylesheet" href="css/ctm.css?v=20261103c" />
+ <link rel="stylesheet" href="css/oua.css?v=20261102a" />
  <link rel="stylesheet" href="css/oua-login-log.css?v=20261013" />
  <link rel="stylesheet" href="css/oua-data-sources.css?v=20261022" />
  <link rel="stylesheet" href="css/login-history.css?v=20261009c" />
- <link rel="stylesheet" href="css/ui-visibility.css?v=20261029-5" />
+ <link rel="stylesheet" href="css/ui-visibility.css?v=20261103-1" />
  <link rel="stylesheet" href="css/ioc-xuat.css?v=20261105-9" />
  <link rel="stylesheet" href="css/ioc-moc.css?v=20261105-2" />
  <!-- CSS bổ sung cho "Cài đặt cây thư mục" (Phase 7, kéo-thả) — để riêng thay vì sửa vào css/oua.css (1 dòng minified) cho an toàn, vẫn scoped dưới #ouaScreen. -->
@@ -753,6 +753,8 @@
  <div class="right-tools">
  <div class="rt-actions-grid">
  <button class="ghost" onclick="toggleSideNav()">🗂️ Cơ cấu tổ chức</button>
+ <!-- Bật/tắt chế độ chỉnh sửa màn hình (js/features/ui-visibility.js); số đỏ = số mục đang ẩn. -->
+ <button class="ghost uv-open-btn" id="uvOpenBtn" type="button" aria-pressed="false" onclick="uvToggleEditMode(event)" title="Chỉnh sửa màn hình: ẩn/hiện các khối nội dung" aria-label="Chỉnh sửa màn hình">✏️<span class="uv-open-label"> Sửa màn hình</span><span class="uv-count-badge" hidden></span></button>
  <!-- Xuất báo cáo PDF: chọn kiểu (tổng quan / chi tiết) và nội dung; mỗi lần xuất IOC chốt dữ liệu (js/features/ioc-xuat.js) — bản dựng giao diện 05/11/2026. -->
  <button class="ghost ix-open-btn" type="button" onclick="ixOpen()" title="Xuất báo cáo PDF: chọn kiểu báo cáo và nội dung muốn xuất" aria-label="Xuất báo cáo">⬇<span class="ix-open-label"> Xuất báo cáo</span></button>
  <button class="ghost" onclick="openActionLogModal()" hidden>📜 Nhật ký thao tác</button>
@@ -770,7 +772,7 @@
  <div class="role-icon" id="currentIcon"></div>
  <div class="truncate"><b id="currentRoleName">--</b><small id="currentRoleDesc">--</small></div>
  <div class="acct-menu hidden" id="acctMenu" role="menu" onclick="event.stopPropagation()" onkeydown="event.stopPropagation()">
- <button type="button" role="menuitem" onclick="openUiEditMode()"><i class="ti ti-layout-dashboard"></i>Chỉnh sửa màn hình</button>
+ <button type="button" role="menuitem" onclick="openUiEditMode()"><i class="ti ti-layout-dashboard"></i>Chỉnh sửa màn hình<span class="uv-menu-count" id="uvMenuCount" hidden></span></button>
  <button type="button" role="menuitem" onclick="ixOpen()"><i class="ti ti-download"></i>Xuất báo cáo</button>
  <button type="button" role="menuitem" onclick="openChangePassword()"><i class="ti ti-key"></i>Đổi mật khẩu</button>
  <button type="button" role="menuitem" onclick="openLoginHistory()"><i class="ti ti-file-text"></i>Xem nhật ký đăng nhập</button>
@@ -1094,7 +1096,7 @@
  <script src="js/core/gis.js"></script>
  <script src="js/core/cad-data.js?v=20261023"></script>
  <script src="js/features/gis-cad.js?v=20261024c"></script>
- <script src="js/features/indicators.js?v=20261029-5"></script>
+ <script src="js/features/indicators.js?v=20261102-1"></script>
  <script src="js/features/dashboard-education.js?v=20261005j"></script>
  <script src="js/features/dashboard-ubkt.js"></script>
  <script src="js/features/dashboard-to-chuc.js"></script>
@@ -1126,16 +1128,16 @@
  <script src="js/features/dashboard-syt.js?v=20261005"></script>
  <script src="js/data/stc-snapshot.js"></script>
  <script src="js/features/stc-data.js"></script>
- <script src="js/features/dashboard-stc.js?v=20261005"></script>
+ <script src="js/features/dashboard-stc.js?v=20261103a"></script>
 <script src="js/features/sgd-data.js"></script>
-<script src="js/features/dashboard-sgd.js?v=20261005"></script>
+<script src="js/features/dashboard-sgd.js?v=20261103a"></script>
 <script src="js/features/hcc-data.js"></script>
-<script src="js/features/dashboard-hcc.js?v=20261005"></script>
-<script src="js/features/ubnd-overview.js?v=20261029-2"></script>
+<script src="js/features/dashboard-hcc.js?v=20261103a"></script>
+<script src="js/features/ubnd-overview.js?v=20261103a"></script>
 <script src="js/core/ctm-xa.js?v=20261008"></script>
 <script src="js/core/xa-eform.js?v=20261031a"></script>
 <script src="js/core/xa-eform-mau.js?v=20261102a"></script>
-<script src="js/features/ctm-engine.js?v=20261102c"></script>
+<script src="js/features/ctm-engine.js?v=20261103b"></script>
 <script src="js/features/ctm-mttq.js?v=20261009"></script>
 <script src="js/features/ctm-dang.js?v=20261009"></script>
 <script src="js/features/ctm-hdnd.js?v=20261009"></script>
@@ -1144,7 +1146,7 @@
 <script src="js/features/ctm-so.js?v=20261019"></script>
 <script src="js/core/eform-khung.js?v=20261028k"></script>
 <script src="js/core/eform-mau.js?v=20261028k"></script>
-<script src="js/features/ctm-eform.js?v=20261102a"></script>
+<script src="js/features/ctm-eform.js?v=20261103a"></script>
 <script src="js/features/ctm-truc-eform.js?v=20261028g"></script>
 <script src="js/features/ctm-so-eform.js?v=20261028k"></script>
 <script src="js/features/ctm-so-eform2.js?v=20261028k"></script>
@@ -1155,7 +1157,7 @@
  <script src="js/features/btctw-embed.js"></script>
  <script src="js/features/btctw-task-tally.js"></script>
  <script src="js/features/render-all.js"></script>
- <script src="js/features/ui-visibility.js?v=20261029-12"></script>
+ <script src="js/features/ui-visibility.js?v=20261103-4"></script>
 <script src="js/features/ioc-xuat.js?v=20261105-9"></script>
 <script src="js/features/ioc-moc.js?v=20261105-2"></script>
 </body>

@@ -236,13 +236,31 @@ function ubndOvLineHtml(x) {
   if (!UBND_OV_SHOW_COMPARE) return '<div class="uo-gl uo-col"><span class="uo-l">' + uoE(x.l) + '</span><span class="uo-v">' + x.v + '</span><span class="uo-u">' + uoE(x.u) + '</span></div>';
   return '<div class="uo-gl"><span class="uo-l">' + uoE(x.l) + '</span><span class="uo-v">' + x.v + (x.u ? '<small>' + uoE(x.u) + '</small>' : '') + '</span><span class="uo-d">' + (x.d || '') + '</span></div>';
 }
+/* Bấm ô số: mở đúng nhóm của sở, cuộn tới thẻ của chính số đó và viền sáng (Sở Tài chính: STC_UI.focusNext; TT HCC: HCC_UI.focusNext;
+   sở theo khung chỉ tiêu chung: CTM_UI.focus). Không tìm được nhóm thì mở popup như cũ. */
+function ubndOvKpiAct(k, role, x) {
+  const open = (t) => 'openCategoryDetail(' + JSON.stringify(role) + ',' + JSON.stringify(k.cat) + (t != null ? ',' + JSON.stringify(t) : '') + ')';
+  try {
+    if (k.cat === 'ubnd-taichinh' && typeof STC_KPIS !== 'undefined' && typeof STC_ITEMS !== 'undefined') {
+      const ind = ['thu', 'chi', 'vdt', 'grdp'][k.line || 0], K = STC_KPIS.find((y) => y.ind === ind), i = K ? STC_ITEMS.findIndex((y) => y.stcKey === K.target) : -1;
+      if (i >= 0) return 'STC_UI.focusNext=' + JSON.stringify(ind) + ';' + open(i);
+    }
+    if (k.cat === 'ubnd-hcc' && typeof HCC_KPIS !== 'undefined' && typeof HCC_ITEMS !== 'undefined') {
+      const K = HCC_KPIS[k.line || 0], i = K ? HCC_ITEMS.findIndex((y) => y.hccKey === K.target) : -1;
+      if (i >= 0) return 'HCC_UI.focusNext=' + JSON.stringify(K.fc) + ';' + open(i);
+    }
+    const spec = typeof CTM_SPECS !== 'undefined' ? CTM_SPECS[k.cat] : null, m = (x && x.k) || k.m;
+    if (spec && m && typeof ctmGroupOf === 'function') { const t = ctmGroupOf(spec, m); if (t) return 'CTM_UI.focus=' + JSON.stringify(m) + ';' + open(t); }
+  } catch (e) { /* mở popup như cũ */ }
+  return open(null);
+}
 function ubndOvKpiHtml(k, D, role, index) {
   const S = D[k.cat], L = S && S.lines, byKey = k.m && L ? L.find((y) => y.k === k.m) : null, x = byKey || (L && (k.m && L.some((y) => y.k) ? null : L[k.line]));
   const d = x && x.d ? x.d : '<span class="stc-dl na">Chưa có kỳ so sánh</span>';
   /* Số và đơn vị cùng một hàng (anh yêu cầu 2026-10-06); "%" dính liền vào số. k.u ghi đè đơn vị khi nhãn ô đã nói rõ. */
   const u = x ? (k.u != null ? k.u : x.u) : '';
   const val = x ? x.v + (u === '%' ? '<small class="uo-pct">%</small>' : u ? '<small>' + uoE(u) + '</small>' : '') : '—';
-  return '<button type="button" class="stc-kpi uo-kpi" data-uv-item="ubnd-kpi-' + index + '" data-uv-label="' + uoE(k.label) + '" data-uv-icon="📊" data-uv-parent="ubndIndicatorOverview" onclick="openCategoryDetail(\'' + role + '\',\'' + k.cat + '\')">' +
+  return '<button type="button" class="stc-kpi uo-kpi" data-uv-item="ubnd-kpi-' + index + '" data-uv-label="' + uoE(k.label) + '" data-uv-icon="📊" data-uv-parent="ubndIndicatorOverview" onclick="' + uoE(ubndOvKpiAct(k, role, x)) + '">' +
     '<div class="stc-lb">' + uoE(k.label) + '</div><div class="stc-v">' + val + '</div>' + (x ? '' : '<div class="stc-u">Chưa có số liệu</div>') +
     (UBND_OV_SHOW_COMPARE ? '<div class="uo-kd">' + (x ? d : '') + '</div>' : '') + '<div class="uo-ksrc">' + uoE((UBND_OV_SHORT[k.cat] || k.cat) + (S && S.ky ? ' · ' + S.ky : '')) + '</div></button>';
 }

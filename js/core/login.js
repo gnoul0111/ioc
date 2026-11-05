@@ -149,9 +149,11 @@
  const combo=document.getElementById('ouaRealLoginCombo'); if(!combo||combo.contains(e.target)) return;
  const box=document.getElementById('ouaRealLoginResults'); if(box) box.classList.add('hidden');
  });
+ /* Mặc định điền sẵn tài khoản Thành ủy (danguy) — anh yêu cầu 05/11/2026; vẫn chọn/nhập tài khoản khác được. */
  function resetLoginCombo(){
- document.getElementById('username').value=''; document.getElementById('password').value='';
- const label=document.getElementById('acctComboLabel'); if(label){label.textContent='— Chọn tài khoản theo cây tổ chức —'; label.classList.add('muted');}
+ const def=(typeof accounts!=='undefined'&&accounts.danguy)||{user:'danguy',pass:'123456',title:'Tài khoản Thành ủy'};
+ document.getElementById('username').value=def.user; document.getElementById('password').value=def.pass||'123456';
+ const label=document.getElementById('acctComboLabel'); if(label){label.textContent=def.title; label.classList.remove('muted');}
  document.querySelectorAll('#acctComboTree .active').forEach(b=>b.classList.remove('active'));
  toggleAcctCombo(false);
  }

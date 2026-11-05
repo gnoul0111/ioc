@@ -68,7 +68,9 @@
 #ouaScreen .oua-adm-org .ax{font-weight:800}
 #ouaScreen .oua-adm-org .so{color:var(--sub);font-weight:600}
 #ouaScreen .oua-adm-none{font-style:italic;color:var(--sub);font-size:13px}
-#ouaScreen .oua-adm-grant{display:inline-flex;white-space:nowrap;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:rgba(20,195,142,.13);border:1px solid rgba(20,195,142,.4);color:#baf5e2;font-size:12px;font-weight:700;margin:2px 4px 2px 0}
+/* white-space:normal + max-width:100% (02/11/2026): tên đơn vị dài trong viên phân quyền (~515px) không xuống dòng, tràn khỏi cột
+   172px → cả màn quản trị cuộn ngang ~318px ở 1366/1100px. */
+#ouaScreen .oua-adm-grant{display:inline-flex;white-space:normal;max-width:100%;overflow-wrap:anywhere;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;background:rgba(20,195,142,.13);border:1px solid rgba(20,195,142,.4);color:#baf5e2;font-size:12px;font-weight:700;margin:2px 4px 2px 0}
 #ouaScreen .oua-adm-grant button,#ouaScreen .oua-adm-mgrant button{border:none;background:transparent;color:inherit;cursor:pointer;font-weight:900;padding:0;margin-left:2px}
 #ouaScreen .oua-adm-more{display:flex;justify-content:center;margin-top:14px}
 #ouaScreen .oua-adm-more:empty{height:1px;margin:0} /* vẫn phải hiện (cao 1px): là mốc nạp thêm dòng khi cuộn */

@@ -249,7 +249,9 @@ html.theme-light .stc-root{--page:#f3f5f9;--card:#ffffff;--card2:#f5f7fb;--line:
 .stc-kdl small{display:block;font-size:10.5px;font-weight:500;color:var(--mute);margin-bottom:3px;white-space:nowrap}
 .stc-kdl .stc-dl{margin-top:0;font-size:12px}
 .stc-root .stc-gmore{margin-top:8px;font-size:12.5px;font-weight:600;color:var(--accent)}
-.stc-root .stc-pn{display:flex;justify-content:space-between;gap:20px;margin-top:22px;padding-top:14px;border-top:1px solid var(--line)}
+/* flex-wrap + link được xuống dòng (02/11/2026): trên điện thoại link "nhóm sau ›" dài bị cắt mép phải. */
+.stc-root .stc-pn .stc-lnk{white-space:normal}
+.stc-root .stc-pn{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 20px;margin-top:22px;padding-top:14px;border-top:1px solid var(--line)}
 .stc-root .stc-secrow{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 12px}
 .stc-root .stc-secrow .stc-sec{margin:0}
 
