@@ -8,7 +8,7 @@
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800;900&display=swap" rel="stylesheet">
  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
- <link rel="stylesheet" href="css/gis.css?v=20261029-1" />
+ <link rel="stylesheet" href="css/gis.css?v=20261106-1" />
  <link rel="stylesheet" href="css/gis-cad.css?v=20261024c" />
  <link rel="stylesheet" href="css/btctw-national-map.css" />
  <link rel="stylesheet" href="css/btctw-task-tally.css" />
@@ -32,7 +32,7 @@
  HTML bao quanh, nên cần html2canvas để rasterize cả khối DOM. -->
  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
- <link rel="stylesheet" href="css/theme-base.css?v=20261102b" />
+ <link rel="stylesheet" href="css/theme-base.css?v=20261106a" />
  <link rel="stylesheet" href="css/theme-light.css" />
  <link rel="stylesheet" href="css/theme-green.css" />
 <!-- ===== OUA (Quản trị Đơn vị & Người dùng) — màn hình riêng biệt, CSS scoped dưới #ouaScreen để không đụng UI chính ===== -->
@@ -48,6 +48,7 @@
  <link rel="stylesheet" href="css/ui-visibility.css?v=20261103-1" />
  <link rel="stylesheet" href="css/ioc-xuat.css?v=20261105-9" />
  <link rel="stylesheet" href="css/ioc-moc.css?v=20261105-2" />
+ <link rel="stylesheet" href="css/widget-fs.css?v=20261106-3" />
  <!-- CSS bổ sung cho "Cài đặt cây thư mục" (Phase 7, kéo-thả) — để riêng thay vì sửa vào css/oua.css (1 dòng minified) cho an toàn, vẫn scoped dưới #ouaScreen. -->
  <style>
    #ouaScreen .oua-dnd-node{cursor:grab}
@@ -857,7 +858,6 @@
  <button class="mini-btn" onclick="gisSetTheme('light')" title="Nền sáng" style="padding-left:5px">☀</button>
  <button class="mini-btn" onclick="gisSetTheme('satellite')" title="Ảnh vệ tinh" style="padding-left:4px">🛰</button>
  <button class="mini-btn" onclick="gisResetView()" title="Về trung tâm phường">⌖</button>
- <button class="mini-btn" onclick="gisToggleFullscreen(this)" id="gisFsBtn" title="Toàn màn hình">⛶</button>
  <button class="mini-btn" onclick="toggleWidgetBody(this)">−</button>
  </div>
  </div>
@@ -978,7 +978,7 @@
  </article>
 
  <article class="widget" id="indicatorsWidget" data-widget="indicators">
- <div class="widget-head"><div class="widget-title">Nhóm chỉ tiêu theo lĩnh vực được phép xem</div><div style="display:flex;gap:5px;flex-shrink:0"><button class="mini-btn ind-fs-btn" onclick="indicatorsToggleFullscreen(this)" title="Phóng to toàn màn hình" aria-label="Phóng to toàn màn hình">⛶</button><button class="mini-btn" onclick="toggleWidgetBody(this)">−</button></div></div>
+ <div class="widget-head"><div class="widget-title">Nhóm chỉ tiêu theo lĩnh vực được phép xem</div><div style="display:flex;gap:5px;flex-shrink:0"><button class="mini-btn" onclick="toggleWidgetBody(this)">−</button></div></div>
  <div class="widget-body">
  <div id="indicatorRoleTabs"></div>
  <div class="field-category-grid" id="indicatorGrid"></div>
@@ -1076,9 +1076,9 @@
  <script src="js/core/demo-data-generator.js"></script>
  <script src="js/core/init-data.js"></script>
  <script src="js/core/schedule.js"></script>
- <script src="js/core/login.js?v=20261105b"></script>
- <script src="js/core/modal-drawer-toast.js"></script>
- <script src="js/core/overview.js"></script>
+ <script src="js/core/login.js?v=20261106a"></script>
+ <script src="js/core/modal-drawer-toast.js?v=20261106a"></script>
+ <script src="js/core/overview.js?v=20261106-1"></script>
  <script src="js/core/results-dashboard.js"></script>
  <script src="js/core/drawer-list.js"></script>
  <script src="js/core/scenarios.js?v=20261009f"></script>
@@ -1093,13 +1093,13 @@
  <script src="js/core/audit-log.js"></script>
  <script src="js/core/login-history.js?v=20261009c"></script>
  <script src="js/core/my-tasks-notify.js?v=20261029-4"></script>
- <script src="js/core/gis.js"></script>
+ <script src="js/core/gis.js?v=20261106-1"></script>
  <script src="js/core/cad-data.js?v=20261023"></script>
  <script src="js/features/gis-cad.js?v=20261024c"></script>
- <script src="js/features/indicators.js?v=20261102-1"></script>
+ <script src="js/features/indicators.js?v=20261106-1"></script>
  <script src="js/features/dashboard-education.js?v=20261005j"></script>
  <script src="js/features/dashboard-ubkt.js"></script>
- <script src="js/features/dashboard-to-chuc.js"></script>
+ <script src="js/features/dashboard-to-chuc.js?v=20261106-1"></script>
  <script src="js/features/dashboard-noi-chinh.js"></script>
  <script src="js/features/dashboard-tuyen-giao.js"></script>
  <script src="js/features/dashboard-nong-nghiep.js"></script>
@@ -1160,5 +1160,7 @@
  <script src="js/features/ui-visibility.js?v=20261103-4"></script>
 <script src="js/features/ioc-xuat.js?v=20261105-9"></script>
 <script src="js/features/ioc-moc.js?v=20261105-2"></script>
+<!-- Nút ⛶ phóng to toàn màn hình (như F11) cho 4 widget màn hình Thành phố: Tổng quan điều hành, GIS, Notify, Nhóm chỉ tiêu. -->
+<script src="js/features/widget-fs.js?v=20261106-1"></script>
 </body>
 </html>

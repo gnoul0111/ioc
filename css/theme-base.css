@@ -325,11 +325,7 @@
  #indicatorsWidget{grid-column:2/4;grid-row:2;height:750px}
  #axisDashboardWidget,#notificationsWidget{height:550px}
  #axisDashboardWidget .widget-body,#notificationsWidget .widget-body,#sourcesWidget .widget-body,#indicatorsWidget .widget-body{flex:1;min-height:0;overflow-y:auto}
- #indicatorsWidget.ind-fs-active{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;z-index:85!important;border-radius:0!important;margin:0!important}
- #indicatorsWidget.ind-fs-active .widget-body{padding:16px 20px}
- /* Nền tối mặc định của .widget hơi trong (alpha .96) — khi phủ toàn màn hình thì dùng nền đặc để không lộ trang phía sau.
-    Giao diện sáng/xanh lá đã có nền đặc riêng (theme-light.css / theme-green.css). */
- html:not(.theme-light):not(.theme-green) #indicatorsWidget.ind-fs-active{background:linear-gradient(180deg,#071e36,#03101e)}
+ /* Phóng to toàn màn hình của widget: css/widget-fs.css (lớp .wfs-on). */
  #axisDashboardWidget:has(.widget-body.hidden),#notificationsWidget:has(.widget-body.hidden),#sourcesWidget:has(.widget-body.hidden),#indicatorsWidget:has(.widget-body.hidden),.gis-widget:has(.widget-body.hidden){height:auto}
  @media (max-width:1450px){.dashboard-grid{grid-template-columns:1fr 1.5fr}#axisDashboardWidget,#notificationsWidget,.gis-widget{height:480px}#sourcesWidget,#indicatorsWidget{height:650px}#notificationsWidget{grid-column:1;grid-row:3}#indicatorsWidget{grid-column:1/3;grid-row:4}#sourcesWidget{grid-column:2;grid-row:2}}
  @media (max-width:1000px){.dashboard-grid{grid-template-columns:1fr}#axisDashboardWidget,#notificationsWidget,.gis-widget{grid-column:1!important;height:420px}#sourcesWidget,#indicatorsWidget{grid-column:1!important;height:560px}#axisDashboardWidget{grid-row:1}.gis-widget{grid-row:2}#notificationsWidget{grid-row:3}#sourcesWidget{grid-row:4}#indicatorsWidget{grid-row:5}}

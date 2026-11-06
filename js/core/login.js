@@ -165,6 +165,7 @@
  document.addEventListener('keydown',e=>{if(e.key==='Enter' && !document.getElementById('loginScreen').classList.contains('hidden')){e.preventDefault();login()}})
  }
  function enterApp(account,role,soId,xaId,officeId){
+ if(typeof wfsExit==='function') wfsExit(); // đang phóng to widget mà đổi tài khoản thì thu về trước
  currentAccount=account; currentRole=role; currentSoId=soId||null; currentXaId=(xaId!=null&&xaId!=='')?String(xaId):null; currentOfficeId=officeId||null;
  activeMetric='received'; activeIndicatorRole=role; activeCategoryRole=(currentXaId!=null&&!soId&&typeof CTM_XA_ALL_TAB!=='undefined'&&CTM_XA_ALL_TAB)?'ALL':(soId||currentXaId)?'UBND':((role==='DANG'||role==='TW_ALL')?'ALL':role);
  document.getElementById('loginScreen').classList.add('hidden');
@@ -218,6 +219,7 @@
  /* Đúng tài khoản nhưng sai mật khẩu → ghi 1 lượt "Sai mật khẩu" vào nhật ký đăng nhập của tài khoản đó (login-history.js). */
  function loginFailed(user){if(typeof lhRecordFailedLogin==='function') lhRecordFailedLogin(user);}
  function logout(){
+ if(typeof wfsExit==='function') wfsExit();
  if(currentAccount) pushActionLog({category:'auth',icon:'',title:`${currentAccount.title} đăng xuất hệ thống`,sub:`Kết thúc phiên làm việc · Trục ${roleMeta(currentRole).name||currentRole}`,detail:`Tài khoản: ${currentAccount.user||currentAccount.title} · Đăng xuất chủ động.`});
  if(typeof closeLoginHistory==='function'){closeLoginHistory();toggleAccountMenu(false);}
  if(typeof mcReset==='function') mcReset();

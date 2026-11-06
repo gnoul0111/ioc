@@ -3,7 +3,8 @@
  function unlockScroll(){
  const drawerOpen=document.getElementById('drawer')?.classList.contains('open');
  const modalOpen=document.querySelector('.modal.open');
- if(!drawerOpen&&!modalOpen){document.body.style.overflow='';document.documentElement.style.overflow='';}
+ const widgetFs=document.documentElement.classList.contains('wfs-active'); // widget đang phóng to (widget-fs.js) vẫn giữ khóa cuộn
+ if(!drawerOpen&&!modalOpen&&!widgetFs){document.body.style.overflow='';document.documentElement.style.overflow='';}
  }
  function openDrawer(){const act=document.getElementById('drawerHeadActions');if(act)act.innerHTML='';document.getElementById('overlay').classList.add('show');document.getElementById('drawer').classList.add('open');lockScroll();}
  function closeDrawer(){document.getElementById('drawer').classList.remove('open'); if(!document.getElementById('modal').classList.contains('open')) document.getElementById('overlay').classList.remove('show'); unlockScroll();}
