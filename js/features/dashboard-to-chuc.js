@@ -69,11 +69,14 @@
  afterDraw(chart){
  const {ctx,chartArea}=chart; if(!chartArea) return;
  const cx=(chartArea.left+chartArea.right)/2, cy=(chartArea.top+chartArea.bottom)/2;
+ /* Widget đang phóng to toàn màn hình (widget-fs.js): chữ giữa vòng tròn to theo cỡ vòng (cỡ gốc 150px = 17px).
+    Các chỗ khác giữ nguyên cỡ chữ cố định như cũ. */
+ const k=(chart.canvas&&chart.canvas.closest&&chart.canvas.closest('.wfs-on'))?Math.max(1,Math.min(chartArea.right-chartArea.left,chartArea.bottom-chartArea.top)/150):1;
  ctx.save(); ctx.textAlign='center'; ctx.textBaseline='middle';
- ctx.fillStyle=chartLabelColor(); ctx.font="700 17px 'Be Vietnam Pro',Arial,sans-serif";
- ctx.fillText(line1,cx,cy-8);
- ctx.fillStyle=chartAxisColor(); ctx.font="600 9.5px 'Be Vietnam Pro',Arial,sans-serif";
- ctx.fillText(line2,cx,cy+11);
+ ctx.fillStyle=chartLabelColor(); ctx.font="700 "+(17*k)+"px 'Be Vietnam Pro',Arial,sans-serif";
+ ctx.fillText(line1,cx,cy-8*k);
+ ctx.fillStyle=chartAxisColor(); ctx.font="600 "+(9.5*k)+"px 'Be Vietnam Pro',Arial,sans-serif";
+ ctx.fillText(line2,cx,cy+11*k);
  ctx.restore();
  }
  };

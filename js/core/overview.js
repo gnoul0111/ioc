@@ -120,6 +120,7 @@
  function renderRoleScope(){
  const el=document.getElementById('roleScopeCards');if(!el)return;
  el.innerHTML=`<div class="top-overview-head"><div class="top-overview-title">Tổng quan điều hành theo tài khoản đăng nhập · Piechart, click xem chi tiết/giao nhiệm vụ</div><button class="mini-btn" onclick="toggleWidgetBody(this)">−</button></div><div class="top-overview-body widget-body" id="overviewPieBody"><div class="pie-grid" id="pieGrid"></div></div>`;
+ if(typeof wfsMountButtons==='function') wfsMountButtons(); // đầu khung vừa vẽ lại → gắn lại nút ⛶ phóng to (widget-fs.js)
  }
  /* Thẻ "Lịch công tác/kỳ họp" ở tổng quan trang chủ đang ẩn tạm — anh (luonghd2k) sẽ làm lại phần này.
     CHỈ ẨN, KHÔNG XÓA code/dữ liệu bên dưới. Đổi lại true để hiện thẻ như cũ. */

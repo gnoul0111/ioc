@@ -149,10 +149,7 @@
    cạnh tranh với các khối thông tin chính. */
 .gis-report-related{margin-top:4px;font-size:10.5px;color:#a8c3d8;line-height:1.6}
 
-/* Toàn màn hình khi bấm nút ⛶ */
-.gis-widget.gis-fs-active{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;z-index:8000!important;border-radius:0!important;margin:0!important}
-.gis-widget.gis-fs-active .gis-map-body{height:calc(100vh - 46px)!important}
-.gis-widget.gis-fs-active .widget-body{height:calc(100vh - 46px)!important}
+/* Toàn màn hình khi bấm nút ⛶: dùng cơ chế chung css/widget-fs.css (lớp .wfs-on). */
 
 @media (max-width:640px){
  .gis-map-body{grid-template-columns:1fr;grid-template-rows:1fr auto}

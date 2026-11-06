@@ -1,0 +1,78 @@
+/* ============================== PHÓNG TO TOÀN MÀN HÌNH TỪNG WIDGET (js/features/widget-fs.js) ==============================
+   .wfs-on gắn lên widget đang phóng to; html.wfs-active khi có một widget đang phóng to.
+   Widget phủ ở z-index 85: dưới overlay (90), drawer (100), modal (110), toast (200) → chi tiết vẫn mở lên trên. */
+
+/* ---------- Nút ⛶ / Thoát toàn màn hình ---------- */
+.widget-head .mini-btn.wfs-btn,.top-overview-head .mini-btn.wfs-btn{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;
+  padding:0;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);cursor:pointer}
+.top-overview-head .mini-btn.wfs-btn{margin-left:auto}
+.wfs-btn svg{width:14px;height:14px;flex-shrink:0}
+.widget-head .mini-btn.wfs-btn.wfs-btn-on,.top-overview-head .mini-btn.wfs-btn.wfs-btn-on{width:auto;height:34px;gap:8px;padding:0 12px 0 10px;border-radius:8px;border:1px solid rgba(255,213,75,.55);
+  background:rgba(0,0,0,.22);color:#ffe38a;font-size:13px;font-weight:700;white-space:nowrap}
+.wfs-btn.wfs-btn-on svg{width:16px;height:16px}
+.wfs-btn.wfs-btn-on kbd{font:600 11px/1 ui-monospace,Menlo,Consolas,monospace;color:#f7d9a0;border:1px solid rgba(255,213,75,.35);border-radius:4px;padding:3px 5px;background:rgba(0,0,0,.25)}
+.wfs-btn.wfs-btn-on:hover{background:rgba(0,0,0,.35)}
+/* Giao diện sáng: đầu khung đỏ → nút chữ trắng. Giao diện xanh lá: đầu khung xanh nhạt → nút chữ xanh đậm. */
+html.theme-light .widget-head .mini-btn.wfs-btn.wfs-btn-on,html.theme-light .top-overview-head .mini-btn.wfs-btn.wfs-btn-on{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.6)}
+html.theme-light .wfs-btn.wfs-btn-on kbd{color:#fff;border-color:rgba(255,255,255,.45);background:rgba(0,0,0,.18)}
+html.theme-green .widget-head .mini-btn.wfs-btn.wfs-btn-on,html.theme-green .top-overview-head .mini-btn.wfs-btn.wfs-btn-on{background:rgba(255,255,255,.7);color:#14603a;border-color:rgba(28,122,73,.45)}
+html.theme-green .wfs-btn.wfs-btn-on kbd{color:#14603a;border-color:rgba(28,122,73,.35);background:rgba(28,122,73,.08)}
+html.theme-green .widget-head .mini-btn.wfs-btn,html.theme-green .top-overview-head .mini-btn.wfs-btn{border-color:rgba(28,122,73,.35)}
+
+/* ---------- Khung chung khi phóng to ---------- */
+.wfs-on{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;
+  z-index:85!important;margin:0!important;border-radius:0!important;border:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+html:not(.theme-light):not(.theme-green) .wfs-on{background:linear-gradient(180deg,#071e36,#03101e)!important}
+.wfs-on>.widget-head,.wfs-on>.top-overview-head{flex:0 0 auto;min-height:56px!important;height:56px!important;padding:0 20px!important}
+.wfs-on>.widget-head .widget-title,.wfs-on>.top-overview-head .top-overview-title{font-size:18px!important}
+.wfs-on>.widget-body,.wfs-on>.top-overview-body{flex:1 1 auto!important;min-height:0!important;height:auto!important;overflow:auto}
+.wfs-on [onclick^="toggleWidgetBody"]{display:none!important}
+/* Các widget khác ẩn đi trong lúc phóng to: bản đồ Leaflet của widget khác (lớp 400–1000) không nổi đè lên được. */
+html.wfs-active .widget:not(.wfs-on),html.wfs-active .top-overview:not(.wfs-on){visibility:hidden}
+
+/* ---------- 1. Tổng quan điều hành: 3 cột cao hết màn hình, vòng tròn to, chú thích 2 cột dưới vòng tròn ---------- */
+#roleScopeCards.wfs-on .top-overview-body{padding:22px 26px!important;overflow:hidden}
+#roleScopeCards.wfs-on .pie-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));height:100%;gap:22px}
+#roleScopeCards.wfs-on .pie-grid>.pie-card{min-height:0;padding:24px 26px;grid-template-rows:auto minmax(0,1fr);gap:18px}
+#roleScopeCards.wfs-on .pie-card h3{font-size:24px}
+#roleScopeCards.wfs-on .pie-note{font-size:15px}
+#roleScopeCards.wfs-on .pie-card-body{grid-template-columns:1fr!important;grid-template-rows:auto auto;align-content:start;align-items:start;gap:34px;padding-top:6vh}
+#roleScopeCards.wfs-on .pie-donut-wrap{min-height:0}
+#roleScopeCards.wfs-on .pie-donut-wrap>div{width:40vh!important;height:40vh!important;max-width:100%}
+#roleScopeCards.wfs-on .pie-legend{grid-template-columns:1fr 1fr;gap:10px}
+#roleScopeCards.wfs-on .pie-legend button{padding:13px 14px;border-radius:11px}
+#roleScopeCards.wfs-on .pie-legend span,#roleScopeCards.wfs-on .pie-legend b{font-size:16px}
+#roleScopeCards.wfs-on .pie-legend i{width:14px;height:14px}
+#roleScopeCards.wfs-on .pie-card-body button.primary,#roleScopeCards.wfs-on .pie-card-body button.ghost{min-height:46px;font-size:15px}
+
+/* ---------- 2. Bản đồ GIS: bản đồ chiếm phần lớn, cột lớp bên phải rộng 400px ---------- */
+#gismap.wfs-on .gis-map-body{height:auto!important;flex:1 1 auto;min-height:0}
+#gismap.wfs-on .gis-layer-sidebar{padding:14px 16px}
+@media (min-width:1001px){#gismap.wfs-on .gis-map-body:not(.uv-sidebar-collapsed):not(.cad-on){grid-template-columns:1fr 400px!important}}
+
+/* ---------- 3. Notify: tìm kiếm + tab một hàng, thông báo xếp lưới 3 cột ---------- */
+#notificationsWidget.wfs-on>.widget-body{padding:0 26px 22px!important}
+#notificationsWidget.wfs-on .cad-toolbar{display:grid;grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:16px;align-items:center;padding:16px 0!important;margin-left:0!important;margin-right:0!important}
+#notificationsWidget.wfs-on .cad-toolbar>div{margin:0!important}
+#notificationsWidget.wfs-on .notify-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:stretch}
+#notificationsWidget.wfs-on .notify-list .notify{padding:14px 16px;align-items:start}
+#notificationsWidget.wfs-on .notify-list .notify b{font-size:15px}
+#notificationsWidget.wfs-on .notify-list .notify small{font-size:13px}
+
+/* ---------- 4. Nhóm chỉ tiêu: giữ bố cục đang có, chỉ cao thêm và cuộn trong khung ---------- */
+#indicatorsWidget.wfs-on>.widget-body{padding:16px 26px!important}
+
+/* ---------- Màn hẹp (máy tính bảng dọc, điện thoại) ---------- */
+@media (max-width:1000px){
+  #roleScopeCards.wfs-on .top-overview-body{overflow:auto}
+  #roleScopeCards.wfs-on .pie-grid{grid-template-columns:1fr;height:auto}
+  #roleScopeCards.wfs-on .pie-card-body{padding-top:0}
+  #roleScopeCards.wfs-on .pie-donut-wrap>div{width:min(60vw,320px)!important;height:min(60vw,320px)!important}
+  #notificationsWidget.wfs-on .cad-toolbar{grid-template-columns:1fr}
+  #notificationsWidget.wfs-on .notify-list{grid-template-columns:1fr}
+  #notificationsWidget.wfs-on>.widget-body,#indicatorsWidget.wfs-on>.widget-body{padding-left:12px!important;padding-right:12px!important}
+  .wfs-btn.wfs-btn-on span{display:none}
+}
+@media (min-width:1001px) and (max-width:1450px){
+  #notificationsWidget.wfs-on .notify-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+}

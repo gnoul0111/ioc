@@ -678,7 +678,7 @@ function createGisGroups(){
  gisEformData.forEach(rec=>{
   const b=gisBottleneckMeta(rec.bottleneck_code);
   const m=L.marker([rec.lat,rec.lng],{icon:gisMarkerIcon(gisMarkerStateColor(rec),b.code,size),riseOnHover:true,title:rec.title});
-  m.bindPopup(gisEformPopupHtml(rec));
+  m.bindPopup(gisEformPopupHtml(rec),GIS_POPUP_OPT);
   m.addTo(GM.groups[rec.bottleneck_code]);
   GM.markerRefs.set(rec.id,m);
  });
@@ -1011,7 +1011,7 @@ function submitGisReport(){
  gisEformData.push(rec);
  if(GM.map&&GM.groups[bcode]){
   const m=L.marker([lat,lng],{icon:gisMarkerIcon(gisMarkerStateColor(rec),b.code,gisMarkerSizeForZoom(GM.map.getZoom())),riseOnHover:true,title:rec.title});
-  m.bindPopup(gisEformPopupHtml(rec));
+  m.bindPopup(gisEformPopupHtml(rec),GIS_POPUP_OPT);
   m.addTo(GM.groups[bcode]);
   GM.markerRefs.set(rec.id,m);
   /* Marker mới rất dễ bị "chìm" giữa marker cluster có sẵn trên bản đồ,
@@ -1076,14 +1076,9 @@ function renderGisReportSidebar(){
   </div>`;
  }).join('');
 }
-function gisToggleFullscreen(btn){
- const widget=document.querySelector('.gis-widget');
- if(!widget)return;
- const isFs=widget.classList.toggle('gis-fs-active');
- if(btn) btn.title=isFs?'Thoát toàn màn hình':'Toàn màn hình';
- if(isFs) lockScroll(); else unlockScroll();
- setTimeout(()=>{GM.map&&GM.map.invalidateSize();},120);
- if(isFs){
-  document.addEventListener('keydown',function _esc(e){if(e.key==='Escape'){gisToggleFullscreen(btn);document.removeEventListener('keydown',_esc);}});
- }
-}
+/* Thẻ thông tin điểm nghẽn: chừa 52px phía trên cho thanh công cụ nổi trên bản đồ (.gis-map-topline) — trước đây
+   điểm sát mép trên thì thanh công cụ che mất dòng tiêu đề của thẻ. */
+var GIS_POPUP_OPT={autoPanPaddingTopLeft:[12,52],autoPanPaddingBottomRight:[12,12]};
+/* Phóng to toàn màn hình: dùng cơ chế chung của 4 widget màn hình Thành phố (js/features/widget-fs.js). Giữ tên hàm cũ
+   để chỗ nào còn gọi vẫn chạy. */
+function gisToggleFullscreen(){ if(typeof wfsToggle==='function') wfsToggle('gismap'); }

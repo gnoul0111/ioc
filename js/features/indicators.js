@@ -285,24 +285,9 @@
  uvTagIndicatorItems(grid);
  }
  function setFieldCategoryRole(role){activeCategoryRole=role; renderIndicators();}
- /* Nút ⛶ ở đầu khung "Nhóm chỉ tiêu theo lĩnh vực": phóng khung ra toàn màn hình (cùng cách nút toàn màn hình của bản đồ
-    GIS — lớp CSS cố định, không dùng Fullscreen API của trình duyệt). Bấm lại hoặc Esc để thu về. Lớp phủ đặt dưới
-    drawer/popup chi tiết (z-index 85) nên bấm thẻ sở khi đang phóng to vẫn mở chi tiết lên trên. */
- function indicatorsToggleFullscreen(btn){
- const w=document.getElementById('indicatorsWidget'); if(!w) return;
- const on=w.classList.toggle('ind-fs-active');
- const b=btn||w.querySelector('.ind-fs-btn');
- if(b){ const t=on?'Thu nhỏ về khung cũ (Esc)':'Phóng to toàn màn hình'; b.title=t; b.setAttribute('aria-label',t); b.setAttribute('aria-pressed',on?'true':'false'); }
- if(typeof lockScroll==='function'&&typeof unlockScroll==='function'){ if(on) lockScroll(); else unlockScroll(); }
- if(on) document.addEventListener('keydown',indicatorsFsEsc); else document.removeEventListener('keydown',indicatorsFsEsc);
- }
- /* Esc chỉ thu khung khi không có drawer/popup chi tiết nào đang mở phía trên (Esc lúc đó để đóng popup). */
- function indicatorsFsEsc(e){
- if(e.key!=='Escape') return;
- if(document.querySelector('#drawer.open,#modal.open')) return;
- const w=document.getElementById('indicatorsWidget');
- if(w&&w.classList.contains('ind-fs-active')) indicatorsToggleFullscreen();
- }
+ /* Phóng to toàn màn hình: dùng cơ chế chung của 4 widget màn hình Thành phố (js/features/widget-fs.js — nút ⛶, F11,
+    Esc, chi tiết mở lên trên). Giữ tên hàm cũ để chỗ nào còn gọi vẫn chạy. */
+ function indicatorsToggleFullscreen(){ if(typeof wfsToggle==='function') wfsToggle('indicatorsWidget'); }
 
  /* Lớp 1: dải KPI tổng quan cho toàn bộ lĩnh vực/chỉ tiêu đang được phép xem */
  function renderIndicatorKpiRow(){
