@@ -127,6 +127,8 @@
  Trên chính dashboard của mình (không view-as) thì mọi tài khoản vẫn thao tác bình thường như cũ. */
  function isReadOnlyViewAs(){return !!window.__homeScope && currentAccount?.role!=='DANG';}
  function guardAction(label){
+ /* Đang xem dữ liệu đã chốt (js/features/ioc-moc.js): chỉ xem, khóa mọi thao tác thay đổi dữ liệu */
+ if(typeof mcChiXem==='function'&&mcChiXem(label)) return true;
  if(!isReadOnlyViewAs()) return false;
  toast(`Chỉ xem — tài khoản này không có quyền ${label} khi xem IOC của cấp dưới (chỉ Thành ủy mới có quyền này).`);
  return true;

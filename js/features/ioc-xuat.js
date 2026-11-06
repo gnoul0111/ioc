@@ -8,10 +8,11 @@
      Bước 3 — bấm «Tải file PDF»; cạnh nút ghi báo cáo gồm những phần nào.
    Đầu mục ĂN THEO «Sửa màn hình» (js/features/ui-visibility.js): khối, mục con, tab Notify, thẻ đơn vị chỉ tiêu mà tài khoản không có
    hoặc người dùng đã ẩn thì không có trong danh sách; nội dung đang ẩn ghi ngay trong mục, mục ẩn cả mục ghi cuối cột trái.
-   BẢN DỰNG GIAO DIỆN: nút «Tải file PDF» chưa tạo file thật; chỉ thêm một mốc chốt (mẫu) vào lịch ở ô đồng hồ và báo tóm tắt lựa chọn.
+   Bấm «Tải file PDF» (ixXuat): chốt dữ liệu ngay lúc bấm (mcChup, js/features/ioc-moc.js), dựng PDF (ipTaoBaoCao, js/features/ioc-pdf.js),
+   lưu mốc (bản chụp + PDF) rồi tải file về; trong lúc dựng hiện tiến độ và khóa hộp.
    Mọi lớp CSS có tiền tố ix- (css/ioc-xuat.css). */
 
-const IX = { open: false, kieu: 'tq', act: null, tick: new Set(), dv: new Set(), mo: new Set(), cay: [], an: [] };
+const IX = { open: false, busy: false, step: null, kieu: 'tq', act: null, tick: new Set(), dv: new Set(), mo: new Set(), cay: [], an: [] };
 const ixE = (s) => (typeof esc === 'function' ? esc(s) : String(s == null ? '' : s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])));
 
 /* ---------- Ăn theo «Sửa màn hình» ---------- */
@@ -103,6 +104,8 @@ const ixSoChon = (k) => ixIt(k).filter((it) => IX.tick.has(ixKey(k, it))).length
 /* ---------- Mở, đóng ---------- */
 /* pre: mã khối mở sẵn và tích sẵn (VD nút Xuất Excel của một khối gọi ixOpen('indicators')) */
 function ixOpen(pre) {
+  if (typeof mcChiXem === 'function' && mcChiXem('xuất báo cáo mới')) return;
+  if (IX.busy) { const ov0 = document.getElementById('ixOv'); if (ov0) ov0.hidden = false; IX.open = true; return; }
   ixBuild();
   IX.tick = new Set(); IX.mo = new Set(); IX.kieu = 'tq';
   IX.dv = new Set();
@@ -118,12 +121,12 @@ function ixOpen(pre) {
     ov.addEventListener('change', ixChange);
     ov.addEventListener('keydown', (e) => { const r = e.target.closest && e.target.closest('.ix-root'); if (r && e.target === r && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); ixMoKhoi(r.dataset.k, true); } });
     document.body.appendChild(ov);
-    document.addEventListener('keydown', (e) => { if (IX.open && e.key === 'Escape') { e.preventDefault(); ixClose(); } });
+    document.addEventListener('keydown', (e) => { if (IX.open && !IX.busy && e.key === 'Escape') { e.preventDefault(); ixClose(); } });
   }
   IX.open = true; ov.hidden = false;
   ixRender(true);
 }
-function ixClose() { IX.open = false; const ov = document.getElementById('ixOv'); if (ov) ov.hidden = true; }
+function ixClose() { if (IX.busy) return; IX.open = false; const ov = document.getElementById('ixOv'); if (ov) ov.hidden = true; }
 function ixMoKhoi(id, focus) { IX.act = id; ixRender(true); if (focus) { const f = document.querySelector('#ixOv .ix-root.on'); if (f) f.focus(); } }
 
 /* ---------- Vẽ ---------- */
@@ -134,7 +137,7 @@ function ixRender(dau) {
   if (!ov || !IX.open) return;
   const d0 = ov.querySelector('.ix-detail'), r0 = ov.querySelector('.ix-roots'), top = d0 && !dau ? d0.scrollTop : 0, rtop = r0 ? r0.scrollTop : 0;
   const acct = ((document.getElementById('currentRoleName') || {}).textContent || '').trim();
-  ov.innerHTML = '<div class="ix-dlg" role="dialog" aria-modal="true" aria-labelledby="ixT">' +
+  ov.innerHTML = '<div class="ix-dlg' + (IX.busy ? ' busy' : '') + '" role="dialog" aria-modal="true" aria-labelledby="ixT"' + (IX.busy ? ' aria-busy="true"' : '') + '>' +
     '<div class="ix-head"><span class="ix-hic"><i class="ti ti-file-type-pdf"></i></span><div class="ix-ht"><b id="ixT">Xuất báo cáo PDF</b><small>Số liệu lấy như đang hiển thị trên màn hình, chỉ gồm phần ' + ixE(acct || 'tài khoản của bạn') + ' được xem. Lúc bấm tải, IOC chốt lại dữ liệu để xem lại sau ở ô đồng hồ.</small></div><button type="button" class="ix-x" data-ix="close" aria-label="Đóng"><i class="ti ti-x"></i></button></div>' +
     ixKieuHtml() +
     (IX.cay.length ? '<div class="ix-body"><div class="ix-roots">' + ixRoots() + '</div><div class="ix-detail">' + ixDetail() + '</div></div>'
@@ -206,6 +209,11 @@ function ixSheets() {
 }
 /* Bước 2: chân */
 function ixFoot() {
+  if (IX.busy) {
+    const st = IX.step || { i: 0, n: 1, ten: 'Đang chốt dữ liệu' }, pct = Math.round(100 * Math.min(st.i, st.n) / Math.max(st.n, 1));
+    return '<div class="ix-foot ix-busyf"><div class="ix-prog"><div class="ix-progt"><i class="ti ti-loader-2 ix-spin"></i><b>Đang tạo báo cáo PDF…</b><span class="ix-progs">' + ixE(st.ten) + '</span></div>' +
+      '<div class="ix-bar"><i style="width:' + pct + '%"></i></div><small>Dữ liệu đã chốt lúc ' + ixE(IX.luc || '') + '. Vui lòng không đóng trang.</small></div></div>';
+  }
   const sh = ixSheets(), MAX = 5;
   const dvThieu = IX.cay.some((k) => k.dv && ixIt(k).some((it) => it.can && IX.tick.has(ixKey(k, it))) && !ixDvCo(k));
   return '<div class="ix-foot"><div class="ix-sum">' + ixStep(3, sh.length ? 'Báo cáo gồm ' + sh.length + ' phần' : 'Chưa chọn nội dung') +
@@ -217,6 +225,7 @@ function ixFoot() {
 
 /* ---------- Thao tác ---------- */
 function ixClick(e) {
+  if (IX.busy) return;
   if (e.target.closest('.ix-rck')) return; /* ô tích của mục ở cột trái: để sự kiện change xử lý */
   const b = e.target.closest('[data-ix]');
   if (!b || b.disabled || b.tagName === 'INPUT' || b.tagName === 'LABEL') return;
@@ -231,6 +240,7 @@ function ixClick(e) {
   if (a === 'xuat') return ixXuat();
 }
 function ixChange(e) {
+  if (IX.busy) return;
   const el = e.target, a = el.dataset && el.dataset.ix;
   if (!a) return;
   /* tích ô của mục ở cột trái: chọn / bỏ cả mục và mở mục đó ở cột phải */
@@ -246,13 +256,52 @@ function ixChange(e) {
     return ixRender();
   }
 }
-/* Bản dựng giao diện: chưa tạo PDF thật — thêm một mốc chốt (mẫu) vào lịch ở ô đồng hồ và báo tóm tắt */
-function ixXuat() {
-  const sh = ixSheets();
-  if (!sh.length) return;
-  const nd = IX.cay.filter((k) => ixSoChon(k)).map((k) => k.ten);
-  const m = typeof mcThem === 'function' ? mcThem({ kieu: IX.kieu, noiDung: nd }) : null;
-  const gio = m ? ' lúc ' + mcGio(m.t) : '';
-  if (typeof toast === 'function') toast('Đã chốt dữ liệu' + gio + ' — bấm ô đồng hồ để xem lại. Bản dựng giao diện: chưa tạo file PDF thật (' + sh.length + ' phần: ' + sh.join(', ') + ').');
-  ixClose();
+/* Tiến độ dựng PDF: chỉ cập nhật phần chân, không vẽ lại cả hộp */
+function ixTienDo(i, n, ten) {
+  IX.step = { i: i, n: n, ten: (i < n ? 'Phần ' + (i + 1) + '/' + n + ': ' : '') + ten };
+  const f = document.querySelector('#ixOv .ix-foot');
+  if (f) f.outerHTML = ixFoot();
+}
+/* Các phần đã chọn, đúng thứ tự trong hộp */
+function ixPhanChon() {
+  const out = [];
+  IX.cay.forEach((k) => ixIt(k).forEach((it) => { if (IX.tick.has(ixKey(k, it)) && (!it.can || ixDvCo(k))) out.push({ key: ixKey(k, it), khoi: k.ten, ten: it.ten }); }));
+  return out;
+}
+/* Xuất: chốt dữ liệu ngay lúc bấm → dựng PDF → lưu mốc → tải file */
+async function ixXuat() {
+  if (IX.busy || !ixSheets().length) return;
+  if (typeof ipTaoBaoCao !== 'function' || typeof mcChup !== 'function') { if (typeof toast === 'function') toast('Chưa tải xong chức năng xuất báo cáo, thử lại sau giây lát.'); return; }
+  const phan = ixPhanChon(), kInd = IX.cay.find((k) => k.dv), donVi = [];
+  if (kInd && phan.some((p) => /^indicators\.(so|dl|xa)$/.test(p.key))) kInd.dv.forEach((g) => g.opts.forEach((o) => { if (IX.dv.has(o.id)) donVi.push({ role: g.k, id: o.id, ten: o.ten }); }));
+  const t = new Date(); t.setMilliseconds(0);
+  const p2 = (n) => String(n).padStart(2, '0');
+  IX.busy = true; IX.luc = typeof mcGio === 'function' ? mcGio(t) + ', ' + mcNgay(t) : t.toLocaleString('vi-VN'); IX.step = { i: 0, n: phan.length, ten: 'Đang chốt dữ liệu' };
+  ixRender();
+  try {
+    const snap = await mcChup(); /* chốt: chụp dữ liệu đúng lúc bấm, trước khi dựng PDF */
+    const dau = mcDau();
+    const acc = currentAccount || {}, donViTen = typeof headerScopeName === 'function' ? headerScopeName() : (acc.title || '');
+    const phamVi = (acc.subtitle || '') + (window.__homeScope ? ' · Đang xem theo cơ cấu tổ chức: ' + (window.__viewingLabel || donViTen) : '');
+    const meta = {
+      id: 'm' + t.getTime() + '-' + Math.random().toString(36).slice(2, 7), acct: mcAcctKey(), t: t.getTime(),
+      nguoi: acc.title || '', user: acc.user || '', donVi: donViTen, phamVi: phamVi, kieu: IX.kieu,
+      noiDung: [...new Set(phan.map((p) => p.khoi))], phan: phan.map((p) => p.khoi + ' · ' + p.ten), soDonVi: donVi.length,
+      pdfName: 'BaoCao_IOC_' + (IX.kieu === 'ct' ? 'ChiTiet' : 'TongQuan') + '_' + t.getFullYear() + p2(t.getMonth() + 1) + p2(t.getDate()) + '_' + p2(t.getHours()) + p2(t.getMinutes()) + p2(t.getSeconds()) + '.pdf'
+    };
+    const tongDv = kInd ? kInd.dv.reduce((n, g) => n + g.opts.length, 0) : 0;
+    const pdf = await ipTaoBaoCao({ t: t, kieu: IX.kieu, phan: phan, donVi: donVi, donViTatCa: donVi.length > 0 && donVi.length === tongDv, nguoi: meta.nguoi, user: meta.user, phamVi: phamVi, donViTen: donViTen, onStep: ixTienDo });
+    meta.size = pdf.size;
+    let luu = true;
+    try { await mcLuu(meta, snap, pdf, dau); } catch (e) { luu = false; console.error(e); }
+    mcTai(pdf, meta.pdfName);
+    if (luu) mcLog('Xuất báo cáo (chốt dữ liệu)', meta);
+    IX.busy = false; IX.step = null;
+    ixClose();
+    if (typeof toast === 'function') toast(luu ? 'Đã chốt dữ liệu lúc ' + IX.luc + ' và tải file PDF. Bấm ô đồng hồ để xem lại dữ liệu đã chốt.' : 'Đã tải file PDF nhưng không lưu được dữ liệu chốt (bộ nhớ trình duyệt đầy hoặc bị chặn).');
+  } catch (e) {
+    console.error(e);
+    IX.busy = false; IX.step = null; ixRender();
+    if (typeof toast === 'function') toast('Không xuất được báo cáo: ' + (e && e.message ? e.message : e));
+  }
 }

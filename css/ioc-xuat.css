@@ -123,6 +123,22 @@ html:not(.theme-light):not(.theme-green) .ix-badge{color:#9fd0ff}
 .ix-dvs{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:2px 16px;padding:8px 14px 12px 46px;border-top:1px solid var(--ix-line)}
 .ix-ck{display:flex;align-items:flex-start;gap:10px;padding:7px 0;font-size:13.5px;line-height:1.4;cursor:pointer}
 
+/* ---- Đang dựng PDF: khóa hộp, chân là thanh tiến độ ---- */
+.ix-dlg.busy .ix-kieu,.ix-dlg.busy .ix-body{pointer-events:none;opacity:.55;filter:saturate(.7)}
+.ix-dlg.busy .ix-x{visibility:hidden}
+.ix-busyf{display:block}
+.ix-prog{display:flex;flex-direction:column;gap:7px}
+.ix-progt{display:flex;align-items:center;gap:9px;min-width:0;font-size:13.5px}
+.ix-progt b{white-space:nowrap}
+.ix-progs{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ix-sub)}
+.ix-spin{font-size:19px;color:var(--ix-acc);animation:ixSpin 1s linear infinite}
+html:not(.theme-light):not(.theme-green) .ix-spin{color:#7cc0ff}
+@keyframes ixSpin{to{transform:rotate(360deg)}}
+.ix-bar{height:8px;border-radius:999px;background:var(--ix-card-h);border:1px solid var(--ix-line);overflow:hidden}
+.ix-bar i{display:block;height:100%;border-radius:999px;background:var(--ix-acc);transition:width .25s ease}
+.ix-prog small{font-size:12px;color:var(--ix-faint)}
+@media (prefers-reduced-motion:reduce){.ix-spin{animation:none}.ix-bar i{transition:none}}
+
 /* ---- Bước 3: chân ---- */
 .ix-foot{flex:0 0 auto;display:flex;align-items:center;gap:16px;padding:14px 20px;border-top:1px solid var(--ix-line);background:var(--ix-bg)}
 .ix-sum{flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px}

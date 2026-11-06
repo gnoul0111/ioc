@@ -20,7 +20,7 @@
  const CHUTRUONG_KEHOACH_URL='https://dhvb_qlnv.lifetex.vn/OutGoingDocument';
  function openChuTruongKeHoach(){toast('Đang chuyển sang hệ thống Chủ trương/Kế hoạch...');window.open(CHUTRUONG_KEHOACH_URL,'_blank');}
  const INDICATOR_ENTRY_URL='https://quanlyquytrinh.lifetex.vn/';
- function openIndicatorEntrySystem(){toast('Đang chuyển sang hệ thống Nhập chỉ tiêu...');window.open(INDICATOR_ENTRY_URL,'_blank');}
+ function openIndicatorEntrySystem(){if(typeof mcChiXem==='function'&&mcChiXem('nhập chỉ tiêu'))return;toast('Đang chuyển sang hệ thống Nhập chỉ tiêu...');window.open(INDICATOR_ENTRY_URL,'_blank');}
  /* Nút "＋ Nhập chỉ tiêu" cho thanh công cụ các form chỉ tiêu UI mới (STC/SGD/HCC/khuôn ctm) — đặt cạnh "Xuất Excel". */
  function indicatorEntryBtnHtml(){return '<button type="button" class="stc-btn" onclick="openIndicatorEntrySystem()" title="Mở hệ thống Nhập chỉ tiêu"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Nhập chỉ tiêu</button>';}
  /* Hệ thống theo dõi nhiệm vụ ngoài IOC — 2 hệ thống khác nhau theo phạm vi tài khoản đang xem: tài khoản 04 trục
