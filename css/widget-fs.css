@@ -30,49 +30,127 @@ html:not(.theme-light):not(.theme-green) .wfs-on{background:linear-gradient(180d
 /* Các widget khác ẩn đi trong lúc phóng to: bản đồ Leaflet của widget khác (lớp 400–1000) không nổi đè lên được. */
 html.wfs-active .widget:not(.wfs-on),html.wfs-active .top-overview:not(.wfs-on){visibility:hidden}
 
-/* ---------- 1. Tổng quan điều hành: 3 cột cao hết màn hình, vòng tròn to, chú thích 2 cột dưới vòng tròn ---------- */
-#roleScopeCards.wfs-on .top-overview-body{padding:22px 26px!important;overflow:hidden}
-#roleScopeCards.wfs-on .pie-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));height:100%;gap:22px}
-#roleScopeCards.wfs-on .pie-grid>.pie-card{min-height:0;padding:24px 26px;grid-template-rows:auto minmax(0,1fr);gap:18px}
-#roleScopeCards.wfs-on .pie-card h3{font-size:24px}
-#roleScopeCards.wfs-on .pie-note{font-size:15px}
-#roleScopeCards.wfs-on .pie-card-body{grid-template-columns:1fr!important;grid-template-rows:auto auto;align-content:start;align-items:start;gap:34px;padding-top:6vh}
-#roleScopeCards.wfs-on .pie-donut-wrap{min-height:0}
-#roleScopeCards.wfs-on .pie-donut-wrap>div{width:40vh!important;height:40vh!important;max-width:100%}
-#roleScopeCards.wfs-on .pie-legend{grid-template-columns:1fr 1fr;gap:10px}
-#roleScopeCards.wfs-on .pie-legend button{padding:13px 14px;border-radius:11px}
-#roleScopeCards.wfs-on .pie-legend span,#roleScopeCards.wfs-on .pie-legend b{font-size:16px}
-#roleScopeCards.wfs-on .pie-legend i{width:14px;height:14px}
-#roleScopeCards.wfs-on .pie-card-body button.primary,#roleScopeCards.wfs-on .pie-card-body button.ghost{min-height:46px;font-size:15px}
+/* ---------- 1. Tổng quan điều hành: 3 nhóm xếp dọc bên trái, danh sách bên phải (js/features/overview-fs.js) ----------
+   Ô #overviewFsDetail chỉ giữ chỗ; danh sách (#drawer) và chi tiết/form (#modal) được ghim trùng lên ô này (html.wfs-dock).
+   Nhóm đang xem danh sách sáng viền (.ovfs-sel), dòng trạng thái đang xem có viền (.ovfs-sel-row). */
+.overview-fs-detail{display:none}
+#roleScopeCards.wfs-on .top-overview-body{padding:16px 26px 20px!important;overflow:hidden;display:grid!important;grid-template-columns:560px minmax(0,1fr);gap:16px}
+/* Mỗi nhóm cao ít nhất bằng nội dung, dư chỗ thì giãn đều; màn thấp không đủ chỗ thì cột trái tự cuộn (không cắt mất). */
+#roleScopeCards.wfs-on .pie-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:repeat(3,minmax(max-content,1fr));height:100%;gap:12px;min-height:0;
+  overflow-y:auto;overflow-x:hidden;padding:2px 4px 2px 2px}
+#roleScopeCards.wfs-on .pie-grid>.pie-card{min-height:0;padding:14px 18px;gap:8px;transition:border-color .15s,box-shadow .15s,background .15s}
+#roleScopeCards.wfs-on .pie-card h3{font-size:18px}
+#roleScopeCards.wfs-on .pie-note{font-size:13px}
+#roleScopeCards.wfs-on .pie-card-body{grid-template-columns:170px minmax(0,1fr)!important;gap:16px;padding-top:0;align-items:center}
+#roleScopeCards.wfs-on .pie-donut-wrap>div{width:170px!important;height:170px!important;max-width:100%}
+#roleScopeCards.wfs-on .pie-legend{grid-template-columns:minmax(0,1fr)!important;gap:6px}
+#roleScopeCards.wfs-on .pie-legend button{padding:7px 12px}
+#roleScopeCards.wfs-on .pie-legend span,#roleScopeCards.wfs-on .pie-legend b{font-size:14px}
+#roleScopeCards.wfs-on .pie-card-body button.primary,#roleScopeCards.wfs-on .pie-card-body button.ghost{min-height:36px;font-size:13px}
+#roleScopeCards.wfs-on .overview-fs-detail{display:flex;min-height:0;align-items:center;justify-content:center;
+  border:1px dashed rgba(88,183,255,.35);border-radius:12px;color:var(--muted,#93acc6);font-size:15px;text-align:center;padding:0 24px}
+/* Bấm vào chỗ trống của khung nhóm → toàn bộ danh sách của nhóm (overview-fs.js): con trỏ tay + viền sáng khi rê chuột. */
+#roleScopeCards.wfs-on .pie-grid>.pie-card{cursor:pointer}
+#roleScopeCards.wfs-on .pie-grid>.pie-card:hover:not(.ovfs-sel){border-color:rgba(88,183,255,.65)!important;background:rgba(88,183,255,.05)!important}
+html.theme-light #roleScopeCards.wfs-on .pie-grid>.pie-card:hover:not(.ovfs-sel){border-color:rgba(200,38,47,.45)!important;background:rgba(200,38,47,.03)!important}
+html.theme-green #roleScopeCards.wfs-on .pie-grid>.pie-card:hover:not(.ovfs-sel){border-color:rgba(28,122,73,.45)!important;background:rgba(28,122,73,.03)!important}
+/* Nhóm đang xem danh sách: viền vàng sáng + quầng sáng; dòng trạng thái đang xem: viền vàng. */
+#roleScopeCards.wfs-on .pie-card.ovfs-sel{border:2px solid #ffd54b!important;background:rgba(255,213,75,.07)!important;
+  box-shadow:0 0 0 1px rgba(255,213,75,.35),0 0 26px rgba(255,213,75,.22)!important}
+#roleScopeCards.wfs-on .pie-card.ovfs-sel h3{color:#ffe38a}
+#roleScopeCards.wfs-on .pie-legend button.ovfs-sel-row{outline:2px solid #ffd54b;outline-offset:-2px;background:rgba(255,213,75,.12)}
+html.theme-light #roleScopeCards.wfs-on .pie-card.ovfs-sel{border-color:#c8262f!important;background:rgba(200,38,47,.05)!important;
+  box-shadow:0 0 0 1px rgba(200,38,47,.25),0 0 22px rgba(200,38,47,.18)!important}
+html.theme-light #roleScopeCards.wfs-on .pie-card.ovfs-sel h3{color:#a3141c}
+html.theme-light #roleScopeCards.wfs-on .pie-legend button.ovfs-sel-row{outline-color:#c8262f;background:rgba(200,38,47,.08)}
+html.theme-green #roleScopeCards.wfs-on .pie-card.ovfs-sel{border-color:#1c7a49!important;background:rgba(28,122,73,.06)!important;
+  box-shadow:0 0 0 1px rgba(28,122,73,.25),0 0 22px rgba(28,122,73,.18)!important}
+html.theme-green #roleScopeCards.wfs-on .pie-card.ovfs-sel h3{color:#14603a}
+html.theme-green #roleScopeCards.wfs-on .pie-legend button.ovfs-sel-row{outline-color:#1c7a49;background:rgba(28,122,73,.08)}
 
 /* ---------- 2. Bản đồ GIS: bản đồ chiếm phần lớn, cột lớp bên phải rộng 400px ---------- */
 #gismap.wfs-on .gis-map-body{height:auto!important;flex:1 1 auto;min-height:0}
 #gismap.wfs-on .gis-layer-sidebar{padding:14px 16px}
 @media (min-width:1001px){#gismap.wfs-on .gis-map-body:not(.uv-sidebar-collapsed):not(.cad-on){grid-template-columns:1fr 400px!important}}
 
-/* ---------- 3. Notify: tìm kiếm + tab một hàng, thông báo xếp lưới 3 cột ---------- */
-#notificationsWidget.wfs-on>.widget-body{padding:0 26px 22px!important}
-#notificationsWidget.wfs-on .cad-toolbar{display:grid;grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:16px;align-items:center;padding:16px 0!important;margin-left:0!important;margin-right:0!important}
+/* ---------- 3. Notify: danh sách bên trái, chi tiết bên phải (js/features/notify-fs.js) ----------
+   Hàng trên: [tìm kiếm · + Tạo · lọc] thẳng cột danh sách, dải tab đủ tên + số thông báo thẳng cột chi tiết.
+   Ô #notifyFsDetail chỉ giữ chỗ; cửa sổ chi tiết #modal được ghim trùng lên ô này (html.wfs-dock). */
+.notify-fs-detail{display:none}
+#notificationsWidget.wfs-on>.widget-body{display:grid!important;grid-template-columns:600px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);column-gap:16px;
+  overflow:hidden!important;padding:0 26px 20px!important}
+#notificationsWidget.wfs-on .cad-toolbar{grid-column:1/-1;display:grid;grid-template-columns:600px minmax(0,1fr);gap:16px;align-items:center;
+  padding:16px 0!important;margin:0!important;position:static!important}
 #notificationsWidget.wfs-on .cad-toolbar>div{margin:0!important}
-#notificationsWidget.wfs-on .notify-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:stretch}
-#notificationsWidget.wfs-on .notify-list .notify{padding:14px 16px;align-items:start}
+#notificationsWidget.wfs-on #myTaskSearchInput{height:40px}
+#notificationsWidget.wfs-on #notiTabsBox{gap:6px!important}
+#notificationsWidget.wfs-on #notiTabsBox .gis-report-tab{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px!important}
+.noti-tab-count{font-style:normal;font-size:12px;font-weight:800;min-width:26px;padding:1px 8px;border-radius:999px;background:rgba(88,183,255,.18);text-align:center}
+.gis-report-tab.active .noti-tab-count{background:rgba(255,255,255,.22)}
+#notificationsWidget.wfs-on #notifyMyTaskPanel{grid-column:1;grid-row:2;min-height:0;overflow:auto;padding-right:6px}
+#notificationsWidget.wfs-on .notify-list{display:flex;flex-direction:column;gap:8px}
+#notificationsWidget.wfs-on .notify-list .notify{flex:0 0 auto;padding:14px 16px;align-items:start}
 #notificationsWidget.wfs-on .notify-list .notify b{font-size:15px}
 #notificationsWidget.wfs-on .notify-list .notify small{font-size:13px}
+#notificationsWidget.wfs-on .notify-list .notify.nfs-sel{outline:2px solid #ffd54b;outline-offset:-2px;background:rgba(255,213,75,.08)}
+html.theme-light #notificationsWidget.wfs-on .notify-list .notify.nfs-sel{outline-color:#c8262f;background:rgba(200,38,47,.06)}
+html.theme-green #notificationsWidget.wfs-on .notify-list .notify.nfs-sel{outline-color:#1c7a49;background:rgba(28,122,73,.07)}
+#notificationsWidget.wfs-on .notify-fs-detail{display:flex;grid-column:2;grid-row:2;min-height:0;align-items:center;justify-content:center;
+  border:1px dashed rgba(88,183,255,.35);border-radius:12px;color:var(--muted,#93acc6);font-size:15px}
+@media (min-width:1001px){
+  /* Đủ chỗ hiện hết 5 tab → bỏ 2 nút trượt ‹ ›. */
+  #notificationsWidget.wfs-on .cad-toolbar>div:nth-child(2)>button{display:none!important}
+}
 
 /* ---------- 4. Nhóm chỉ tiêu: giữ bố cục đang có, chỉ cao thêm và cuộn trong khung ---------- */
 #indicatorsWidget.wfs-on>.widget-body{padding:16px 26px!important}
 
+/* ---------- Ghim cửa sổ danh sách (#drawer) / chi tiết (#modal) vào ô bên phải (wfsDock, widget-fs.js) ----------
+   Không phủ nền tối để phần bên trái vẫn bấm được; chi tiết (lớp 110) nằm trên danh sách (lớp 100) trong cùng ô. */
+html.wfs-dock #modal,html.wfs-dock #drawer{inset:auto!important;left:var(--wfs-dl)!important;top:var(--wfs-dt)!important;width:var(--wfs-dw)!important;height:var(--wfs-dh)!important;
+  max-width:none!important;max-height:none!important;transform:none!important;border-radius:12px!important;box-shadow:none!important;transition:opacity .15s}
+html.wfs-dock #overlay{opacity:0!important;pointer-events:none!important}
+/* Bảng danh sách (.vptu-table, drawer-list.js) trong khung phải hẹp hơn cửa sổ thường: giữ độ rộng tối thiểu cho các cột
+   chữ (không để «Đơn vị» co còn vài chục px, chữ gãy từng ký tự), số ký hiệu được xuống dòng ở dấu gạch nối. */
+html.wfs-dock #drawer .vptu-table tbody td{overflow-wrap:break-word}
+/* Khối tóm tắt đầu danh sách (vòng tròn + phân bổ trạng thái) luôn nằm ngang, gọn lại — không chồng dọc chiếm hết khung. */
+html.wfs-dock #drawer .drawer-pie-layout{grid-template-columns:220px minmax(0,1fr)!important}
+html.wfs-dock #drawer .drawer-pie-box{min-height:0}
+@media (max-height:860px){
+  html.wfs-dock #drawer #drawerPieSvg>div{width:110px!important;height:110px!important}
+  html.wfs-dock #drawer .drawer-pie-box{gap:8px;padding:8px}
+  html.wfs-dock #drawer #drawerPieLegend button{padding:4px 10px}
+}
+html.wfs-dock #drawer .vptu-table tbody td:nth-child(2){white-space:normal;min-width:118px;max-width:150px}
+html.wfs-dock #drawer .vptu-table :is(th,td):nth-child(3){min-width:200px}
+html.wfs-dock #drawer .vptu-table :is(th,td):nth-child(4),html.wfs-dock #drawer .vptu-table :is(th,td):nth-child(5){min-width:150px}
+
 /* ---------- Màn hẹp (máy tính bảng dọc, điện thoại) ---------- */
 @media (max-width:1000px){
-  #roleScopeCards.wfs-on .top-overview-body{overflow:auto}
-  #roleScopeCards.wfs-on .pie-grid{grid-template-columns:1fr;height:auto}
-  #roleScopeCards.wfs-on .pie-card-body{padding-top:0}
-  #roleScopeCards.wfs-on .pie-donut-wrap>div{width:min(60vw,320px)!important;height:min(60vw,320px)!important}
-  #notificationsWidget.wfs-on .cad-toolbar{grid-template-columns:1fr}
-  #notificationsWidget.wfs-on .notify-list{grid-template-columns:1fr}
+  #roleScopeCards.wfs-on .top-overview-body{overflow:auto;grid-template-columns:minmax(0,1fr);padding-left:12px!important;padding-right:12px!important}
+  #roleScopeCards.wfs-on .pie-grid{grid-template-rows:none;height:auto}
+  #roleScopeCards.wfs-on .overview-fs-detail{display:none}
+  #notificationsWidget.wfs-on>.widget-body,#notificationsWidget.wfs-on .cad-toolbar{grid-template-columns:minmax(0,1fr)}
+  #notificationsWidget.wfs-on .notify-fs-detail{display:none}
   #notificationsWidget.wfs-on>.widget-body,#indicatorsWidget.wfs-on>.widget-body{padding-left:12px!important;padding-right:12px!important}
   .wfs-btn.wfs-btn-on span{display:none}
 }
+/* Màn thấp (vd. 1366×768): vòng tròn Tổng quan nhỏ lại để 3 nhóm vừa hơn. */
+@media (min-width:1001px) and (max-height:860px){
+  #roleScopeCards.wfs-on .pie-card-body{grid-template-columns:120px minmax(0,1fr)!important}
+  #roleScopeCards.wfs-on .pie-donut-wrap>div{width:120px!important;height:120px!important}
+  #roleScopeCards.wfs-on .pie-legend button{padding:5px 10px}
+  #roleScopeCards.wfs-on .pie-legend span,#roleScopeCards.wfs-on .pie-legend b{font-size:13px}
+  #roleScopeCards.wfs-on .pie-card-body button.primary,#roleScopeCards.wfs-on .pie-card-body button.ghost{min-height:32px}
+}
+/* Màn vừa (vd. 1707px): cột tổng quan hẹp lại để danh sách bên phải rộng hơn. */
+@media (min-width:1451px) and (max-width:1860px){
+  #roleScopeCards.wfs-on .top-overview-body{grid-template-columns:480px minmax(0,1fr)}
+}
 @media (min-width:1001px) and (max-width:1450px){
-  #notificationsWidget.wfs-on .notify-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #roleScopeCards.wfs-on .top-overview-body{grid-template-columns:470px minmax(0,1fr)}
+  #notificationsWidget.wfs-on>.widget-body,#notificationsWidget.wfs-on .cad-toolbar{grid-template-columns:440px minmax(0,1fr)}
+  #notificationsWidget.wfs-on #notiTabsBox{gap:4px!important}
+  #notificationsWidget.wfs-on #notiTabsBox .gis-report-tab{padding:0 9px!important;gap:6px}
+  #notificationsWidget.wfs-on .noti-tab-count{padding:1px 6px}
 }

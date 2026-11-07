@@ -108,17 +108,53 @@
     setBtn(w.querySelector('.wfs-btn'), true);
     enterBrowserFs();
     wfsRefreshLater(w);
+    announce(id, true);
+  }
+
+  /* Báo cho bố cục riêng của từng widget (vd. js/features/notify-fs.js) biết widget vừa phóng to / thu về. */
+  function announce(id, on) {
+    try { document.dispatchEvent(new CustomEvent('wfs:change', { detail: { id, on } })); } catch (e) { /* bỏ qua */ }
+  }
+
+  /* ---------- Ghim cửa sổ chi tiết vào một ô của widget đang phóng to ----------
+     Bố cục "danh sách/tổng quan bên trái + chi tiết bên phải" (Notify: notify-fs.js, Tổng quan: overview-fs.js):
+     cửa sổ chung #drawer (danh sách) và #modal (chi tiết, form) được đặt trùng lên ô `slot` thay vì mở giữa màn;
+     lớp nền tối không phủ nên phần bên trái vẫn bấm được. #modal (lớp 110) nằm trên #drawer (lớp 100) trong cùng ô:
+     đang xem danh sách bấm vào một nhiệm vụ thì chi tiết đè lên danh sách, đóng chi tiết (×, Esc) thì về danh sách. */
+  const DOCK = { slot: null };
+  const DOCK_VARS = ['--wfs-dl', '--wfs-dt', '--wfs-dw', '--wfs-dh'];
+  function wfsDockPlace() {
+    if (!DOCK.slot) return;
+    const r = DOCK.slot.getBoundingClientRect(), s = document.documentElement.style;
+    s.setProperty('--wfs-dl', r.left + 'px'); s.setProperty('--wfs-dt', r.top + 'px');
+    s.setProperty('--wfs-dw', r.width + 'px'); s.setProperty('--wfs-dh', r.height + 'px');
+  }
+  function wfsDock(slot) {
+    DOCK.slot = slot || null;
+    document.documentElement.classList.toggle('wfs-dock', !!DOCK.slot);
+    if (DOCK.slot) wfsDockPlace(); else DOCK_VARS.forEach((p) => document.documentElement.style.removeProperty(p));
+  }
+  function panelOpen() { return !!document.querySelector('#drawer.open, #modal.open'); }
+  function watchPanels() {
+    if (typeof MutationObserver === 'undefined') return;
+    ['modal', 'drawer'].forEach((pid) => {
+      const el = $(pid);
+      if (el) new MutationObserver(() => { if (DOCK.slot && el.classList.contains('open')) wfsDockPlace(); }).observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
   }
 
   function wfsExit(opt) {
     const id = WFS.id; if (!id) return;
     const w = $(id);
     WFS.id = null;
+    // Chi tiết đang ghim là một phần của màn phóng to → thu về thì đóng luôn (không để bật ra giữa màn).
+    if (DOCK.slot) { wfsDock(null); if (panelOpen() && typeof closePanels === 'function') closePanels(); }
     if (w) { w.classList.remove('wfs-on'); setBtn(w.querySelector('.wfs-btn'), false); }
     document.documentElement.classList.remove('wfs-active');
     if (!(opt && opt.keepBrowserFs)) exitBrowserFs();
     if (typeof unlockScroll === 'function') unlockScroll();
     if (w) wfsRefreshLater(w);
+    announce(id, false);
   }
 
   function wfsToggle(id) { if (WFS.id === id) wfsExit(); else wfsEnter(id); }
@@ -156,13 +192,20 @@
   ['fullscreenchange', 'webkitfullscreenchange'].forEach((ev) => document.addEventListener(ev, () => {
     if (!fsElement() && WFS.id && WFS.ownFs) { WFS.ownFs = false; wfsExit(); }
   }));
-  window.addEventListener('resize', () => { if (WFS.id) { const w = $(WFS.id); try { if (w && w.id === 'gismap' && GM.map) GM.map.invalidateSize(); } catch (e) { /* bỏ qua */ } } });
+  window.addEventListener('resize', () => {
+    if (!WFS.id) return;
+    const w = $(WFS.id); try { if (w && w.id === 'gismap' && GM.map) GM.map.invalidateSize(); } catch (e) { /* bỏ qua */ }
+    setTimeout(wfsDockPlace, 50);
+  });
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wfsMountButtons); else wfsMountButtons();
+  function onReady() { wfsMountButtons(); watchPanels(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', onReady); else onReady();
 
   window.wfsToggle = wfsToggle;
   window.wfsEnter = wfsEnter;
   window.wfsExit = wfsExit;
   window.wfsActive = () => WFS.id;
   window.wfsMountButtons = wfsMountButtons;
+  window.wfsDock = wfsDock;
+  window.wfsDockPlace = wfsDockPlace;
 })();
