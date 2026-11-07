@@ -8,7 +8,9 @@
  delete:{label:'Xóa',icon:'',color:'#e0527a'},
  sync:{label:'Mô phỏng đồng bộ',icon:'',color:'#2fb174'},
  viewas:{label:'Xem theo cơ cấu tổ chức',icon:'',color:'#8b5cf6'},
- scenario:{label:'Kịch bản xử lý',icon:'',color:'#f39c12'}
+ scenario:{label:'Kịch bản xử lý',icon:'',color:'#f39c12'},
+ /* Xuất báo cáo, xem dữ liệu đã chốt, tải file PDF của mốc (js/features/ioc-moc.js) */
+ moc:{label:'Dữ liệu đã chốt',icon:'',color:'#14b8a6'}
  };
  const ACTION_LOG_STORAGE_KEY='px-ioc-action-log';
  function actionLogFeed(){
