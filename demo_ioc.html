@@ -48,7 +48,7 @@
  <link rel="stylesheet" href="css/ui-visibility.css?v=20261103-1" />
  <link rel="stylesheet" href="css/ioc-xuat.css?v=20261105-10" />
  <link rel="stylesheet" href="css/ioc-moc.css?v=20261105-2" />
- <link rel="stylesheet" href="css/widget-fs.css?v=20261106-3" />
+ <link rel="stylesheet" href="css/widget-fs.css?v=20261107-5" />
  <!-- CSS bổ sung cho "Cài đặt cây thư mục" (Phase 7, kéo-thả) — để riêng thay vì sửa vào css/oua.css (1 dòng minified) cho an toàn, vẫn scoped dưới #ouaScreen. -->
  <style>
    #ouaScreen .oua-dnd-node{cursor:grab}
@@ -969,6 +969,9 @@
  </div>
  <div id="notifyOldPanel" style="display:none"><div class="notify-list" id="notifyList"></div></div>
  <div id="notifyMyTaskPanel"><div class="notify-list" id="myTaskList"></div></div>
+ <!-- Ô chi tiết bên phải, chỉ hiện khi Notify phóng to toàn màn hình: cửa sổ chi tiết (#modal) được ghim trùng lên ô này
+ (js/features/notify-fs.js). Lúc thường ô này ẩn. -->
+ <div id="notifyFsDetail" class="notify-fs-detail" aria-hidden="true"><div class="notify-fs-empty">Chọn một thông báo bên trái để xem chi tiết</div></div>
  </div>
  </article>
 
@@ -1078,7 +1081,7 @@
  <script src="js/core/schedule.js"></script>
  <script src="js/core/login.js?v=20261106a"></script>
  <script src="js/core/modal-drawer-toast.js?v=20261106a"></script>
- <script src="js/core/overview.js?v=20261106-1"></script>
+ <script src="js/core/overview.js?v=20261107-1"></script>
  <script src="js/core/results-dashboard.js"></script>
  <script src="js/core/drawer-list.js"></script>
  <script src="js/core/scenarios.js?v=20261009f"></script>
@@ -1092,7 +1095,7 @@
  <script src="js/core/task-scope.js"></script>
  <script src="js/core/audit-log.js?v=20261105"></script>
  <script src="js/core/login-history.js?v=20261009c"></script>
- <script src="js/core/my-tasks-notify.js?v=20261029-4"></script>
+ <script src="js/core/my-tasks-notify.js?v=20261107-1"></script>
  <script src="js/core/gis.js?v=20261106-1"></script>
  <script src="js/core/cad-data.js?v=20261023"></script>
  <script src="js/features/gis-cad.js?v=20261024c"></script>
@@ -1162,6 +1165,8 @@
 <script src="js/features/ioc-pdf.js?v=20261105-2"></script>
 <script src="js/features/ioc-moc.js?v=20261105-3"></script>
 <!-- Nút ⛶ phóng to toàn màn hình (như F11) cho 4 widget màn hình Thành phố: Tổng quan điều hành, GIS, Notify, Nhóm chỉ tiêu. -->
-<script src="js/features/widget-fs.js?v=20261106-1"></script>
+<script src="js/features/widget-fs.js?v=20261107-2"></script>
+<script src="js/features/notify-fs.js?v=20261107-2"></script>
+<script src="js/features/overview-fs.js?v=20261107-2"></script>
 </body>
 </html>

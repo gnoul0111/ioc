@@ -529,9 +529,6 @@
  tabsBox.style.display='flex';
  tabsBox.style.overflowX='auto';
  tabsBox.style.flexWrap='nowrap';
- tabsBox.innerHTML=NOTI_TAB_DEFS.map(t=>
- `<button class="gis-report-tab${t.key===activeTab?' active':''}" data-uv-item="notify-tab-${t.key}" data-uv-label="${esc(t.label)}" data-uv-icon="🔔" data-uv-parent="notify" style="flex:0 0 auto;white-space:nowrap;padding:8px 12px" onclick="onNotiTabClick('${t.key}')">${esc(t.label)}</button>`
- ).join('');
  let rows;
  const isCrossType=(activeTab==='urgent');
  if(activeTab==='urgent'){
@@ -544,6 +541,15 @@
  window.__notiActiveStatuses=activeStatuses;
  rows=notiRowsForType(activeTab,activeStatuses,matchQ);
  }
+ /* Notify đang phóng to (js/features/notify-fs.js): tab hiện thêm số thông báo của tab đó (đếm đúng danh sách tab sẽ
+ hiện, theo ô tìm kiếm; tab đang mở = đúng số dòng đang hiện, kể cả lọc trạng thái). Widget nhỏ không đếm để
+ khỏi tốn công vẽ. Vẽ dải tab SAU khi đã có rows để dùng lại số của tab đang mở. */
+ const tabCount=(typeof nfsActive==='function'&&nfsActive())
+ ? (k=>`<em class="noti-tab-count">${fmt(k===activeTab?rows.length:(k==='urgent'?noiUrgentRows(matchQ):notiRowsForType(k,[],matchQ)).length)}</em>`)
+ : (()=> '');
+ tabsBox.innerHTML=NOTI_TAB_DEFS.map(t=>
+ `<button class="gis-report-tab${t.key===activeTab?' active':''}" data-uv-item="notify-tab-${t.key}" data-uv-label="${esc(t.label)}" data-uv-icon="🔔" data-uv-parent="notify" style="flex:0 0 auto;white-space:nowrap;padding:8px 12px" onclick="onNotiTabClick('${t.key}')">${esc(t.label)}${tabCount(t.key)}</button>`
+ ).join('');
  renderNotiStatusFilterDropdown();
  /* Icon phễu khóa lại (disabled) khi đang ở tab KC/QT (gộp nhiều loại) — không có 1 bộ trạng thái để "ăn theo",
  tránh anh bấm vào tưởng lọc được mà không hiểu vì sao không có gì xảy ra. */
