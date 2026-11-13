@@ -347,3 +347,11 @@ html.theme-green .xbt-root{--q1:#dff3e7;--o0:#b3c9bb}
 .xbt-root .nsel select:hover,.xbt-root .fld select:hover{border-color:var(--accent)}
 .xbt-root .nsel select:focus-visible,.xbt-root .fld select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .xbt-root .nsel select option,.xbt-root .fld select option{color:#0b1220;background:#fff}
+/* Kỳ xem của màn ngoài (Tháng / Quý / Năm, kỳ) — 13/11/2026 */
+.xbt-root .xky{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.xbt-root .xky label{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--fg-3)}
+.xbt-root .xky select{font:inherit;font-size:13px;font-weight:500;color:var(--fg);background-color:var(--surface);border:1px solid var(--line-2);border-radius:8px;min-height:40px;padding:7px 34px 7px 12px;max-width:min(260px,60vw);-webkit-appearance:none;appearance:none;cursor:pointer;line-height:1.3;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238ba7c2' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-size:12px 12px;background-position:right 12px center}
+.xbt-root .xky select:hover{border-color:var(--accent)}
+.xbt-root .xky select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.xbt-root .xky select option{color:#0b1220;background:#fff}
