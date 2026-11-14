@@ -95,8 +95,10 @@ console.log('== Đơn vị tính của dòng số liệu (X7)');
   inst.ef(inst.EFS.find((x) => x.ef === 'xa_ktxh')); /* dựng được */
   run('XBT.pendGroup = ' + JSON.stringify({ sid: e.sid, gid: e.nhom[0].id }));
   const h = inst.ef(inst.EFS.find((x) => x.ef === 'xa_ktxh'));
-  ok(h.indexOf('aria-pressed="true" data-sel="n' + e.nhom[0].v + '"') >= 0, 'mở màn nhóm: chọn sẵn đúng nhóm trong danh sách');
-  ok(!/class="dl-v">[^<]*%</.test(h.split('class="stage"')[1] || ''), 'màn nhóm Kinh tế xã hội không ghi % cho số «Ước thực hiện»');
+  ok(run('XBT.scrollTo') === run('(function(t){ return String(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase().replace(/\s+/g, " ").trim(); })(' + JSON.stringify(e.nhom[0].l) + ')'), 'mở màn nhóm: cuộn tới khung của nhóm đó');
+  run('XBT.scrollTo = null');
+  const nhCards = h.split('<section class="acard').filter((x) => e.nhom.some((g) => x.indexOf('<h3 class="st-t">' + g.l.replace(/&/g, '&amp;')) >= 0));
+  ok(nhCards.length > 0 && nhCards.every((x) => !/class="dl-v"[^>]*>[^<]*%</.test(x)), 'khung nhóm Kinh tế xã hội không ghi % cho số «Ước thực hiện»');
 }
 
 console.log('== Kỳ xem');
@@ -149,7 +151,7 @@ console.log('== Số trống, phần không có bản ghi');
   e3.nhom.push({ id: 'xa_ktxh:THU', v: 'THU', l: 'Nhóm thử', n: 1, lines: [{ l: 'Dòng thử không khóa', u: '', cur: 5, prev: null, recs: '' }], dongs: [] });
   const it3 = run('(function(D){ return xbtMake(D, "modal"); })')(D3);
   run('XBT.curEf = ' + JSON.stringify(e3.sid) + '; XBT.pendGroup = ' + JSON.stringify({ sid: e3.sid, gid: 'xa_ktxh:THU' }));
-  const h3 = it3.ef(it3.EFS.find((x) => x.ef === 'xa_ktxh')), row = (h3.match(/<(div|button)[^>]*title="Dòng thử không khóa"/) || [''])[0];
+  const h3 = it3.ef(it3.EFS.find((x) => x.ef === 'xa_ktxh')), row = (h3.match(/<(div|button)[^>]*title="Dòng thử không khóa[^"]*"[^>]*>/) || [''])[0];
   ok(row.indexOf('<div') === 0 && row.indexOf('data-r') < 0, 'dòng không có khóa bản ghi là chữ thường, không mở màn bản ghi rỗng');
   run('XBT.curEf = null');
 }
@@ -164,6 +166,166 @@ console.log('== Tự chia hàng đều');
   for (let t = 0; t < 200; t++) { const bs = Array.from({ length: 1 + (t % 9) }, (_, i) => ({ z: Z[(t * 7 + i * 3) % 3] })); const sp = T.blockSpans(bs); let row = 0; sp.forEach((x) => { row += x; if (row > 12) okB = false; if (row === 12) row = 0; }); if (row !== 0) okB = false; }
   ok(okR, 'số nổi bật: mỗi hàng kín 12 cột, tối đa 4 ô/hàng, không ô lẻ hàng cuối');
   ok(okB, 'khối: mỗi hàng kín 12 cột dù thêm, bớt, đổi cỡ');
+}
+
+console.log('== Kéo thả đổi chỗ (chế độ tùy chỉnh)');
+{
+  setXa('Xã Sơn Đồng');
+  const it = make('xa-keo'), T = it.test, d = T.defFor();
+  T.setL(JSON.parse(JSON.stringify(d)));
+  const sig = (b) => b.t + '|' + b.ef + '|' + (b.t === 'bd' ? b.c : b.m) + '|' + b.z, B = d.blocks.map(sig), R = d.rings.map((r) => r.join(':'));
+  const nowB = () => T.L().blocks.map(sig);
+  const nowR = () => T.L().rings.map((r) => r.join(':'));
+  T.moveTo('b', 0, 2);
+  ok(JSON.stringify(nowB()) === JSON.stringify([B[1], B[0]].concat(B.slice(2))), 'khối đầu thả trước khối thứ ba: đứng thứ hai');
+  T.setL(JSON.parse(JSON.stringify(d)));
+  T.moveTo('b', 0, B.length);
+  ok(JSON.stringify(nowB()) === JSON.stringify(B.slice(1).concat([B[0]])), 'thả vào «Thêm khối»: về cuối');
+  T.setL(JSON.parse(JSON.stringify(d)));
+  T.moveTo('r', R.length - 1, 0);
+  ok(JSON.stringify(nowR()) === JSON.stringify([R[R.length - 1]].concat(R.slice(0, -1))), 'số nổi bật cuối thả lên đầu');
+  T.setL(JSON.parse(JSON.stringify(d)));
+  ok(!T.moveTo('b', 1, 1) && !T.moveTo('b', 1, 2) && !T.moveTo('r', 0, 99), 'thả tại chỗ hoặc ngoài danh sách: không đổi');
+  ok(JSON.stringify(nowB()) === JSON.stringify(B) && JSON.stringify(nowR()) === JSON.stringify(R), 'bố cục giữ nguyên khi thả không đổi chỗ');
+  ok(it.home().indexOf('data-dg=') < 0, 'ngoài chế độ tùy chỉnh: không kéo được');
+}
+
+console.log('== Màn eform «Hiện hết» (14/11/2026)');
+['Xã Sơn Đồng', 'Phường Việt Hưng', 'Xã Ba Vì'].forEach((nm) => {
+  setXa(nm);
+  const it = make('modal');
+  let bad = [], dup = [], noCard = [], clicks = [];
+  it.EFS.forEach((e) => {
+    run('XBT.curEf = ' + JSON.stringify(e.sid));
+    let h = '';
+    try { h = it.ef(e); } catch (er) { bad.push(e.ef + ': ' + er.message); return; }
+    if (/data-sel=|data-kind=|data-allk=/.test(h)) clicks.push(e.ef);
+    const L = it.test.efLast(), seen = new Set();
+    L.shown.forEach((k) => { if (seen.has(k)) dup.push(e.ef + ' ' + k); seen.add(k); });
+    if (!L.cards && !/chưa có số/.test(h)) noCard.push(e.ef);
+  });
+  run('XBT.curEf = null');
+  ok(!bad.length, nm + ': dựng được màn eform cả 12 eform ' + bad.slice(0, 3).join('; '));
+  ok(!clicks.length, nm + ': không còn danh sách chọn, nút kiểu hình, nút «Xem đủ ô số» ' + clicks.join(','));
+  ok(!dup.length, nm + ': một số (cùng bản ghi, cùng giá trị) chỉ hiện một chỗ trên màn eform (T1) ' + dup.slice(0, 3).join('; '));
+  ok(!noCard.length, nm + ': eform có số thì có biểu đồ ' + noCard.join(','));
+});
+{
+  setXa('Xã Sơn Đồng');
+  const it = make('modal'), e = it.EFS.find((x) => x.ef === 'xa_tcns');
+  run('XBT.curEf = ' + JSON.stringify(e.sid));
+  const h = it.ef(e);
+  run('XBT.curEf = null');
+  ok(/class="v"[^>]*>[\d,]+ tỷ/.test(h) && !/class="v"[^>]*>\d{1,3}(\.\d{3}){3}/.test(h), 'ô số tiền lớn ghi gọn «… tỷ», không ghi đủ chữ số');
+  ok(/title="[^"]*\d{1,3}(\.\d{3}){3}/.test(h), 'rê chuột vẫn thấy số đủ');
+  ok(!/data-r="[^"]*"[^>]*class="stat"|class="stat"[^>]*data-r=/.test(h), 'ô số không bấm (T2)');
+}
+
+console.log('== Bỏ nút «Bố cục cũ» (14/11/2026)');
+{
+  setXa('Xã Sơn Đồng');
+  const it = make();
+  ok(it.home().indexOf('data-xbtold') < 0, 'màn ngoài không có nút «Bố cục cũ»');
+  /* màn eform: nút nằm ở lớp bọc ctmScreenHtml, nên kiểm đúng chỗ đó */
+  const sid = it.EFS[0].sid;
+  let hm = '';
+  try { hm = run('CTM_UI.id=' + JSON.stringify(sid) + ';CTM_UI.screen="home";CTM_UI.group=null;ctmScreenHtml(CTM_SPECS[' + JSON.stringify(sid) + '])'); } catch (er) { console.log('   ', er.message); }
+  ok(hm.indexOf('xbt-modal') >= 0, 'màn eform dựng bằng bố cục mới (lớp bọc ctmScreenHtml)');
+  ok(hm.indexOf('data-xbtold') < 0 && hm.indexOf('Bố cục cũ') < 0, 'màn eform (cả lớp bọc) không có nút «Bố cục cũ»');
+  run('XBT.curEf = null');
+  /* tài khoản đã chọn bố cục cũ trước 14/11: vẫn xem bố cục mới, lựa chọn cũ bị xóa */
+  run('globalThis.__ls = { "ioc-xbt-mode:guest": "cu" }; globalThis.localStorage = { getItem: function (k) { return k in __ls ? __ls[k] : null; }, setItem: function (k, v) { __ls[k] = String(v); }, removeItem: function (k) { delete __ls[k]; } }');
+  ok(run('xbtMode()') === 'moi', 'tài khoản đã lưu «bố cục cũ» vẫn xem bố cục mới');
+  ok(run('"ioc-xbt-mode:guest" in __ls') === false, 'lựa chọn «bố cục cũ» đã lưu bị xóa (bật lại cờ cũng không tự quay về)');
+  run('delete globalThis.localStorage; delete globalThis.__ls');
+}
+
+console.log('== Kéo thả trên trình duyệt (phần tử giả lập)');
+{
+  setXa('Xã Sơn Đồng');
+  run('globalThis.__t = []; globalThis.setTimeout = function (f) { __t.push(f); return 0; }; document.querySelector = function () { return null; }');
+  const it = make('xa-keo2'), T = it.test, d = T.defFor();
+  T.setL(JSON.parse(JSON.stringify(d)));
+  const sig = (b) => b.t + '|' + b.ef + '|' + (b.t === 'bd' ? b.c : b.m), B = d.blocks.map(sig), nowB = () => T.L().blocks.map(sig);
+  const outside = { closest: () => null };
+  const root = { contains: (x) => x !== outside };
+  const mk = (dg, rect, pw) => { const cls = new Set(), el = { cls, getAttribute: (n) => (n === 'data-dg' ? dg : null), classList: { add: (c) => cls.add(c), remove: (...c) => c.forEach((x) => cls.delete(x)) },
+    getBoundingClientRect: () => rect, parentElement: { getBoundingClientRect: () => ({ left: 0, top: 0, width: pw, height: 2000 }) } };
+    el.closest = (sel) => (sel === '[data-dg]' ? el : sel === '[id^="xbt-host-"]' ? root : null); return el; };
+  const types = [];
+  const ev = (type, target, x, y) => ({ type, target, clientX: x, clientY: y, prevented: false, preventDefault() { this.prevented = true; }, dataTransfer: { setData: (t) => types.push(t) } });
+  /* vào chế độ tùy chỉnh */
+  it.click({ target: { closest: (sel) => (sel === '[data-ed]' ? { getAttribute: () => 'on' } : null) } });
+  ok(it.editing(), 'vào được chế độ tùy chỉnh');
+  const A = mk('b,0', { left: 0, top: 0, width: 600, height: 200 }, 1212), Bk = mk('b,1', { left: 614, top: 0, width: 600, height: 200 }, 1212), W = mk('b,2', { left: 0, top: 220, width: 1212, height: 200 }, 1212);
+  ok(it.drag(ev('dragstart', A, 10, 10)) === true, 'bắt đầu kéo khối');
+  ok(types.length === 1 && types[0] !== 'text/plain', 'dữ liệu kéo không phải chữ thường (thả nhầm vào ô nhập chữ không dán «b0»)');
+  const o1 = ev('dragover', Bk, 1100, 50); it.drag(o1);
+  ok(o1.prevented && Bk.cls.has('dg-af') && !Bk.cls.has('dg-v'), 'ô nửa hàng: nửa phải là đặt sau, vạch ở mép phải');
+  const o2 = ev('dragover', outside, 0, 0); it.drag(o2);
+  ok(!o2.prevented && Bk.cls.size === 0, 'rê ra khe, ra ngoài: xóa vạch, không nhận thả');
+  const o3 = ev('dragover', W, 1100, 240); it.drag(o3);
+  ok(W.cls.has('dg-b4') && W.cls.has('dg-v'), 'ô hết bề ngang (màn hẹp, khối Rộng): xét trên/dưới, nửa trên là đặt trước dù con trỏ lệch phải');
+  it.drag(ev('drop', W, 1100, 400));
+  ok(JSON.stringify(nowB()) === JSON.stringify([B[1], B[2], B[0]].concat(B.slice(3))), 'thả nửa dưới ô hết bề ngang: đặt sau ô đó');
+  it.drag(ev('dragend', A, 0, 0));
+  run('__t.splice(0).forEach(function (f) { f(); })');
+  ok(!A.cls.has('dg-src') && W.cls.size === 0, 'kéo xong: không còn ô mờ, không còn vạch (kể cả khi lệnh làm mờ chạy sau)');
+  /* kéo bị hủy ngay (Esc): lệnh làm mờ chạy sau dragend thì không làm mờ */
+  T.setL(JSON.parse(JSON.stringify(d)));
+  const A2 = mk('b,0', { left: 0, top: 0, width: 600, height: 200 }, 1212);
+  it.drag(ev('dragstart', A2, 10, 10)); it.drag(ev('dragend', A2, 0, 0)); run('__t.splice(0).forEach(function (f) { f(); })');
+  ok(!A2.cls.has('dg-src'), 'kéo bị hủy ngay: ô không bị mờ kẹt');
+  /* nút ↑ ↓ ← → dùng chung moveTo */
+  const btn = (attr, v) => ({ target: { closest: (sel) => (sel === attr ? { getAttribute: () => v } : null) } });
+  T.setL(JSON.parse(JSON.stringify(d)));
+  it.click(btn('[data-mv]', '0,1'));
+  ok(JSON.stringify(nowB()) === JSON.stringify([B[1], B[0]].concat(B.slice(2))), 'nút ↓: khối đầu xuống thứ hai');
+  it.click(btn('[data-mv]', '1,-1'));
+  ok(JSON.stringify(nowB()) === JSON.stringify(B), 'nút ↑: về chỗ cũ');
+  const R = d.rings.map((r) => r.join(':'));
+  it.click(btn('[data-rmv]', '0,1'));
+  ok(JSON.stringify(T.L().rings.map((r) => r.join(':'))) === JSON.stringify([R[1], R[0]].concat(R.slice(2))), 'nút →: ô số đầu sang phải một ô');
+  it.click(btn('[data-mv]', '0,-1'));
+  ok(JSON.stringify(nowB()) === JSON.stringify(B), 'nút ↑ ở khối đầu: không đổi');
+  run('globalThis.setTimeout = function () { return 0; }; delete globalThis.__t');
+}
+
+console.log('== Kéo thả: khe giữa hai ô, dragenter, gợi ý một chỗ (14/11/2026)');
+{
+  setXa('Xã Sơn Đồng');
+  run('globalThis.setTimeout = function () { return 0; }; document.querySelector = function () { return null; }');
+  const it = make('xa-keo3'), T = it.test, d = T.defFor();
+  T.setL(JSON.parse(JSON.stringify(d)));
+  const sig = (b) => b.t + '|' + b.ef + '|' + (b.t === 'bd' ? b.c : b.m), B = d.blocks.map(sig), nowB = () => T.L().blocks.map(sig);
+  const root = { contains: () => true };
+  const cards = [];
+  const grid = { querySelectorAll: () => cards };
+  const mk = (dg, rect) => { const cls = new Set(), el = { cls, getAttribute: (n) => (n === 'data-dg' ? dg : null), classList: { add: (c) => cls.add(c), remove: (...c) => c.forEach((x) => cls.delete(x)) },
+    getBoundingClientRect: () => rect, parentElement: { getBoundingClientRect: () => ({ left: 0, top: 0, width: 1214, height: 2000 }) } };
+    el.closest = (sel) => (sel === '[data-dg]' ? el : sel === '[id^="xbt-host-"]' ? root : sel === '.bgrid' ? grid : null); return el; };
+  const A = mk('b,0', { left: 0, top: 0, right: 600, bottom: 200, width: 600, height: 200 });
+  const C = mk('b,2', { left: 614, top: 0, right: 1214, bottom: 200, width: 600, height: 200 });
+  cards.push(A, C);
+  /* khe 14px giữa hai ô: phần tử dưới con trỏ là chính lưới */
+  const gap = { closest: (sel) => (sel === '.bgrid' ? grid : null) };
+  const ev = (type, target, x, y) => ({ type, target, clientX: x, clientY: y, prevented: false, preventDefault() { this.prevented = true; }, dataTransfer: { setData: () => {} } });
+  it.click({ target: { closest: (sel) => (sel === '[data-ed]' ? { getAttribute: () => 'on' } : null) } });
+  const h = it.home();
+  ok(h.indexOf('data-dg=') >= 0, 'chế độ tùy chỉnh: ô kéo được');
+  ok(h.indexOf('Kéo thả để đổi chỗ') < 0 && h.indexOf('title="Kéo để đổi chỗ"') >= 0, 'gợi ý kéo chỉ ở tay nắm, không gắn cho cả ô');
+  it.drag(ev('dragstart', A, 10, 10));
+  const en = ev('dragenter', C, 1100, 50); it.drag(en);
+  ok(en.prevented, 'dragenter trên ô đích được chặn mặc định (Safari nhận thả)');
+  const g1 = ev('dragover', gap, 610, 100); it.drag(g1);
+  ok(g1.prevented && C.cls.has('dg-b4'), 'rê vào khe trước ô thứ ba: vạch hiện ở mép trước ô đó, nhận thả');
+  it.drag(ev('drop', gap, 610, 100));
+  ok(JSON.stringify(nowB()) === JSON.stringify([B[1], B[0]].concat(B.slice(2))), 'thả vào khe trước ô thứ ba: khối đầu đứng ngay trước ô đó');
+  T.setL(JSON.parse(JSON.stringify(d)));
+  it.drag(ev('dragstart', A, 10, 10));
+  const far = ev('dragover', gap, 607, 400); it.drag(far);
+  ok(!far.prevented, 'xa mọi ô (quá 24px): không nhận thả');
+  it.drag(ev('dragend', A, 0, 0));
 }
 
 console.log('\n' + pass + ' đạt, ' + fail + ' lỗi');

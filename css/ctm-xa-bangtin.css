@@ -355,3 +355,37 @@ html.theme-green .xbt-root{--q1:#dff3e7;--o0:#b3c9bb}
 .xbt-root .xky select:hover{border-color:var(--accent)}
 .xbt-root .xky select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .xbt-root .xky select option{color:#0b1220;background:#fff}
+/* kéo thả khi tùy chỉnh (13/11/2026): tay nắm, ô đang kéo mờ, vạch báo chỗ thả ở mép trước / sau ô đích */
+.xbt-root [data-dg]{cursor:grab;position:relative}
+.xbt-root [data-dg]:active{cursor:grabbing}
+.xbt-root [data-dg] .btools button{cursor:pointer}
+.xbt-root .grip{display:inline-grid;place-items:center;min-width:24px;min-height:32px;color:var(--fg-3);font-size:16px;line-height:1;user-select:none;margin-right:auto}
+.xbt-root .ringc .btools{width:100%}
+.xbt-root .dg-src{opacity:.4}
+.xbt-root .dg-b4::before,.xbt-root .dg-af::after{content:"";position:absolute;top:6px;bottom:6px;width:4px;border-radius:2px;background:var(--accent);pointer-events:none}
+.xbt-root .dg-b4::before{left:-9px}
+.xbt-root .dg-af::after{right:-9px}
+.xbt-root .addc.dg-b4{border-color:var(--accent);background:var(--accent-soft)}
+.xbt-root .addc.dg-b4::before{display:none}
+/* ô chiếm hết bề ngang (màn hẹp, khối Rộng): vạch ở mép trên / dưới */
+.xbt-root .dg-v.dg-b4::before,.xbt-root .dg-v.dg-af::after{left:6px;right:6px;width:auto;height:4px}
+.xbt-root .dg-v.dg-b4::before{top:-9px;bottom:auto}
+.xbt-root .dg-v.dg-af::after{bottom:-9px;top:auto}
+/* Màn eform «Hiện hết» (14/11/2026): mọi biểu đồ, nhóm trên một màn, lưới 2 cột tự xếp kín; khung một số hiện số to */
+.xbt-root .allgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch;grid-auto-flow:row dense}
+.xbt-root .acard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow);min-width:0}
+.xbt-root .acard.wide{grid-column:1/-1}
+.xbt-root .acard .dl{gap:4px}
+.xbt-root .acard .dl-r{min-height:40px;padding:6px 8px;gap:14px}
+.xbt-root .acard .dl-l{font-size:13.5px;color:var(--fg)}
+.xbt-root .acard .dl-b{height:16px;border-radius:5px}
+.xbt-root .acard .dl-b i{border-radius:5px}
+.xbt-root .acard .dl-v{font-size:14.5px;font-weight:700}
+.xbt-root .anote{margin:2px 0 0;font-size:12px;color:var(--fg-3)}
+.xbt-root .aone{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;border:0;background:var(--surface-2);border-radius:10px;padding:14px 16px;text-align:left;color:var(--fg);font:inherit}
+.xbt-root button.aone{cursor:pointer}
+.xbt-root button.aone:hover{outline:1px solid var(--line-2)}
+.xbt-root .aone .v{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15}
+.xbt-root .aone .v small{font-size:13px;font-weight:500;color:var(--fg-2)}
+.xbt-root .aone .l{font-size:13.5px;color:var(--fg-2)}
+@media (max-width:900px){.xbt-root .allgrid{grid-template-columns:1fr}}
