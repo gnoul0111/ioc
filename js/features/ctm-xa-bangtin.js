@@ -6,14 +6,20 @@
      một biểu đồ lớn đổi được kiểu; «Xem bản ghi đã nhập» và phần của biểu đồ mở màn Dữ liệu đã nhập có sẵn (ctmRec) — T2.
    · Mọi số lấy từ bộ tính chỉ tiêu (efPick, efVals, efRecsOf, ctmD…) đúng bản đọc XA_*; chỉ chọn được ô số, chỉ tiêu xã nhập (dòng
      số liệu), biểu đồ đã có trong bản đọc; không trùng số trên một màn (T1); hình tròn chỉ khi eform có dòng "Tổng số" (G6).
-   · Màn cũ giữ nguyên: nút «Bố cục cũ» / «Xem bố cục mới» (nhớ theo tài khoản); tắt hẳn bằng cờ XBT_ENABLED = false.
+   · Màn cũ giữ nguyên trong code: nút «Bố cục cũ» / «Xem bố cục mới» (nhớ theo tài khoản) — anh bảo bỏ nút 14/11/2026: ẩn bằng cờ
+     XBT_OLD_BTN = false (mọi tài khoản xem bố cục mới, kể cả người đã chọn bố cục cũ trước đó); tắt hẳn bố cục mới bằng cờ XBT_ENABLED = false.
    Nạp SAU ctm-xa-eform.js; cần css/ctm-xa-bangtin.css. lib/echarts/echarts.min.js tự tải khi có biểu đồ cần vẽ (xbtEcharts), không nạp sẵn ở trang.
    Kỳ xem: màn eform theo thanh Kỳ xem của hộp cửa sổ (cả Lũy kế, Khoảng, So nhiều kỳ); màn ngoài có ô chọn Tháng / Quý / Năm và kỳ riêng (13/11/2026). */
 const XBT_ENABLED = true;
-const XBT = { inst: {}, key: {}, sids: {}, charts: [], curEf: null, dlgH: null, seq: 0, pendGroup: null, ecWait: [], ecLoading: false };
+const XBT_OLD_BTN = false;
+/* Màn eform «Hiện hết» (anh duyệt 14/11/2026 sau góp ý người dùng: bấm chuyển biểu đồ nhiều, đơn điệu): mọi biểu đồ, nhóm trên một màn,
+   cuộn xuống xem, không danh sách chọn, không nút kiểu hình; false = màn một biểu đồ lớn + danh sách chọn như trước */
+const XBT_EF_HET = true;
+const XBT = { dragInst: null, inst: {}, key: {}, sids: {}, charts: [], curEf: null, dlgH: null, seq: 0, pendGroup: null, ecWait: [], ecLoading: false };
 const XBT_TRUC = { dangxa: 'Đảng ủy', hdndxa: 'HĐND', ubndxa: 'UBND', mttqxa: 'Ủy ban MTTQ' };
 function xbtWho() { try { if (typeof currentAccount !== 'undefined' && currentAccount) return currentAccount.user || currentAccount.title || 'guest'; } catch (e) { /* chưa đăng nhập */ } return 'guest'; }
-function xbtMode() { try { return localStorage.getItem('ioc-xbt-mode:' + xbtWho()) === 'cu' ? 'cu' : 'moi'; } catch (e) { return 'moi'; } }
+/* cờ tắt: mọi tài khoản xem bố cục mới; xóa luôn lựa chọn «cũ» đã lưu trước 14/11/2026, để nếu sau này bật lại cờ thì không ai tự quay về bố cục cũ */
+function xbtMode() { if (!XBT_OLD_BTN) { try { localStorage.removeItem('ioc-xbt-mode:' + xbtWho()); } catch (e) { /* không xóa được: bỏ qua */ } return 'moi'; } try { return localStorage.getItem('ioc-xbt-mode:' + xbtWho()) === 'cu' ? 'cu' : 'moi'; } catch (e) { return 'moi'; } }
 function xbtSetMode(m) {
   try { localStorage.setItem('ioc-xbt-mode:' + xbtWho(), m === 'cu' ? 'cu' : 'moi'); } catch (e) { /* không lưu được: chỉ đổi lần này */ }
   if (typeof renderCategoryGridContent === 'function') renderCategoryGridContent();
@@ -80,6 +86,15 @@ function xbtData(sids, baseSid) {
     const used = efPick(cfg, out.cur).used, usedP = prev ? efPick(cfg, prev).used : [];
     const unit = (id) => efUnit(cfg, id), val = (rs, id) => (rs.length ? r1(efVals(cfg, rs)[id]) : null), kid = (k) => k.slice(cfg.ef.length + 1);
     const KM = (id) => efKeyM(cfg.ef, id);
+    /* bản ghi tạo ra một số (theo khóa mở Dữ liệu đã nhập): dùng để nhận ra cùng một số hiện ở hai chỗ trên màn eform (T1) */
+    const ix = new Map(used.map((R, i) => [R, i])), ridC = {};
+    const rid = (key) => {
+      if (typeof key !== 'string' || !key || key.indexOf('\u0001') >= 0) return null;
+      if (key in ridC) return ridC[key];
+      let rs = null; const P = efParseKey(key), q = P && P.ef === cfg.ef ? P.path : null;
+      try { if (Array.isArray(q)) rs = used.filter((R) => efMatch(R, q)); else if (q && q.m) rs = efRecsOf(cfg, Array.isArray(q.p) ? used.filter((R) => efMatch(R, q.p)) : used, q.m); } catch (er) { rs = null; }
+      return (ridC[key] = rs && rs.length ? rs.map((R) => ix.get(R)).sort((a, b) => a - b).join(',') : null);
+    };
     const kpis = s.kpis.map((k) => { const id = kid(k.m), m = s.metrics[k.m] || {}; return { id, l: k.l || m.l, u: m.u, how: efMoTa(cfg, id), vals: per.map((p) => val(efPick(cfg, p.id).used, id)), pv: prev ? val(usedP, id) : null, recs: KM(id) }; });
     const dongs = (rs) => { if (!cfg.dong) return []; const D = cfg.dong, by = {}, o = [];
       rs.forEach((R) => { const path = D.theo.map((c) => [c, R[c] == null ? null : R[c]]), k = cfg.ef + '_d' + xaEfHash(JSON.stringify(path));
@@ -115,7 +130,7 @@ function xbtData(sids, baseSid) {
       per.forEach((p, pi) => { dongs(efPick(cfg, p.id).used).forEach((d) => { let o = dAll[d.k]; if (!o) { o = dAll[d.k] = { k: d.k, l: d.l, u: dU(d, dm), nh: d.nh, nhL: d.nh != null ? (nhL[d.nh] || String(d.nh)) : '', vals: per.map(() => null), pv: null, recs: dKey(d, dm) }; dl.push(o); } o.vals[pi] = val(d.rs, dm); }); });
       if (prev) dongs(usedP).forEach((d) => { if (dAll[d.k]) dAll[d.k].pv = val(d.rs, dm); });
     }
-    out.eforms.push({ sid, ef: cfg.ef, truc: XBT_TRUC[sid.split('-')[0]] || '', ten: ef.ten, banGhi: cfg.banGhi, luuY: cfg.luuY || '', tach: cfg.tach ? ef.F[cfg.tach].l : null, used: used.length, kpis, charts, nhom, dl });
+    out.eforms.push({ rid, sid, ef: cfg.ef, truc: XBT_TRUC[sid.split('-')[0]] || '', ten: ef.ten, banGhi: cfg.banGhi, luuY: cfg.luuY || '', tach: cfg.tach ? ef.F[cfg.tach].l : null, used: used.length, kpis, charts, nhom, dl });
   });
   return out;
 }
@@ -138,6 +153,8 @@ function xbtMake(DATA, OV) {
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fv = (v, u) => (v == null ? '—' : NF.format(v) + (u === '%' ? '%' : ''));
   const fu = (v, u) => fv(v, u) + (v != null && u && u !== '%' ? ' ' + u : '');
+  /* số gọn (14/11/2026): từ 1 triệu ghi «25,6 tỷ», «4,1 triệu» — rê chuột thấy số đủ (fu); Dữ liệu đã nhập giữ nguyên số đã nhập. noU: không kèm đơn vị */
+  const fs = (v, u, noU) => { if (v == null) return '—'; const uu = !noU && u && u !== '%' ? ' ' + u : ''; if (u === '%') return fv(v, u); const a = Math.abs(v); return a >= 1e9 ? NF1.format(v / 1e9) + ' tỷ' + uu : a >= 1e6 ? NF1.format(v / 1e6) + ' triệu' + uu : fv(v, u) + uu; };
   const unitSmall = (u) => (u && u !== '%' ? '<small>' + esc(u) + '</small>' : '');
   const pc = (v) => (v == null || !isFinite(v) ? '—' : NF1.format(v) + '%');
   const delta = (a, b, u) => {
@@ -194,8 +211,9 @@ function xbtMake(DATA, OV) {
   });
   const hH = (n) => Math.max(90, n * 36 + 12);
   const clean = (l, nh) => { const seen = [], out = []; String(l).split(/ · | — /).forEach((p) => { const k = p.trim().toLowerCase(), n0 = String(nh || '').toLowerCase(); if (!k || k === n0 || k === n0.replace(/^\d+\.\s*/, '') || seen.indexOf(k) >= 0) return; seen.push(k); out.push(p.trim()); }); return out.join(' · ') || l; };
-  const vw = (arr, unitIn) => Math.max(56, Math.max.apply(null, arr.map((x) => (unitIn ? fu(x.v, x.u) : fv(x.v, x.u)).length)) * 8 + 12);
-  const dlRows = (e, top, t, unitIn, noClick) => { const mx = Math.max.apply(null, top.map((x) => Math.abs(x.v))) || 1; return top.map((x) => { const inner = '<span class="dl-l">' + esc(x.l) + '</span><span class="dl-b' + (top.length < 2 ? ' dl-0' : '') + '"><i style="width:' + (Math.abs(x.v) / mx * 100).toFixed(1) + '%"></i></span><span class="dl-v">' + (unitIn ? fu(x.v, x.u) : fv(x.v, x.u)) + '</span>';
+  const vw = (arr, unitIn) => Math.max(56, Math.max.apply(null, arr.map((x) => fs(x.v, x.u, !unitIn).length)) * 9 + 12);
+  /* màn eform: mỗi dòng một màu (bớt đơn điệu); màn ngoài giữ một màu */
+  const dlRows = (e, top, t, unitIn, noClick) => { const mx = Math.max.apply(null, top.map((x) => Math.abs(x.v))) || 1; return top.map((x, j) => { const inner = '<span class="dl-l">' + esc(x.l) + '</span><span class="dl-b' + (top.length < 2 ? ' dl-0' : '') + '"><i style="width:' + (Math.abs(x.v) / mx * 100).toFixed(1) + '%' + (noClick ? '' : ';background:' + PAL()[j % 5]) + '"></i></span><span class="dl-v" title="' + esc(fu(x.v, x.u)) + '">' + fs(x.v, x.u, !unitIn) + '</span>';
     return noClick || !hasRec(x) ? '<div class="dl-r dl-st" title="' + esc(x.full || x.l) + '">' + inner + '</div>' : '<button type="button" class="dl-r" title="' + esc(x.full || x.l) + '" data-r="' + recBtn(e, x.recs) + '">' + inner + '</button>'; }).join(''); };
   const byUnit = (its) => { const by = {}, ord = []; its.forEach((x) => { const u = x.u || ''; if (!by[u]) { by[u] = []; ord.push(u); } by[u].push(x); }); return ord.map((u) => [u, by[u]]); };
 
@@ -219,12 +237,12 @@ function xbtMake(DATA, OV) {
       data: [{ value: v == null ? 0 : Math.max(0, Math.min(100, v)) }], detail: { offsetCenter: [0, 0], formatter: () => pc(v), color: C.fg, fontSize: 24, fontWeight: 700, fontFamily: FONT } }]
   });
   const area = (items, u, big) => () => ({
-    grid: big ? { left: 8, right: 16, top: 30, bottom: 4, containLabel: true } : { left: 6, right: 6, top: 12, bottom: 2 },
+    grid: big ? { left: 8, right: 44, top: 30, bottom: 4, containLabel: true } : { left: 6, right: 6, top: 12, bottom: 2 },
     xAxis: { type: 'category', data: items.map((x) => x.l), show: !!big, boundaryGap: false, axisLine: { lineStyle: { color: C.line2 } }, axisTick: { show: false }, axisLabel: axisLbl() },
-    yAxis: { type: 'value', show: !!big, scale: true, axisLabel: Object.assign(axisLbl(), { formatter: (v) => NF.format(v) }), splitLine: { lineStyle: { color: C.line, type: [3, 3] } } },
+    yAxis: { type: 'value', show: !!big, scale: true, axisLabel: Object.assign(axisLbl(), { formatter: (v) => fs(v, '', true) }), splitLine: { lineStyle: { color: C.line, type: [3, 3] } } },
     tooltip: Object.assign(tipBase(), { trigger: 'axis', axisPointer: { type: 'line', lineStyle: { color: C.line2 } }, formatter: (p) => P[p[0].dataIndex].label + '<br><b>' + fu(p[0].value, u) + '</b>' + (big ? HINT() : '') }),
     series: [{ type: 'line', data: items.map((x) => x.v), smooth: .3, symbol: 'circle', symbolSize: (v, p) => (p.dataIndex === CI ? 11 : 7), lineStyle: { width: 3, color: C.s1 }, itemStyle: { color: C.s1, borderColor: C.surface, borderWidth: 2 },
-      label: { show: !!big, position: 'top', color: C.fg, fontWeight: 600, fontSize: 11.5, formatter: (q) => fv(q.value, u) },
+      label: { show: !!big, position: 'top', color: C.fg, fontWeight: 600, fontSize: 11.5, formatter: (q) => fs(q.value, u, true) },
       areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: rgba(C.s1, .32) }, { offset: 1, color: rgba(C.s1, 0) }]) } }]
   });
   const vcols = (items, u, hi) => () => ({
@@ -232,7 +250,7 @@ function xbtMake(DATA, OV) {
     xAxis: { type: 'category', data: items.map((x) => x.l), axisLine: { lineStyle: { color: C.line2 } }, axisTick: { show: false }, axisLabel: Object.assign(axisLbl(), { color: C.fg2, interval: 0, width: 110, overflow: 'break' }) },
     yAxis: { type: 'value', show: false },
     tooltip: Object.assign(tipBase(), { trigger: 'item', formatter: (q) => esc(q.name) + '<br><b>' + fu(q.value, u) + '</b>' + HINT() }),
-    series: [{ type: 'bar', barMaxWidth: 54, data: items.map((x, i) => ({ value: x.v, itemStyle: { color: hi == null || i === hi ? C.s1 : rgba(C.s1, .34), borderRadius: [6, 6, 0, 0] } })), label: { show: true, position: 'top', color: C.fg, fontWeight: 600, fontSize: 12, formatter: (q) => fv(q.value, u) } }]
+    series: [{ type: 'bar', barMaxWidth: 54, data: items.map((x, i) => ({ value: x.v, itemStyle: { color: hi == null || i === hi ? C.s1 : rgba(C.s1, .34), borderRadius: [6, 6, 0, 0] } })), label: { show: true, position: 'top', color: C.fg, fontWeight: 600, fontSize: 12, formatter: (q) => fs(q.value, u, true) } }]
   });
   const PAL = () => [C.s1, C.s2, C.s3, C.s4, C.s5];
   const donut = (items, u, total, totalL, small) => () => ({
@@ -451,9 +469,82 @@ function xbtMake(DATA, OV) {
     return u;
   };
 
+  /* ---------- Kéo thả bằng chuột (chế độ tùy chỉnh, 13/11/2026) ----------
+     Khối kéo sang chỗ khối khác, ô số nổi bật sang chỗ ô số khác (không lẫn hai loại); thả ở nửa trước của ô đích là đặt trước ô đó,
+     nửa sau là đặt sau; thả vào «＋ Thêm khối» là đưa về cuối. Nút ↑ ↓ ← → vẫn giữ cho người dùng bàn phím. Có Hoàn tác như mọi thao tác. */
+  const GRIP = '<span class="grip" aria-hidden="true" title="Kéo để đổi chỗ">⠿</span>';
+  /* gợi ý "Kéo để đổi chỗ" chỉ ở tay nắm, không gắn title cho cả ô (T1: một gợi ý một chỗ) */
+  const DRAG = (k, i) => ' draggable="true" data-dg="' + k + ',' + i + '"';
+  /* đưa phần tử thứ i (k: 'b' khối, 'r' số nổi bật) về vị trí pos tính trên danh sách cũ (0…n: trước phần tử pos; n: cuối) */
+  const moveTo = (k, i, pos) => {
+    const nl = clone(strip(L)), arr = k === 'r' ? nl.rings : nl.blocks;
+    if (i < 0 || i >= arr.length || pos < 0 || pos > arr.length) return false;
+    const to = pos > i ? pos - 1 : pos; if (to === i) return false;
+    const x = arr.splice(i, 1)[0]; arr.splice(to, 0, x); commit(valid(nl)); return true;
+  };
+  /* DG: đang kéo { k, i, root (vùng bảng tin), src (ô đang kéo), mark: { el, cls } (vạch đang hiện) } — chỉ sửa lớp trong vùng bảng tin */
+  let DG = null;
+  const DG_TYPE = 'application/x-ioc-xbt';
+  const dgMark = (el, cls) => {
+    if (!DG) return;
+    const m = DG.mark;
+    if (m && m.el === el && m.cls === cls) return;
+    if (m) m.el.classList.remove('dg-b4', 'dg-af', 'dg-v');
+    DG.mark = el ? { el, cls } : null;
+    if (el && cls) { el.classList.add(cls[0]); if (cls[1]) el.classList.add('dg-v'); }
+  };
+  const dgEnd = () => { if (!DG) return; dgMark(null); if (DG.src) DG.src.classList.remove('dg-src'); DG = null; XBT.dragInst = null; };
+  /* ô đích dưới con trỏ: { el, pos, cls: [lớp vạch, dọc?] } hoặc null. Ô chiếm hết bề ngang lưới (màn hẹp, khối Rộng) thì xét trên/dưới, còn lại xét trái/phải.
+     Con trỏ nằm ở khe giữa hai ô (chỗ vạch xanh hiện) thì lấy ô gần nhất cùng loại trong lưới, cách mép ô không quá DG_GAP px */
+  const DG_GAP = 24;
+  const dgNear = (ev) => {
+    const box = ev.target.closest(DG.k === 'b' ? '.bgrid' : '.rings'); if (!box || !box.querySelectorAll) return null;
+    let best = null, bd = DG_GAP * DG_GAP + 1;
+    Array.prototype.forEach.call(box.querySelectorAll('[data-dg]'), (c) => {
+      const r = c.getBoundingClientRect(), dx = Math.max(r.left - ev.clientX, 0, ev.clientX - r.right), dy = Math.max(r.top - ev.clientY, 0, ev.clientY - r.bottom), dd = dx * dx + dy * dy;
+      if (dd < bd) { bd = dd; best = c; }
+    });
+    return best;
+  };
+  const dgAt = (ev) => {
+    if (!DG || !ev.target || !ev.target.closest || !DG.root.contains(ev.target)) return null;
+    const add = DG.k === 'b' && ev.target.closest('[data-add]');
+    if (add) return { el: add, pos: L.blocks.length, cls: ['dg-b4', false] };
+    const el = ev.target.closest('[data-dg]') || dgNear(ev); if (!el) return null;
+    const [k, j] = el.getAttribute('data-dg').split(','); if (k !== DG.k) return null;
+    const r = el.getBoundingClientRect(), pr = el.parentElement ? el.parentElement.getBoundingClientRect() : r;
+    const vert = r.width >= pr.width - 4, before = vert ? ev.clientY < r.top + r.height / 2 : ev.clientX < r.left + r.width / 2;
+    return { el, pos: +j + (before ? 0 : 1), cls: [before ? 'dg-b4' : 'dg-af', vert] };
+  };
+  const drag = (ev) => {
+    const t = ev.type;
+    if (t === 'dragstart') {
+      if (!EDIT) return;
+      const el = ev.target.closest && ev.target.closest('[data-dg]'); if (!el) return;
+      const [k, i] = el.getAttribute('data-dg').split(',');
+      DG = { k, i: +i, root: el.closest('[id^="xbt-host-"]') || el.parentElement, src: el, mark: null };
+      if (ev.dataTransfer) { ev.dataTransfer.effectAllowed = 'move'; try { ev.dataTransfer.setData(DG_TYPE, k + ',' + i); } catch (er) { /* trình duyệt cũ */ } }
+      /* làm mờ sau một nhịp (để hình kéo theo chuột không bị mờ); kéo đã kết thúc thì thôi */
+      const d0 = DG; setTimeout(() => { if (DG === d0) el.classList.add('dg-src'); }, 0);
+      return true;
+    }
+    if (!DG) return;
+    /* dragenter cũng phải chặn mặc định (Safari/WebKit và trình duyệt theo đúng chuẩn mới nhận ô là chỗ thả) */
+    if (t === 'dragover' || t === 'dragenter') {
+      const a = dgAt(ev);
+      if (!a) { dgMark(null); return; }
+      ev.preventDefault(); if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'move';
+      dgMark(a.el, a.pos === DG.i || a.pos === DG.i + 1 ? null : a.cls);
+    } else if (t === 'drop') {
+      const a = dgAt(ev), d = DG; dgEnd();
+      if (!a) return;
+      ev.preventDefault(); moveTo(d.k, d.i, a.pos);
+    } else if (t === 'dragend') dgEnd();
+  };
+
   const blockHtml = (b, i) => {
     const e = BY[b.ef], tag = EDIT ? 'div' : 'a', href = EDIT || !e ? '' : ' href="#' + e.slug + '"';
-    const tools = EDIT ? '<div class="btools" role="group" aria-label="Sửa khối ' + (i + 1) + '"><button type="button" data-mv="' + i + ',-1" aria-label="Đưa khối lên trước"' + (i === 0 ? ' disabled' : '') + '>↑</button><button type="button" data-mv="' + i + ',1" aria-label="Đưa khối ra sau"' + (i === L.blocks.length - 1 ? ' disabled' : '') + '>↓</button>' +
+    const tools = EDIT ? '<div class="btools" role="group" aria-label="Sửa khối ' + (i + 1) + '">' + GRIP + '<button type="button" data-mv="' + i + ',-1" aria-label="Đưa khối lên trước"' + (i === 0 ? ' disabled' : '') + '>↑</button><button type="button" data-mv="' + i + ',1" aria-label="Đưa khối ra sau"' + (i === L.blocks.length - 1 ? ' disabled' : '') + '>↓</button>' +
       '<button type="button" data-sz="' + i + '">Cỡ: ' + SZ[b.z] + '</button><button type="button" data-edit="' + i + '">Sửa</button><button type="button" data-del="' + i + '">Bỏ</button></div>' : '';
     const head = '<div class="vh"><span class="vt">' + esc(e ? e.ten : 'Eform không còn') + '</span>' + (EDIT ? '' : '<span class="tc-more">Xem' + ARR + '</span>') + '</div>';
     let body;
@@ -478,11 +569,11 @@ function xbtMake(DATA, OV) {
         body = '<div class="kso"><div class="tc-label">' + esc(k.l) + '</div><div class="kbig" title="' + esc(fu(v, k.u)) + '">' + big(v, k.u) + unitSmall(k.u) + '</div>' + dshort(v, k.pv, k.u) + '</div>' + (grid ? '<div class="kgrid">' + grid + '</div>' : '');
       } else body = '<div class="vb"><div><div class="tc-label">' + esc(k.l) + '</div><div class="tc-num" title="' + esc(fu(v, k.u)) + '">' + big(v, k.u) + unitSmall(k.u) + '</div>' + dshort(v, k.pv, k.u) + '</div>' + fig + '</div>' + xuNote + (chips ? '<div class="kchips">' + chips + '</div>' : '');
     }
-    return '<' + tag + ' class="vcard z-' + b.z + (EDIT ? ' editing' : '') + '" style="--sp:' + (BSP[i] || 6) + '"' + href + '>' + tools + head + body + '</' + tag + '>';
+    return '<' + tag + ' class="vcard z-' + b.z + (EDIT ? ' editing' : '') + '" style="--sp:' + (BSP[i] || 6) + '"' + href + (EDIT ? DRAG('b', i) : '') + '>' + tools + head + body + '</' + tag + '>';
   };
 
   const renderHome = () => {
-    const acct = EDIT ? '' : '<button type="button" class="btn" data-xbtold="1" title="Quay về màn chỉ tiêu cũ (lưới thẻ)">Bố cục cũ</button>';
+    const acct = EDIT || !XBT_OLD_BTN ? '' : '<button type="button" class="btn" data-xbtold="1" title="Quay về màn chỉ tiêu cũ (lưới thẻ)">Bố cục cũ</button>';
     const bar = EDIT ? '<div class="edbar"><button type="button" class="btn" data-undo="1"' + (HIST.length ? '' : ' disabled') + '>Hoàn tác</button><button type="button" class="btn" data-reset="1">Khôi phục mặc định</button><button type="button" class="btn" data-copy="1">Sao chép bố cục</button><button type="button" class="btn" data-paste="1">Dán bố cục</button><button type="button" class="btn pri" data-ed="off">Xong</button></div>'
       : '<button type="button" class="btn" data-ed="on">Tùy chỉnh</button>';
     /* Kỳ xem của màn ngoài: Tháng / Quý / Năm và kỳ (quy ước 9); màn eform dùng thanh Kỳ xem của hộp cửa sổ */
@@ -494,7 +585,7 @@ function xbtMake(DATA, OV) {
       h += (EDIT ? '<div class="sec-h" style="margin-top:0"><h2>Số nổi bật</h2><button type="button" class="btn" data-radd="1"' + (L.rings.length >= RMAX || !ringPool(-1).some((x) => !x.dis) ? ' disabled' : '') + '>＋ Thêm số</button><span>' + L.rings.length + '/' + RMAX + ' ô · tự chia hàng đều</span></div>' : '') + '<div class="rings">' + L.rings.map(([ef, id], i, all) => { const e = BY[ef], k = gm(ef, id), v = k.vals[CI], RS = ringSpans(all.length);
         if (k.u === '%') PEND.push({ id: 'rg' + i, opt: ring(v) });
         const tag = EDIT ? 'div' : 'a', href = EDIT ? '' : ' href="#' + e.slug + '"';
-        return '<' + tag + ' class="ringc' + (EDIT ? ' editing' : '') + '" style="--sp:' + RS[i] + '"' + href + '>' + (EDIT ? '<div class="btools" style="align-self:flex-end"><button type="button" data-rmv="' + i + ',-1" aria-label="Đưa sang trái"' + (i === 0 ? ' disabled' : '') + '>←</button><button type="button" data-rmv="' + i + ',1" aria-label="Đưa sang phải"' + (i === L.rings.length - 1 ? ' disabled' : '') + '>→</button><button type="button" data-redit="' + i + '">Sửa</button><button type="button" data-rdel="' + i + '" aria-label="Bỏ ' + esc(k.l) + '">Bỏ</button></div>' : '') + '' + (k.u === '%' ? '<div class="rg" id="rg' + i + '" role="img" aria-label="' + esc(k.l) + ': ' + pc(v) + '"></div>' : (() => { const sb = sibOf(ef, id); return sb ? '<div class="rbox rbox2" role="img" aria-label="' + esc(k.l) + ': ' + fu(v, k.u) + '"><div class="rnum" title="' + esc(fu(v, k.u)) + '">' + big(v, k.u) + (k.u && k.u !== '%' ? '<small>' + esc(k.u) + '</small>' : '') + '</div>' + miniSib(sb, 4) + '</div>'
+        return '<' + tag + ' class="ringc' + (EDIT ? ' editing' : '') + '" style="--sp:' + RS[i] + '"' + href + (EDIT ? DRAG('r', i) : '') + '>' + (EDIT ? '<div class="btools" style="align-self:flex-end">' + GRIP + '<button type="button" data-rmv="' + i + ',-1" aria-label="Đưa sang trái"' + (i === 0 ? ' disabled' : '') + '>←</button><button type="button" data-rmv="' + i + ',1" aria-label="Đưa sang phải"' + (i === L.rings.length - 1 ? ' disabled' : '') + '>→</button><button type="button" data-redit="' + i + '">Sửa</button><button type="button" data-rdel="' + i + '" aria-label="Bỏ ' + esc(k.l) + '">Bỏ</button></div>' : '') + '' + (k.u === '%' ? '<div class="rg" id="rg' + i + '" role="img" aria-label="' + esc(k.l) + ': ' + pc(v) + '"></div>' : (() => { const sb = sibOf(ef, id); return sb ? '<div class="rbox rbox2" role="img" aria-label="' + esc(k.l) + ': ' + fu(v, k.u) + '"><div class="rnum" title="' + esc(fu(v, k.u)) + '">' + big(v, k.u) + (k.u && k.u !== '%' ? '<small>' + esc(k.u) + '</small>' : '') + '</div>' + miniSib(sb, 4) + '</div>'
         : '<div class="rbox" role="img" aria-label="' + esc(k.l) + ': ' + fu(v, k.u) + '"><div class="rnum" title="' + esc(fu(v, k.u)) + '">' + big(v, k.u) + '</div>' + (k.u && k.u !== '%' ? '<div class="runit">' + esc(k.u) + '</div>' : '') + '<div class="rnone">' + esc(KY) + ' không có số cùng loại' + (k.u ? ' (' + esc(k.u) + ')' : '') + ' trong eform để so</div></div>'; })()) + '<div class="rt">' + esc(e.ten) + '</div><div class="rs">' + esc(k.l) + '</div>' + (dshort(v, k.pv, k.u) || '<span class="delta" aria-hidden="true">&nbsp;</span>') + '</' + tag + '>'; }).join('') + (EDIT && !L.rings.length ? '<p class="hint">Chưa có số nổi bật nào.</p>' : '') + '</div>';
     }
     BSP = blockSpans(L.blocks);
@@ -623,7 +714,7 @@ function xbtMake(DATA, OV) {
     let n;
     if ((n = g('[data-ed]'))) { EDIT = n.getAttribute('data-ed') === 'on'; render(true); const f = document.querySelector(EDIT ? '[data-ed="off"]' : '[data-ed="on"]'); if (f) f.focus({ preventScroll: true }); return true; }
     if (!EDIT) return false;
-    if ((n = g('[data-mv]'))) { const [i, d] = n.getAttribute('data-mv').split(',').map(Number), nl = clone(strip(L)), j = i + d; if (j < 0 || j >= nl.blocks.length) return true; const t = nl.blocks[i]; nl.blocks[i] = nl.blocks[j]; nl.blocks[j] = t; commit(valid(nl)); const f = document.querySelector('[data-mv="' + j + ',' + d + '"]') || document.querySelector('[data-mv="' + j + ',' + (-d) + '"]'); if (f) f.focus({ preventScroll: true }); return true; }
+    if ((n = g('[data-mv]'))) { const [i, d] = n.getAttribute('data-mv').split(',').map(Number), j = i + d; if (!moveTo('b', i, d < 0 ? j : j + 1)) return true; const f = document.querySelector('[data-mv="' + j + ',' + d + '"]') || document.querySelector('[data-mv="' + j + ',' + (-d) + '"]'); if (f) f.focus({ preventScroll: true }); return true; }
     if ((n = g('[data-sz]'))) { const i = +n.getAttribute('data-sz'), nl = clone(strip(L)), o = ['s', 'm', 'l']; nl.blocks[i].z = o[(o.indexOf(nl.blocks[i].z) + 1) % 3]; commit(valid(nl)); const f = document.querySelector('[data-sz="' + i + '"]'); if (f) f.focus({ preventScroll: true }); return true; }
     if ((n = g('[data-del]'))) { const nl = clone(strip(L)); nl.blocks.splice(+n.getAttribute('data-del'), 1); commit(valid(nl)); return true; }
     if ((n = g('[data-rdel]'))) { const nl = clone(strip(L)); nl.rings.splice(+n.getAttribute('data-rdel'), 1); commit(valid(nl)); return true; }
@@ -631,7 +722,7 @@ function xbtMake(DATA, OV) {
     if (g('[data-add]')) { openEdit(-1); return true; }
     if ((n = g('[data-redit]'))) { const i = +n.getAttribute('data-redit'); DR = { ri: i, key: L.rings[i][0] + ':' + L.rings[i][1] }; drawRing(); return true; }
     if (g('[data-radd]')) { DR = { ri: -1, keys: [] }; drawRing(); return true; }
-    if ((n = g('[data-rmv]'))) { const [i, d] = n.getAttribute('data-rmv').split(',').map(Number), nl = clone(strip(L)), j = i + d; if (j < 0 || j >= nl.rings.length) return true; const t = nl.rings[i]; nl.rings[i] = nl.rings[j]; nl.rings[j] = t; commit(valid(nl)); const fo = document.querySelector('[data-rmv="' + j + ',' + d + '"]') || document.querySelector('[data-rmv="' + j + ',' + (-d) + '"]'); if (fo) fo.focus({ preventScroll: true }); return true; }
+    if ((n = g('[data-rmv]'))) { const [i, d] = n.getAttribute('data-rmv').split(',').map(Number), j = i + d; if (!moveTo('r', i, d < 0 ? j : j + 1)) return true; const fo = document.querySelector('[data-rmv="' + j + ',' + d + '"]') || document.querySelector('[data-rmv="' + j + ',' + (-d) + '"]'); if (fo) fo.focus({ preventScroll: true }); return true; }
     if (g('[data-undo]')) { if (HIST.length) { L = valid(JSON.parse(HIST.pop())); saveL(); render(true); } return true; }
     if (g('[data-reset]')) { commit(defFor()); return true; }
     if (g('[data-copy]')) { openCopy(); return true; }
@@ -647,13 +738,73 @@ function xbtMake(DATA, OV) {
     const ks = vkinds(e, c, ci), key = e.ef + '#' + ci, k0 = ST.kind[key], kind = ks.indexOf(k0) >= 0 ? k0 : vdef(e, c, ci);
     return (ks.length > 1 ? '<div class="kinds" role="group" aria-label="Kiểu hình">' + ks.map((k) => '<button type="button" class="kbtn" aria-pressed="' + (k === kind) + '" data-kind="' + esc(key + '|' + k) + '">' + KN[k] + '</button>').join('') + '</div>' : '') + viz(e, c, ci, kind, false);
   };
-  const statBtn = (e, l, v, pv, u, recs, sub) => '<div class="stat"><div class="l">' + esc(l) + '</div><div class="v">' + fv(v, u) + (u && u !== '%' ? ' <small style="font-size:12.5px;font-weight:500;color:var(--fg-2)">' + esc(u) + '</small>' : '') + '</div>' + dshort(v, pv, u) + '</div>';
+  const statBtn = (e, l, v, pv, u, recs, sub) => '<div class="stat"><div class="l">' + esc(l) + '</div><div class="v" title="' + esc(fu(v, u)) + '">' + fs(v, u, true) + (u && u !== '%' ? ' <small style="font-size:12.5px;font-weight:500;color:var(--fg-2)">' + esc(u) + '</small>' : '') + '</div>' + dshort(v, pv, u) + '</div>';
+
+  /* ---------- Màn eform «Hiện hết» (XBT_EF_HET): mọi biểu đồ, nhóm của eform trên một màn — T1: một số chỉ hiện một chỗ ----------
+     Một số = cùng các bản ghi (e.rid theo khóa mở bản ghi) và cùng giá trị. Thứ tự ưu tiên khi một số có ở nhiều chỗ:
+     1. biểu đồ các bước / phần của tổng (phễu GPMB, học sinh theo bậc…) giữ nguyên vì bỏ một phần là sai nghĩa; 2. ô số (bỏ ô đã có ở mục 1);
+     3. biểu đồ của bản đọc; 4. nhóm; 5. danh sách mọi dòng số liệu. Khung sau không nhắc lại số đã hiện («Không nhắc lại n số đã có ở trên»),
+     hết số thì không hiện; còn một số thì hiện số to (không vẽ thanh một mình). Diễn biến qua các kỳ giữ nguyên.
+     Lối mở bản ghi (T2): nút «Xem bản ghi đã nhập» và phần của biểu đồ; ô số không bấm. */
+  const keyOf = (e, x, v) => { const r = e.rid(x && x.recs); return r == null || v == null ? null : r + '|' + Math.round(v * 1000) / 1000; };
+  const renderEfAll = (e, h, ks) => {
+    const cs = e.charts.filter((c) => (c.items || []).some((x) => x.v != null) && !(c.loai === 'cot' && c.items.length < 2 && e.ef === 'xa_qlvb'));
+    const norm = (t) => String(t).trim().toLowerCase();
+    const twin = (c) => e.nhom.find((x) => norm(x.l) === norm(c.t));
+    const ns = e.nhom.filter((x) => !cs.some((c) => norm(c.t) === norm(x.l)));
+    const nhItems = (g) => (g.dongs.length ? g.dongs : g.lines.map((l) => ({ l: l.l, u: l.u, v: l.cur, recs: l.recs })));
+    const seen = new Set(), shown = [], add = (arr) => arr.forEach((x) => { const k = keyOf(e, x, x.v); if (k) { seen.add(k); shown.push(k); } });
+    const isSeen = (x) => { const k = keyOf(e, x, x.v); return !!k && seen.has(k); };
+    const whole = (c, ci) => c.loai !== 'xu' && (isParts(e, ci) || (e.ef === 'xa_gpmb' && c.loai === 'ds' && ci === 0));
+    cs.forEach((c) => { const ci = e.charts.indexOf(c); if (whole(c, ci)) add(c.items.filter((x) => x.v != null)); });
+    const kShow = ks.filter((k) => k.vals[CI] == null || !seen.has(keyOf(e, k, k.vals[CI])));
+    kShow.forEach((k) => { const kk = keyOf(e, k, k.vals[CI]); if (kk) { seen.add(kk); shown.push(kk); } });
+    const nC = kShow.length <= 4 ? Math.max(3, kShow.length) : Math.ceil(kShow.length / Math.ceil(kShow.length / 4));
+    if (kShow.length) h += '<section class="stats" style="grid-template-columns:repeat(' + nC + ',minmax(0,1fr))" aria-label="Ô số">' + kShow.map((k) => statBtn(e, k.l, k.vals[CI], k.pv, k.u, k.recs, k.how)).join('') + '</section>';
+    h += '<p class="hint" style="margin:4px 0 12px;font-size:12.5px;color:var(--fg-3)">Kéo xuống để xem hết các biểu đồ. Bấm vào thanh, cột, phần của hình để xem bản ghi của phần đó.</p>';
+    /* mở thẳng một nhóm (ctmGo('group', …), quay lại màn nhóm): cuộn tới khung của nhóm đó */
+    const pg = XBT.pendGroup; XBT.pendGroup = null;
+    if (pg && pg.sid === e.sid) { const ng = e.nhom.find((x) => x.id === pg.gid); XBT.scrollTo = fold(ng ? ng.l : pg.label || ''); }
+    const cards = [];
+    const card = (t, body, n, note, wide) => cards.push({ wide: !!(wide || n > 10), html: (w) => '<section class="acard' + (w ? ' wide' : '') + '" data-t="' + esc(fold(t)) + '"><h3 class="st-t">' + esc(t.replace(/ \(.*\)$/, '')) + '</h3>' + (note ? '<p class="anote">' + note + '</p>' : '') + '<div class="stage-b">' + body + '</div></section>' });
+    /* tên dòng không lặp chữ đã có ở tên khung (T1); tên đủ khi rê chuột */
+    const trimL = (items, t) => { const ft = fold(t); return items.map((x) => {
+      const ps = String(x.l).split(/ · | — /).map((q) => q.trim()).filter(Boolean);
+      let kp2 = ps.filter((q) => !(q.length > 3 && ft.indexOf(fold(q)) >= 0)); if (!kp2.length) kp2 = ps;
+      kp2 = kp2.filter((q, i) => kp2.findIndex((r) => fold(r) === fold(q)) === i).filter((q) => !kp2.some((r) => r !== q && fold(r).length > fold(q).length && fold(r).indexOf(fold(q)) >= 0));
+      const l = kp2.join(' · ');
+      return Object.assign({}, x, { full: x.full || x.l, l: l.charAt(0).toUpperCase() + l.slice(1) }); }); };
+    const one = (x, t, u0) => { const u = x.u || u0, inner = '<span class="v">' + fs(x.v, u, true) + (u && u !== '%' ? ' <small>' + esc(u) + '</small>' : '') + '</span><span class="l">' + esc(x.l) + '</span>';
+      return hasRec(x) ? '<button type="button" class="aone" title="' + esc((x.full || x.l) + ': ' + fu(x.v, u)) + '" data-r="' + recBtn(e, x.recs) + '">' + inner + '</button>' : '<div class="aone" title="' + esc((x.full || x.l) + ': ' + fu(x.v, u)) + '">' + inner + '</div>'; };
+    const listCard = (t, c2, ci, kind, n, note) => { const its = trimL(c2.items, t); if (its.length === 1) { card(t, one(its[0], t, c2.u), 1, note); return; } card(t, viz(e, Object.assign({}, c2, { items: its }), ci, kind, false), n, note); };
+    const fresh = (items) => { const all = items.filter((x) => x.v != null), keep = all.filter((x) => !isSeen(x)); return { keep, gone: all.length - keep.length }; };
+    const goneNote = (n) => (n ? 'Không nhắc lại ' + n + ' số đã có ở trên.' : '');
+    const kindOf = (c2, ci) => { const k = vdef(e, c2, ci); return c2.loai === 'dong' || k === 'cot' ? 'thanh' : k; };
+    cs.filter((c) => c.loai !== 'dong').concat(cs.filter((c) => c.loai === 'dong' && twin(c))).forEach((c) => {
+      const ci = e.charts.indexOf(c);
+      if (c.loai === 'xu') { card(c.t, viz(e, c, ci, vdef(e, c, ci), false), 0, '', true); return; }
+      if (whole(c, ci)) { card(c.t, viz(e, c, ci, vdef(e, c, ci), false), c.items.length); return; }
+      const tw = twin(c), useTw = tw && tw.dongs.length > (c.items || []).length, f = fresh(useTw ? tw.dongs : c.items);
+      if (!f.keep.length) return;
+      add(f.keep);
+      const c2 = useTw ? { loai: 'dong', t: tw.l, items: f.keep, nh: tw.l, all: true } : Object.assign({}, c, { items: f.keep, all: true });
+      listCard(c.t, c2, useTw ? -1 : ci, kindOf(c2, useTw ? -1 : ci), f.keep.length, goneNote(f.gone));
+    });
+    ns.forEach((g) => { const f = fresh(nhItems(g)); if (!f.keep.length) return; add(f.keep); listCard(g.l, { loai: 'dong', t: g.l, items: f.keep, nh: g.l, all: true }, -1, 'thanh', f.keep.length, goneNote(f.gone)); });
+    cs.filter((c) => c.loai === 'dong' && !twin(c)).forEach((c) => { const ci = e.charts.indexOf(c), f = fresh(c.items); if (!f.keep.length) return; add(f.keep); listCard(c.t, Object.assign({}, c, { items: f.keep, all: true }), ci, 'thanh', f.keep.length, goneNote(f.gone)); });
+    /* khung nửa hàng đứng lẻ thì giãn cả hàng, không để trống một bên */
+    const halves = cards.filter((x) => !x.wide); if (halves.length % 2) halves[halves.length - 1].wide = true;
+    ST.last = { ef: e.ef, shown, cards: cards.length, kShow: kShow.length };
+    return h + (cards.length ? '<div class="allgrid">' + cards.map((x) => x.html(x.wide)).join('') + '</div>' : '<p class="hint" style="padding:24px 0">' + esc(KY) + ' chưa có số.</p>');
+  };
 
   const renderEf = (e) => {
     let h = '<a class="crumb" href="#xbt-close">' + BACK + esc(DATA.xaName) + '</a>';
     h += '<nav class="pillbar" aria-label="Chuyển eform">' + ORDER.map((ef) => { const x = BY[ef]; return '<a class="pill" href="#' + x.slug + '"' + (x === e ? ' aria-current="page"' : '') + '>' + esc(x.ten) + '</a>'; }).join('') + '</nav>';
     h += '<div class="page-h"><div><h1>' + esc(e.ten) + '</h1><p>' + esc(e.truc) + ' · ' + esc(KY) + ' · ' + esc(SO) + '</p></div><button type="button" class="btn" style="margin-left:auto" data-r="' + recBtn(e, 'ALL') + '">Xem bản ghi đã nhập</button></div>';
-    const ks = e.kpis.filter((k) => k.id !== 'dong' || e.kpis.length === 1), showK = ST.allK[e.ef] ? ks : ks.slice(0, 4);
+    const ks = e.kpis.filter((k) => k.id !== 'dong' || e.kpis.length === 1);
+    if (XBT_EF_HET) return renderEfAll(e, h, ks);
+    const showK = ST.allK[e.ef] ? ks : ks.slice(0, 4);
     h += '<section class="stats" style="grid-template-columns:repeat(' + Math.max(3, Math.min(4, showK.length)) + ',minmax(0,1fr))" aria-label="Ô số">' + showK.map((k) => statBtn(e, k.l, k.vals[CI], k.pv, k.u, k.recs, k.how)).join('') + '</section>' +
       (ks.length > 4 ? '<div class="more" style="margin:-4px 0 12px;justify-content:flex-start"><button type="button" class="btn" data-allk="' + e.ef + '">' + (ST.allK[e.ef] ? 'Thu gọn ô số' : 'Xem đủ ' + ks.length + ' ô số') + '</button></div>' : '');
     const cs = e.charts.filter((c) => (c.items || []).some((x) => x.v != null) && !(c.loai === 'cot' && c.items.length < 2 && e.ef === 'xa_qlvb'));
@@ -697,7 +848,7 @@ function xbtMake(DATA, OV) {
     home: () => { reset(); return renderHome(); },
     ef: (e) => { reset(); return renderEf(e); },
     byEf: (sid) => EFS.find((x) => x.sid === sid) || null,
-    mount: () => { mountCharts(); },
+    mount: () => { mountCharts(); if (XBT.scrollTo && typeof document !== 'undefined' && document.querySelector) { const n = document.querySelector('.xbt-modal [data-t="' + XBT.scrollTo.replace(/"/g, '') + '"]'); XBT.scrollTo = null; if (n && n.scrollIntoView) n.scrollIntoView({ block: 'start' }); } },
     click: (ev) => {
     const cur = OV === 'modal' ? EFS.find((x) => x.sid === XBT.curEf) || null : null;
     if (!cur && homeClick(ev)) return;
@@ -707,7 +858,8 @@ function xbtMake(DATA, OV) {
     const r = ev.target.closest('[data-r]'); if (r && REC[r.getAttribute('data-r')]) REC[r.getAttribute('data-r')]();
   },
     editing: () => EDIT,
-    test: { valid, usedBy, ringPool, ringSpans, blockSpans, sibOf, vkinds, defFor, gm, L: () => L, setL: (x) => { L = x; } }
+    drag,
+    test: { efLast: () => ST.last, moveTo, valid, usedBy, ringPool, ringSpans, blockSpans, sibOf, vkinds, defFor, gm, L: () => L, setL: (x) => { L = x; } }
   };
 }
 
@@ -779,7 +931,7 @@ if (XBT_ENABLED && typeof ctmOverviewHtml === 'function' && typeof ctmScreenHtml
       let sids = xbtSpecs(roles); if (sids.indexOf(spec.id) < 0) sids = sids.concat(spec.id);
       const inst = xbtInst('modal', sids, spec.id), e = inst.byEf(spec.id);
       XBT.curEf = spec.id;
-      return ctmHeader(spec, '') + '<div class="xbt-root xbt-modal"><div class="xbt-mode"><button type="button" class="btn" data-xbtold="1">Bố cục cũ</button></div>' + inst.ef(e) + '</div>';
+      return ctmHeader(spec, '') + '<div class="xbt-root xbt-modal">' + (XBT_OLD_BTN ? '<div class="xbt-mode"><button type="button" class="btn" data-xbtold="1">Bố cục cũ</button></div>' : '') + inst.ef(e) + '</div>';
     } catch (er) { if (typeof console !== 'undefined') console.error('[xbt]', er); return scOrig(spec); }
   };
   /* vẽ biểu đồ sau khi hộp cửa sổ đã dựng và đã hiện (lần đầu hộp còn ẩn nên vẽ lại kích thước sau) */
@@ -811,6 +963,12 @@ if (XBT_ENABLED && typeof ctmOverviewHtml === 'function' && typeof ctmScreenHtml
       }
       if (inst) inst.click(ev);
     });
+    /* kéo thả khối, số nổi bật trên màn ngoài khi đang tùy chỉnh */
+    document.addEventListener('dragstart', (ev) => {
+      const host = ev.target && ev.target.closest && ev.target.closest('[id^="xbt-host-"]'), inst = host ? XBT.inst[host.id.slice(9)] : null;
+      if (inst && inst.drag && inst.drag(ev)) XBT.dragInst = inst;
+    });
+    ['dragenter', 'dragover', 'drop', 'dragend'].forEach((t) => document.addEventListener(t, (ev) => { if (XBT.dragInst) XBT.dragInst.drag(ev); }));
     let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => XBT.charts.forEach((c) => { if (!c.isDisposed()) c.resize(); }), 150); });
     /* đổi giao diện IOC (lớp theme-… trên html) thì vẽ lại cho đúng màu; lớp khác (phóng to widget, hộp cửa sổ…) thì không vẽ lại */
     const thKey = () => (String(document.documentElement.className || '').match(/\btheme-[\w-]+/g) || []).sort().join(' ');
