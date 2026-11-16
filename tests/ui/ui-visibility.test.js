@@ -135,5 +135,37 @@ ok(NC(itree, new Set()).total === 2, 'không đếm nhóm chỉ để gom (Số 
 
 
 
+// Noti vẽ lại: uvApplyNotify chỉ áp lại 5 nút tab (không rà cả trang như uvApply)
+{
+  const mkEl = (id) => { const cls = new Set(); return { dataset: { uvItem: id }, classList: { toggle: (c, on) => (on ? cls.add(c) : cls.delete(c)), contains: (c) => cls.has(c) }, hasAttribute: () => false, cls }; };
+  const tabs = ['urgent', 'nv', 'vb', 'kpi', 'gis'].map((k) => mkEl('notify-tab-' + k));
+  const other = mkEl('ubnd-kpi-fields');
+  const widget = mkEl('notificationsWidget');
+  const calls = [];
+  const c2 = {
+    document: {
+      addEventListener() {},
+      querySelectorAll: (sel) => (sel === '[data-uv-item^="notify-tab-"]' ? tabs : sel === '[data-uv-item]' ? tabs.concat(other) : []),
+      querySelector: (sel) => (sel === '#notificationsWidget' ? widget : null)
+    },
+    window: { addEventListener() {}, __notiActiveTab: 'vb' },
+    localStorage: {},
+    onNotiTabClick: (k) => { calls.push(k); c2.window.__notiActiveTab = k; }
+  };
+  c2.window.window = c2.window;
+  vm.createContext(c2);
+  vm.runInContext(src + '\n;this.S=UV_STATE;this.AN=uvApplyNotify;', c2);
+  c2.S.hidden = ['notify-tab-vb', 'ubnd-kpi-fields'];
+  c2.AN();
+  ok(tabs[2].cls.has('uv-hidden') && tabs.filter((el) => el.cls.has('uv-hidden')).length === 1, 'chỉ ẩn đúng tab người dùng đã ẩn');
+  ok(!other.cls.has('uv-hidden'), 'không đụng khối ngoài Noti');
+  ok(eq(calls, ['urgent']), 'tab đang mở bị ẩn → chuyển sang tab đầu tiên còn hiện');
+  ok(!tabs.some((el) => el.cls.has('uv-editable')), 'không chỉnh sửa màn hình → không gắn khung sửa');
+  c2.S.editing = true; c2.AN();
+  ok(tabs.every((el) => el.cls.has('uv-editable')), 'đang chỉnh sửa màn hình → nút tab mới vẽ có khung sửa');
+  c2.S.hidden = []; c2.AN();
+  ok(!tabs.some((el) => el.cls.has('uv-hidden')) && eq(calls, ['urgent']), 'hiện lại tab → bỏ ẩn, không chuyển tab thừa');
+}
+
 console.log(fail ?`✗ ${fail} lỗi, ${pass} đạt` : `✓ ${pass} kiểm tra đạt`);
 process.exit(fail ? 1 : 0);

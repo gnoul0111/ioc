@@ -352,6 +352,21 @@ function uvEnsureVisibleNotifyTab(hid) {
   try { onNotiTabClick(next); } finally { UV_STATE.switchingTab = false; }
 }
 
+/* Noti vẽ lại (renderMyTasksNotify, mỗi lần đổi tab/tìm kiếm/lọc) chỉ thay 5 nút tab (data-uv-item="notify-tab-*") —
+   áp lại đúng 5 nút đó thay cho uvApply(): uvApply rà cả trang (mọi khối, bố cục lưới, cột GIS, đếm mục ẩn) mất ~15 ms
+   mỗi lần vẽ Noti (đo 17/11/2026), trong khi phần còn lại của trang không đổi khi Noti vẽ lại. Việc của uvApply mà nút
+   tab cần: lớp uv-hidden theo danh sách ẩn, lớp uv-editable khi đang chỉnh sửa màn hình (nút "−" tìm khối theo mã nên
+   tự bám nút mới), và chuyển sang tab còn hiện nếu tab đang mở bị ẩn. */
+function uvApplyNotify() {
+  const hid = new Set(UV_STATE.hidden);
+  const els = [...document.querySelectorAll('[data-uv-item^="notify-tab-"]')];
+  els.forEach((el) => el.classList.toggle('uv-hidden', hid.has(el.dataset.uvItem)));
+  const notify = UV_BLOCKS.find((b) => b.id === 'notify');
+  const editable = UV_STATE.editing && !!notify && uvAvailable(notify);
+  els.forEach((el) => el.classList.toggle('uv-editable', editable));
+  uvEnsureVisibleNotifyTab(hid);
+}
+
 /* Nút "−" (ẩn khối) khi chỉnh sửa màn hình: nằm trong 1 lớp nổi riêng (#uvBadges), đặt tâm đúng góc trên trái khung
    vàng của khối — KHÔNG gắn vào bên trong khối như trước, vì bên trong thì nút đè lên tiêu đề/chữ đầu dòng, còn khối
    nằm trong vùng cuộn (tab Notify, cột phải bản đồ GIS) thì nút bị cắt mất. Mỗi khung hình đọc lại vị trí khối nên

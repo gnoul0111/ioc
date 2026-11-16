@@ -668,7 +668,8 @@
  __notiScrollObserver=new IntersectionObserver(entries=>{ if(entries[0].isIntersecting) loadMoreNotiRows(); },{root:null,rootMargin:'300px'});
  __notiScrollObserver.observe(sentinel);
  }
- if(typeof uvApply==='function') uvApply(false);
+ /* Chỉ áp lại «Ẩn/hiện giao diện» cho 5 nút tab vừa vẽ (uvApplyNotify), không rà cả trang (uvApply). */
+ if(typeof uvApplyNotify==='function') uvApplyNotify(); else if(typeof uvApply==='function') uvApply(false);
  }
  let __notiScrollObserver=null;
  /* 1 phần tử danh sách Noti → HTML. Phần tử là hàm (dựng muộn); chuỗi/{html} vẫn nhận để an toàn. */
