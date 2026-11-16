@@ -155,7 +155,15 @@ function uvSave() {
   } catch (e) { /* bỏ qua */ }
 }
 
-function uvAllBlocks() {
+/* Bộ nhớ trong 1 lượt uvApply (17/11/2026): trước đây uvAvailable/uvIsVisible/uvBlockById mỗi lần gọi lại uvAllBlocks()
+   — quét lại cả trang querySelectorAll('[data-uv-item]') và dựng lại mọi khối — cho TỪNG khối, nên 1 lần uvApply tốn
+   ~15 ms (mỗi lần Noti/tổng quan/chỉ tiêu vẽ lại đều gọi). Trong 1 lượt, trang không đổi giữa các bước nên quét 1 lần
+   là đủ; lượt lồng (uvApply → đổi tab Notify → Notify vẽ lại → uvApply) mở bộ nhớ mới vì nút tab vừa được vẽ lại.
+   Ngoài lượt uvApply (null) thì quét mới như cũ. */
+let UV_PASS = null;
+function uvAllBlocks() { return UV_PASS ? UV_PASS.list : uvScanBlocks(); }
+
+function uvScanBlocks() {
   const dynamic = typeof document.querySelectorAll === 'function'
     ? [...document.querySelectorAll('[data-uv-item]')].map((el) => ({
       id: el.dataset.uvItem,
@@ -185,17 +193,27 @@ function uvAllBlocks() {
   return UV_BLOCKS.concat([...groups.values()], dynamic);
 }
 
-function uvBlockById(id) { return uvAllBlocks().find((block) => block.id === id); }
+function uvBlockById(id) {
+  if (UV_PASS) return UV_PASS.byId.get(id);
+  return uvAllBlocks().find((block) => block.id === id);
+}
 
 function uvEl(block) { return block.el || (block.sel ? document.querySelector(block.sel) : null); }
 
 /* Khối có thực sự dành cho tài khoản đang đăng nhập không (không tính việc người dùng tự ẩn) */
 function uvAvailable(block) {
+  if (UV_PASS && UV_PASS.avail.has(block.id)) return UV_PASS.avail.get(block.id);
+  const ok = uvAvailableTinh(block);
+  if (UV_PASS) UV_PASS.avail.set(block.id, ok);
+  return ok;
+}
+function uvAvailableTinh(block) {
   if (block.virtual) return true;
   if (block.groupOnly) {
     const parent = uvBlockById(block.parent);
+    /* Nhóm còn mục con trên trang: đọc từ danh sách khối đã quét (mục động mang groupId = data-uv-group). */
     return !!parent && uvAvailable(parent)
-      && [...document.querySelectorAll('[data-uv-item]')].some((el) => el.dataset.uvGroup === block.id);
+      && uvAllBlocks().some((b) => b.dynamic && b.groupId === block.id);
   }
   if (block.parent) {
     const parent = uvBlockById(block.parent);
@@ -234,6 +252,14 @@ function uvShouldCollapseSidebar(blocks, hiddenIds) {
 
 /* Gắn class theo trạng thái hiện tại, rồi báo cho bản đồ/biểu đồ tính lại kích thước. */
 function uvApply(notifyResize) {
+  const prev = UV_PASS;
+  const list = uvScanBlocks();
+  const byId = new Map();
+  list.forEach((b) => { if (!byId.has(b.id)) byId.set(b.id, b); }); // như uvAllBlocks().find(): lấy khối đầu tiên trùng mã
+  UV_PASS = { list, byId, avail: new Map() };
+  try { uvApplyPass(notifyResize); } finally { UV_PASS = prev; }
+}
+function uvApplyPass(notifyResize) {
   const hid = new Set(UV_STATE.hidden);
   const blocks = uvAllBlocks();
   blocks.forEach((b) => { const el = uvEl(b); if (el) el.classList.toggle('uv-hidden', hid.has(b.id)); });
@@ -341,7 +367,9 @@ function uvPickNotifyTab(activeKey, tabKeys, hiddenIds) {
 }
 
 function uvEnsureVisibleNotifyTab(hid) {
-  if (UV_STATE.switchingTab || typeof onNotiTabClick !== 'function') return;
+  /* window.__notiGiuTab: nơi gọi cố ý mở 1 tab (xuất PDF — ipNotifyTab, ioc-pdf.js) thì không tự chuyển tab đi dù tab đó
+     đang bị ẩn trên màn hình. */
+  if (UV_STATE.switchingTab || window.__notiGiuTab || typeof onNotiTabClick !== 'function') return;
   const keys = [...document.querySelectorAll('[data-uv-item^="notify-tab-"]')]
     .map((el) => el.dataset.uvItem.slice('notify-tab-'.length));
   if (!keys.length) return;
@@ -350,21 +378,6 @@ function uvEnsureVisibleNotifyTab(hid) {
   if (next === null) return;
   UV_STATE.switchingTab = true;
   try { onNotiTabClick(next); } finally { UV_STATE.switchingTab = false; }
-}
-
-/* Noti vẽ lại (renderMyTasksNotify, mỗi lần đổi tab/tìm kiếm/lọc) chỉ thay 5 nút tab (data-uv-item="notify-tab-*") —
-   áp lại đúng 5 nút đó thay cho uvApply(): uvApply rà cả trang (mọi khối, bố cục lưới, cột GIS, đếm mục ẩn) mất ~15 ms
-   mỗi lần vẽ Noti (đo 17/11/2026), trong khi phần còn lại của trang không đổi khi Noti vẽ lại. Việc của uvApply mà nút
-   tab cần: lớp uv-hidden theo danh sách ẩn, lớp uv-editable khi đang chỉnh sửa màn hình (nút "−" tìm khối theo mã nên
-   tự bám nút mới), và chuyển sang tab còn hiện nếu tab đang mở bị ẩn. */
-function uvApplyNotify() {
-  const hid = new Set(UV_STATE.hidden);
-  const els = [...document.querySelectorAll('[data-uv-item^="notify-tab-"]')];
-  els.forEach((el) => el.classList.toggle('uv-hidden', hid.has(el.dataset.uvItem)));
-  const notify = UV_BLOCKS.find((b) => b.id === 'notify');
-  const editable = UV_STATE.editing && !!notify && uvAvailable(notify);
-  els.forEach((el) => el.classList.toggle('uv-editable', editable));
-  uvEnsureVisibleNotifyTab(hid);
 }
 
 /* Nút "−" (ẩn khối) khi chỉnh sửa màn hình: nằm trong 1 lớp nổi riêng (#uvBadges), đặt tâm đúng góc trên trái khung
