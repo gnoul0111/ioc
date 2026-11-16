@@ -209,7 +209,7 @@ async function ipNotifyTab(tab, fn) {
 function ipNotifyRows() {
   const div = document.createElement('div');
   return (window.__notiAllRows || []).map((h, i) => {
-    div.innerHTML = typeof h === 'string' ? h : (h && h.html) || '';
+    div.innerHTML = typeof h === 'function' ? h() : typeof h === 'string' ? h : (h && h.html) || ''; // Noti dựng dòng muộn (hàm), my-tasks-notify.js
     const b = div.querySelector('b'), sm = div.querySelector('small');
     const tags = [...div.querySelectorAll('.badge, span[class*="badge"], .pill')].map((x) => x.textContent.trim()).filter(Boolean);
     return [i + 1, b ? b.textContent.trim() : div.textContent.trim(), sm ? sm.textContent.trim() : '', [...new Set(tags)].join(' · ')];

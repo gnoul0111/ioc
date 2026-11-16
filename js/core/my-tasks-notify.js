@@ -75,13 +75,19 @@
  }
  /* Gom nhiệm vụ đang theo dõi theo trạng thái: {key:[records]} — sắp xếp trong từng nhóm giữ như trước: quá hạn
  lâu nhất / gần hạn nhất lên trước (hạn tăng dần), mới tạo nhất lên trước, mới hoàn thành nhất lên trước. */
+ /* Bộ nhớ tạm trong ĐÚNG 1 lần vẽ Noti (renderMyTasksNotify mở/đóng): bộ lọc trạng thái, danh sách tab đang mở, số
+ đếm các tab khi phóng to cùng dùng chung 1 lần xếp nhóm thay vì mỗi chỗ xếp lại. Ngoài lần vẽ (null) thì tính mới,
+ nên dữ liệu/cấu hình/ngày đổi lúc nào cũng không bị dùng số cũ. */
+ let __noiTam=null;
  function noiNvNhom(){
+ if(__noiTam&&__noiTam.nv) return __noiTam.nv;
  const today=noiTodayMs(), g={};
  myReceivedTasks().forEach(r=>{ const t=noiNvTrangThai(r,today); if(t) (g[t.key]=g[t.key]||[]).push(r); });
  const theoHan=(a,b)=>(parseDMY(a.due)||Infinity)-(parseDMY(b.due)||Infinity);
  ['quaHanKhanCap','quaHan','hanHomNay','sapHetHan','trongHan'].forEach(k=>g[k]&&g[k].sort(theoHan));
  if(g.moi) g.moi.sort((a,b)=>parseDMY(b.created)-parseDMY(a.created));
  if(g.hoanThanh) g.hoanThanh.sort((a,b)=>b.completedAt-a.completedAt);
+ if(__noiTam) __noiTam.nv=g;
  return g;
  }
  /* Các hàm nhóm cũ giữ tên (chỉ dùng trong file này), nay lấy từ noiNvNhom() nên không còn trùng nhau. */
@@ -108,9 +114,12 @@
  function myTaskStatusLogScoped(){
  /* Số ngày giữ trên Noti và bật/tắt theo «Cập nhật trạng thái» ở cấu hình (trước đây cứng 3 ngày). */
  if(!ichBat('noti.nv.capNhat')) return [];
+ if(typeof __noiTam!=='undefined'&&__noiTam&&__noiTam.log) return __noiTam.log;
  const ids=new Set(myReceivedTasks().map(r=>r.id));
  const cutoff=Date.now()-ichSo('noti.nv.capNhat')*86400000;
- return myTaskStatusLog().filter(x=>x.ts>=cutoff&&ids.has(x.recordId));
+ const log=myTaskStatusLog().filter(x=>x.ts>=cutoff&&ids.has(x.recordId));
+ if(typeof __noiTam!=='undefined'&&__noiTam) __noiTam.log=log;
+ return log;
  }
  /* Seed vài dòng "Cập nhật trạng thái" mẫu ngay khi khởi tạo dữ liệu (initData(), gọi 1 lần lúc mở trang) — nếu
  không seed, nhóm này LUÔN rỗng lúc mới mở trang vì bản chất nó chỉ ghi nhận khi bucket THẬT SỰ đổi giữa 2 lần
@@ -343,10 +352,12 @@
  return null;
  }
  function noiVbNhom(){
+ if(__noiTam&&__noiTam.vb) return __noiTam.vb;
  const today=noiTodayMs(), g={};
  records.filter(r=>r.metric==='docIn'&&canSeeRole(r.role)).forEach(r=>{ const k=noiVbTrangThai(r,today); if(k) (g[k]=g[k]||[]).push(r); });
  /* Mới nhất lên đầu trong từng nhóm (như trước). */
  Object.values(g).forEach(a=>a.sort((x,y)=>parseDMY(y.created)-parseDMY(x.created)));
+ if(__noiTam) __noiTam.vb=g;
  return g;
  }
  function noiGisCombinedItems(){
@@ -437,18 +448,18 @@
  const items=[];
  const nv=noiNvNhom();
  ichUuTien('noti','nv').map(noiKhoa).filter(k=>k!=='hoanThanh').forEach(k=>{
- (nv[k]||[]).filter(noiIsUrgentRecord).filter(mQ).forEach(r=>items.push({hang:noiHangKhan(r),html:noiNvRow(r,k,todayMs)}));
+ (nv[k]||[]).filter(noiIsUrgentRecord).filter(mQ).forEach(r=>items.push({hang:noiHangKhan(r),html:()=>noiNvRow(r,k,todayMs)}));
  });
  const vb=noiVbNhom();
  ichUuTien('noti','vb').forEach(id=>{
- (vb[noiKhoa(id)]||[]).filter(noiIsUrgentRecord).filter(mQ).forEach(r=>items.push({hang:noiHangKhan(r),html:noiRowVb(r,noiNhanCauHinh(id))}));
+ (vb[noiKhoa(id)]||[]).filter(noiIsUrgentRecord).filter(mQ).forEach(r=>items.push({hang:noiHangKhan(r),html:()=>noiRowVb(r,noiNhanCauHinh(id))}));
  });
  const tsOfGis=it=>it.kind==='gis'?(it.rec.received_at||0):Date.now();
  noiGisCombinedItems().filter(noiIsUrgentGis).filter(it=>matchQ(it.kind==='gis'?it.rec.title:`${it.rec.type} ${it.rec.camId}`))
  .sort((a,b)=>tsOfGis(b)-tsOfGis(a))
- .forEach(it=>items.push({hang:0,html:noiRowGis(it)})); // GIS/Camera chỉ có khái niệm khẩn cấp
+ .forEach(it=>items.push({hang:0,html:()=>noiRowGis(it)})); // GIS/Camera chỉ có khái niệm khẩn cấp
  /* Notify CAD mức khẩn (bị từ chối, quá hạn xác nhận, hết ứng viên phù hợp, phiếu lệnh khẩn cho xã/phường). */
- if(typeof cadNotifyRows==='function') cadNotifyRows(matchQ,true).forEach(html=>items.push({hang:0,html}));
+ if(typeof cadNotifyRows==='function') cadNotifyRows(matchQ,true).forEach(html=>items.push({hang:0,html:()=>html}));
  items.sort((a,b)=>a.hang-b.hang);
  return items.map(x=>x.html);
  }
@@ -551,8 +562,8 @@
  const todayMs=noiTodayMs();
  const mQ=r=>matchQ(`${r.title||''} ${r.unit||''}`);
  const g=noiNvNhom(), rows=[];
- ichUuTien('noti','nv').map(noiKhoa).forEach(k=>{ if(has(k)) rows.push(...(g[k]||[]).filter(mQ).map(r=>noiNvRow(r,k,todayMs))); });
- if(has('status')) rows.push(...myTaskStatusLogScoped().filter(x=>matchQ(`${x.title||''} ${x.text||''}`)).map(myTaskRowStatus));
+ ichUuTien('noti','nv').map(noiKhoa).forEach(k=>{ if(has(k)) rows.push(...(g[k]||[]).filter(mQ).map(r=>()=>noiNvRow(r,k,todayMs))); });
+ if(has('status')) rows.push(...myTaskStatusLogScoped().filter(x=>matchQ(`${x.title||''} ${x.text||''}`)).map(x=>()=>myTaskRowStatus(x)));
  return rows;
  }
  if(typeKey==='vb'){
@@ -561,7 +572,7 @@
  const g=noiVbNhom(), rows=[];
  ichUuTien('noti','vb').forEach(id=>{
  const k=noiKhoa(id); if(!has(k)) return;
- rows.push(...(g[k]||[]).filter(r=>matchQ(`${r.title||''} ${r.unit||''}`)).map(r=>noiRowVb(r,noiNhanCauHinh(id))));
+ rows.push(...(g[k]||[]).filter(r=>matchQ(`${r.title||''} ${r.unit||''}`)).map(r=>()=>noiRowVb(r,noiNhanCauHinh(id))));
  });
  return rows;
  }
@@ -571,18 +582,18 @@
  const tsOf=it=>it.kind==='gis'?(it.rec.received_at||0):Date.now();
  /* Notify CAD (điều phối điểm nghẽn) luôn mới nhất nên đứng đầu tab — chỉ hiện khi không lọc trạng thái, vì
     bộ trạng thái của tab (đã giao/chưa giao) không áp được cho sự kiện điều phối. */
- const cadRows=showAll&&typeof cadNotifyRows==='function'?cadNotifyRows(matchQ,false):[];
+ const cadRows=(showAll&&typeof cadNotifyRows==='function'?cadNotifyRows(matchQ,false):[]).map(html=>()=>html);
  return cadRows.concat(noiGisCombinedItems()
  .filter(it=>noiGisItemLinked(it)?(ichBat('noti.gis.daGiao')&&has('assigned')):(ichBat('noti.gis.chuaXuLy')&&has('pending')))
  .filter(it=>matchQ(it.kind==='gis'?it.rec.title:`${it.rec.type} ${it.rec.camId}`))
  .sort((a,b)=>tsOf(b)-tsOf(a))
- .map(noiRowGis));
+ .map(it=>()=>noiRowGis(it)));
  }
  if(typeKey==='kpi'){
  return noiKpiScopedRecords()
  .filter(r=>ichBat('noti.kpi.'+r.status)&&has(r.status))
  .filter(r=>matchQ(`${r.indicator||r.title||''} ${r.unit||''}`))
- .map(noiRowKpi);
+ .map(r=>()=>noiRowKpi(r));
  }
  return [];
  }
@@ -593,6 +604,10 @@
  const listBox=document.getElementById('myTaskList');
  const searchInput=document.getElementById('myTaskSearchInput');
  if(!tabsBox||!listBox) return;
+ __noiTam={};
+ try{ noiVeDanhSach(tabsBox,filterBtn,listBox,searchInput); } finally{ __noiTam=null; }
+ }
+ function noiVeDanhSach(tabsBox,filterBtn,listBox,searchInput){
  const activeTab=window.__notiActiveTab||'urgent';
  const q=((searchInput&&searchInput.value)||'').trim().toLowerCase();
  const matchQ=txt=>!q||String(txt||'').toLowerCase().includes(q);
@@ -637,12 +652,13 @@
  mới xem tiếp), giờ tải dần theo kiểu infinite scroll: render trước NOTI_PAGE_SIZE dòng đầu, cuộn gần chạm đáy
  danh sách (IntersectionObserver theo dõi 1 "sentinel" rỗng cuối danh sách, root:null = theo viewport vì bản
  thân widget không tự cuộn, cả TRANG mới là nơi thật sự cuộn) thì tự nạp thêm đúng 1 đợt tiếp theo — dữ liệu vẫn
- tính đủ 100%, chỉ khác ở tốc độ đưa vào DOM. */
+ tính đủ 100%, chỉ khác ở tốc độ đưa vào DOM. Từ 17/11/2026 mỗi phần tử của rows là 1 HÀM trả HTML (noiDong):
+ dòng chỉ được dựng khi sắp hiện, không dựng sẵn hàng nghìn chuỗi HTML rồi chỉ hiện 50. */
  if(__notiScrollObserver){ __notiScrollObserver.disconnect(); __notiScrollObserver=null; }
  const NOTI_PAGE_SIZE=50;
  window.__notiAllRows=rows;
  window.__notiRenderedCount=Math.min(NOTI_PAGE_SIZE,rows.length);
- listBox.innerHTML=rows.slice(0,window.__notiRenderedCount).join('')||`<div class="access-lock">Không có notify${q?' khớp tìm kiếm':''}.</div>`;
+ listBox.innerHTML=rows.slice(0,window.__notiRenderedCount).map(noiDong).join('')||`<div class="access-lock">Không có notify${q?' khớp tìm kiếm':''}.</div>`;
  if(rows.length>window.__notiRenderedCount){
  const sentinel=document.createElement('div');
  sentinel.id='notiLoadMoreSentinel';
@@ -655,12 +671,14 @@
  if(typeof uvApply==='function') uvApply(false);
  }
  let __notiScrollObserver=null;
+ /* 1 phần tử danh sách Noti → HTML. Phần tử là hàm (dựng muộn); chuỗi/{html} vẫn nhận để an toàn. */
+ function noiDong(x){ return typeof x==='function'?x():(typeof x==='string'?x:(x&&x.html)||''); }
  function loadMoreNotiRows(){
  const rows=window.__notiAllRows||[];
  const cur=window.__notiRenderedCount||0;
  const next=rows.slice(cur,cur+50);
  const sentinel=document.getElementById('notiLoadMoreSentinel');
- if(next.length&&sentinel) sentinel.insertAdjacentHTML('beforebegin',next.join(''));
+ if(next.length&&sentinel) sentinel.insertAdjacentHTML('beforebegin',next.map(noiDong).join(''));
  window.__notiRenderedCount=cur+next.length;
  if(window.__notiRenderedCount>=rows.length){
  if(__notiScrollObserver){ __notiScrollObserver.disconnect(); __notiScrollObserver=null; }
