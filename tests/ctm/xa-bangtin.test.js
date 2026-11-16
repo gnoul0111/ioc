@@ -16,15 +16,20 @@ const FILES = SO_CFG.concat(['js/core/hcc-config.js', 'js/features/hcc-data.js',
   'js/features/ctm-mttq.js', 'js/features/ctm-dang.js', 'js/features/ctm-hdnd.js', 'js/features/ctm-all.js', 'js/features/ctm-xa-units.js', 'js/features/ctm-so.js',
   'js/core/eform-khung.js', 'js/core/eform-mau.js', 'js/features/ctm-eform.js', 'js/features/ctm-truc-eform.js', 'js/features/ctm-so-eform.js', 'js/features/ctm-so-eform2.js', 'js/features/ctm-xa-eform.js',
   'js/features/ctm-xa-bangtin.js']);
-const ctx = vm.createContext({ console, Math, Number, String, Object, Array, JSON, isFinite, Date, Set, Map, Intl, esc: escFn, setTimeout: () => 0,
-  /* tối thiểu để dựng HTML của bảng tin (màu đọc từ CSS, phần tử đọc màu, hộp thoại) */
-  getComputedStyle: () => ({ getPropertyValue: () => '#336699' }),
-  document: { getElementById: () => null, createElement: () => ({ style: {}, setAttribute() {}, addEventListener() {} }), body: { appendChild() {} } } });
 const eduM = read('js/features/dashboard-education.js').match(/const gdUnitData=\[([\s\S]*?)\n\s*\];/);
-vm.runInContext('const gdUnitData=[' + eduM[1] + '];', ctx);
-FILES.forEach((f) => vm.runInContext(read(f), ctx, { filename: f }));
-const run = (code) => vm.runInContext(code, ctx);
-run('var currentXaId=null;function wardNames(){return gdUnitData.map(function(u){return u[0]})}');
+/* dựng một môi trường chạy mã IOC; patch(f, mã) đổi mã một tệp trước khi chạy (vd. bật cờ để kiểm phần đang ẩn) */
+const boot = (patch) => {
+  const ctx = vm.createContext({ console, Math, Number, String, Object, Array, JSON, isFinite, Date, Set, Map, Intl, esc: escFn, setTimeout: () => 0,
+    /* tối thiểu để dựng HTML của bảng tin (màu đọc từ CSS, phần tử đọc màu, hộp thoại) */
+    getComputedStyle: () => ({ getPropertyValue: () => '#336699' }),
+    document: { getElementById: () => null, createElement: () => ({ style: {}, setAttribute() {}, addEventListener() {} }), body: { appendChild() {} } } });
+  vm.runInContext('const gdUnitData=[' + eduM[1] + '];', ctx);
+  FILES.forEach((f) => vm.runInContext(patch ? patch(f, read(f)) : read(f), ctx, { filename: f }));
+  const r = (code) => vm.runInContext(code, ctx);
+  r('var currentXaId=null;function wardNames(){return gdUnitData.map(function(u){return u[0]})}');
+  return r;
+};
+const run = boot();
 const names = run('wardNames()');
 const setXa = (name) => run('currentXaId=' + JSON.stringify(String(names.indexOf(name))));
 let pass = 0, fail = 0;
@@ -37,13 +42,14 @@ console.log('== Bố cục mặc định hợp lệ ở cả 126 xã, phường 
   names.forEach((nm) => {
     setXa(nm);
     const T = make().test, d = T.defFor();
-    if (d.blocks.some((b) => b.bad) || !d.rings.length) bad.push(nm);
+    /* không còn hàng Số nổi bật (16/11/2026): 4 vòng tỷ lệ thành 2 khối «Vòng tỷ lệ» đầu màn */
+    if (d.blocks.some((b) => b.bad) || d.rings.length || d.blocks.slice(0, 2).map((b) => b.ef + ':' + b.m + ':' + b.s.join() + ':' + b.h).join() !== 'xa_tcns:tlThu:tlChi:vong,xa_gpmb:tlTh:tlBg:vong') bad.push(nm);
     T.setL(d);
     const seen = new Set();
     d.rings.forEach((r) => { const k = r[0] + ':' + r[1]; if (seen.has(k)) dup.push(nm + ' ' + k); seen.add(k); });
     d.blocks.forEach((b) => { (b.t === 'bd' ? [b.ef + '#' + b.c] : [b.ef + ':' + b.m].concat(b.s.map((x) => b.ef + ':' + x))).forEach((k) => { if (seen.has(k)) dup.push(nm + ' ' + k); seen.add(k); }); });
   });
-  ok(bad.length === 0, 'mặc định có khối lỗi hoặc thiếu số nổi bật: ' + bad.slice(0, 5).join(', '));
+  ok(bad.length === 0, 'mặc định có khối lỗi, còn hàng Số nổi bật hoặc thiếu 2 khối vòng tỷ lệ đầu màn: ' + bad.slice(0, 5).join(', '));
   ok(dup.length === 0, 'mặc định có số trùng trên màn (T1): ' + dup.slice(0, 5).join(', '));
 }
 
@@ -51,12 +57,12 @@ console.log('== Bố cục mặc định của tab «Tất cả» và tab từng
 {
   const TRUC = { DANG: ['xa_dang'], HDND: ['xa_hdnd'], UBND: ['xa_hcc', 'xa_tcns', 'xa_qlvb', 'xa_gpmb', 'xa_gd', 'xa_yte', 'xa_vh', 'xa_nv', 'xa_ktxh'], MTTQ: ['xa_mttq'] };
   TRUC.ALL = [].concat(TRUC.DANG, TRUC.HDND, TRUC.UBND, TRUC.MTTQ);
-  const NB = { DANG: 1, HDND: 3, UBND: 10, MTTQ: 6, ALL: 10 }, bad = [], t1 = [];
+  const NB = { DANG: 1, HDND: 3, UBND: 12, MTTQ: 6, ALL: 12 }, bad = [], t1 = [];
   names.forEach((nm) => {
     setXa(nm);
     Object.keys(TRUC).forEach((r) => {
       const inst = run('(function(){ return xbtMake(xbtData(xbtSpecs(' + (r === 'ALL' ? 'null' : JSON.stringify([r])) + ')), ' + JSON.stringify(r === 'ALL' ? 'xa-4truc' : 'xa-' + r) + '); })()'), T = inst.test, d = T.defFor();
-      if (d.blocks.length !== NB[r] || d.blocks.some((b) => b.bad || TRUC[r].indexOf(b.ef) < 0) || d.rings.some((x) => TRUC[r].indexOf(x[0]) < 0) || (r === 'UBND' || r === 'ALL') !== (d.rings.length === 4)) bad.push(nm + ' ' + r);
+      if (d.blocks.length !== NB[r] || d.blocks.some((b) => b.bad || TRUC[r].indexOf(b.ef) < 0) || d.rings.some((x) => TRUC[r].indexOf(x[0]) < 0) || d.rings.length !== 0) bad.push(nm + ' ' + r);
       /* T1: ô số trong khối không phải chính một phần của biểu đồ đặt cùng màn (cùng bản ghi, cùng số) */
       const parts = [];
       d.blocks.forEach((b) => { if (b.t !== 'bd') return; const e = inst.BY[b.ef], c = e.charts[b.c]; if (c.loai === 'xu') return; const mine = [];
@@ -88,11 +94,10 @@ console.log('== Bố cục mặc định của tab «Tất cả» và tab từng
   ok(dis.every((k) => used.has(k)) && T.L().rings.every((r) => dis.indexOf(r[0] + ':' + r[1]) >= 0), 'số đã có trên màn bị làm mờ trong hộp chọn (T1)');
   /* đọc cấu hình lạ: đánh dấu, không hiện số sai; tối đa 12 ô */
   const v = T.valid({ rings: Array.from({ length: 20 }, () => ['xa_hcc', 'tuyen']).concat([['xa_khong', 'x']]), blocks: [{ t: 'so', ef: 'xa_hcc', m: 'khong_co' }, { t: 'so', ef: 'xa_khong', m: 'x' }, { t: 'bd', ef: 'xa_hcc', c: 99 }] });
-  ok(v.rings.length <= 12, 'số nổi bật tối đa 12 ô');
-  ok(v.rings.length === 1, 'số nổi bật lặp trong cấu hình nạp vào chỉ giữ một ô (T1)');
+  ok(v.rings.length === 0 && v.blocks.filter((b) => b.ef === 'xa_hcc' && b.m === 'tuyen').length === 1, 'số nổi bật đã lưu thành khối; lặp thì chỉ giữ một khối (T1)');
   const v2 = T.valid({ rings: [['xa_hcc', 'tuyen']], blocks: [{ t: 'so', ef: 'xa_hcc', m: 'tuyen', s: [] }, { t: 'bd', ef: 'xa_qlvb', c: 0 }, { t: 'bd', ef: 'xa_qlvb', c: 0 }, { t: 'so', ef: 'xa_hcc', m: 'tt', s: ['tuyen', 'tt', 'dh'] }] });
-  ok(v2.blocks.length === 2 && v2.blocks[0].t === 'bd' && v2.blocks[1].m === 'tt' && v2.blocks[1].s.join() === 'dh', 'khối lặp số nổi bật, biểu đồ, số phụ đã có ở chỗ khác thì bỏ (T1)');
-  ok(v.blocks.every((b) => b.bad), 'chỉ tiêu, eform, biểu đồ không còn trong bản đọc thì đánh dấu khối (không hiện số sai)');
+  ok(v2.blocks.length === 3 && v2.blocks[0].m === 'tuyen' && v2.blocks[0].z === 's' && v2.blocks[1].t === 'bd' && v2.blocks[2].m === 'tt' && v2.blocks[2].s.join() === 'dh', 'khối lặp số nổi bật, biểu đồ, số phụ đã có ở chỗ khác thì bỏ (T1)');
+  ok(v.blocks.filter((b) => !(b.ef === 'xa_hcc' && b.m === 'tuyen')).every((b) => b.bad), 'chỉ tiêu, eform, biểu đồ không còn trong bản đọc thì đánh dấu khối (không hiện số sai)');
   /* E4, T2: mọi số có khóa mở Dữ liệu đã nhập */
   const keysOk = D.eforms.every((e) => e.kpis.every((k) => typeof k.recs === 'string' && k.recs) && e.charts.every((c) => (c.items || []).every((x) => typeof x.recs === 'string' && x.recs)) && e.dl.every((d) => typeof d.recs === 'string' && d.recs));
   ok(keysOk, 'mọi ô số, phần biểu đồ, dòng số liệu có khóa mở Dữ liệu đã nhập');
@@ -205,8 +210,7 @@ console.log('== Kéo thả đổi chỗ (chế độ tùy chỉnh)');
   T.moveTo('b', 0, B.length);
   ok(JSON.stringify(nowB()) === JSON.stringify(B.slice(1).concat([B[0]])), 'thả vào «Thêm khối»: về cuối');
   T.setL(JSON.parse(JSON.stringify(d)));
-  T.moveTo('r', R.length - 1, 0);
-  ok(JSON.stringify(nowR()) === JSON.stringify([R[R.length - 1]].concat(R.slice(0, -1))), 'số nổi bật cuối thả lên đầu');
+  if (run('XBT_RINGS')) { T.moveTo('r', R.length - 1, 0); ok(JSON.stringify(nowR()) === JSON.stringify([R[R.length - 1]].concat(R.slice(0, -1))), 'số nổi bật cuối thả lên đầu'); }
   T.setL(JSON.parse(JSON.stringify(d)));
   ok(!T.moveTo('b', 1, 1) && !T.moveTo('b', 1, 2) && !T.moveTo('r', 0, 99), 'thả tại chỗ hoặc ngoài danh sách: không đổi');
   ok(JSON.stringify(nowB()) === JSON.stringify(B) && JSON.stringify(nowR()) === JSON.stringify(R), 'bố cục giữ nguyên khi thả không đổi chỗ');
@@ -297,6 +301,70 @@ console.log('== «Tùy chỉnh» ở tab từng trục (lỗi 16/11/2026: tab tr
   });
 }
 
+console.log('== Bỏ hàng «Số nổi bật» (16/11/2026)');
+{
+  setXa('Xã Sơn Đồng');
+  const it = make(), T = it.test;
+  T.setL(T.defFor());
+  ok(it.home().indexOf('class="rings"') < 0, 'màn ngoài không có hàng Số nổi bật');
+  T.setEdit(true);
+  const he = it.home();
+  ok(he.indexOf('data-radd') < 0 && he.indexOf('Số nổi bật') < 0 && he.indexOf('data-add') >= 0, 'đang tùy chỉnh: không có «＋ Thêm số», vẫn có «＋ Thêm khối»');
+  T.setEdit(false);
+  ok(it.home().split('class="vcard').length - 1 === 12 && (it.home().match(/class="vch vring"/g) || []).length === 2, 'tab «Tất cả»: 12 khối, 2 khối vẽ vòng tỷ lệ');
+  const hv = it.home(), c0 = hv.slice(hv.indexOf('class="vcard'), hv.indexOf('class="vcard', hv.indexOf('class="vcard') + 5));
+  ok(c0.indexOf('vring') >= 0 && c0.indexOf('tc-num') < 0 && c0.indexOf('kchip') >= 0, 'khối Vòng tỷ lệ: số chỉ nằm giữa vòng, không in lại bên cạnh (T1)');
+  /* bố cục đã lưu có 3 ô Số nổi bật: thành 3 khối cỡ Nhỏ ở đầu, giữ thứ tự, số % vẽ vòng */
+  const v = T.valid({ rings: [['xa_gpmb', 'tlBg'], ['xa_hcc', 'tuyen'], ['xa_tcns', 'tlThu']], blocks: [{ t: 'bd', ef: 'xa_qlvb', c: 0, z: 'm' }] });
+  ok(v.rings.length === 0 && v.blocks.length === 4 && v.blocks.slice(0, 3).map((b) => b.m + ':' + b.z + ':' + b.h).join() === 'tlBg:s:vong,tuyen:s:so,tlThu:s:vong' && v.blocks[3].t === 'bd', 'bố cục đã lưu: mỗi ô Số nổi bật thành khối Nhỏ đầu màn, không mất số');
+  /* rà soát 16/11: ô chuyển thành khối không đẩy khối của người dùng ra ngoài giới hạn 30 khối */
+  const many = Array.from({ length: 30 }, (_, i) => ({ t: 'so', ef: 'xa_khong' + i, m: 'x' }));
+  const vm4 = T.valid({ rings: [['xa_tcns', 'tlThu'], ['xa_tcns', 'tlChi'], ['xa_gpmb', 'tlTh'], ['xa_gpmb', 'tlBg']], blocks: many });
+  ok(vm4.blocks.length === 34 && vm4.blocks[33].ef === 'xa_khong29', 'bố cục đã lưu 4 ô + 30 khối: giữ đủ 30 khối của người dùng');
+  ok(T.valid(JSON.parse(JSON.stringify(vm4))).blocks.length === 34, 'lưu lại rồi đọc lại: vẫn đủ khối');
+  /* ô của eform tài khoản không xem được, chỉ tiêu không còn: bỏ lặng lẽ như hàng Số nổi bật cũ, không thành khối lỗi */
+  const ivD = run('(function(){ return xbtMake(xbtData(xbtSpecs(["DANG"])), "xa-DANG"); })()');
+  const vD = ivD.test.valid({ rings: [['xa_tcns', 'tlThu'], ['xa_gpmb', 'tlTh']], blocks: [{ t: 'bd', ef: 'xa_dang', c: 1, z: 'l' }] });
+  ok(vD.blocks.length === 1 && !vD.blocks.some((b) => b.bad), 'tab Đảng ủy dán bố cục có ô eform khác: bỏ ô đó, không hiện khối lỗi');
+  ok(T.valid({ rings: [['xa_hcc', 'khong_co']], blocks: [] }).blocks.length === 0, 'ô có chỉ tiêu không còn trong eform: bỏ');
+  /* ô số không phải % giữ thanh nhỏ so số cùng nhóm như ô cũ */
+  const vS = T.valid({ rings: [['xa_hcc', 'tuyen']], blocks: [] });
+  ok(vS.blocks[0].sib === 1 && vS.blocks[0].h === 'so', 'ô số không phải % thành khối «Chỉ số kỳ đang xem» kèm so số cùng nhóm');
+  T.setL(vS);
+  ok(!T.sibOf('xa_hcc', 'tuyen') || it.home().indexOf('class="msib"') >= 0, 'khối đó vẽ thanh nhỏ so số cùng nhóm');
+  ok(T.valid({ rings: [], blocks: [{ t: 'so', ef: 'xa_hcc', m: 'tuyen', s: [], h: 'so', z: 's' }] }).blocks[0].sib === undefined, 'khối người dùng tự thêm: không tự thêm thanh so');
+  /* bố cục mặc định: gộp theo eform, mọi bộ số nổi bật mặc định đều chuyển được (không riêng 4 vòng tab «Tất cả») */
+  const g = T.ringsToBlocks([['xa_tcns', 'tlThu'], ['xa_hcc', 'tuyen'], ['xa_tcns', 'tlChi']], true);
+  ok(g.length === 2 && g[0].m === 'tlThu' && g[0].s.join() === 'tlChi' && g[0].h === 'vong' && g[0].z === 'm' && g[1].m === 'tuyen' && g[1].h === 'so', 'số nổi bật mặc định: số cùng eform, cùng kiểu gộp một khối Vừa');
+  /* khối Vòng tỷ lệ: số có trong aria-label, title; không tải được thư viện vẽ thì hiện số (data-fb) */
+  T.setL(T.defFor());
+  const hR = it.home(), m0 = hR.match(/<div class="vch vring" data-fb="([^"]+)"[^>]*aria-label="([^"]+)"/);
+  ok(m0 && /%$/.test(m0[1]) && m0[2].indexOf(m0[1]) > 0, 'khối Vòng tỷ lệ: aria-label có số, có số dự phòng khi không vẽ được vòng');
+}
+
+console.log('== Hàng «Số nổi bật» khi bật lại cờ XBT_RINGS (giữ trong code, kiểm để bật lại không lỗi)');
+{
+  const runR = boot((f, src) => (f === 'js/features/ctm-xa-bangtin.js' ? src.replace('const XBT_RINGS = false;', 'const XBT_RINGS = true;') : src));
+  ok(runR('XBT_RINGS') === true, 'đã bật cờ trong môi trường kiểm thử riêng');
+  runR('currentXaId=' + JSON.stringify(String(names.indexOf('Xã Sơn Đồng'))));
+  const it = runR('(function(){ return xbtMake(xbtData(xbtSpecs(null)), "xa-4truc"); })()'), T = it.test, d = T.defFor();
+  ok(d.rings.map((r) => r.join(':')).join() === 'xa_tcns:tlThu,xa_tcns:tlChi,xa_gpmb:tlTh,xa_gpmb:tlBg' && d.blocks[0].ef === 'xa_hcc', 'mặc định: 4 vòng tỷ lệ ở hàng Số nổi bật, khối giữ như cũ');
+  const pool = T.ringPool(-1).map((x) => x.key.split(':'));
+  const v = T.valid({ rings: Array.from({ length: 20 }, () => ['xa_hcc', 'tuyen']).concat(pool.slice(0, 20)), blocks: [] });
+  ok(v.rings.length <= 12 && v.rings.filter((r) => r.join(':') === 'xa_hcc:tuyen').length === 1, 'số nổi bật tối đa 12 ô, lặp thì giữ một (T1)');
+  T.setL(JSON.parse(JSON.stringify(d)));
+  const R = d.rings.map((r) => r.join(':')), nowR = () => T.L().rings.map((r) => r.join(':'));
+  T.moveTo('r', R.length - 1, 0);
+  ok(JSON.stringify(nowR()) === JSON.stringify([R[R.length - 1]].concat(R.slice(0, -1))), 'số nổi bật cuối thả lên đầu');
+  T.setL(JSON.parse(JSON.stringify(d)));
+  runR('document.querySelector = function () { return null; }');
+  T.setEdit(true); it.click({ target: { closest: (sel) => (sel === '[data-rmv]' ? { getAttribute: () => '0,1' } : null) } }); T.setEdit(false);
+  ok(JSON.stringify(nowR()) === JSON.stringify([R[1], R[0]].concat(R.slice(2))), 'nút →: ô số đầu sang phải một ô');
+  T.setL(JSON.parse(JSON.stringify(d)));
+  ok(it.home().indexOf('class="rings"') >= 0, 'màn ngoài có hàng Số nổi bật');
+  T.setEdit(true); ok(it.home().indexOf('data-radd') >= 0, 'đang tùy chỉnh: có «＋ Thêm số»'); T.setEdit(false);
+}
+
 console.log('== Kéo thả trên trình duyệt (phần tử giả lập)');
 {
   setXa('Xã Sơn Đồng');
@@ -341,8 +409,7 @@ console.log('== Kéo thả trên trình duyệt (phần tử giả lập)');
   it.click(btn('[data-mv]', '1,-1'));
   ok(JSON.stringify(nowB()) === JSON.stringify(B), 'nút ↑: về chỗ cũ');
   const R = d.rings.map((r) => r.join(':'));
-  it.click(btn('[data-rmv]', '0,1'));
-  ok(JSON.stringify(T.L().rings.map((r) => r.join(':'))) === JSON.stringify([R[1], R[0]].concat(R.slice(2))), 'nút →: ô số đầu sang phải một ô');
+  if (run('XBT_RINGS')) { it.click(btn('[data-rmv]', '0,1')); ok(JSON.stringify(T.L().rings.map((r) => r.join(':'))) === JSON.stringify([R[1], R[0]].concat(R.slice(2))), 'nút →: ô số đầu sang phải một ô'); }
   it.click(btn('[data-mv]', '0,-1'));
   ok(JSON.stringify(nowB()) === JSON.stringify(B), 'nút ↑ ở khối đầu: không đổi');
   run('globalThis.setTimeout = function () { return 0; }; delete globalThis.__t');
