@@ -10,6 +10,7 @@
  <link rel="stylesheet" href="css/oua.css?v=20261102a" />
  <link rel="stylesheet" href="css/oua-login-log.css?v=20261013" />
  <link rel="stylesheet" href="css/oua-data-sources.css?v=20261022" />
+ <link rel="stylesheet" href="css/oua-cau-hinh.css?v=20261117" />
  <style>
    #ouaScreen .oua-dnd-node{cursor:grab}
    #ouaScreen .oua-dnd-node:active{cursor:grabbing}
@@ -319,6 +320,7 @@
     <button class="nav" data-page="tree-settings"><span>🌳</span><span><b>Cài đặt cây thư mục</b><small>Cấu hình cây đơn vị tùy biến, tách khỏi Xã/Phường</small></span></button>
     <button class="nav" data-page="org-grouping"><span>📁</span><span><b>Phân nhóm đơn vị</b><small>Gán tay nhóm TP/Sở/Xã-Phường/BTCTW cho từng đơn vị</small></span></button>
     <button class="nav" data-page="indicator-mapping"><span>📊</span><span><b>Cấu hình chỉ tiêu đơn vị</b><small>Sửa id_url_chỉ_tiêu của từng đơn vị trong user-tree</small></span></button>
+    <button class="nav" data-page="ioc-config"><span>🎛️</span><span><b>Cấu hình chức năng IOC</b><small>Tham số, ngưỡng hiển thị của Noti, nhiệm vụ, GIS, chỉ tiêu…</small></span></button>
     <button class="nav" data-page="login-log"><span>🕒</span><span><b>Nhật ký đăng nhập</b><small>Lượt đăng nhập của mọi tài khoản, thành công/thất bại</small></span></button>
     <div class="oua-sidebar-footer" id="ouaSidebarFooter">
       <div class="oua-avatar" style="background:#3b6fd6">I</div>
@@ -595,6 +597,7 @@
 
     <section id="login-log" class="page"><div class="panel" id="ollRoot"></div></section>
     <section id="source-admin" class="page"><div class="panel" id="odsRoot"></div></section>
+    <section id="ioc-config" class="page"><div id="ichRoot"></div></section>
 
     <section id="tree-settings" class="page">
       <div class="panel">
@@ -643,6 +646,8 @@
 <script src="js/oua-login-log.js?v=20261014"></script>
 <script src="js/core/data-sources.js?v=20261022"></script>
 <script src="js/oua-data-sources.js?v=20261022"></script>
+<script src="js/core/ioc-cau-hinh.js?v=20261117"></script>
+<script src="js/oua-cau-hinh.js?v=20261117"></script>
 <script>ollRecordAdminSession();ouaBuildRealData();ouaGoPage('admin-overview');</script>
 </body>
 </html>

@@ -1740,7 +1740,8 @@ const ouaPageMeta = {
   'indicator-mapping': {menu:'indicator-mapping', title:'Cấu hình chỉ tiêu đơn vị'},
   'tree-settings': {menu:'tree-settings', title:'Cài đặt cây thư mục'},
   'login-log': {menu:'login-log', title:'Nhật ký đăng nhập'},
-  'source-admin': {menu:'source-admin', title:'Quản trị nguồn dữ liệu'}
+  'source-admin': {menu:'source-admin', title:'Quản trị nguồn dữ liệu'},
+  'ioc-config': {menu:'ioc-config', title:'Cấu hình chức năng IOC'}
 };
 function ouaGoPage(id){
   const root=document.getElementById('ouaScreen');
@@ -1761,6 +1762,7 @@ function ouaGoPage(id){
   if(id==='tree-settings') ouaInitTreeSettings();
   if(id==='login-log' && typeof ollOpen==='function') ollOpen(); // js/oua-login-log.js
   if(id==='source-admin' && typeof odsOpen==='function') odsOpen(); // js/oua-data-sources.js
+  if(id==='ioc-config' && typeof ichuOpen==='function') ichuOpen(); // js/oua-cau-hinh.js
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function ouaGoDetail(id){ouaGoPage(id)}

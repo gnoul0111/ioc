@@ -1,0 +1,72 @@
+/* Cấu hình chức năng IOC (js/oua-cau-hinh.js) — scoped dưới #ouaScreen, dùng biến màu của css/oua.css. */
+#ouaScreen .ich-cn{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:0 0 12px}
+#ouaScreen .ich-cn-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid #2d80f2;background:rgba(29,127,242,.16);color:var(--text);border-radius:12px;padding:9px 14px;font-weight:800;font-size:14px;cursor:pointer}
+#ouaScreen .ich-cn-btn:not(.active){border-color:#20496f;background:#0a213b;font-weight:700}
+#ouaScreen .ich-cn-sub{color:var(--sub);font-size:13px}
+#ouaScreen .ich-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+#ouaScreen .ich-tab{position:relative;border:1px solid #20496f;background:#0a213b;color:var(--text);border-radius:12px;padding:10px 15px;font-weight:700;font-size:13.5px;cursor:pointer}
+#ouaScreen .ich-tab.active{border-color:#2d80f2;background:linear-gradient(180deg,#1c87ff,#1a67d8)}
+#ouaScreen .ich-dot{position:absolute;top:-4px;right:-4px;width:10px;height:10px;border-radius:50%;background:var(--yellow);box-shadow:0 0 0 2px #071a31}
+#ouaScreen .ich-dot.err{background:var(--red)}
+#ouaScreen .ich-panel{padding:18px 20px}
+#ouaScreen .ich-title h2{margin:0;font-size:20px;color:var(--cyan)}
+#ouaScreen .ich-title p{margin:6px 0 14px;color:var(--sub);font-size:13px;line-height:1.5;max-width:980px}
+/* Không để khung bảng cuộn (overflow): khung cuộn ngang thì cũng cuộn dọc, ô chọn thả xuống ở dòng cuối làm khung hiện thanh
+   cuộn. Bảng tự co chữ theo bề rộng; chỉ màn rất hẹp mới cho cuộn ngang. */
+#ouaScreen .ich-table-wrap{border:1px solid rgba(255,255,255,.08);border-radius:16px}
+#ouaScreen .ich-table thead th:first-child{border-top-left-radius:16px}
+#ouaScreen .ich-table thead th:last-child{border-top-right-radius:16px}
+@media(max-width:760px){#ouaScreen .ich-table-wrap{overflow-x:auto}#ouaScreen .ich-table{min-width:760px}}
+#ouaScreen .ich-table th{white-space:nowrap}
+#ouaScreen .ich-table td{vertical-align:middle;font-size:13.5px}
+#ouaScreen .ich-table tbody tr:last-child td{border-bottom:0}
+#ouaScreen .ich-table tr.off td:not(.ich-sw){opacity:.5}
+#ouaScreen .ich-nhom{color:var(--cyan);font-weight:700}
+#ouaScreen .ich-apdung{margin-top:4px;color:var(--muted);font-size:12px;font-weight:400}
+#ouaScreen .ich-muc b,#ouaScreen .ich-ten b{font-weight:800;color:var(--text)}
+#ouaScreen .ich-icon{font-size:17px}
+#ouaScreen .ich-mota{color:var(--sub);line-height:1.5}
+#ouaScreen .ich-doan td{padding:9px 12px;background:rgba(255,255,255,.035);color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+#ouaScreen .ich-badge{display:inline-block;padding:4px 12px;border-radius:999px;border:1px solid #3a5d80;color:#cfe3ff;font-size:12px;font-weight:700;white-space:nowrap;background:rgba(255,255,255,.04)}
+#ouaScreen .ich-badge.blue{border-color:#4d8dff;color:#b9d4ff;background:rgba(77,141,255,.2)}
+#ouaScreen .ich-badge.warn{border-color:#f7b500;color:#ffd75e;background:rgba(247,181,0,.14)}
+#ouaScreen .ich-badge.orange{border-color:#ff8a3d;color:#ffb27f;background:rgba(255,138,61,.14)}
+#ouaScreen .ich-badge.red{border-color:#ff5e7a;color:#ff9db0;background:rgba(255,94,122,.12)}
+#ouaScreen .ich-badge.redSolid{border-color:#e5354f;background:#d92d47;color:#fff}
+#ouaScreen .ich-badge.ok{border-color:#14c38e;color:#7fe8c4;background:rgba(20,195,142,.14)}
+#ouaScreen .ich-badge.neutral{border-color:#56708c;color:#c4d4e6;background:rgba(86,112,140,.18)}
+#ouaScreen .ich-uutien{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:-4px 0 14px;font-size:12.5px;color:var(--sub)}
+#ouaScreen .ich-uutien span{font-weight:700;margin-right:2px}
+#ouaScreen .ich-uutien i{font-style:normal;color:var(--muted)}
+#ouaScreen .ich-val{display:flex;align-items:center;gap:8px}
+#ouaScreen .ich-input{width:72px;height:38px;padding:0 10px;border-radius:10px;border:1px solid #2a5b86;background:#081a2f;color:#fff;font-size:14px;font-weight:700;outline:none}
+#ouaScreen .ich-input:focus{border-color:#49bcff;box-shadow:0 0 0 3px rgba(73,188,255,.14)}
+#ouaScreen .ich-input.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,94,122,.14)}
+#ouaScreen .ich-input:disabled{opacity:.55;cursor:not-allowed}
+#ouaScreen .ich-unit{color:var(--sub);font-size:13px}
+#ouaScreen .ich-hint{margin-top:5px;color:var(--muted);font-size:12px;line-height:1.4}
+#ouaScreen .ich-hint.err{color:#ff9db0}
+#ouaScreen .ich-gt-xem{color:var(--sub)}
+#ouaScreen .ich-muc-chon{display:flex;align-items:center;flex-wrap:nowrap;gap:8px;white-space:nowrap}
+#ouaScreen .ich-muc-chon .oua-dd{width:136px;flex:0 0 auto}
+#ouaScreen .ich-muc-chon .oua-dd-trigger{height:34px;border-radius:10px;font-weight:700}
+#ouaScreen .ich-muc-chon.tat .oua-dd{pointer-events:none;opacity:.55}
+#ouaScreen .ich-select{height:34px;padding:0 8px;border-radius:10px;border:1px solid #2a5b86;background:#081a2f;color:#fff;font-size:13.5px;font-weight:700;outline:none;color-scheme:dark;cursor:pointer}
+#ouaScreen .ich-select:focus{border-color:#49bcff;box-shadow:0 0 0 3px rgba(73,188,255,.14)}
+#ouaScreen .ich-select:disabled{opacity:.55;cursor:not-allowed}
+#ouaScreen .ich-select option{background:#081a2f;color:#fff}
+#ouaScreen .ich-switch{display:inline-flex;cursor:pointer}
+#ouaScreen .ich-switch input{display:none}
+#ouaScreen .ich-track{width:42px;height:22px;border-radius:999px;background:#3a4a5e;position:relative;transition:background .15s}
+#ouaScreen .ich-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#cfe3ff;transition:left .15s}
+#ouaScreen .ich-switch input:checked + .ich-track{background:#2d80f2}
+#ouaScreen .ich-switch input:checked + .ich-track .ich-thumb{left:23px;background:#fff}
+#ouaScreen .ich-switch.locked{cursor:not-allowed;opacity:.6}
+#ouaScreen .ich-sw-txt{margin-top:5px;color:var(--muted);font-size:12px}
+#ouaScreen .ich-note{margin:12px 2px 0;color:var(--muted);font-size:12.5px;line-height:1.5}
+#ouaScreen .ich-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px}
+#ouaScreen .ich-state{font-size:13px;font-weight:700;min-height:18px}
+#ouaScreen .ich-state.warn{color:var(--yellow)}
+#ouaScreen .ich-state.err{color:var(--red)}
+#ouaScreen .ich-actions{display:flex;gap:10px;flex-wrap:wrap}
+#ouaScreen .ich-actions .btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
