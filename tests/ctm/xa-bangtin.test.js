@@ -47,6 +47,25 @@ console.log('== Bố cục mặc định hợp lệ ở cả 126 xã, phường 
   ok(dup.length === 0, 'mặc định có số trùng trên màn (T1): ' + dup.slice(0, 5).join(', '));
 }
 
+console.log('== Bố cục mặc định riêng của tab từng trục (anh duyệt 16/11/2026) ở cả 126 xã, phường');
+{
+  const TRUC = { DANG: ['xa_dang'], HDND: ['xa_hdnd'], UBND: ['xa_hcc', 'xa_tcns', 'xa_qlvb', 'xa_gpmb', 'xa_gd', 'xa_yte', 'xa_vh', 'xa_nv', 'xa_ktxh'], MTTQ: ['xa_mttq'] };
+  const NB = { DANG: 3, HDND: 4, UBND: 10, MTTQ: 6 }, bad = [], t1 = [];
+  names.forEach((nm) => {
+    setXa(nm);
+    Object.keys(TRUC).forEach((r) => {
+      const inst = run('(function(){ return xbtMake(xbtData(xbtSpecs([' + JSON.stringify(r) + '])), ' + JSON.stringify('xa-' + r) + '); })()'), T = inst.test, d = T.defFor();
+      if (d.blocks.length !== NB[r] || d.blocks.some((b) => b.bad || TRUC[r].indexOf(b.ef) < 0) || d.rings.some((x) => TRUC[r].indexOf(x[0]) < 0) || (r === 'UBND') !== (d.rings.length === 4)) bad.push(nm + ' ' + r);
+      /* T1: ô số trong khối không phải chính một phần của biểu đồ đặt cùng màn (cùng bản ghi, cùng số) */
+      const parts = [];
+      d.blocks.forEach((b) => { if (b.t !== 'bd') return; const e = inst.BY[b.ef], c = e.charts[b.c]; if (c.loai === 'xu') return; (c.items || []).forEach((x) => { if (x.v != null) parts.push(b.ef + '|' + String(e.rid(x.recs)) + '|' + x.v); }); });
+      d.blocks.forEach((b) => { if (b.t !== 'so') return; const e = inst.BY[b.ef]; [b.m].concat(b.s).forEach((id) => { const k = T.gm(b.ef, id), v = k.vals[k.vals.length - 1]; if (v != null && parts.indexOf(b.ef + '|' + String(e.rid(k.recs)) + '|' + v) >= 0) t1.push(nm + ' ' + r + ' ' + id); }); });
+    });
+  });
+  ok(bad.length === 0, 'tab trục: mặc định đủ khối, chỉ eform của trục, không khối lỗi: ' + bad.slice(0, 5).join(', '));
+  ok(t1.length === 0, 'tab trục: ô số không lặp lại phần của biểu đồ cùng màn (T1): ' + t1.slice(0, 5).join(', '));
+}
+
 ['Xã Sơn Đồng', 'Phường Việt Hưng', 'Xã Ba Vì'].forEach((nm) => {
   console.log('== ' + nm);
   setXa(nm);
