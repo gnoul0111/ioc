@@ -279,8 +279,28 @@ function xbtMake(DATA, OV) {
     { t: 'bd', ef: 'xa_hdnd', c: 2, k: 'polar', z: 'm' },
     { t: 'bd', ef: 'xa_mttq', c: 0, k: 'lolli', z: 's' }, { t: 'bd', ef: 'xa_gd', c: 2, k: 'thanh100', z: 's' }, { t: 'bd', ef: 'xa_ktxh', c: 0, z: 's' },
     { t: 'bd', ef: 'xa_yte', c: 0, z: 's' }, { t: 'bd', ef: 'xa_nv', c: 2, k: 'polar', z: 's' }, { t: 'bd', ef: 'xa_vh', c: 0, k: 'lolli', z: 's' }] };
-  /* bố cục mặc định chỉ giữ eform tài khoản được xem (màn ngoài từng trục) */
-  const defFor = () => valid({ rings: DEF.rings.filter((r) => BY[r[0]]), blocks: DEF.blocks.filter((b) => BY[b.ef]) });
+  /* Bố cục mặc định riêng của tab từng trục (anh duyệt 16/11/2026): chỉ ô số, biểu đồ của bản đọc; không đặt cùng màn một ô số với
+     biểu đồ vẽ lại chính số đó (T1). Trục không có ô số tỷ lệ thì không có hàng Số nổi bật (vòng). */
+  const DEF_TRUC = {
+    'xa-DANG': { rings: [], blocks: [
+      { t: 'so', ef: 'xa_dang', m: 'dong', s: [], h: 'cot', z: 's' }, { t: 'bd', ef: 'xa_dang', c: 0, z: 'm' },
+      { t: 'bd', ef: 'xa_dang', c: 1, z: 'l' }] },
+    'xa-HDND': { rings: [], blocks: [
+      { t: 'bd', ef: 'xa_hdnd', c: 2, k: 'polar', z: 'm' }, { t: 'bd', ef: 'xa_hdnd', c: 3, z: 'm' },
+      { t: 'bd', ef: 'xa_hdnd', c: 0, z: 'm' }, { t: 'bd', ef: 'xa_hdnd', c: 1, z: 'm' }] },
+    'xa-UBND': { rings: DEF.rings, blocks: [
+      { t: 'so', ef: 'xa_hcc', m: 'tuyen', s: ['tt', 'dh', 'dqh'], h: 'so', z: 'm' }, { t: 'bd', ef: 'xa_qlvb', c: 0, k: 'lolli', z: 'm' },
+      { t: 'bd', ef: 'xa_tcns', c: 0, z: 'm' }, { t: 'bd', ef: 'xa_gpmb', c: 0, z: 'm' },
+      { t: 'bd', ef: 'xa_gd', c: 0, k: 'tron', z: 's' }, { t: 'bd', ef: 'xa_gd', c: 2, k: 'thanh100', z: 's' }, { t: 'bd', ef: 'xa_vh', c: 0, k: 'lolli', z: 's' },
+      { t: 'bd', ef: 'xa_ktxh', c: 0, z: 's' }, { t: 'bd', ef: 'xa_yte', c: 0, z: 's' }, { t: 'bd', ef: 'xa_nv', c: 2, k: 'polar', z: 's' }] },
+    /* Đoàn viên, Giám sát, Hiến máu của MTTQ đã là một cột trong biểu đồ «… theo nhóm tổ chức» nên không đặt thành ô số (T1) */
+    'xa-MTTQ': { rings: [], blocks: [
+      { t: 'so', ef: 'xa_mttq', m: 'phanbien', s: ['mohinh'], h: 'so', z: 'm' }, { t: 'so', ef: 'xa_mttq', m: 'tongthu', s: ['tongchi', 'tonquy'], h: 'so', z: 'm' },
+      { t: 'bd', ef: 'xa_mttq', c: 4, z: 'm' }, { t: 'bd', ef: 'xa_mttq', c: 0, k: 'lolli', z: 'm' },
+      { t: 'bd', ef: 'xa_mttq', c: 1, k: 'lolli', z: 'm' }, { t: 'bd', ef: 'xa_mttq', c: 2, k: 'lolli', z: 'm' }] }
+  };
+  /* bố cục mặc định chỉ giữ eform tài khoản được xem; tab trục chưa khai báo riêng thì lấy bố cục tab «Tất cả» */
+  const defFor = () => { const d = DEF_TRUC[OV] || DEF; return valid({ rings: d.rings.filter((r) => BY[r[0]]), blocks: d.blocks.filter((b) => BY[b.ef]) }); };
   const WARN = ['xa_hcc:qh', 'xa_hcc:dqh', 'xa_qlvb:chuaXl'];
   /* Số lớn ở màn ngoài: từ 1 triệu ghi gọn «54,8 tỷ» (H4: tổng hợp được đổi đơn vị cho dễ đọc, ghi rõ; Dữ liệu đã nhập giữ đúng số) */
   const big = (v, u) => { if (v == null) return '—'; if (u === '%') return fv(v, u); const a = Math.abs(v); return a >= 1e9 ? NF1.format(v / 1e9) + '<small class="mag">tỷ</small>' : a >= 1e6 ? NF1.format(v / 1e6) + '<small class="mag">triệu</small>' : fv(v, u); };
