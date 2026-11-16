@@ -205,6 +205,8 @@ html.theme-green .xbt-root{--q1:#dff3e7;--o0:#b3c9bb}
 .xbt-root .z-l{grid-column:span 6}
 .xbt-root .z-s .vb{grid-template-columns:1fr}
 .xbt-root .vring{height:150px}
+/* khối của một nhóm mục: tên eform ghi nhỏ sau tên nhóm (màn nhiều eform) */
+.xbt-root .vt-ef{font-size:12px;font-weight:500;color:var(--fg-3)}
 /* vòng tỷ lệ chưa vẽ được (không tải được thư viện vẽ): hiện số thay vòng */
 .xbt-root .vch[data-fb]:empty{display:flex;align-items:center;justify-content:center}
 .xbt-root .vch[data-fb]:empty::after{content:attr(data-fb);font-size:28px;font-weight:700;color:var(--fg)}
