@@ -47,18 +47,22 @@ console.log('== Bố cục mặc định hợp lệ ở cả 126 xã, phường 
   ok(dup.length === 0, 'mặc định có số trùng trên màn (T1): ' + dup.slice(0, 5).join(', '));
 }
 
-console.log('== Bố cục mặc định riêng của tab từng trục (anh duyệt 16/11/2026) ở cả 126 xã, phường');
+console.log('== Bố cục mặc định của tab «Tất cả» và tab từng trục (anh duyệt 16/11/2026) ở cả 126 xã, phường');
 {
   const TRUC = { DANG: ['xa_dang'], HDND: ['xa_hdnd'], UBND: ['xa_hcc', 'xa_tcns', 'xa_qlvb', 'xa_gpmb', 'xa_gd', 'xa_yte', 'xa_vh', 'xa_nv', 'xa_ktxh'], MTTQ: ['xa_mttq'] };
-  const NB = { DANG: 3, HDND: 4, UBND: 10, MTTQ: 6 }, bad = [], t1 = [];
+  TRUC.ALL = [].concat(TRUC.DANG, TRUC.HDND, TRUC.UBND, TRUC.MTTQ);
+  const NB = { DANG: 1, HDND: 3, UBND: 10, MTTQ: 6, ALL: 10 }, bad = [], t1 = [];
   names.forEach((nm) => {
     setXa(nm);
     Object.keys(TRUC).forEach((r) => {
-      const inst = run('(function(){ return xbtMake(xbtData(xbtSpecs([' + JSON.stringify(r) + '])), ' + JSON.stringify('xa-' + r) + '); })()'), T = inst.test, d = T.defFor();
-      if (d.blocks.length !== NB[r] || d.blocks.some((b) => b.bad || TRUC[r].indexOf(b.ef) < 0) || d.rings.some((x) => TRUC[r].indexOf(x[0]) < 0) || (r === 'UBND') !== (d.rings.length === 4)) bad.push(nm + ' ' + r);
+      const inst = run('(function(){ return xbtMake(xbtData(xbtSpecs(' + (r === 'ALL' ? 'null' : JSON.stringify([r])) + ')), ' + JSON.stringify(r === 'ALL' ? 'xa-4truc' : 'xa-' + r) + '); })()'), T = inst.test, d = T.defFor();
+      if (d.blocks.length !== NB[r] || d.blocks.some((b) => b.bad || TRUC[r].indexOf(b.ef) < 0) || d.rings.some((x) => TRUC[r].indexOf(x[0]) < 0) || (r === 'UBND' || r === 'ALL') !== (d.rings.length === 4)) bad.push(nm + ' ' + r);
       /* T1: ô số trong khối không phải chính một phần của biểu đồ đặt cùng màn (cùng bản ghi, cùng số) */
       const parts = [];
-      d.blocks.forEach((b) => { if (b.t !== 'bd') return; const e = inst.BY[b.ef], c = e.charts[b.c]; if (c.loai === 'xu') return; (c.items || []).forEach((x) => { if (x.v != null) parts.push(b.ef + '|' + String(e.rid(x.recs)) + '|' + x.v); }); });
+      d.blocks.forEach((b) => { if (b.t !== 'bd') return; const e = inst.BY[b.ef], c = e.charts[b.c]; if (c.loai === 'xu') return; const mine = [];
+        (c.items || []).forEach((x) => { if (x.v == null) return; const kk = b.ef + '|' + String(e.rid(x.recs)) + '|' + x.v; if (parts.indexOf(kk) >= 0) t1.push(nm + ' ' + r + ' biểu đồ ' + b.ef + '#' + b.c + ' lặp ' + x.l); mine.push(kk); }); parts.push.apply(parts, mine); });
+      /* ô đếm «Dòng số liệu» và biểu đồ đếm dòng không đặt ở màn ngoài mặc định (16/11/2026) */
+      d.blocks.forEach((b) => { const e = inst.BY[b.ef]; if ((b.t === 'so' && [b.m].concat(b.s).indexOf('dong') >= 0) || (b.t === 'bd' && /^Dòng số liệu theo/.test(e.charts[b.c].t))) t1.push(nm + ' ' + r + ' khối đếm dòng ' + b.ef); });
       d.blocks.forEach((b) => { if (b.t !== 'so') return; const e = inst.BY[b.ef]; [b.m].concat(b.s).forEach((id) => { const k = T.gm(b.ef, id), v = k.vals[k.vals.length - 1]; if (v != null && parts.indexOf(b.ef + '|' + String(e.rid(k.recs)) + '|' + v) >= 0) t1.push(nm + ' ' + r + ' ' + id); }); });
     });
   });
@@ -257,6 +261,40 @@ console.log('== Bỏ nút «Bố cục cũ» (14/11/2026)');
   ok(run('xbtMode()') === 'moi', 'tài khoản đã lưu «bố cục cũ» vẫn xem bố cục mới');
   ok(run('"ioc-xbt-mode:guest" in __ls') === false, 'lựa chọn «bố cục cũ» đã lưu bị xóa (bật lại cờ cũng không tự quay về)');
   run('delete globalThis.localStorage; delete globalThis.__ls');
+}
+
+console.log('== Ẩn ô «Dòng số liệu» (16/11/2026)');
+{
+  setXa('Xã Sơn Đồng');
+  const it = make(), T = it.test;
+  ok(T.ringPool(-1).every((x) => !/:dong$/.test(x.key)), 'hộp chọn số của màn ngoài không có ô «Dòng số liệu»');
+  ok(T.ringPool(-1).some((x) => x.ef === 'xa_yte' && x.dong), 'Y tế vẫn chọn được chỉ tiêu xã nhập');
+  const dg = run('(function(){ return xbtMake(xbtData(xbtSpecs(["DANG"])), "xa-DANG"); })()');
+  ['xa_dang', 'xa_hdnd'].forEach((ef) => { const e = it.BY[ef]; run('XBT.curEf = ' + JSON.stringify(e.sid)); const h = it.ef(e); run('XBT.curEf = null');
+    ok(e.charts.some((c) => c.dem) && !/data-t="dong so lieu theo/.test(h), ef + ': màn eform không có biểu đồ đếm dòng «Dòng số liệu theo …»'); });
+  ok(it.BY.xa_dang.charts.every((c, j) => !c.dem || T.valid({ rings: [], blocks: [{ t: 'bd', ef: 'xa_dang', c: j }] }).blocks[0].bad), 'biểu đồ đếm dòng không chọn được ở màn ngoài');
+  ok(dg.home().indexOf('mũi tên') < 0, 'tab Đảng ủy chỉ có biểu đồ: không nhắc mũi tên so kỳ');
+  ok(make().home().indexOf('mũi tên') >= 0, 'tab «Tất cả» có ô số: vẫn giải thích mũi tên');
+  run('XBT.curEf = null');
+  ['xa_yte', 'xa_dang', 'xa_gd', 'xa_hdnd', 'xa_vh', 'xa_nv'].forEach((ef) => {
+    const e = it.BY[ef]; run('XBT.curEf = ' + JSON.stringify(e.sid)); const h = it.ef(e); run('XBT.curEf = null');
+    ok(h.indexOf('>Dòng số liệu<') < 0, ef + ': màn eform không có ô «Dòng số liệu»');
+    const nK = e.kpis.filter((k) => k.id !== 'dong').length;
+    ok(nK ? h.indexOf('class="stats"') >= 0 && h.indexOf('mũi tên') >= 0 : h.indexOf('class="stats"') < 0 && h.indexOf('mũi tên') < 0, ef + ': ' + (nK ? 'còn ô số, còn lời giải thích mũi tên' : 'không còn ô số: không có hàng ô số, không nhắc mũi tên'));
+    ok(h.indexOf('acard') >= 0, ef + ': vẫn đủ biểu đồ');
+  });
+}
+
+console.log('== «Tùy chỉnh» ở tab từng trục (lỗi 16/11/2026: tab trục bấm không được)');
+{
+  setXa('Xã Sơn Đồng');
+  ['DANG', 'HDND', 'UBND', 'MTTQ'].forEach((r) => {
+    const it = run('(function(){ return xbtMake(xbtData(xbtSpecs([' + JSON.stringify(r) + '])), ' + JSON.stringify('xa-' + r) + '); })()'), T = it.test;
+    T.setEdit(true); let h = '', er = '';
+    try { h = it.home(); } catch (e) { er = e.message; }
+    ok(!er && h.indexOf('data-ed="off"') >= 0 && h.indexOf('data-add') >= 0, r + ': bấm «Tùy chỉnh» mở được màn tùy chỉnh' + (er ? ' (' + er + ')' : ''));
+    ok(T.ringPool(-1).length > 0 && T.ringPool(-1).every((x) => it.BY[x.ef]), r + ': hộp chọn số chỉ có eform của trục');
+  });
 }
 
 console.log('== Kéo thả trên trình duyệt (phần tử giả lập)');
