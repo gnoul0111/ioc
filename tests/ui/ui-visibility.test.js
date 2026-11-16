@@ -135,5 +135,52 @@ ok(NC(itree, new Set()).total === 2, 'không đếm nhóm chỉ để gom (Số 
 
 
 
+// uvApply chạy thật trên DOM giả: quét khối 1 lần mỗi lượt, đường lồng (đổi tab Notify → Notify vẽ lại → uvApply) áp
+// đủ bố cục lưới/đếm mục ẩn, xuất PDF (window.__notiGiuTab) không bị tự chuyển tab.
+{
+  const mkEl = (id) => { const cls = new Set(); return { dataset: id ? { uvItem: id, uvParent: 'notify', uvLabel: id } : {}, textContent: '', classList: { toggle: (c, on) => (on ? cls.add(c) : cls.delete(c)), contains: (c) => cls.has(c) }, hasAttribute: () => false, getAttribute: () => null, cls }; };
+  const dungLai = () => {
+    const stat = {}; let quet = 0;
+    const tabs = { cur: [] };
+    const veTab = () => { tabs.cur = ['urgent', 'nv', 'vb', 'kpi', 'gis'].map((k) => mkEl('notify-tab-' + k)); };
+    veTab();
+    const grid = mkEl(null); grid.parentNode = null;
+    const c = {
+      document: {
+        addEventListener() {},
+        querySelectorAll: (sel) => { if (sel === '[data-uv-item]') { quet++; return tabs.cur; } return sel === '[data-uv-item^="notify-tab-"]' ? tabs.cur : []; },
+        querySelector: (sel) => (sel === '.dashboard-grid' ? grid : sel === '.gis-layer-sidebar' ? null : (stat[sel] = stat[sel] || mkEl(null))),
+        getElementById: () => null
+      },
+      window: { addEventListener() {}, __notiActiveTab: 'urgent' },
+      localStorage: {},
+      setTimeout: () => 0
+    };
+    c.window.window = c.window;
+    /* Notify vẽ lại như renderMyTasksNotify thật: vẽ lại 5 nút tab (phần tử mới) rồi gọi uvApply(false). */
+    c.onNotiTabClick = (k) => { c.window.__notiActiveTab = k; c.doiTab.push(k); veTab(); c.uvApply(false); };
+    c.doiTab = [];
+    vm.createContext(c);
+    vm.runInContext(src + '\n;this.S=UV_STATE;this.uvApply=uvApply;this.UA=uvAllBlocks;', c);
+    return { c, stat, tabs, grid, quet: () => quet, datQuet: () => { quet = 0; } };
+  };
+  let d = dungLai();
+  d.c.S.hidden = ['notify-tab-urgent', 'gis'];
+  d.datQuet();
+  d.c.uvApply(false);
+  ok(eq(d.c.doiTab, ['nv']), 'tab đang mở bị ẩn → chuyển sang tab đầu tiên còn hiện');
+  ok(d.grid.cls.has('uv-on') && d.stat['#notificationsWidget'].cls.has('uv-full'), 'đường lồng: ẩn GIS → Notify giãn kín hàng (lượt lồng áp đủ bố cục)');
+  ok(d.c.S.hiddenCount === 2, 'đường lồng: đếm đúng 2 mục đang ẩn');
+  ok(d.tabs.cur[0].cls.has('uv-hidden') && d.tabs.cur.filter((el) => el.cls.has('uv-hidden')).length === 1, 'nút tab vẽ lại được ẩn đúng');
+  ok(d.quet() <= 2, `mỗi lượt uvApply chỉ quét trang 1 lần (2 lượt: ngoài + lồng; thực tế ${d.quet()})`);
+  const truoc = d.quet(); d.c.UA();
+  ok(d.quet() === truoc + 1, 'ngoài lượt uvApply: uvAllBlocks quét trang mới (không dùng bộ nhớ của lượt đã xong)');
+  d = dungLai();
+  d.c.S.hidden = ['notify-tab-urgent'];
+  d.c.window.__notiGiuTab = true;
+  d.c.uvApply(false);
+  ok(eq(d.c.doiTab, []), 'đang xuất PDF (window.__notiGiuTab) → không tự chuyển tab bị ẩn');
+}
+
 console.log(fail ?`✗ ${fail} lỗi, ${pass} đạt` : `✓ ${pass} kiểm tra đạt`);
 process.exit(fail ? 1 : 0);

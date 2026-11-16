@@ -203,13 +203,15 @@ function ipBangCad(X) {
 async function ipNotifyTab(tab, fn) {
   const old = window.__notiActiveTab, oldSt = window.__notiActiveStatuses, inp = document.getElementById('myTaskSearchInput'), oldQ = inp ? inp.value : '';
   window.__notiActiveTab = tab; window.__notiActiveStatuses = []; if (inp) inp.value = '';
+  /* Giữ đúng tab đang xuất dù người dùng đã ẩn tab đó (ui-visibility.js tự chuyển tab bị ẩn khi Notify vẽ lại). */
+  window.__notiGiuTab = true;
   try { if (typeof renderMyTasksNotify === 'function') renderMyTasksNotify(); await ipFrame(); return await fn(); }
-  finally { window.__notiActiveTab = old; window.__notiActiveStatuses = oldSt; if (inp) inp.value = oldQ; if (typeof renderMyTasksNotify === 'function') renderMyTasksNotify(); }
+  finally { window.__notiGiuTab = false; window.__notiActiveTab = old; window.__notiActiveStatuses = oldSt; if (inp) inp.value = oldQ; if (typeof renderMyTasksNotify === 'function') renderMyTasksNotify(); }
 }
 function ipNotifyRows() {
   const div = document.createElement('div');
   return (window.__notiAllRows || []).map((h, i) => {
-    div.innerHTML = typeof h === 'string' ? h : (h && h.html) || '';
+    div.innerHTML = typeof h === 'function' ? h() : typeof h === 'string' ? h : (h && h.html) || ''; // Noti dựng dòng muộn (hàm), my-tasks-notify.js
     const b = div.querySelector('b'), sm = div.querySelector('small');
     const tags = [...div.querySelectorAll('.badge, span[class*="badge"], .pill')].map((x) => x.textContent.trim()).filter(Boolean);
     return [i + 1, b ? b.textContent.trim() : div.textContent.trim(), sm ? sm.textContent.trim() : '', [...new Set(tags)].join(' · ')];
