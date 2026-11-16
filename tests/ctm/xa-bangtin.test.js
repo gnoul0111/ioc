@@ -62,7 +62,8 @@ console.log('== Bố cục mặc định của tab «Tất cả» và tab từng
     setXa(nm);
     Object.keys(TRUC).forEach((r) => {
       const inst = run('(function(){ return xbtMake(xbtData(xbtSpecs(' + (r === 'ALL' ? 'null' : JSON.stringify([r])) + ')), ' + JSON.stringify(r === 'ALL' ? 'xa-4truc' : 'xa-' + r) + '); })()'), T = inst.test, d = T.defFor();
-      if (d.blocks.length !== NB[r] || d.blocks.some((b) => b.bad || TRUC[r].indexOf(b.ef) < 0) || d.rings.some((x) => TRUC[r].indexOf(x[0]) < 0) || d.rings.length !== 0) bad.push(nm + ' ' + r);
+      /* Đảng ủy tự dựng theo nhóm mục của xã (16/11/2026): 1 đến 9 khối, không dùng biểu đồ «Giá trị từng dòng số liệu» */
+      if ((r === 'DANG' ? !(d.blocks.length >= 1 && d.blocks.length <= 9) || d.blocks.some((b) => b.t === 'bd' && !inst.BY[b.ef].charts[b.c].nhom) : d.blocks.length !== NB[r]) || d.blocks.some((b) => b.bad || TRUC[r].indexOf(b.ef) < 0) || d.rings.some((x) => TRUC[r].indexOf(x[0]) < 0) || d.rings.length !== 0) bad.push(nm + ' ' + r);
       /* T1: ô số trong khối không phải chính một phần của biểu đồ đặt cùng màn (cùng bản ghi, cùng số) */
       const parts = [];
       d.blocks.forEach((b) => { if (b.t !== 'bd') return; const e = inst.BY[b.ef], c = e.charts[b.c]; if (c.loai === 'xu') return; const mine = [];
@@ -277,7 +278,7 @@ console.log('== Ẩn ô «Dòng số liệu» (16/11/2026)');
   ['xa_dang', 'xa_hdnd'].forEach((ef) => { const e = it.BY[ef]; run('XBT.curEf = ' + JSON.stringify(e.sid)); const h = it.ef(e); run('XBT.curEf = null');
     ok(e.charts.some((c) => c.dem) && !/data-t="dong so lieu theo/.test(h), ef + ': màn eform không có biểu đồ đếm dòng «Dòng số liệu theo …»'); });
   ok(it.BY.xa_dang.charts.every((c, j) => !c.dem || T.valid({ rings: [], blocks: [{ t: 'bd', ef: 'xa_dang', c: j }] }).blocks[0].bad), 'biểu đồ đếm dòng không chọn được ở màn ngoài');
-  ok(dg.home().indexOf('mũi tên') < 0, 'tab Đảng ủy chỉ có biểu đồ: không nhắc mũi tên so kỳ');
+  ok(dg.home().indexOf('mũi tên') >= 0 === /<i aria-hidden="true">[▲▼]/.test(dg.home()), 'tab Đảng ủy: nhắc mũi tên so kỳ đúng khi màn có mũi tên');
   ok(make().home().indexOf('mũi tên') >= 0, 'tab «Tất cả» có ô số: vẫn giải thích mũi tên');
   run('XBT.curEf = null');
   ['xa_yte', 'xa_dang', 'xa_gd', 'xa_hdnd', 'xa_vh', 'xa_nv'].forEach((ef) => {
@@ -340,6 +341,47 @@ console.log('== Bỏ hàng «Số nổi bật» (16/11/2026)');
   T.setL(T.defFor());
   const hR = it.home(), m0 = hR.match(/<div class="vch vring" data-fb="([^"]+)"[^>]*aria-label="([^"]+)"/);
   ok(m0 && /%$/.test(m0[1]) && m0[2].indexOf(m0[1]) > 0, 'khối Vòng tỷ lệ: aria-label có số, có số dự phòng khi không vẽ được vòng');
+}
+
+console.log('== Biểu đồ nhóm mục, tab Đảng ủy (16/11/2026)');
+{
+  setXa('Xã Sơn Đồng');
+  const it = run('(function(){ return xbtMake(xbtData(xbtSpecs(["DANG"])), "xa-DANG"); })()'), T = it.test, e = it.BY.xa_dang, d = T.defFor();
+  const nhC = e.charts.map((c, j) => [c, j]).filter((x) => x[0].nhom);
+  ok(nhC.length === 9 && nhC.every(([c]) => c.loai === 'nhom' && c.items.every((x) => x.k && x.recs)), 'eform Đảng ủy có 9 biểu đồ nhóm mục (theo 9 nhóm của eform), mọi số có khóa bản ghi');
+  ok(nhC.every(([c]) => c.items.every((x) => e.dl.some((dd) => dd.k === x.k && dd.nh === c.nh))), 'biểu đồ nhóm mục chỉ gồm dòng số liệu của nhóm đó');
+  ok(d.blocks.length === 9 && d.blocks.filter((b) => b.t === 'bd').length === 8 && d.blocks.filter((b) => b.t === 'so').length === 1, 'Sơn Đồng: 8 biểu đồ nhóm mục, 1 khối số (nhóm toàn số khác đơn vị tính)');
+  const so = d.blocks.find((b) => b.t === 'so'), ksg = e.dl.filter((x) => 'd:' + x.k === so.m)[0];
+  ok(ksg && ksg.nhL === 'Kiểm tra giám sát' && so.h === 'cot' && so.s.length === 2, 'nhóm «Kiểm tra giám sát» (tổ chức, người, đoàn): khối số kèm cột diễn biến, 2 số phụ');
+  ok(new Set(d.blocks.filter((b) => b.t === 'bd').map((b) => b.k)).size >= 2, 'các biểu đồ đổi kiểu hình cho đỡ đơn điệu');
+  T.setL(d);
+  const h = it.home(), vt = (h.match(/<span class="vt">([^<]*)/g) || []).map((x) => x.replace('<span class="vt">', ''));
+  ok(vt.length === 9 && vt.indexOf(e.ten) < 0 && vt.indexOf('Thi hành kỷ luật') >= 0, 'tiêu đề khối là tên nhóm mục, không lặp tên eform');
+  ok(h.replace(/"[^"]*"/g, '').indexOf('Kiểm tra giám sát · ') < 0, 'tên số hiện trong khối nhóm không lặp tên nhóm (aria-label, title giữ tên đủ)');
+  ok(h.indexOf('Đơn vị tính: tổ chức') >= 0 && h.indexOf('class="kg"') >= 0, 'đơn vị tính ở tiêu đề phần biểu đồ; đơn vị chỉ một số thì hiện số');
+  /* mỗi phần biểu đồ chỉ một đơn vị tính (không đặt cạnh nhau số khác đơn vị — X7) */
+  const parts = h.split('<div class="dl-u">').slice(1);
+  ok(parts.length >= 8 && parts.every((x) => /^Đơn vị tính: [^<]+<\/div>/.test(x)), 'mỗi phần biểu đồ có một đơn vị tính');
+  /* T1: biểu đồ nhóm mục chiếm dòng số liệu của nó; không đứng cùng biểu đồ «Giá trị từng dòng số liệu» */
+  const full = e.charts.findIndex((c) => c.loai === 'dong' && !c.dem), [c0, j0] = nhC[1], dk = 'd:' + c0.items[0].k;
+  const v1 = T.valid({ rings: [], blocks: [{ t: 'bd', ef: 'xa_dang', c: full }, { t: 'bd', ef: 'xa_dang', c: j0 }] });
+  const v2 = T.valid({ rings: [], blocks: [{ t: 'bd', ef: 'xa_dang', c: j0 }, { t: 'bd', ef: 'xa_dang', c: full }] });
+  ok(v1.blocks.length === 1 && v1.blocks[0].c === full && v2.blocks.length === 1 && v2.blocks[0].c === j0, 'biểu đồ nhóm mục và «Giá trị từng dòng số liệu» không cùng màn: giữ cái trước');
+  const v3 = T.valid({ rings: [], blocks: [{ t: 'bd', ef: 'xa_dang', c: j0 }, { t: 'so', ef: 'xa_dang', m: dk, s: [] }] });
+  const v4 = T.valid({ rings: [], blocks: [{ t: 'so', ef: 'xa_dang', m: dk, s: [] }, { t: 'bd', ef: 'xa_dang', c: j0 }] });
+  ok(v3.blocks.length === 1 && v3.blocks[0].t === 'bd' && v4.blocks.length === 1 && v4.blocks[0].t === 'so', 'ô số của dòng đã có trong biểu đồ nhóm mục: không đặt thêm (T1)');
+  ok(T.valid({ rings: [], blocks: nhC.map(([, j]) => ({ t: 'bd', ef: 'xa_dang', c: j })) }).blocks.length === nhC.filter(([, j]) => T.valid({ rings: [], blocks: [{ t: 'bd', ef: 'xa_dang', c: j }] }).blocks.every((b) => !b.bad)).length, 'nhiều biểu đồ nhóm mục khác nhau đặt cùng màn được');
+  T.setL(T.valid({ rings: [], blocks: [{ t: 'bd', ef: 'xa_dang', c: j0 }] }));
+  const u = T.usedBy(-1, false);
+  ok(u.has('xa_dang:' + dk) && u.has('xa_dang#dongNh'), 'hộp chọn: dòng số liệu đã có trong biểu đồ nhóm mục bị làm mờ (T1)');
+  /* màn eform không lặp các thẻ này (đã có ở màn từng nhóm) */
+  run('XBT.curEf = ' + JSON.stringify(e.sid)); const he = it.ef(e); run('XBT.curEf = null');
+  const nCard = (x) => x.split('class="acard').length - 1, keep = e.charts.slice();
+  e.charts.length = 0; keep.filter((c) => !c.nhom).forEach((c) => e.charts.push(c));
+  run('XBT.curEf = ' + JSON.stringify(e.sid)); const he0 = it.ef(e); run('XBT.curEf = null');
+  e.charts.length = 0; keep.forEach((c) => e.charts.push(c));
+  ok(nCard(he) > 0 && nCard(he) === nCard(he0), 'màn eform không thêm biểu đồ nhóm mục (số thẻ như khi không có)');
+  ok(make().BY.xa_hcc.charts.every((c) => !c.nhom), 'eform không có biểu đồ dòng số liệu theo nhóm: không thêm biểu đồ nhóm mục');
 }
 
 console.log('== Hàng «Số nổi bật» khi bật lại cờ XBT_RINGS (giữ trong code, kiểm để bật lại không lỗi)');
