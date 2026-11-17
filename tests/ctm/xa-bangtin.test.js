@@ -494,5 +494,27 @@ console.log('== Kéo thả: khe giữa hai ô, dragenter, gợi ý một chỗ (
   it.drag(ev('dragend', A, 0, 0));
 }
 
+console.log('== Ô «Tìm lĩnh vực…» lọc khối màn ngoài (17/11/2026)');
+{
+  setXa('Xã Sơn Đồng');
+  const vts = (h) => (h.match(/<span class="vt">([^<]*)/g) || []).map((x) => x.replace('<span class="vt">', ''));
+  const nCard = (h) => h.split('class="vcard').length - 1;
+  const it = make(), T = it.test;
+  run('XBT.q = ""'); const h0 = it.home(), n0 = nCard(h0);
+  run('XBT.q = "  GIÁO dục "'); const hg = it.home();
+  ok(nCard(hg) >= 1 && nCard(hg) < n0 && vts(hg).every((x) => x === 'Giáo dục'), 'gõ «GIÁO dục» (hoa thường, thừa dấu cách): chỉ còn khối của eform Giáo dục');
+  ok(/style="--sp:12"/.test(hg) || nCard(hg) > 1, 'khối còn lại giãn kín hàng');
+  run('XBT.q = "zzzz"'); const hz = it.home();
+  ok(nCard(hz) === 0 && hz.indexOf('Không có khối nào có tên eform hoặc tên nhóm chứa «zzzz»') >= 0, 'không khớp: không còn khối, có lời báo');
+  run('XBT.q = "<b>"'); ok(it.home().indexOf('«&lt;b&gt;»') >= 0, 'chữ gõ hiện trong lời báo đã được thoát HTML');
+  run('XBT.q = "zzzz"'); T.setEdit(true); ok(nCard(it.home()) === n0, 'đang tùy chỉnh: hiện đủ khối, không lọc'); T.setEdit(false);
+  run('XBT.q = ""'); ok(it.home() === h0, 'xóa chữ: màn như cũ');
+  const dg = run('(function(){ return xbtMake(xbtData(xbtSpecs(["DANG"])), "xa-DANG"); })()');
+  run('XBT.q = "kỷ luật"'); const hk = dg.home();
+  ok(nCard(hk) >= 1 && vts(hk).every((x) => x.toLowerCase().indexOf('kỷ luật') >= 0), 'tab Đảng ủy: tìm theo tên nhóm mục («kỷ luật»)');
+  run('XBT.q = "' + dg.BY.xa_dang.ten + '"'); ok(nCard(dg.home()) === nCard((run('XBT.q = ""'), dg.home())), 'tìm theo tên eform: giữ mọi khối của eform đó');
+  run('XBT.q = ""');
+}
+
 console.log('\n' + pass + ' đạt, ' + fail + ' lỗi');
 process.exit(fail ? 1 : 0);
