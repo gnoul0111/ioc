@@ -21,7 +21,7 @@ const XBT_HIDE_DONG = true;
 /* Hàng «Số nổi bật» (vòng tỷ lệ) ở màn ngoài: anh bảo gộp vào khối 16/11/2026 vì khối «Số liệu» đã có kiểu «Vòng tỷ lệ» — ẩn bằng cờ, không xóa.
    false: bố cục mặc định dùng khối thay vòng; bố cục đã lưu có Số nổi bật thì mỗi ô thành một khối cỡ Nhỏ ở đầu màn */
 const XBT_RINGS = false;
-const XBT = { dragInst: null, inst: {}, key: {}, sids: {}, charts: [], curEf: null, dlgH: null, seq: 0, pendGroup: null, ecWait: [], ecLoading: false };
+const XBT = { q: '', dragInst: null, inst: {}, key: {}, sids: {}, charts: [], curEf: null, dlgH: null, seq: 0, pendGroup: null, ecWait: [], ecLoading: false };
 const XBT_TRUC = { dangxa: 'Đảng ủy', hdndxa: 'HĐND', ubndxa: 'UBND', mttqxa: 'Ủy ban MTTQ' };
 function xbtWho() { try { if (typeof currentAccount !== 'undefined' && currentAccount) return currentAccount.user || currentAccount.title || 'guest'; } catch (e) { /* chưa đăng nhập */ } return 'guest'; }
 /* cờ tắt: mọi tài khoản xem bố cục mới; xóa luôn lựa chọn «cũ» đã lưu trước 14/11/2026, để nếu sau này bật lại cờ thì không ai tự quay về bố cục cũ */
@@ -625,15 +625,22 @@ function xbtMake(DATA, OV) {
     } else if (t === 'dragend') dgEnd();
   };
 
+  /* tên nhóm mục của khối (biểu đồ nhóm mục, khối số mà mọi số cùng một nhóm); không phải khối của một nhóm thì '' */
+  const blockNh = (b) => { const e = BY[b.ef]; if (!e || b.bad) return '';
+    if (b.t === 'bd') { const c = e.charts[b.c]; return c && c.nhom ? c.t : ''; }
+    const ids = [b.m].concat(b.s || []), dOf = (id) => (String(id).indexOf('d:') === 0 ? e.dlBy[String(id).slice(2)] : null);
+    return ids.every((id) => dOf(id) && dOf(id).nhL && dOf(id).nhL === dOf(b.m).nhL) ? dOf(b.m).nhL : ''; };
+  /* ô «Tìm lĩnh vực…» của màn chỉ tiêu (XBT.q): màn ngoài chỉ giữ khối có tên eform hoặc tên nhóm mục chứa chữ gõ; đang tùy chỉnh thì hiện đủ khối */
+  const qOf = () => (EDIT ? '' : String(XBT.q || '').trim().toLowerCase());
+  const qHit = (b, q) => { const e = BY[b.ef]; return !q || (!!e && [e.ten, blockNh(b)].some((x) => x && x.toLowerCase().indexOf(q) >= 0)); };
   const blockHtml = (b, i) => {
     const e = BY[b.ef], tag = EDIT ? 'div' : 'a', href = EDIT || !e ? '' : ' href="#' + e.slug + '"';
     const tools = EDIT ? '<div class="btools" role="group" aria-label="Sửa khối ' + (i + 1) + '">' + GRIP + '<button type="button" data-mv="' + i + ',-1" aria-label="Đưa khối lên trước"' + (i === 0 ? ' disabled' : '') + '>↑</button><button type="button" data-mv="' + i + ',1" aria-label="Đưa khối ra sau"' + (i === L.blocks.length - 1 ? ' disabled' : '') + '>↓</button>' +
       '<button type="button" data-sz="' + i + '">Cỡ: ' + SZ[b.z] + '</button><button type="button" data-edit="' + i + '">Sửa</button><button type="button" data-del="' + i + '">Bỏ</button></div>' : '';
     /* khối của một nhóm mục (biểu đồ nhóm mục, khối số mà mọi số cùng một nhóm): tiêu đề là tên nhóm, tên eform ghi nhỏ khi màn có nhiều eform;
        tên số không lặp tên nhóm */
-    const bc = e && !b.bad && b.t === 'bd' ? e.charts[b.c] : null, ids = e && !b.bad && b.t === 'so' ? [b.m].concat(b.s) : [];
     const dOf = (id) => (String(id).indexOf('d:') === 0 ? e.dlBy[String(id).slice(2)] : null);
-    const nhT = bc && bc.nhom ? bc.t : ids.length && ids.every((id) => dOf(id) && dOf(id).nhL && dOf(id).nhL === dOf(b.m).nhL) ? dOf(b.m).nhL : '';
+    const nhT = blockNh(b);
     const lb = (id) => (nhT && dOf(id) ? dlLabel(dOf(id)) : gm(b.ef, id).l);
     const head = '<div class="vh"><span class="vt">' + esc(nhT || (e ? e.ten : 'Eform không còn')) + (nhT && EFS.length > 1 ? '<small class="vt-ef"> · ' + esc(e.ten) + '</small>' : '') + '</span>' + (EDIT ? '' : '<span class="tc-more">Xem' + ARR + '</span>') + '</div>';
     let body;
@@ -673,18 +680,20 @@ function xbtMake(DATA, OV) {
     const kySel = EDIT || !DATA.plist ? '' : '<div class="xky" role="group" aria-label="Kỳ xem"><label><span>Xem theo</span><select data-xky="g">' + EF_GRAN.map((x) => opt(x[0], x[1], x[0] === DATA.g)).join('') + '</select></label>' +
       '<label><span>Kỳ</span><select data-xky="p">' + DATA.plist.map((p) => opt(p.id, p.label, p.id === DATA.cur)).join('') + '</select></label></div>';
     /* màn không có ô số nào (chỉ biểu đồ) thì không có mũi tên so kỳ: bỏ lời giải thích mũi tên */
-    const arrows = EDIT || L.rings.length || L.blocks.some((x) => !x.bad && (x.t === 'so' || (x.t === 'bd' && BY[x.ef].charts[x.c].nhom)));
+    const Q = qOf(), SH = L.blocks.map((b, i) => [b, i]).filter(([b]) => qHit(b, Q)), RG = XBT_RINGS ? L.rings.filter((r) => !Q || qHit({ t: 'so', ef: r[0], m: r[1], s: [] }, Q)) : L.rings;
+    const arrows = EDIT || RG.length || SH.map((x) => x[0]).some((x) => !x.bad && (x.t === 'so' || (x.t === 'bd' && BY[x.ef].charts[x.c].nhom)));
     let h = '<div class="page-h"><div><h1>' + esc(DATA.xaName) + '</h1><p>' + esc(KY) + (arrows ? ' · ' + esc(SO) : '') + (EDIT ? '' : ' · bấm vào hình nào để xem kỹ phần đó') + '</p></div><div class="ph-act">' + kySel + acct + bar + '</div></div>';
     if (EDIT) h += '<p class="ednote">Đang tùy chỉnh màn ngoài. Bố cục lưu riêng cho tài khoản <b>' + esc(xbtWho()) + '</b> trên trình duyệt này. Chỉ chọn được ô số, biểu đồ đã có trong bản đọc eform; số đã dùng ở chỗ khác trên màn thì không chọn lại.</p>';
-    if (XBT_RINGS && (L.rings.length || EDIT)) {
-      h += (EDIT ? '<div class="sec-h" style="margin-top:0"><h2>Số nổi bật</h2><button type="button" class="btn" data-radd="1"' + (L.rings.length >= RMAX || !ringPool(-1).some((x) => !x.dis) ? ' disabled' : '') + '>＋ Thêm số</button><span>' + L.rings.length + '/' + RMAX + ' ô · tự chia hàng đều</span></div>' : '') + '<div class="rings">' + L.rings.map(([ef, id], i, all) => { const e = BY[ef], k = gm(ef, id), v = k.vals[CI], RS = ringSpans(all.length);
+    if (XBT_RINGS && (RG.length || EDIT)) {
+      h += (EDIT ? '<div class="sec-h" style="margin-top:0"><h2>Số nổi bật</h2><button type="button" class="btn" data-radd="1"' + (L.rings.length >= RMAX || !ringPool(-1).some((x) => !x.dis) ? ' disabled' : '') + '>＋ Thêm số</button><span>' + L.rings.length + '/' + RMAX + ' ô · tự chia hàng đều</span></div>' : '') + '<div class="rings">' + RG.map(([ef, id], i, all) => { const e = BY[ef], k = gm(ef, id), v = k.vals[CI], RS = ringSpans(all.length);
         if (k.u === '%') PEND.push({ id: 'rg' + i, opt: ring(v) });
         const tag = EDIT ? 'div' : 'a', href = EDIT ? '' : ' href="#' + e.slug + '"';
         return '<' + tag + ' class="ringc' + (EDIT ? ' editing' : '') + '" style="--sp:' + RS[i] + '"' + href + (EDIT ? DRAG('r', i) : '') + '>' + (EDIT ? '<div class="btools" style="align-self:flex-end">' + GRIP + '<button type="button" data-rmv="' + i + ',-1" aria-label="Đưa sang trái"' + (i === 0 ? ' disabled' : '') + '>←</button><button type="button" data-rmv="' + i + ',1" aria-label="Đưa sang phải"' + (i === L.rings.length - 1 ? ' disabled' : '') + '>→</button><button type="button" data-redit="' + i + '">Sửa</button><button type="button" data-rdel="' + i + '" aria-label="Bỏ ' + esc(k.l) + '">Bỏ</button></div>' : '') + '' + (k.u === '%' ? '<div class="rg" id="rg' + i + '" role="img" aria-label="' + esc(k.l) + ': ' + pc(v) + '"></div>' : (() => { const sb = sibOf(ef, id); return sb ? '<div class="rbox rbox2" role="img" aria-label="' + esc(k.l) + ': ' + fu(v, k.u) + '"><div class="rnum" title="' + esc(fu(v, k.u)) + '">' + big(v, k.u) + (k.u && k.u !== '%' ? '<small>' + esc(k.u) + '</small>' : '') + '</div>' + miniSib(sb, 4) + '</div>'
         : '<div class="rbox" role="img" aria-label="' + esc(k.l) + ': ' + fu(v, k.u) + '"><div class="rnum" title="' + esc(fu(v, k.u)) + '">' + big(v, k.u) + '</div>' + (k.u && k.u !== '%' ? '<div class="runit">' + esc(k.u) + '</div>' : '') + '<div class="rnone">' + esc(KY) + ' không có số cùng loại' + (k.u ? ' (' + esc(k.u) + ')' : '') + ' trong eform để so</div></div>'; })()) + '<div class="rt">' + esc(e.ten) + '</div><div class="rs">' + esc(k.l) + '</div>' + (dshort(v, k.pv, k.u) || '<span class="delta" aria-hidden="true">&nbsp;</span>') + '</' + tag + '>'; }).join('') + (EDIT && !L.rings.length ? '<p class="hint">Chưa có số nổi bật nào.</p>' : '') + '</div>';
     }
-    BSP = blockSpans(L.blocks);
-    h += '<div class="bgrid">' + L.blocks.map(blockHtml).join('') + (EDIT ? '<button type="button" class="addc" data-add="1">＋ Thêm khối</button>' : '') + '</div>';
+    const sp = blockSpans(SH.map((x) => x[0])); BSP = []; SH.forEach(([, i], j) => { BSP[i] = sp[j]; });
+    h += '<div class="bgrid">' + SH.map(([b, i]) => blockHtml(b, i)).join('') + (EDIT ? '<button type="button" class="addc" data-add="1">＋ Thêm khối</button>' : '') + '</div>';
+    if (Q && L.blocks.length && !SH.length) h += '<p class="hint">Không có khối nào có tên eform hoặc tên nhóm chứa «' + esc(String(XBT.q).trim()) + '».</p>';
     if (!L.blocks.length && !EDIT) h += '<p class="hint">Màn ngoài đang trống. Bấm «Tùy chỉnh» để thêm khối, hoặc «Khôi phục mặc định».</p>';
     return h;
   };
@@ -1015,6 +1024,7 @@ if (XBT_ENABLED && typeof ctmOverviewHtml === 'function' && typeof ctmScreenHtml
     if (xbtMode() === 'cu') return XBT_OLDBAR('Xem bố cục mới') + ovOrig(cfg, cats);
     try {
       const sids = xbtSpecs(cfg.roles); if (!sids.length) return ovOrig(cfg, cats);
+      const qi = typeof document !== 'undefined' && document.getElementById ? document.getElementById('categorySearch') : null; XBT.q = qi ? qi.value : '';
       const inst = xbtInst(cfg.id, sids);
       setTimeout(() => inst.mount(), 0);
       return '<div class="stc-root xbt-root xbt-ov" style="grid-column:1/-1;background:transparent;overflow:visible" id="xbt-host-' + cfg.id + '">' + inst.home() + '</div>';
