@@ -6,27 +6,27 @@
 #ouaScreen .ods-head-actions .btn:disabled{opacity:.6;cursor:progress}
 
 /* Dải tình trạng */
-#ouaScreen .ods-strip{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 14px;border:1px solid #20496f;background:rgba(10,33,59,.6);border-radius:12px;font-size:13px;color:var(--sub)}
+#ouaScreen .ods-strip{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 14px;border:1px solid var(--oua-surface-line);background:rgba(10,33,59,.6);border-radius:12px;font-size:13px;color:var(--sub)}
 #ouaScreen .ods-strip i{display:grid;place-items:center;color:var(--sub);font-style:normal}
 #ouaScreen .ods-strip b{color:var(--text)}
 #ouaScreen .ods-strip .sep{width:1px;height:14px;background:rgba(255,255,255,.12)}
 
 /* Thanh lọc */
 #ouaScreen .ods-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;margin:14px 0 12px}
-#ouaScreen .ods-search{flex:1 1 220px;min-width:200px;height:44px;display:flex;align-items:center;gap:10px;padding:0 14px;border:1px solid #20496f;background:#0a213b;border-radius:12px;color:var(--sub);cursor:text}
+#ouaScreen .ods-search{flex:1 1 220px;min-width:200px;height:44px;display:flex;align-items:center;gap:10px;padding:0 14px;border:1px solid var(--oua-surface-line);background:var(--oua-surface);border-radius:12px;color:var(--sub);cursor:text}
 #ouaScreen .ods-search:focus-within{border-color:#2d80f2;box-shadow:0 0 0 3px rgba(29,127,242,.18)}
 #ouaScreen .ods-search svg{flex-shrink:0}
 #ouaScreen .ods-search input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:14px}
 #ouaScreen .ods-search input::placeholder{color:#86a4c4}
 #ouaScreen .ods-dd-wrap{position:relative;flex:0 1 auto}
-#ouaScreen .ods-dd-btn{height:44px;min-width:150px;width:100%;display:flex;align-items:center;gap:10px;padding:0 12px;border:1px solid #20496f;background:#0a213b;border-radius:12px;color:var(--text);font:inherit;font-size:13.5px;cursor:pointer}
+#ouaScreen .ods-dd-btn{height:44px;min-width:150px;width:100%;display:flex;align-items:center;gap:10px;padding:0 12px;border:1px solid var(--oua-surface-line);background:var(--oua-surface);border-radius:12px;color:var(--text);font:inherit;font-size:13.5px;cursor:pointer}
 #ouaScreen .ods-dd-btn span{color:var(--muted);font-size:12.5px;white-space:nowrap}
 #ouaScreen .ods-dd-btn b{flex:1;text-align:left;font-weight:700;white-space:nowrap}
 #ouaScreen .ods-dd-btn.plain b{text-align:center}
 #ouaScreen .ods-dd-btn svg{color:var(--sub);flex-shrink:0;transition:transform .15s}
 #ouaScreen .ods-dd-wrap.open .ods-dd-btn{border-color:#2d80f2;box-shadow:0 0 0 3px rgba(29,127,242,.18)}
 #ouaScreen .ods-dd-wrap.open .ods-dd-btn svg{transform:rotate(180deg)}
-#ouaScreen .ods-dd-panel{position:absolute;top:calc(100% + 6px);left:0;min-width:100%;width:max-content;max-width:300px;z-index:15;background:#0b2440;border:1px solid #2f6396;border-radius:12px;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+#ouaScreen .ods-dd-panel{position:absolute;top:calc(100% + 6px);left:0;min-width:100%;width:max-content;max-width:300px;z-index:15;background:var(--oua-pop);border:1px solid #2f6396;border-radius:12px;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
 #ouaScreen .ods-dd-wrap:last-child .ods-dd-panel{left:auto;right:0}
 #ouaScreen .ods-opt{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:var(--text);font:inherit;font-size:13.5px;padding:9px 12px;border-radius:9px;cursor:pointer;text-align:left}
 #ouaScreen .ods-opt span{flex:1;white-space:nowrap}
@@ -37,7 +37,7 @@
 /* Bảng */
 #ouaScreen .ods-table-wrap{overflow-x:auto;border-radius:14px}
 #ouaScreen .ods-table{min-width:1100px;table-layout:fixed}
-#ouaScreen .ods-table thead th{background:#0f2c4d;color:#cde3ff;font-weight:700;font-size:13px;white-space:nowrap;padding:13px 14px}
+#ouaScreen .ods-table thead th{background:var(--oua-th-solid);color:#cde3ff;font-weight:700;font-size:13px;white-space:nowrap;padding:13px 14px}
 #ouaScreen .ods-table td{vertical-align:middle;padding:14px;font-size:13.5px}
 #ouaScreen .ods-table tbody tr{cursor:pointer}
 #ouaScreen .ods-table tbody tr:hover,#ouaScreen .ods-table tbody tr:focus-visible{background:rgba(29,127,242,.07);outline:0}
@@ -77,14 +77,14 @@
 /* Chân bảng */
 #ouaScreen .ods-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;color:var(--sub);font-size:13px}
 #ouaScreen .ods-pager{display:flex;gap:6px}
-#ouaScreen .ods-pager button{min-width:34px;height:34px;padding:0 8px;display:grid;place-items:center;border-radius:9px;border:1px solid #28557e;background:#0a213b;color:var(--text);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+#ouaScreen .ods-pager button{min-width:34px;height:34px;padding:0 8px;display:grid;place-items:center;border-radius:9px;border:1px solid var(--oua-btn-line);background:var(--oua-surface);color:var(--text);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
 #ouaScreen .ods-pager button.active{background:linear-gradient(180deg,#1c87ff,#1a67d8);border-color:#2d80f2;color:#fff}
 #ouaScreen .ods-pager button:disabled{opacity:.4;cursor:not-allowed}
 
 /* Chi tiết nguồn (trong modal chung) */
 #ouaScreen .ods-d-desc{margin:0 0 14px;color:var(--sub);font-size:13.5px}
 #ouaScreen .ods-d-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-#ouaScreen .ods-d-kpis>div{padding:12px 14px;border-radius:14px;background:#0a213b;border:1px solid rgba(255,255,255,.08);min-width:0}
+#ouaScreen .ods-d-kpis>div{padding:12px 14px;border-radius:14px;background:var(--oua-surface);border:1px solid var(--oua-line);min-width:0}
 #ouaScreen .ods-d-kpis>div>span{display:block;color:var(--sub);font-size:12.5px}
 #ouaScreen .ods-d-kpis b{display:block;font-size:16px;margin-top:6px}
 #ouaScreen .ods-d-kpis small{display:block;color:var(--sub);font-size:12px;margin-top:4px}

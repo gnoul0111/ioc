@@ -7,15 +7,16 @@
  <!-- Điện thoại / màn cảm ứng → chuyển sang UI mobile mới trước khi tải dữ liệu nặng. Đồng bộ với cờ
       OUA_MOBILE_NEW_UI trong js/oua-data.js (đặt false ở cả 2 nơi để quay lại bản mobile cũ). -->
  <script>(function(){var OUA_MOBILE_NEW_UI=true;try{if(OUA_MOBILE_NEW_UI&&matchMedia('(max-width:520px), (pointer:coarse)').matches)location.replace('mobile-admin/index.html');}catch(e){}})();</script>
- <link rel="stylesheet" href="css/oua.css?v=20261117a" />
- <link rel="stylesheet" href="css/oua-login-log.css?v=20261013" />
- <link rel="stylesheet" href="css/oua-data-sources.css?v=20261022" />
- <link rel="stylesheet" href="css/oua-cau-hinh.css?v=20261117r" />
+ <link rel="stylesheet" href="css/oua.css?v=20261117-ton4" />
+ <link rel="stylesheet" href="css/oua-login-log.css?v=20261117-ton1" />
+ <link rel="stylesheet" href="css/oua-data-sources.css?v=20261117-ton1" />
+ <link rel="stylesheet" href="css/oua-cau-hinh.css?v=20261117-ton1" />
+ <style>html,body{margin:0;background:#050f1d}</style><!-- trang quản trị độc lập: bỏ viền trắng 8px quanh trang, nền cùng tông --oua-page -->
  <style>
    #ouaScreen .oua-dnd-node{cursor:grab}
    #ouaScreen .oua-dnd-node:active{cursor:grabbing}
    #ouaScreen .oua-dnd-node.oua-dnd-selected{outline:2px solid #49bcff;border-radius:8px}
-   #ouaScreen .tree-source-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(255,255,255,.03)}
+   #ouaScreen .tree-source-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid var(--oua-line);border-radius:10px;background:rgba(255,255,255,.03)}
    /* KPI thu nhỏ cho Admin Tổng (8 thẻ dễ bị to/tốn diện tích nếu dùng nguyên .kpi mặc định) — chỉ áp dụng cho
       lớp .oua-kpis-compact, không đụng .kpis/.kpi mặc định đang dùng ở các màn khác. */
    #ouaScreen .kpis.oua-kpis-compact{gap:8px}
@@ -25,7 +26,7 @@
    #ouaScreen .oua-kpis-compact .kpi .hint{font-size:10.5px;margin-top:3px}
    /* ===== Thanh lọc gọn 1 hàng (Quản lý người dùng) ===== */
    #ouaScreen .oua-filterbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 10px}
-   #ouaScreen .oua-search{flex:1 1 280px;min-width:220px;height:42px;display:flex;align-items:center;gap:9px;padding:0 13px;border:1px solid rgba(87,178,255,.28);background:rgba(6,21,40,.7);border-radius:12px;color:#8fb4d8;cursor:text;transition:border-color .15s,box-shadow .15s}
+   #ouaScreen .oua-search{flex:1 1 280px;min-width:220px;height:42px;display:flex;align-items:center;gap:9px;padding:0 13px;border:1px solid var(--oua-field-line);background:var(--oua-field);border-radius:12px;color:#8fb4d8;cursor:text;transition:border-color .15s,box-shadow .15s}
    #ouaScreen .oua-search:focus-within{border-color:#49bcff;box-shadow:0 0 0 3px rgba(73,188,255,.14)}
    #ouaScreen .oua-search input{flex:1;min-width:0;height:100%;background:transparent;border:0;outline:0;box-shadow:none;padding:0;margin:0;color:#dceeff;font-size:13.5px;font-family:inherit}
    #ouaScreen .oua-search input::placeholder{color:#7f9dbb}
@@ -36,13 +37,13 @@
    /* ===== Dropdown tự vẽ thay <select> gốc (popup mặc định của trình duyệt không chỉnh CSS được) ===== */
    #ouaScreen .oua-dd{position:relative;display:inline-block;min-width:0;vertical-align:middle}
    #ouaScreen .oua-dd-native{display:none!important}
-   #ouaScreen .oua-dd-trigger{width:100%;height:42px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 13px;margin:0;border:1px solid rgba(87,178,255,.28);background:rgba(6,21,40,.7);box-shadow:none;border-radius:12px;color:#dceeff;font-size:13.5px;font-weight:500;font-family:inherit;text-align:left;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+   #ouaScreen .oua-dd-trigger{width:100%;height:42px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 13px;margin:0;border:1px solid var(--oua-field-line);background:var(--oua-field);box-shadow:none;border-radius:12px;color:#dceeff;font-size:13.5px;font-weight:500;font-family:inherit;text-align:left;cursor:pointer;transition:border-color .15s,box-shadow .15s}
    #ouaScreen .oua-dd-trigger:hover{border-color:rgba(87,178,255,.55)}
    #ouaScreen .oua-dd.open .oua-dd-trigger{border-color:#49bcff;box-shadow:0 0 0 3px rgba(73,188,255,.14)}
    #ouaScreen .oua-dd-label{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
    #ouaScreen .oua-dd-caret{flex:0 0 auto;width:7px;height:7px;border-right:2px solid #7fb8e8;border-bottom:2px solid #7fb8e8;transform:translateY(-2px) rotate(45deg);transition:transform .15s}
    #ouaScreen .oua-dd.open .oua-dd-caret{transform:translateY(2px) rotate(-135deg)}
-   #ouaScreen .oua-dd-panel{position:absolute;top:calc(100% + 6px);left:0;min-width:100%;z-index:90;background:#0a2038;border:1px solid rgba(87,178,255,.35);border-radius:12px;box-shadow:0 18px 44px rgba(0,0,0,.5);padding:6px;max-height:min(40vh,300px);overflow:auto;scrollbar-width:thin;scrollbar-color:#2f6fa8 transparent}
+   #ouaScreen .oua-dd-panel{position:absolute;top:calc(100% + 6px);left:0;min-width:100%;z-index:90;background:var(--oua-pop2);border:1px solid rgba(87,178,255,.35);border-radius:12px;box-shadow:0 18px 44px rgba(0,0,0,.5);padding:6px;max-height:min(40vh,300px);overflow:auto;scrollbar-width:thin;scrollbar-color:#2f6fa8 transparent}
    #ouaScreen .oua-dd-panel.hidden{display:none}
    #ouaScreen .oua-dd-opt{display:block;width:100%;text-align:left;padding:9px 12px;margin:0;border:0;background:transparent;box-shadow:none;color:#d6efff;font-size:13px;font-weight:500;font-family:inherit;border-radius:8px;cursor:pointer;white-space:nowrap}
    #ouaScreen .oua-dd-opt:hover{background:rgba(87,178,255,.14)}
@@ -60,25 +61,25 @@
    #ouaScreen .oua-kpis-5col{grid-template-columns:repeat(5,1fr)}
    /* 5 ô thống kê tài khoản: đơn giản — chỉ nhãn + con số, không icon/emoji (emoji tự mang màu riêng, dễ bị đỏ/lệch tông) */
    #ouaScreen .oua-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
-   #ouaScreen .oua-stat{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:11px 15px;margin:0;border:1px solid rgba(87,178,255,.2);background:rgba(10,31,55,.7);box-shadow:none;border-radius:12px;color:#eaf5ff;font-family:inherit;text-align:left;cursor:pointer;transition:border-color .15s,background .15s}
+   #ouaScreen .oua-stat{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:11px 15px;margin:0;border:1px solid var(--oua-field-line2);background:var(--oua-field2);box-shadow:none;border-radius:12px;color:#eaf5ff;font-family:inherit;text-align:left;cursor:pointer;transition:border-color .15s,background .15s}
    #ouaScreen .oua-stat:hover{border-color:rgba(87,178,255,.5)}
-   #ouaScreen .oua-stat.active{border-color:#49bcff;background:rgba(29,127,242,.18)}
-   #ouaScreen .oua-stat-label{font-size:12px;font-weight:500;color:#a8bfda}
+   #ouaScreen .oua-stat.active{border-color:var(--oua-kpi-on-line);background:var(--oua-kpi-on)}
+   #ouaScreen .oua-stat-label{font-size:12px;font-weight:500;color:var(--sub)}
    #ouaScreen .oua-stat.active .oua-stat-label{color:#cfe6ff}
-   #ouaScreen .oua-stat-val{font-size:22px;font-weight:800;line-height:1.15;font-variant-numeric:tabular-nums;color:#eaf5ff}
+   #ouaScreen .oua-stat-val{font-size:26px;font-weight:800;line-height:1.15;font-variant-numeric:tabular-nums;color:var(--oua-kpi-val)}
    #ouaScreen .oua-stats.oua-stats-4{grid-template-columns:repeat(4,1fr)}
    #ouaScreen .oua-stat.static{cursor:default}
-   #ouaScreen .oua-stat.static:hover{border-color:rgba(87,178,255,.2)}
+   #ouaScreen .oua-stat.static:hover{border-color:var(--oua-field-line2)}
    @media(max-width:1000px){ #ouaScreen .oua-stats,#ouaScreen .oua-stats.oua-stats-4{grid-template-columns:repeat(2,1fr)} }
    /* Avatar tròn + công tắc gạt (switch) thật cho bảng "Quản lý người dùng" (theo mẫu UI anh gửi). */
    #ouaScreen .oua-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0;font-size:14px}
    #ouaScreen .oua-user-cell{display:flex;align-items:center;gap:10px}
    #ouaScreen .oua-switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
    #ouaScreen .oua-switch input{display:none}
-   #ouaScreen .oua-switch-track{width:38px;height:20px;border-radius:999px;background:#3a4a5e;position:relative;transition:background .15s;flex-shrink:0}
+   #ouaScreen .oua-switch-track{width:38px;height:20px;border-radius:999px;background:var(--oua-track);position:relative;transition:background .15s;flex-shrink:0}
    #ouaScreen .oua-switch-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#cfe3ff;transition:left .15s}
-   #ouaScreen .oua-switch input:checked + .oua-switch-track{background:#2fc97a}
-   #ouaScreen .oua-switch input:checked + .oua-switch-track .oua-switch-thumb{left:20px}
+   #ouaScreen .oua-switch input:checked + .oua-switch-track{background:var(--oua-ok-bg);box-shadow:0 0 0 1px var(--oua-ok-line) inset}
+   #ouaScreen .oua-switch input:checked + .oua-switch-track .oua-switch-thumb{left:20px;background:#fff}
 
    /* Khuôn thẻ mobile Phase D (song song với <table> desktop) — ẩn mặc định, chỉ hiện dưới 760px, xem khối
       @media bên dưới. Bảng nào chưa chuyển sang Phase D thì container này rỗng, không ảnh hưởng gì. */
@@ -95,7 +96,7 @@
      #ouaScreen{
        --m-sp-1:4px; --m-sp-2:8px; --m-sp-3:12px; --m-sp-4:16px; --m-sp-5:24px;
        --m-radius-card:16px; --m-radius-chip:999px;
-       --m-surface-top:#1a3a5c; --m-surface-bot:#0c2238;
+       --m-surface-top:#13263f; --m-surface-bot:#0e2139;
        --m-border:rgba(255,255,255,.09);
        --m-text:#eaf3ff; --m-text-dim:#8fa6c2; --m-text-faint:#5d7591;
        --m-blue:#5b9dff;   --m-blue-bg:rgba(91,157,255,.16);
@@ -235,7 +236,7 @@
      #ouaScreen .sidebar .nav.active > span:first-child{background:var(--m-blue,#5b9dff);color:#06233f}
 
      /* Chân menu: avatar + tên tài khoản, đặt cố định cuối sidebar (sau danh sách menu có thể cuộn) */
-     #ouaScreen .oua-sidebar-footer{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-top:auto;padding:14px 16px;border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.15)}
+     #ouaScreen .oua-sidebar-footer{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-top:auto;padding:14px 16px;border-top:1px solid var(--oua-line);background:rgba(0,0,0,.15)}
      #ouaScreen .oua-sidebar-footer-info{min-width:0;display:flex;flex-direction:column;gap:4px}
      #ouaScreen .oua-sidebar-footer-info b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
      #ouaScreen .oua-sidebar-footer-info .pill{align-self:flex-start;font-size:10.5px;padding:2px 9px}
@@ -255,12 +256,12 @@
      #ouaScreen .oua-m-sheet-body .oua-filter-extra{display:flex;flex-direction:column;gap:12px}
      #ouaScreen .oua-m-sheet-body .field,#ouaScreen .oua-m-sheet-body select,#ouaScreen .oua-m-sheet-body .oua-dd,#ouaScreen .oua-m-sheet-body .btn,#ouaScreen .oua-m-sheet-body .oua-total{width:100%;margin:0}
 
-     #ouaScreen .oua-m-filter-trigger{display:flex;flex-shrink:0;width:42px;height:42px;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--m-border,rgba(255,255,255,.09));background:rgba(255,255,255,.06);color:var(--m-text,#eaf3ff);font-size:16px;cursor:pointer;padding:0}
+     #ouaScreen .oua-m-filter-trigger{display:flex;flex-shrink:0;width:42px;height:42px;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--m-border,var(--oua-line2));background:rgba(255,255,255,.06);color:var(--m-text,#eaf3ff);font-size:16px;cursor:pointer;padding:0}
      #ouaScreen .oua-m-filter-trigger.active{background:var(--m-blue-bg,rgba(91,157,255,.16));border-color:var(--m-blue,#5b9dff);color:var(--m-blue,#5b9dff)}
 
      #ouaScreen .oua-m-sheet-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:140}
      #ouaScreen .oua-m-sheet-backdrop.show{display:block}
-     #ouaScreen .oua-m-sheet{position:fixed;left:0;right:0;bottom:0;z-index:150;background:linear-gradient(180deg,var(--m-surface-top,#1a3a5c),var(--m-surface-bot,#0c2238));border:1px solid var(--m-border,rgba(255,255,255,.09));border-bottom:none;border-radius:20px 20px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));max-height:80vh;overflow-y:auto;transform:translateY(105%);transition:transform .25s ease;box-shadow:0 -20px 50px rgba(0,0,0,.45)}
+     #ouaScreen .oua-m-sheet{position:fixed;left:0;right:0;bottom:0;z-index:150;background:linear-gradient(180deg,var(--m-surface-top,#1a3a5c),var(--m-surface-bot,#0c2238));border:1px solid var(--m-border,var(--oua-line2));border-bottom:none;border-radius:20px 20px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));max-height:80vh;overflow-y:auto;transform:translateY(105%);transition:transform .25s ease;box-shadow:0 -20px 50px rgba(0,0,0,.45)}
      #ouaScreen .oua-m-sheet.open{transform:translateY(0)}
      #ouaScreen .oua-m-sheet-handle{width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.2);margin:0 auto 14px}
      #ouaScreen .oua-m-sheet-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
@@ -460,7 +461,7 @@
       <div class="panel"><div class="head"><div><h2>Quản lý người dùng</h2><p>Danh sách tài khoản người dùng IOC thực tế trong hệ thống RBAC (BKAV CBCCVC/eGov, 12.577 người trong 3.612 đơn vị). Bấm vào tên người dùng hoặc nút "Chi tiết" để phân quyền và thiết lập scope dữ liệu.</p></div><div class="actions"><button class="btn primary" onclick="ouaOpenModal('createUserRealModal')">Tạo tài khoản</button><button class="btn" onclick="ouaOpenModal('importUserExcelModal')">Import Excel</button></div></div>
         <div class="oua-stats">
           <button type="button" class="oua-stat oua-kpi-clickable active blue" data-kpi="all" onclick="ouaSetUserKpiFilter('all')"><span class="oua-stat-label">Tổng số tài khoản</span><span class="oua-stat-val" id="ouaUserKpiTotal">–</span></button>
-          <button type="button" class="oua-stat oua-kpi-clickable green" data-kpi="new" onclick="ouaSetUserKpiFilter('new')"><span class="oua-stat-label">Tạo mới (30 ngày)</span><span class="oua-stat-val" id="ouaUserKpiNew">–</span></button>
+          <button type="button" class="oua-stat oua-kpi-clickable violet" data-kpi="new" onclick="ouaSetUserKpiFilter('new')"><span class="oua-stat-label">Tạo mới (30 ngày)</span><span class="oua-stat-val" id="ouaUserKpiNew">–</span></button>
           <button type="button" class="oua-stat oua-kpi-clickable amber" data-kpi="never_login" onclick="ouaSetUserKpiFilter('never_login')"><span class="oua-stat-label">Chưa đăng nhập</span><span class="oua-stat-val" id="ouaUserKpiNeverLogin">–</span></button>
           <button type="button" class="oua-stat oua-kpi-clickable green" data-kpi="logged_in" onclick="ouaSetUserKpiFilter('logged_in')"><span class="oua-stat-label">Đã đăng nhập</span><span class="oua-stat-val" id="ouaUserKpiLoggedIn">–</span></button>
           <button type="button" class="oua-stat oua-kpi-clickable red" data-kpi="locked" onclick="ouaSetUserKpiFilter('locked')"><span class="oua-stat-label">Đã khóa</span><span class="oua-stat-val" id="ouaUserKpiLocked">–</span></button>
