@@ -49,7 +49,8 @@
  const importantRoll=(idCounter*3)%10;
  const urgentRoll=((idCounter*29)%97)%10;
  const priority=importantRoll<3?'Cao':'Bình thường'; // chỉ 2 mức, đã bỏ "Trung bình"
- const urgency=urgentRoll<2?'Khẩn cấp':(urgentRoll<5?'Gấp':'Thường');
+ /* Độ khẩn theo tài liệu Notify (17/11/2026): Hỏa tốc / Thượng khẩn / Khẩn / Thường (trước đây Khẩn cấp / Gấp / Thường). */
+ const urgency=urgentRoll<1?'Hỏa tốc':(urgentRoll<2?'Thượng khẩn':(urgentRoll<5?'Khẩn':'Thường'));
  const officeId = twOfficeIds && twOfficeIds.length ? twOfficeIds[(i+idCounter)%twOfficeIds.length] : null;
  /* completedAt (epoch ms) — trước đây nhiệm vụ mẫu done/closed KHÔNG có mốc hoàn thành nào, nên nhóm "Hoàn
  thành" mới (my-tasks-notify.js, tự ẩn sau 24h) luôn rỗng với dữ liệu mẫu. Rải 0-72 giờ trước (idCounter*41,

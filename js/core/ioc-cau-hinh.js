@@ -26,19 +26,19 @@
 const ICH_STORE_KEY='ioc.cauHinhChucNang.v1';
 const ICH_EVENT='ioc-cau-hinh-doi';
 
+/* Noti sửa theo tài liệu «Quy tắc hiển thị icon và trạng thái nhiệm vụ – Màn Notify» (12/11/2026, anh duyệt áp dụng
+   17/11/2026): độ khẩn Hỏa tốc/Thượng khẩn/Khẩn, nhãn Mới/Chờ duyệt/Hạn hôm nay/Quá hạn/Hoàn thành/Đang thực hiện;
+   giữ thêm Sắp hết hạn, Quá hạn khẩn cấp (anh chốt); bỏ Mốc nhận biết quá hạn (‼), Cập nhật trạng thái; tab Văn bản
+   không còn tham số (văn bản đến không có trạng thái) nên không có tab ở màn cấu hình. */
 const ICH_CHUC_NANG=[
  {key:'noti',label:'Noti',icon:'🔔',ten:'Notify IOC/CAD cần xử lý',tabs:[
   {key:'kcqt',label:'Khẩn cấp/Quan trọng',kieu:'muc',tieuDe:'Nhiệm vụ khẩn cấp/quan trọng',
    congTac:{cot:'Hoạt động',bat:'Hoạt động',tat:'Ngừng hoạt động'},
-   moTa:'Chọn những mức được đưa vào tab Khẩn cấp/Quan trọng trên Noti. Nhiệm vụ, văn bản, điểm nghẽn thỏa ít nhất một mức đang bật thì hiện trong tab; icon hiện cạnh tiêu đề và không thay cho nhãn trạng thái.',
-   chuThich:'Mức độ quan trọng Bình thường và độ khẩn Thường không thuộc tab này. Thỏa nhiều mức thì hiện đủ các icon. Trong tab, Khẩn cấp xếp trước Gấp, Gấp xếp trước Quan trọng.'},
+   moTa:'Chọn những mức được đưa vào tab Khẩn cấp/Quan trọng trên Noti. Nhiệm vụ, văn bản, điểm nghẽn thỏa ít nhất một mức đang bật thì hiện trong tab, ở mọi trạng thái (kể cả Đang thực hiện).',
+   chuThich:'Icon độ khẩn hiện cạnh tiêu đề ở mọi tab, không thay cho nhãn trạng thái; rê chuột vào icon hiện tên độ khẩn. Độ khẩn Thường và mức độ quan trọng Bình thường không thuộc tab này. Trong tab, Hỏa tốc xếp trước Thượng khẩn, rồi Khẩn, rồi mức độ quan trọng Cao.'},
   {key:'nv',label:'Nhiệm vụ',kieu:'thamso',tieuDe:'Thông báo nhiệm vụ',
    moTa:'Thiết lập mốc thời gian và ngưỡng dùng để xác định trạng thái nhiệm vụ trên Noti. Mỗi nhiệm vụ chỉ hiện ở một trạng thái; thỏa nhiều trạng thái thì lấy trạng thái đứng trước trong thứ tự ưu tiên. Giá trị mới áp dụng ngay sau khi lưu.',
-   uuTien:['quaHanKhanCap','quaHan','hanHomNay','sapHetHan','moi','trongHan','hoanThanh'],
-   chuThich:'Trạng thái tắt sẽ không hiện trên Noti và không có trong bộ lọc trạng thái. Dòng có dấu 🔒 chỉ để xem, không thay đổi được.'},
-  {key:'vb',label:'Văn bản',kieu:'thamso',tieuDe:'Thông báo văn bản',
-   moTa:'Thiết lập mốc thời gian dùng để xác định trạng thái văn bản trên Noti. Mỗi văn bản chỉ hiện ở một trạng thái; thỏa nhiều trạng thái thì lấy trạng thái đứng trước trong thứ tự ưu tiên.',
-   uuTien:['sapDenHan','moi','doiTrangThai'],
+   uuTien:['hoanThanh','choDuyet','quaHanKhanCap','quaHan','hanHomNay','sapHetHan','moi','trongHan'],
    chuThich:'Trạng thái tắt sẽ không hiện trên Noti và không có trong bộ lọc trạng thái. Dòng có dấu 🔒 chỉ để xem, không thay đổi được.'},
   {key:'kpi',label:'OKR/KPI',kieu:'thamso',tieuDe:'Thông báo chỉ tiêu OKR/KPI',
    moTa:'Chọn trạng thái chỉ tiêu được hiện trên Noti. Chỉ tiêu không có hạn xử lý nên không có mốc thời gian.',
@@ -49,67 +49,47 @@ const ICH_CHUC_NANG=[
  ]}
 ];
 
-/* Giá trị hiện tại của một tham số khác, dùng trong khoảng nhập động. Ô đang nhập sai (không phải số) thì coi như
-   không có, để khoảng của ô kia không bị hỏng theo. */
-function ichSoHopLe(gt,id){const x=gt&&gt[id];return x&&Number.isInteger(x.so)?x.so:null;}
-
 const ICH_THAM_SO=[
- /* ---- Noti · Khẩn cấp/Quan trọng ---- */
- {id:'noti.kcqt.quanTrongCao',cn:'noti',tab:'kcqt',ten:'Mức độ quan trọng',muc:'Cao',apDung:'Nhiệm vụ, Văn bản',icon:'❗',bat:true,
-  moTa:'Nhiệm vụ, văn bản có mức độ quan trọng Cao được đưa vào tab, hiện icon ❗ cạnh tiêu đề.'},
- {id:'noti.kcqt.khanCap',cn:'noti',tab:'kcqt',ten:'Độ khẩn',muc:'Khẩn cấp',apDung:'Nhiệm vụ, Văn bản',icon:'⚠️',bat:true,
-  moTa:'Nhiệm vụ, văn bản có độ khẩn Khẩn cấp được đưa vào tab, hiện icon ⚠️ cạnh tiêu đề.'},
- {id:'noti.kcqt.gap',cn:'noti',tab:'kcqt',ten:'Độ khẩn',muc:'Gấp',apDung:'Nhiệm vụ, Văn bản',icon:'⚠️',bat:false,
-  moTa:'Nhiệm vụ, văn bản có độ khẩn Gấp được đưa vào tab, hiện icon ⚠️ cạnh tiêu đề.'},
+ /* ---- Noti · Khẩn cấp/Quan trọng (độ khẩn theo tài liệu: Hỏa tốc, Thượng khẩn ⚠️; Khẩn ❗) ---- */
+ {id:'noti.kcqt.hoaToc',cn:'noti',tab:'kcqt',ten:'Độ khẩn',muc:'Hỏa tốc',apDung:'Nhiệm vụ, Văn bản',icon:'⚠️',bat:true,
+  moTa:'Nhiệm vụ, văn bản có độ khẩn Hỏa tốc được đưa vào tab.'},
+ {id:'noti.kcqt.thuongKhan',cn:'noti',tab:'kcqt',ten:'Độ khẩn',muc:'Thượng khẩn',apDung:'Nhiệm vụ, Văn bản',icon:'⚠️',bat:true,
+  moTa:'Nhiệm vụ, văn bản có độ khẩn Thượng khẩn được đưa vào tab.'},
+ {id:'noti.kcqt.khan',cn:'noti',tab:'kcqt',ten:'Độ khẩn',muc:'Khẩn',apDung:'Nhiệm vụ, Văn bản',icon:'❗',bat:true,
+  moTa:'Nhiệm vụ, văn bản có độ khẩn Khẩn được đưa vào tab.'},
+ {id:'noti.kcqt.quanTrongCao',cn:'noti',tab:'kcqt',ten:'Mức độ quan trọng',muc:'Cao',apDung:'Nhiệm vụ, Văn bản',icon:'',bat:true,
+  moTa:'Nhiệm vụ, văn bản có mức độ quan trọng Cao được đưa vào tab (không có icon riêng).'},
  {id:'noti.kcqt.gisNguyHiem',cn:'noti',tab:'kcqt',ten:'Mức nguy hiểm',muc:'Từ mức',apDung:'GIS',icon:'⚠️',bat:true,
   so:{macDinh:4,donVi:'trở lên',min:1,max:5,luaChon:{1:'Thấp',2:'Thấp',3:'Trung bình',4:'Cao',5:'Khẩn cấp'}}, // tên mức theo gisDangerLabel() (js/core/gis.js)
   moTa:'Điểm nghẽn GIS có mức nguy hiểm từ mức này trở lên được đưa vào tab, hiện icon ⚠️ cạnh tiêu đề.'},
  {id:'noti.kcqt.cameraKhan',cn:'noti',tab:'kcqt',ten:'Mức cảnh báo',muc:'Khẩn',apDung:'Camera AI',icon:'⚠️',chiXem:true,
   moTa:'Cảnh báo Camera AI mức Khẩn luôn được đưa vào tab, hiện icon ⚠️ cạnh tiêu đề.'},
 
- /* ---- Noti · Nhiệm vụ (dòng xếp theo vòng đời như ảnh mẫu; thứ tự ưu tiên khi một nhiệm vụ thỏa nhiều trạng
-    thái nằm ở uuTien của tab) ---- */
+ /* ---- Noti · Nhiệm vụ (dòng xếp theo vòng đời; thứ tự ưu tiên khi một nhiệm vụ thỏa nhiều trạng thái ở uuTien của
+    tab). Mã 'trongHan' giữ nguyên (cấu hình đã lưu vẫn dùng được), nay là «Đang thực hiện» của tài liệu. ---- */
  {id:'noti.nv.moi',cn:'noti',tab:'nv',ten:'Nhiệm vụ mới',nhan:['Mới','blue'],bat:true,
   so:{macDinh:3,donVi:'ngày',min:1,max:30},
-  moTa:'Nhiệm vụ hiện nhãn «Mới» trong số ngày này, tính từ ngày tạo.'},
- {id:'noti.nv.trongHan',cn:'noti',tab:'nv',ten:'Nhiệm vụ trong hạn',nhan:['Trong hạn','neutral'],bat:true,
-  moTa:'Nhiệm vụ chưa hoàn thành, đã qua thời gian Mới và chưa tới thời gian Sắp hết hạn, hiện nhãn «Còn X ngày».'},
+  moTa:'Nhiệm vụ hiện nhãn «Mới» trong số ngày này, tính từ ngày tạo; dòng phụ thêm ngày tạo (DD/MM).'},
+ {id:'noti.nv.trongHan',cn:'noti',tab:'nv',ten:'Nhiệm vụ đang thực hiện',nhan:['Đang thực hiện','neutral'],bat:true,
+  moTa:'Nhiệm vụ chưa hoàn thành, đã qua thời gian Mới và chưa tới thời gian Sắp hết hạn, hiện nhãn «Đang thực hiện».'},
  {id:'noti.nv.sapHetHan',cn:'noti',tab:'nv',ten:'Nhiệm vụ sắp hết hạn',nhan:['Sắp hết hạn','warn'],bat:true,
   so:{macDinh:3,donVi:'ngày',min:1,max:30},
   moTa:'Nhiệm vụ còn từ 1 đến số ngày này là đến hạn thì hiện nhãn «Còn X ngày» màu vàng.'},
  {id:'noti.nv.hanHomNay',cn:'noti',tab:'nv',ten:'Hạn hôm nay',nhan:['Hạn hôm nay','orange'],chiXem:true,giaTriXem:'0 ngày',
   moTa:'Nhiệm vụ có hạn xử lý là hôm nay hiện nhãn «Hạn hôm nay» màu cam.'},
  {id:'noti.nv.quaHan',cn:'noti',tab:'nv',ten:'Nhiệm vụ quá hạn',nhan:['Quá hạn','red'],bat:true,
-  moTa:'Nhiệm vụ chưa hoàn thành đã qua hạn xử lý hiện nhãn «Quá hạn X ngày», tính từ ngày quá hạn đầu tiên.'},
- {id:'noti.nv.mocQuaHan',cn:'noti',tab:'nv',ten:'Mốc nhận biết quá hạn',nhan:['‼ Quá hạn','red'],bat:true,phuThuoc:'noti.nv.quaHan',
-  so:{macDinh:5,donVi:'ngày',min:2,
-   max:gt=>{const k=ichSoHopLe(gt,'noti.nv.quaHanKhanCap');return (gt['noti.nv.quaHanKhanCap'].bat&&k!=null)?k-1:50;},
-   lyDoMax:gt=>gt['noti.nv.quaHanKhanCap'].bat?'nhỏ hơn Quá hạn khẩn cấp':''},
-  moTa:'Nhiệm vụ quá hạn từ số ngày này trở lên hiện thêm dấu ‼ trước nhãn Quá hạn để dễ nhận biết.'},
+  moTa:'Nhiệm vụ chưa hoàn thành đã qua hạn xử lý hiện nhãn «Quá hạn N ngày», tính từ ngày quá hạn đầu tiên.'},
  {id:'noti.nv.quaHanKhanCap',cn:'noti',tab:'nv',ten:'Quá hạn khẩn cấp',nhan:['Quá hạn khẩn cấp','redSolid'],bat:true,
-  so:{macDinh:10,donVi:'ngày',max:50,
-   min:gt=>{const m=ichSoHopLe(gt,'noti.nv.mocQuaHan');return (gt['noti.nv.quaHan'].bat&&gt['noti.nv.mocQuaHan'].bat&&m!=null)?m+1:2;},
-   lyDoMin:gt=>(gt['noti.nv.quaHan'].bat&&gt['noti.nv.mocQuaHan'].bat)?'lớn hơn Mốc nhận biết quá hạn':''},
+  so:{macDinh:10,donVi:'ngày',min:2,max:50},
   moTa:'Nhiệm vụ quá hạn từ số ngày này trở lên hiện nhãn «Quá hạn khẩn cấp» nền đỏ đặc, thay cho nhãn Quá hạn.'},
+ {id:'noti.nv.choDuyet',cn:'noti',tab:'nv',ten:'Nhiệm vụ chờ duyệt',nhan:['Chờ duyệt','gold'],bat:true,
+  moTa:'Nhiệm vụ đang chờ phê duyệt hiện nhãn «Chờ duyệt» màu vàng.'},
  {id:'noti.nv.hoanThanh',cn:'noti',tab:'nv',ten:'Nhiệm vụ hoàn thành',nhan:['Hoàn thành','ok'],bat:true,
-  so:{macDinh:0,donVi:'ngày',min:0,max:30,ghiChu:'0 = ẩn ngay'},
+  so:{macDinh:1,donVi:'ngày',min:0,max:30,ghiChu:'0 = ẩn ngay'},
   moTa:'Số ngày nhiệm vụ đã hoàn thành vẫn hiện trên Noti, tính từ lúc hoàn thành. Nhập 0: hoàn thành là ẩn ngay.'},
- {id:'noti.nv.capNhat',cn:'noti',tab:'nv',ten:'Cập nhật trạng thái',nhan:['Cập nhật trạng thái','neutral'],bat:true,
-  so:{macDinh:3,donVi:'ngày',min:1,max:30},
-  moTa:'Thông báo nhiệm vụ đổi trạng thái (ví dụ chuyển sang Quá hạn) hiện trong số ngày này, tính từ lúc đổi.'},
  {id:'noti.nv.tienDoThap',cn:'noti',tab:'nv',ten:'Ngưỡng tiến độ thấp',nhan:['Tiến độ thấp','red'],bat:true,
   so:{macDinh:40,donVi:'%',min:1,max:100},
-  moTa:'Tiến độ dưới ngưỡng này thì hiện thêm thanh tiến độ đỏ ở nhiệm vụ Quá hạn khẩn cấp, Quá hạn, Hạn hôm nay, Sắp hết hạn.'},
-
- /* ---- Noti · Văn bản ---- */
- {id:'noti.vb.moi',cn:'noti',tab:'vb',ten:'Văn bản mới',nhan:['Văn bản mới','blue'],bat:true,
-  so:{macDinh:3,donVi:'ngày',min:1,max:30},
-  moTa:'Văn bản hiện nhãn «Văn bản mới» trong số ngày này, tính từ ngày tạo.'},
- {id:'noti.vb.sapDenHan',cn:'noti',tab:'vb',ten:'Văn bản sắp đến hạn',nhan:['Văn bản sắp đến hạn','warn'],bat:true,
-  so:{macDinh:3,donVi:'ngày',min:1,max:30},
-  moTa:'Văn bản còn từ 0 đến số ngày này là đến hạn xử lý thì hiện nhãn «Văn bản sắp đến hạn».'},
- {id:'noti.vb.doiTrangThai',cn:'noti',tab:'vb',ten:'Văn bản đổi trạng thái',nhan:['Văn bản đổi trạng thái','neutral'],chiXem:true,giaTriXem:'—',
-  moTa:'Văn bản đang xử lý hiện nhãn «Văn bản đổi trạng thái».'},
+  moTa:'Tiến độ dưới ngưỡng này thì hiện thêm thanh tiến độ đỏ ở nhiệm vụ Quá hạn khẩn cấp, Quá hạn, Hạn hôm nay. Nhiệm vụ mới tạo hoặc còn xa hạn không bị cảnh báo.'},
 
  /* ---- Noti · OKR/KPI (màu nhãn khớp CAT_ST trong js/features/indicators.js) ---- */
  {id:'noti.kpi.done',cn:'noti',tab:'kpi',ten:'Đã hoàn thành',nhan:['Đã hoàn thành','#2fb174'],bat:true,moTa:'Chỉ tiêu ở trạng thái Đã hoàn thành hiện trên Noti.'},

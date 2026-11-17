@@ -75,7 +75,7 @@ function ichuBang(tab,ds,loi){
    const apDung=`<div class="ich-apdung">${ichuEsc(t.apDung)}</div>`;
    const muc=t.so&&t.so.luaChon?`<div class="ich-muc-chon${tat?' tat':''}"><b>${ichuEsc(t.muc)}</b>${ichuChon(t,tat)}<b>${ichuEsc(t.so.donVi||'')}</b></div>${apDung}`
     :`<b>${ichuEsc(t.muc)}</b>${apDung}`;
-   return `<tr class="${tat&&!t.chiXem?'off':''}"><td class="ich-nhom">${ichuEsc(nhom)}</td><td class="ich-muc">${muc}</td><td class="ich-icon">${t.icon||''}</td><td class="ich-mota">${ichuEsc(t.moTa)}</td><td class="ich-sw">${ichuCongTac(t)}</td></tr>`;
+   return `<tr class="${tat&&!t.chiXem?'off':''}"><td class="ich-nhom">${ichuEsc(nhom)}</td><td class="ich-muc">${muc}</td><td class="ich-icon">${t.icon||'—'}</td><td class="ich-mota">${ichuEsc(t.moTa)}</td><td class="ich-sw">${ichuCongTac(t)}</td></tr>`;
   }).join('');
   return `<table class="ich-table"><thead><tr><th style="width:22%">Nhóm</th><th style="width:18%">Mức</th><th style="width:9%">Icon</th><th>Cách áp dụng</th><th style="width:150px">${ichuEsc(ichuChuCongTac().cot)}</th></tr></thead><tbody>${rows}</tbody></table>`;
  }
