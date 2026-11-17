@@ -35,7 +35,7 @@ const ICH_CHUC_NANG=[
   {key:'kcqt',label:'Khẩn cấp/Quan trọng',kieu:'muc',tieuDe:'Nhiệm vụ khẩn cấp/quan trọng',
    congTac:{cot:'Hoạt động',bat:'Hoạt động',tat:'Ngừng hoạt động'},
    moTa:'Chọn những mức được đưa vào tab Khẩn cấp/Quan trọng trên Noti. Nhiệm vụ, văn bản, điểm nghẽn thỏa ít nhất một mức đang bật thì hiện trong tab, ở mọi trạng thái (kể cả Đang thực hiện).',
-   chuThich:'Icon độ khẩn hiện cạnh tiêu đề ở mọi tab, không thay cho nhãn trạng thái; rê chuột vào icon hiện tên độ khẩn. Độ khẩn Thường và mức độ quan trọng Bình thường không thuộc tab này. Trong tab, Hỏa tốc xếp trước Thượng khẩn, rồi Khẩn, rồi mức độ quan trọng Cao.'},
+   chuThich:'Icon độ khẩn và icon ngôi sao vàng (quan trọng Cao) hiện cạnh tiêu đề ở mọi tab, không thay cho nhãn trạng thái; rê chuột vào icon hiện tên. Độ khẩn Thường và mức độ quan trọng Bình thường không thuộc tab này. Trong tab, Hỏa tốc xếp trước Thượng khẩn, rồi Khẩn, rồi mức độ quan trọng Cao.'},
   {key:'nv',label:'Nhiệm vụ',kieu:'thamso',tieuDe:'Thông báo nhiệm vụ',
    moTa:'Thiết lập mốc thời gian và ngưỡng dùng để xác định trạng thái nhiệm vụ trên Noti. Mỗi nhiệm vụ chỉ hiện ở một trạng thái; thỏa nhiều trạng thái thì lấy trạng thái đứng trước trong thứ tự ưu tiên. Giá trị mới áp dụng ngay sau khi lưu.',
    uuTien:['hoanThanh','choDuyet','quaHanKhanCap','quaHan','hanHomNay','sapHetHan','moi','trongHan'],
@@ -49,16 +49,20 @@ const ICH_CHUC_NANG=[
  ]}
 ];
 
+/* Ngôi sao vàng «béo» (cánh ngắn, góc bo) cho mức độ quan trọng Cao — vẽ SVG thay emoji ⭐ (emoji gầy, hình đổi theo
+   phông của từng máy); dùng chung cho màn cấu hình và Noti (my-tasks-notify.js). */
+const ICH_ICON_SAO='<svg class="ich-sao" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" style="vertical-align:-3px"><path d="M12.00 2.00 L15.47 7.83 L22.08 9.32 L17.61 14.42 L18.23 21.18 L12.00 18.50 L5.77 21.18 L6.39 14.42 L1.92 9.32 L8.53 7.83Z" fill="#FFC531" stroke="#FFC531" stroke-width="2.6" stroke-linejoin="round"/></svg>';
+
 const ICH_THAM_SO=[
- /* ---- Noti · Khẩn cấp/Quan trọng (độ khẩn theo tài liệu: Hỏa tốc, Thượng khẩn ⚠️; Khẩn ❗) ---- */
- {id:'noti.kcqt.hoaToc',cn:'noti',tab:'kcqt',ten:'Độ khẩn',muc:'Hỏa tốc',apDung:'Nhiệm vụ, Văn bản',icon:'⚠️',bat:true,
+ /* ---- Noti · Khẩn cấp/Quan trọng (icon: Hỏa tốc 🔥, Thượng khẩn ⚠️, Khẩn ❗, mức độ quan trọng Cao ngôi sao vàng — anh chốt 17/11/2026) ---- */
+ {id:'noti.kcqt.hoaToc',cn:'noti',tab:'kcqt',ten:'Độ khẩn',muc:'Hỏa tốc',apDung:'Nhiệm vụ, Văn bản',icon:'🔥',bat:true,
   moTa:'Nhiệm vụ, văn bản có độ khẩn Hỏa tốc được đưa vào tab.'},
  {id:'noti.kcqt.thuongKhan',cn:'noti',tab:'kcqt',ten:'Độ khẩn',muc:'Thượng khẩn',apDung:'Nhiệm vụ, Văn bản',icon:'⚠️',bat:true,
   moTa:'Nhiệm vụ, văn bản có độ khẩn Thượng khẩn được đưa vào tab.'},
  {id:'noti.kcqt.khan',cn:'noti',tab:'kcqt',ten:'Độ khẩn',muc:'Khẩn',apDung:'Nhiệm vụ, Văn bản',icon:'❗',bat:true,
   moTa:'Nhiệm vụ, văn bản có độ khẩn Khẩn được đưa vào tab.'},
- {id:'noti.kcqt.quanTrongCao',cn:'noti',tab:'kcqt',ten:'Mức độ quan trọng',muc:'Cao',apDung:'Nhiệm vụ, Văn bản',icon:'',bat:true,
-  moTa:'Nhiệm vụ, văn bản có mức độ quan trọng Cao được đưa vào tab (không có icon riêng).'},
+ {id:'noti.kcqt.quanTrongCao',cn:'noti',tab:'kcqt',ten:'Mức độ quan trọng',muc:'Cao',apDung:'Nhiệm vụ, Văn bản',icon:ICH_ICON_SAO,bat:true,
+  moTa:'Nhiệm vụ, văn bản có mức độ quan trọng Cao được đưa vào tab.'},
  {id:'noti.kcqt.gisNguyHiem',cn:'noti',tab:'kcqt',ten:'Mức nguy hiểm',muc:'Từ mức',apDung:'GIS',icon:'⚠️',bat:true,
   so:{macDinh:4,donVi:'trở lên',min:1,max:5,luaChon:{1:'Thấp',2:'Thấp',3:'Trung bình',4:'Cao',5:'Khẩn cấp'}}, // tên mức theo gisDangerLabel() (js/core/gis.js)
   moTa:'Điểm nghẽn GIS có mức nguy hiểm từ mức này trở lên được đưa vào tab, hiện icon ⚠️ cạnh tiêu đề.'},

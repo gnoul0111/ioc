@@ -37,8 +37,8 @@ ok(A.ICH_THAM_SO.filter((t) => t.phuThuoc).every((t) => A.ICH_THAM_SO.some((x) =
 /* ---- Mặc định đúng bảng đã duyệt ---- */
 const md = A.ichMacDinh();
 const so = (id) => md[id].so, bat = (id) => md[id].bat;
-ok(eq(A.ICH_THAM_SO.filter((t) => t.tab === 'kcqt').map((t) => [t.muc, t.icon, bat(t.id)]),
-  [['Hỏa tốc', '⚠️', true], ['Thượng khẩn', '⚠️', true], ['Khẩn', '❗', true], ['Cao', '', true], ['Từ mức', '⚠️', true], ['Khẩn', '⚠️', true]]), 'KC/QT theo tài liệu Notify: Hỏa tốc/Thượng khẩn ⚠️, Khẩn ❗, quan trọng Cao không icon');
+ok(eq(A.ICH_THAM_SO.filter((t) => t.tab === 'kcqt').map((t) => [t.muc, t.icon.startsWith('<svg') ? 'sao' : t.icon, bat(t.id)]),
+  [['Hỏa tốc', '🔥', true], ['Thượng khẩn', '⚠️', true], ['Khẩn', '❗', true], ['Cao', 'sao', true], ['Từ mức', '⚠️', true], ['Khẩn', '⚠️', true]]), 'KC/QT: Hỏa tốc 🔥, Thượng khẩn ⚠️, Khẩn ❗, quan trọng Cao ngôi sao vàng (SVG)');
 ok(so('noti.kcqt.gisNguyHiem') === 4, 'GIS: mức nguy hiểm từ 4');
 ok(eq(A.ICH_THAM_SO.filter((t) => t.tab === 'nv').map((t) => t.id.split('.')[2]),
   ['moi', 'trongHan', 'sapHetHan', 'hanHomNay', 'quaHan', 'quaHanKhanCap', 'choDuyet', 'hoanThanh', 'tienDoThap']), 'Nhiệm vụ: dòng theo vòng đời; đã bỏ Mốc nhận biết quá hạn, Cập nhật trạng thái');

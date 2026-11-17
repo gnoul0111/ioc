@@ -387,7 +387,7 @@
  để LỌC vào tab KC/QT; icon (noiStar) chỉ theo độ khẩn. */
  /* Độ khẩn theo tài liệu Notify (17/11/2026): Hỏa tốc, Thượng khẩn, Khẩn, Thường. Mức nào được đưa vào tab KC/QT theo
  «Cấu hình chức năng IOC» (Hỏa tốc / Thượng khẩn / Khẩn / Mức độ quan trọng Cao). */
- const NOI_DO_KHAN={'Hỏa tốc':{id:'noti.kcqt.hoaToc',hang:0,icon:'⚠️'},'Thượng khẩn':{id:'noti.kcqt.thuongKhan',hang:1,icon:'⚠️'},'Khẩn':{id:'noti.kcqt.khan',hang:2,icon:'❗'}};
+ const NOI_DO_KHAN={'Hỏa tốc':{id:'noti.kcqt.hoaToc',hang:0,icon:'🔥'},'Thượng khẩn':{id:'noti.kcqt.thuongKhan',hang:1,icon:'⚠️'},'Khẩn':{id:'noti.kcqt.khan',hang:2,icon:'❗'}};
  function noiLaQuanTrong(r){ return r.priority==='Cao'&&ichBat('noti.kcqt.quanTrongCao'); }
  function noiLaKhan(r){ const k=NOI_DO_KHAN[r.urgency]; return !!k&&ichBat(k.id); }
  function noiIsUrgentRecord(r){ return noiLaQuanTrong(r)||noiLaKhan(r); }
@@ -396,12 +396,13 @@
  /* GIS: mức nguy hiểm từ ngưỡng ở cấu hình (mặc định 4) trở lên, dòng tắt thì không đưa vào; Camera AI mức Khẩn
  luôn đưa vào (dòng chỉ hiển thị ở cấu hình). */
  function noiIsUrgentGis(it){ return it.kind==='gis' ? (ichBat('noti.kcqt.gisNguyHiem')&&Number(it.rec.danger_level||0)>=ichSo('noti.kcqt.gisNguyHiem')) : it.rec.level==='Khẩn'; }
- /* Icon độ khẩn cạnh tiêu đề, ở MỌI dòng notify (tài liệu Notify): ⚠️ = Hỏa tốc/Thượng khẩn, ❗ = Khẩn; độ khẩn khác
- hoặc trống không có icon. Rê chuột vào icon hiện tên độ khẩn. Chỉ chèn thêm, không thay nhãn trạng thái. Mức độ
- quan trọng không có icon (trước đây ❗ = quan trọng Cao). */
+ /* Icon cạnh tiêu đề, ở MỌI dòng notify: độ khẩn 🔥 = Hỏa tốc, ⚠️ = Thượng khẩn, ❗ = Khẩn (tài liệu Notify; Hỏa tốc
+ đổi sang 🔥 theo anh 17/11/2026), độ khẩn khác hoặc trống không có icon; ngôi sao vàng (ICH_ICON_SAO, SVG) = mức độ quan trọng Cao (anh chốt
+ 17/11/2026). Rê chuột vào icon hiện tên. Chỉ chèn thêm, không thay nhãn trạng thái. */
  function noiStar(r){
  const k=NOI_DO_KHAN[r.urgency];
- return k?`<span title="${esc(r.urgency)}">${k.icon}</span> `:'';
+ return (k?`<span title="${esc(r.urgency)}">${k.icon}</span> `:'')
+ +(r.priority==='Cao'?`<span title="Mức độ quan trọng: Cao">${ICH_ICON_SAO}</span> `:'');
  }
  /* GIS/Camera AI chỉ có 1 khái niệm duy nhất (danger_level/level — bản chất là mức độ khẩn cấp/nguy hiểm, không
  có field "mức độ quan trọng" riêng như NV/VB) nên chỉ dùng đúng icon ⚠️ (khẩn cấp), không gán ❗ tùy tiện cho
