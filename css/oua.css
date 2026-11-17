@@ -105,3 +105,6 @@
   #ouaScreen .oua-adm-kpi .val{font-size:23px}
   #ouaScreen .oua-adm-kpi .sub{font-size:11px}
 }
+/* Thanh danh mục bên trái (máy tính): đứng yên cao bằng màn hình nhưng thiếu cuộn → thêm mục («Cấu hình chức năng IOC»)
+   làm các mục cuối và ghi chú «Quay lại» bị cắt (anh phát hiện 2026-11-17). Cho thanh tự cuộn dọc khi dài hơn màn hình. */
+@media(min-width:1251px){#ouaScreen .sidebar{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#2f6fa8 transparent}}
