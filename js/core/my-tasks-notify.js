@@ -231,11 +231,12 @@
  /* Cảnh báo tiến độ thấp chỉ ở «Hạn hôm nay» (tài liệu Notify: chỉ Quá hạn hoặc Hạn hôm nay), không ở Sắp hết hạn. */
  return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title||'(không có tên)')}</b><small>${esc(shortUnit(r.unit))}</small></div><div style="display:flex;flex-direction:column;gap:4px;align-items:stretch;min-width:96px">${isToday?noiProgressBadgeHtml(r):''}<span class="badge ${isToday?'orange':'warn'}" style="text-align:center">${badgeText}</span></div></button>`;
  }
- /* Quá hạn = LUÔN đỏ «Quá hạn N ngày». Từ mốc «Quá hạn khẩn cấp» ở cấu hình (mặc định 10 ngày) đổi sang nhãn nền đỏ
- đặc. Dấu ‼ (Mốc nhận biết quá hạn) đã bỏ 17/11/2026 theo tài liệu Notify. */
+ /* Quá hạn = LUÔN đỏ «Quá hạn N ngày». Từ mốc «Quá hạn khẩn cấp» ở cấu hình (mặc định 10 ngày) thêm icon 🚨 ở đầu nhãn
+ (anh chọn cách 2, bỏ nền đỏ đặc, 17/11/2026) — nhãn gọn, rộng gần bằng nhãn quá hạn thường; rê chuột hiện «Quá hạn khẩn
+ cấp». Dấu ‼ (Mốc nhận biết quá hạn) đã bỏ 17/11/2026 theo tài liệu Notify. */
  function myTaskRowOverdue(r,todayMs,khanCap){
  const days=Math.max(0,Math.round((todayMs-parseDMY(r.due))/86400000));
- const badge=khanCap?`<span class="badge red-solid" style="text-align:center">Quá hạn khẩn cấp · ${fmt(days)} ngày</span>`
+ const badge=khanCap?`<span class="badge red" style="text-align:center" title="Quá hạn khẩn cấp">🚨 Quá hạn ${fmt(days)} ngày</span>`
  :`<span class="badge red" style="text-align:center">Quá hạn ${fmt(days)} ngày</span>`;
  return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title||'(không có tên)')}</b><small>${esc(shortUnit(r.unit))}</small></div><div style="display:flex;flex-direction:column;gap:4px;align-items:stretch;min-width:96px">${noiProgressBadgeHtml(r)}${badge}</div></button>`;
  }
