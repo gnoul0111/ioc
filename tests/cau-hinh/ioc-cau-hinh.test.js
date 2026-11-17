@@ -50,7 +50,7 @@ ok(so('noti.nv.quaHanKhanCap') === 10 && so('noti.nv.sapHetHan') === 3 && so('no
 ok(so('noti.nv.hoanThanh') === 1 && so('noti.nv.tienDoThap') === 40 && bat('noti.nv.choDuyet'), 'Hoàn thành 1 ngày, Tiến độ thấp 40%, Chờ duyệt bật');
 ok(A.ICH_THAM_SO.filter((t) => t.tab === 'kpi').length === 6 && A.ICH_THAM_SO.filter((t) => t.tab === 'kpi').every((t) => bat(t.id) && !t.so), 'OKR/KPI: 6 công tắc, bật hết, không ô số');
 ok(eq(A.ICH_THAM_SO.filter((t) => t.chiXem).map((t) => t.id),
-  ['noti.kcqt.cameraKhan', 'noti.nv.hanHomNay', 'noti.gis.cad']), 'đúng 3 dòng chỉ hiển thị');
+  ['noti.kcqt.cameraKhan', 'noti.nv.trongHan', 'noti.nv.hanHomNay', 'noti.nv.quaHan', 'noti.gis.cad']), 'đúng 5 dòng luôn bật (Đang thực hiện, Quá hạn bắt buộc bật)');
 ok(eq(A.ichKiemTra(md), {}), 'bộ mặc định hợp lệ');
 
 /* ---- Khoảng nhập ---- */
@@ -84,6 +84,8 @@ ok(!kq.ok && kq.loi['noti.nv.quaHanKhanCap'] && A.ichSo('noti.nv.quaHanKhanCap')
 g = A.ichSaoChep(A.ichDoc()); g['noti.nv.hanHomNay'].bat = false;
 A.ichLuu(g);
 ok(A.ichBat('noti.nv.hanHomNay'), 'dòng chỉ hiển thị không tắt được');
+A.store[A.ICH_STORE_KEY] = JSON.stringify({ v: 1, giaTri: { 'noti.nv.trongHan': { bat: false }, 'noti.nv.quaHan': { bat: false } } }); A.reset();
+ok(A.ichBat('noti.nv.trongHan') && A.ichBat('noti.nv.quaHan'), 'cấu hình cũ đã lưu tắt Đang thực hiện / Quá hạn → vẫn bật');
 /* Trang khác lưu → sự kiện storage → đọc lại. */
 A.store[A.ICH_STORE_KEY] = JSON.stringify({ v: 1, giaTri: { 'noti.nv.moi': { bat: true, so: 9 } } });
 goi = 0; A.nghe.storage.forEach((cb) => cb({ key: A.ICH_STORE_KEY }));

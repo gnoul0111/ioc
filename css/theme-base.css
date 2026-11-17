@@ -811,5 +811,6 @@
  @media print{.login,.right-tools,.drawer,.overlay,.modal,.toast{display:none!important}.app{padding:0}.widget{break-inside:avoid}}
 
 
-/* Nhãn «Quá hạn khẩn cấp · X ngày» trên Noti (my-tasks-notify.js, cấu hình chức năng IOC 17/11/2026): nền đỏ đặc, không cắt chữ. */
-.badge.red-solid{background:#d92d47;border-color:#d92d47;color:#fff;max-width:none}
+/* Cột nhãn bên phải của dòng Notify (thanh tiến độ xếp trên nhãn hạn): bỏ giới hạn 150px của .badge để mọi nhãn trong
+   cột giãn bằng nhau, cùng sát mép phải (trước đây thanh tiến độ bị cắt ở 150px, ngắn hơn nhãn dài bên dưới). */
+.notify>div+div .badge{max-width:none}
