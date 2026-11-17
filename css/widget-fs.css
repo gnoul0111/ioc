@@ -85,7 +85,9 @@ html.theme-green #roleScopeCards.wfs-on .pie-legend button.ovfs-sel-row{outline-
 #notificationsWidget.wfs-on #myTaskSearchInput{height:40px}
 #notificationsWidget.wfs-on #notiTabsBox{gap:6px!important}
 #notificationsWidget.wfs-on #notiTabsBox .gis-report-tab{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px!important}
-.noti-tab-count{font-style:normal;font-size:12px;font-weight:800;min-width:26px;padding:1px 8px;border-radius:999px;background:rgba(88,183,255,.18);text-align:center}
+/* Số thông báo trên tab Notify: hiện ở cả widget thường lẫn phóng to; màu vàng mặc định (#ffe083) theo tài liệu Notify. */
+.noti-tab-count{display:inline-block;font-style:normal;font-size:12px;font-weight:800;min-width:26px;padding:1px 8px;margin-left:4px;border-radius:999px;border:1px solid rgba(255,213,75,.55);color:#ffe083;background:rgba(255,213,75,.1);text-align:center}
+html.theme-light .noti-tab-count,html.theme-green .noti-tab-count{border-color:#FCD34D;color:#B45309;background:#FFFBEB}
 .gis-report-tab.active .noti-tab-count{background:rgba(255,255,255,.22)}
 #notificationsWidget.wfs-on #notifyMyTaskPanel{grid-column:1;grid-row:2;min-height:0;overflow:auto;padding-right:6px}
 #notificationsWidget.wfs-on .notify-list{display:flex;flex-direction:column;gap:8px}

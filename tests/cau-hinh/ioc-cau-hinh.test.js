@@ -29,7 +29,7 @@ const ids = A.ICH_THAM_SO.map((t) => t.id);
 ok(new Set(ids).size === ids.length, 'mã tham số không trùng');
 const tabs = A.ICH_CHUC_NANG[0].tabs.map((t) => t.key);
 ok(eq(A.ICH_CHUC_NANG.map((c) => c.key), ['noti']), 'lần này chỉ có chức năng Noti');
-ok(eq(tabs, ['kcqt', 'nv', 'vb', 'kpi', 'gis']), '5 tab Noti đúng thứ tự');
+ok(eq(tabs, ['kcqt', 'nv', 'kpi', 'gis']), '4 tab Noti (Văn bản không có tham số nên không có tab)');
 ok(A.ICH_THAM_SO.every((t) => tabs.includes(t.tab) && t.ten && t.moTa), 'mỗi tham số thuộc tab có thật, có tên và cách áp dụng');
 ok(A.ICH_THAM_SO.every((t) => !t.so || (t.so.macDinh != null)), 'ô số nào cũng có mặc định');
 ok(A.ICH_THAM_SO.filter((t) => t.phuThuoc).every((t) => A.ICH_THAM_SO.some((x) => x.id === t.phuThuoc)), 'dòng phụ thuộc trỏ tới dòng có thật');
@@ -38,42 +38,31 @@ ok(A.ICH_THAM_SO.filter((t) => t.phuThuoc).every((t) => A.ICH_THAM_SO.some((x) =
 const md = A.ichMacDinh();
 const so = (id) => md[id].so, bat = (id) => md[id].bat;
 ok(eq(A.ICH_THAM_SO.filter((t) => t.tab === 'kcqt').map((t) => [t.muc, t.icon, bat(t.id)]),
-  [['Cao', '❗', true], ['Khẩn cấp', '⚠️', true], ['Gấp', '⚠️', false], ['Từ mức', '⚠️', true], ['Khẩn', '⚠️', true]]), 'KC/QT: mức, icon, mặc định (Gấp tắt)');
+  [['Hỏa tốc', '⚠️', true], ['Thượng khẩn', '⚠️', true], ['Khẩn', '❗', true], ['Cao', '', true], ['Từ mức', '⚠️', true], ['Khẩn', '⚠️', true]]), 'KC/QT theo tài liệu Notify: Hỏa tốc/Thượng khẩn ⚠️, Khẩn ❗, quan trọng Cao không icon');
 ok(so('noti.kcqt.gisNguyHiem') === 4, 'GIS: mức nguy hiểm từ 4');
 ok(eq(A.ICH_THAM_SO.filter((t) => t.tab === 'nv').map((t) => t.id.split('.')[2]),
-  ['moi', 'trongHan', 'sapHetHan', 'hanHomNay', 'quaHan', 'mocQuaHan', 'quaHanKhanCap', 'hoanThanh', 'capNhat', 'tienDoThap']), 'Nhiệm vụ: dòng xếp theo vòng đời như ảnh mẫu');
-ok(eq(A.ichUuTien('noti', 'nv'), ['quaHanKhanCap', 'quaHan', 'hanHomNay', 'sapHetHan', 'moi', 'trongHan', 'hoanThanh'].map((k) => 'noti.nv.' + k)), 'Nhiệm vụ: thứ tự ưu tiên đã chốt');
-ok(eq(A.ichUuTien('noti', 'vb'), ['noti.vb.sapDenHan', 'noti.vb.moi', 'noti.vb.doiTrangThai']), 'Văn bản: thứ tự ưu tiên');
+  ['moi', 'trongHan', 'sapHetHan', 'hanHomNay', 'quaHan', 'quaHanKhanCap', 'choDuyet', 'hoanThanh', 'tienDoThap']), 'Nhiệm vụ: dòng theo vòng đời; đã bỏ Mốc nhận biết quá hạn, Cập nhật trạng thái');
+ok(A.ICH_THAM_SO.find((t) => t.id === 'noti.nv.trongHan').nhan[0] === 'Đang thực hiện', '«Trong hạn» đổi tên thành «Đang thực hiện»');
+ok(eq(A.ichUuTien('noti', 'nv'), ['hoanThanh', 'choDuyet', 'quaHanKhanCap', 'quaHan', 'hanHomNay', 'sapHetHan', 'moi', 'trongHan'].map((k) => 'noti.nv.' + k)), 'Nhiệm vụ: thứ tự ưu tiên đã chốt');
 ok(A.ICH_CHUC_NANG.every((c) => c.tabs.every((t) => (t.uuTien || []).every((k) => A.ICH_THAM_SO.some((x) => x.id === `${c.key}.${t.key}.${k}`)))), 'thứ tự ưu tiên chỉ trỏ tới tham số có thật');
 ok(A.ichTab('noti', 'kcqt').congTac.tat === 'Ngừng hoạt động' && !A.ichTab('noti', 'nv').congTac, 'chữ công tắc: KC/QT «Hoạt động», tab khác mặc định');
-ok(so('noti.nv.quaHanKhanCap') === 10 && so('noti.nv.mocQuaHan') === 5 && so('noti.nv.sapHetHan') === 3 && so('noti.nv.moi') === 3, 'Nhiệm vụ: 10 / 5 / 3 / 3 ngày');
-ok(so('noti.nv.hoanThanh') === 0 && so('noti.nv.capNhat') === 3 && so('noti.nv.tienDoThap') === 40, 'Hoàn thành 0, Cập nhật 3, Tiến độ thấp 40%');
-ok(so('noti.vb.sapDenHan') === 3 && so('noti.vb.moi') === 3, 'Văn bản: 3 / 3 ngày');
+ok(so('noti.nv.quaHanKhanCap') === 10 && so('noti.nv.sapHetHan') === 3 && so('noti.nv.moi') === 3, 'Nhiệm vụ: 10 / 3 / 3 ngày');
+ok(so('noti.nv.hoanThanh') === 1 && so('noti.nv.tienDoThap') === 40 && bat('noti.nv.choDuyet'), 'Hoàn thành 1 ngày, Tiến độ thấp 40%, Chờ duyệt bật');
 ok(A.ICH_THAM_SO.filter((t) => t.tab === 'kpi').length === 6 && A.ICH_THAM_SO.filter((t) => t.tab === 'kpi').every((t) => bat(t.id) && !t.so), 'OKR/KPI: 6 công tắc, bật hết, không ô số');
 ok(eq(A.ICH_THAM_SO.filter((t) => t.chiXem).map((t) => t.id),
-  ['noti.kcqt.cameraKhan', 'noti.nv.hanHomNay', 'noti.vb.doiTrangThai', 'noti.gis.cad']), 'đúng 4 dòng chỉ hiển thị');
+  ['noti.kcqt.cameraKhan', 'noti.nv.hanHomNay', 'noti.gis.cad']), 'đúng 3 dòng chỉ hiển thị');
 ok(eq(A.ichKiemTra(md), {}), 'bộ mặc định hợp lệ');
 
-/* ---- Khoảng nhập động ---- */
+/* ---- Khoảng nhập ---- */
 let g = A.ichSaoChep(md);
-ok(eq([A.ichKhoang('noti.nv.quaHanKhanCap', g).min, A.ichKhoang('noti.nv.quaHanKhanCap', g).max], [6, 50]), 'mốc 5 → Quá hạn khẩn cấp nhập từ 6 đến 50');
-ok(eq([A.ichKhoang('noti.nv.mocQuaHan', g).min, A.ichKhoang('noti.nv.mocQuaHan', g).max], [2, 9]), 'khẩn cấp 10 → mốc nhập từ 2 đến 9');
-g['noti.nv.mocQuaHan'].so = 7;
-ok(A.ichKhoang('noti.nv.quaHanKhanCap', g).min === 8, 'đổi mốc 7 → khẩn cấp từ 8');
-g['noti.nv.mocQuaHan'].so = 10;
+ok(eq([A.ichKhoang('noti.nv.quaHanKhanCap', g).min, A.ichKhoang('noti.nv.quaHanKhanCap', g).max], [2, 50]), 'Quá hạn khẩn cấp nhập từ 2 đến 50');
+g['noti.nv.quaHanKhanCap'].so = 1;
 let loi = A.ichKiemTra(g);
-ok(loi['noti.nv.mocQuaHan'] && loi['noti.nv.quaHanKhanCap'], 'mốc = khẩn cấp → báo lỗi cả hai ô');
-ok(/Nhập từ 2 đến 9/.test(loi['noti.nv.mocQuaHan']) && /Nhập từ 11 đến 50/.test(loi['noti.nv.quaHanKhanCap']), 'lời báo ghi rõ khoảng đúng');
-g['noti.nv.mocQuaHan'].bat = false;
-ok(A.ichKhoang('noti.nv.quaHanKhanCap', g).min === 2 && !A.ichKiemTra(g)['noti.nv.quaHanKhanCap'], 'tắt mốc → khẩn cấp nhập từ 2, không còn lỗi');
-ok(!A.ichKiemTra(g)['noti.nv.mocQuaHan'], 'dòng tắt không bắt nhập');
-g = A.ichSaoChep(md); g['noti.nv.quaHan'].bat = false;
-ok(A.ichBiKhoa('noti.nv.mocQuaHan', g) && !A.ichDangDung('noti.nv.mocQuaHan', g), 'tắt Quá hạn → khóa mốc nhận biết');
-ok(A.ichKhoang('noti.nv.quaHanKhanCap', g).min === 2, 'tắt Quá hạn → khẩn cấp nhập từ 2');
-g = A.ichSaoChep(md); g['noti.nv.quaHanKhanCap'].bat = false;
-ok(A.ichKhoang('noti.nv.mocQuaHan', g).max === 50, 'tắt khẩn cấp → mốc nhập tới 50');
+ok(/Nhập từ 2 đến 50/.test(loi['noti.nv.quaHanKhanCap'] || ''), 'Quá hạn khẩn cấp 1 bị chặn, lời báo ghi rõ khoảng');
+g['noti.nv.quaHanKhanCap'].bat = false;
+ok(!A.ichKiemTra(g)['noti.nv.quaHanKhanCap'], 'dòng tắt không bắt nhập');
 g = A.ichSaoChep(md); g['noti.nv.quaHanKhanCap'].so = null;
-ok(A.ichKiemTra(g)['noti.nv.quaHanKhanCap'] === 'Nhập số nguyên' && !A.ichKiemTra(g)['noti.nv.mocQuaHan'], 'ô trống báo «Nhập số nguyên», không kéo lỗi sang ô kia');
+ok(A.ichKiemTra(g)['noti.nv.quaHanKhanCap'] === 'Nhập số nguyên', 'ô trống báo «Nhập số nguyên»');
 g = A.ichSaoChep(md); g['noti.nv.hoanThanh'].so = 0; g['noti.nv.sapHetHan'].so = 0; g['noti.nv.tienDoThap'].so = 101; g['noti.kcqt.gisNguyHiem'].so = 6;
 loi = A.ichKiemTra(g);
 ok(!loi['noti.nv.hoanThanh'] && loi['noti.nv.sapHetHan'] && loi['noti.nv.tienDoThap'] && loi['noti.kcqt.gisNguyHiem'], 'Hoàn thành nhận 0; Sắp hết hạn 0, tiến độ 101%, mức GIS 6 bị chặn');
@@ -82,16 +71,16 @@ ok(A.ichKiemTra(g)['noti.nv.moi'] === 'Nhập số nguyên', 'số lẻ bị ch�
 
 /* ---- Lưu / đọc ---- */
 A = moi();
-ok(A.ichSo('noti.nv.sapHetHan') === 3 && A.ichBat('noti.kcqt.khanCap') && !A.ichBat('noti.kcqt.gap'), 'chưa lưu gì → đọc mặc định');
-g = A.ichSaoChep(A.ichDoc()); g['noti.nv.sapHetHan'].so = 7; g['noti.kcqt.gap'].bat = true;
+ok(A.ichSo('noti.nv.sapHetHan') === 3 && A.ichBat('noti.kcqt.hoaToc') && A.ichBat('noti.kcqt.khan'), 'chưa lưu gì → đọc mặc định');
+g = A.ichSaoChep(A.ichDoc()); g['noti.nv.sapHetHan'].so = 7; g['noti.kcqt.khan'].bat = false;
 let goi = 0; A.ichKhiDoi(() => goi++);
 let kq = A.ichLuu(g);
-ok(kq.ok && A.ichSo('noti.nv.sapHetHan') === 7 && A.ichBat('noti.kcqt.gap') && goi === 1, 'lưu xong đọc ra giá trị mới và báo cho chức năng');
+ok(kq.ok && A.ichSo('noti.nv.sapHetHan') === 7 && !A.ichBat('noti.kcqt.khan') && goi === 1, 'lưu xong đọc ra giá trị mới và báo cho chức năng');
 A.reset();
 ok(A.ichSo('noti.nv.sapHetHan') === 7, 'đọc lại từ localStorage (tải lại trang) vẫn đúng');
-g = A.ichSaoChep(A.ichDoc()); g['noti.nv.mocQuaHan'].so = 20;
+g = A.ichSaoChep(A.ichDoc()); g['noti.nv.quaHanKhanCap'].so = 99;
 kq = A.ichLuu(g);
-ok(!kq.ok && kq.loi['noti.nv.mocQuaHan'] && A.ichSo('noti.nv.mocQuaHan') === 5, 'bộ sai thì không lưu, giá trị cũ giữ nguyên');
+ok(!kq.ok && kq.loi['noti.nv.quaHanKhanCap'] && A.ichSo('noti.nv.quaHanKhanCap') === 10, 'bộ sai thì không lưu, giá trị cũ giữ nguyên');
 g = A.ichSaoChep(A.ichDoc()); g['noti.nv.hanHomNay'].bat = false;
 A.ichLuu(g);
 ok(A.ichBat('noti.nv.hanHomNay'), 'dòng chỉ hiển thị không tắt được');
@@ -105,8 +94,8 @@ for (const [raw, ten] of [['{hỏng', 'JSON hỏng'], ['null', 'null'], [JSON.st
   A = moi(); A.store[A.ICH_STORE_KEY] = raw;
   ok(eq(A.ichDoc(), A.ichMacDinh()), `${ten} → dùng mặc định`);
 }
-A = moi(); A.store[A.ICH_STORE_KEY] = JSON.stringify({ giaTri: { 'noti.nv.mocQuaHan': { bat: true, so: 30 }, 'noti.nv.sapHetHan': { bat: true, so: 5 } } });
-ok(A.ichSo('noti.nv.mocQuaHan') === 5 && A.ichSo('noti.nv.sapHetHan') === 5, 'dòng lưu không hợp lệ về mặc định, dòng hợp lệ giữ nguyên');
+A = moi(); A.store[A.ICH_STORE_KEY] = JSON.stringify({ giaTri: { 'noti.nv.quaHanKhanCap': { bat: true, so: 99 }, 'noti.nv.sapHetHan': { bat: true, so: 5 }, 'noti.nv.mocQuaHan': { bat: true, so: 5 } } });
+ok(A.ichSo('noti.nv.quaHanKhanCap') === 10 && A.ichSo('noti.nv.sapHetHan') === 5 && A.ichDoc()['noti.nv.mocQuaHan'] === undefined, 'dòng lưu không hợp lệ về mặc định, dòng hợp lệ giữ nguyên, mã đã bỏ (mốc ‼) bị bỏ qua');
 
 console.log(`${pass} đạt, ${fail} lỗi`);
 process.exit(fail ? 1 : 0);

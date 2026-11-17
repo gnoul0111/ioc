@@ -86,7 +86,7 @@
  if(attachmentsKey) localStorage.setItem(attachmentsKey, JSON.stringify(attachments));
  subs.push({id,name,content,owner,coordinators,state:'Đang xử lý',due,startDate,priority,urgency,progress:5,scenario:'',attachmentsKey,evidence:attachments.map(a=>a.name),created:new Date().toLocaleString('vi-VN'),creatorRole:currentRole,creatorSoId:currentSoId,creatorXaId:currentXaId,creatorOfficeId:currentOfficeId});
  const subIdx=subs.length-1;
- pushNoti({role:r.role,soId:resolveSoIdByUnitName(owner),category:'assigned',icon:'',title:`Nhiệm vụ nhánh mới: ${name}`,sub:`${currentAccount.title} giao cho ${owner}, thuộc ${r.id}.`,level:urgency==='Khẩn cấp'?'Khẩn':(priority==='Cao'?'Cao':'Thường'),target:{type:'vptuSubtask',id:parentId,metric,idx:subIdx}});
+ pushNoti({role:r.role,soId:resolveSoIdByUnitName(owner),category:'assigned',icon:'',title:`Nhiệm vụ nhánh mới: ${name}`,sub:`${currentAccount.title} giao cho ${owner}, thuộc ${r.id}.`,level:['Hỏa tốc','Thượng khẩn'].includes(urgency)?'Khẩn':(priority==='Cao'?'Cao':'Thường'),target:{type:'vptuSubtask',id:parentId,metric,idx:subIdx}});
  pushActionLog({category:'assign',icon:'',title:`Giao nhiệm vụ nhánh: ${name}`,sub:`Thuộc ${r.id} → ${owner} · Ưu tiên ${priority} · Khẩn ${urgency} · Hạn ${due||'—'}`,detail:`Nội dung: ${content}${coordinators.length?` · Phối hợp: ${coordinators.join(', ')}`:''}`,role:r.role,target:{type:'vptuSubtask',id:parentId,metric,idx:subIdx}});
  toast(`Đã giao nhiệm vụ nhánh "${name}" là nhiệm vụ con của ${r.id}.`);
  openVptuRecordDetail(metric,parentId);

@@ -1,5 +1,23 @@
  /* ============================== CHI TIẾT 1 HỒ SƠ/NHIỆM VỤ (cấp 2) ============================== */
- function openRecordDetail(id,fromId,fromFieldId){
+ /* Màn chi tiết nhiệm vụ — dòng «Trạng thái» theo tài liệu «Quy tắc hiển thị icon và trạng thái nhiệm vụ – Màn Notify»
+   (anh duyệt 17/11/2026): màu chữ suy từ NỘI DUNG CHỮ của trạng thái, xét lần lượt từ trên xuống; nhiệm vụ chưa xong
+   đã quá hạn thì thêm «· Quá hạn N ngày». */
+function mauTrangThaiTheoChu(label){
+ const t=String(label||'').toLowerCase();
+ if(t.includes('hoàn')) return '#2fb174';
+ if(t.includes('quá hạn')||t.includes('trễ')) return '#cf3434';
+ if(t.includes('sắp')||t.includes('gần')||t.includes('hôm nay')) return '#d8a50c';
+ if(t.includes('chờ')) return '#ffd54b';
+ return '#49bcff';
+}
+function trangThaiChiTietHtml(r,label){
+ const xong=r.status==='done'||r.status==='closed';
+ const dueMs=parseDMY(r.due);
+ const homNay=new Date(); homNay.setHours(0,0,0,0);
+ const qh=!xong&&dueMs?Math.round((homNay.getTime()-dueMs)/86400000):0;
+ return `<span style="color:${mauTrangThaiTheoChu(label)}">${esc(label)}</span>${qh>0?` · Quá hạn ${fmt(qh)} ngày`:''}`;
+}
+function openRecordDetail(id,fromId,fromFieldId){
  const r=records.find(x=>x.id===id); if(!r)return;
  /* Bản ghi "nhiệm vụ giao" (mirror, r.mirrorOfId) không có nội dung riêng — toàn bộ dữ liệu thật nằm ở bản ghi
  gốc phía "nhiệm vụ nhận". Vào thẳng bản ghi gốc luôn, khỏi bắt bấm thêm 1 màn tóm tắt trung gian. */
@@ -86,7 +104,7 @@
  ['Mức độ quan trọng',esc(r.importance||r.priority)],
  ['Độ khẩn',esc(r.urgency||'—')],
  ['Văn bản liên kết',linkedDocs.length?linkedDocs.map(d=>`<a href="javascript:void(0)" onclick="openRecordDetail('${d.id}','${r.id}')" style="color:#49bcff">${esc(d.code)} – ${esc(d.title)}</a>`).join('; '):'—'],
- ['Trạng thái',`<span style="color:${st.color}">${st.label}</span>`]
+ ['Trạng thái',trangThaiChiTietHtml(r,st.label)]
  ];
  /* "Đánh dấu hoàn thành" (markMyTaskDone, my-tasks-notify.js) là hành động tối thiểu để mô phỏng nhiệm vụ cấp 1
  chuyển sang hoàn thành — trước đây chỉ nhiệm vụ nhánh (subtasks) mới có nút mô phỏng đồng bộ trạng thái. */

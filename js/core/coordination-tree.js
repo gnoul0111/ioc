@@ -133,7 +133,7 @@
  </div>
  <div class="field half"><label>Nhóm lĩnh vực</label><div class="ms-wrap" style="display:flex;gap:6px;align-items:center"><div style="flex:1;position:relative"><input type="text" id="assFieldInput" placeholder="Tìm kiếm" autocomplete="off" value="${editRecord?esc(editRecord.field||''):(fieldCtx?esc(fieldCtx.label):esc(prefill?.field||''))}" oninput="filterAssField()" onfocus="openAssFieldDropdown()" style="width:100%;border:1px solid rgba(87,178,255,.32);background:#061528;border-radius:10px;padding:9px 30px 9px 12px;outline:0;color:#d0e8f8" /><span class="combo-caret" style="position:absolute;top:50%;right:12px;transform:translateY(-50%);pointer-events:none">⌄</span><div id="assFieldDropdown" class="ms-dropdown hidden" style="position:absolute;z-index:60;top:calc(100% + 4px);left:0;right:0;background:#071b31;border:1px solid rgba(73,188,255,.4);border-radius:10px;padding:6px;max-height:220px;overflow-y:auto;box-shadow:0 14px 30px rgba(0,0,0,.45)"></div></div></div></div>
  <div class="field"><label>Mức độ quan trọng</label>${simpleSelectHtml('assImportance',['Cao','Bình thường'],importanceVal)}</div>
- <div class="field"><label>Độ khẩn</label>${simpleSelectHtml('assUrgency',['Khẩn cấp','Gấp','Thường'],urgencyVal)}</div>
+ <div class="field"><label>Độ khẩn</label>${simpleSelectHtml('assUrgency',['Hỏa tốc','Thượng khẩn','Khẩn','Thường'],urgencyVal)}</div>
  <div class="field half"><label>Ngày bắt đầu</label><input id="assStart" type="date" value="${editRecord?toISODate(editRecord.startDate):''}" min="${dateMinAttr(editRecord?.startDate)}" onchange="syncDueMin('assStart','assDue')" /></div>
  <div class="field half"><label>Hạn xử lý</label><input id="assDue" type="date" value="${editRecord?toISODate(editRecord.due):''}" min="${dateMinAttr(editRecord?.due)}" /></div>
  ${editRecord?'':'<div class="field wide"><label>Kịch bản xử lý (tuỳ chọn)</label><div id="assScenarioSummary"></div></div>'}
@@ -373,7 +373,7 @@
  window.__cameraAlertLinks[originTag.id]=id;
  }
  const notiIcon=isNotifySource?(notifyType.includes('Cháy')?'':notifyType.includes('Lịch')?'':notifyType.includes('Văn bản')?'':notifyType.includes('Đô thị')?'':notifyType.includes('TTHC')?'':''):'';
- pushNoti({role,soId:t.soId,xaId:t.xaId,officeId:t.officeId||null,category:'assigned',icon:notiIcon,title:isNotifySource?`${notifyType}: ${title}`:`Nhiệm vụ mới: ${title}`,sub:isNotifySource?`${currentAccount.title} gửi notify "${notifyType}" và giao nhiệm vụ xử lý cho ${unit}.`:`${currentAccount.title} vừa giao nhiệm vụ cho ${unit}.`,level:isNotifySource?notifyLevel:(r.urgency==='Khẩn cấp'?'Khẩn':(r.importance==='Cao'?'Cao':'Thường')),...(isNotifySource?{type:notifyType,source:'Nhập thủ công'}:{}),target:{type:'record',id}});
+ pushNoti({role,soId:t.soId,xaId:t.xaId,officeId:t.officeId||null,category:'assigned',icon:notiIcon,title:isNotifySource?`${notifyType}: ${title}`:`Nhiệm vụ mới: ${title}`,sub:isNotifySource?`${currentAccount.title} gửi notify "${notifyType}" và giao nhiệm vụ xử lý cho ${unit}.`:`${currentAccount.title} vừa giao nhiệm vụ cho ${unit}.`,level:isNotifySource?notifyLevel:(['Hỏa tốc','Thượng khẩn'].includes(r.urgency)?'Khẩn':(r.importance==='Cao'?'Cao':'Thường')),...(isNotifySource?{type:notifyType,source:'Nhập thủ công'}:{}),target:{type:'record',id}});
  let scenarioNote='';
  const pending=window.__pendingAssignmentScenario;
  if(pending){

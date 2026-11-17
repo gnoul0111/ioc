@@ -147,7 +147,7 @@
  </div>
  </div>
  <div class="field"><label>Mức độ quan trọng</label><select id="nsTaskPriority"><option>Cao</option><option selected>Bình thường</option></select></div>
- <div class="field"><label>Độ khẩn</label><select id="nsTaskUrgency"><option>Khẩn cấp</option><option>Gấp</option><option selected>Thường</option></select></div>
+ <div class="field"><label>Độ khẩn</label><select id="nsTaskUrgency"><option>Hỏa tốc</option><option>Thượng khẩn</option><option>Khẩn</option><option selected>Thường</option></select></div>
  <div class="field half"><label>Ngày bắt đầu</label><input id="nsTaskStart" type="date" min="${todayISO()}" onchange="syncDueMin('nsTaskStart','nsTaskDue')" /></div>
  <div class="field half"><label>Hạn hoàn thành</label><input id="nsTaskDue" type="date" min="${todayISO()}" /></div>
  <div class="field wide"><label>Nội dung/yêu cầu</label><textarea id="nsTaskContent" rows="3" placeholder="Mô tả việc cần làm, sản phẩm đầu ra, minh chứng yêu cầu..."></textarea></div>
@@ -337,7 +337,7 @@
  </div>
  </div>
  <div class="field"><label>Mức độ quan trọng</label><select id="subPriority"><option ${editing&&s.priority==='Cao'?'selected':''}>Cao</option><option ${!editing||s.priority!=='Cao'?'selected':''}>Bình thường</option></select></div>
- <div class="field"><label>Độ khẩn</label><select id="subUrgency"><option ${editing&&s.urgency==='Khẩn cấp'?'selected':''}>Khẩn cấp</option><option ${editing&&s.urgency==='Gấp'?'selected':''}>Gấp</option><option ${!editing||s.urgency==='Thường'?'selected':''}>Thường</option></select></div>
+ <div class="field"><label>Độ khẩn</label><select id="subUrgency">${['Hỏa tốc','Thượng khẩn','Khẩn'].map(k=>`<option ${editing&&s.urgency===k?'selected':''}>${k}</option>`).join('')}<option ${!editing||s.urgency==='Thường'||!['Hỏa tốc','Thượng khẩn','Khẩn'].includes(s.urgency)?'selected':''}>Thường</option></select></div>
  <div class="field half"><label>Ngày bắt đầu</label><input id="subStart" type="date" value="${editing?toISODate(s.startDate):''}" min="${dateMinAttr(editing?s.startDate:'')}" onchange="syncDueMin('subStart','subDue')" /></div>
  <div class="field half"><label>Hạn hoàn thành</label><input id="subDue" type="date" value="${editing?toISODate(s.due):''}" min="${dateMinAttr(editing?s.due:'')}" /></div>
  <div class="field wide"><label>Nội dung/yêu cầu</label><textarea id="subContent" rows="3" placeholder="Mô tả việc cần làm, sản phẩm đầu ra, minh chứng yêu cầu...">${editing?esc(s.content||''):''}</textarea></div>
@@ -425,7 +425,7 @@
  const ownerXaId=resolveXaIdByUnitName(owner);
  r.subtasks.push({id,name,content,owner,ownerXaId,coordinators,state:'Đang xử lý',due,startDate,priority,urgency,progress:5,scenario:'',attachmentsKey,evidence:attachments.map(a=>a.name),created:new Date().toLocaleString('vi-VN'),creatorRole:currentRole,creatorSoId:currentSoId,creatorXaId:currentXaId,creatorOfficeId:currentOfficeId});
  const subIdx=r.subtasks.length-1;
- pushNoti({role:r.role,soId:resolveSoIdByUnitName(owner),xaId:ownerXaId,category:'assigned',icon:'',title:`Nhiệm vụ nhánh mới: ${name}`,sub:`${currentAccount.title} giao cho ${owner}, thuộc ${r.id}.`,level:urgency==='Khẩn cấp'?'Khẩn':(priority==='Cao'?'Cao':'Thường'),target:{type:'recordSubtask',id:r.id,idx:subIdx}});
+ pushNoti({role:r.role,soId:resolveSoIdByUnitName(owner),xaId:ownerXaId,category:'assigned',icon:'',title:`Nhiệm vụ nhánh mới: ${name}`,sub:`${currentAccount.title} giao cho ${owner}, thuộc ${r.id}.`,level:['Hỏa tốc','Thượng khẩn'].includes(urgency)?'Khẩn':(priority==='Cao'?'Cao':'Thường'),target:{type:'recordSubtask',id:r.id,idx:subIdx}});
  r.history=r.history||[]; r.history.unshift({time:new Date().toLocaleString('vi-VN'),text:`${currentAccount.title} giao nhiệm vụ nhánh mới cho ${r.id}: ${name} → ${owner}`});
  pushActionLog({category:'assign',icon:'',title:`Giao nhiệm vụ nhánh: ${name}`,sub:`Thuộc ${r.id} · ${r.title} → ${owner} · Ưu tiên ${priority} · Khẩn ${urgency} · Hạn ${due||'—'}`,detail:`Nội dung: ${content}${coordinators.length?` · Phối hợp: ${coordinators.join(', ')}`:''}`,role:r.role,target:{type:'recordSubtask',id:r.id,idx:subIdx}});
  toast(`Đã giao nhiệm vụ nhánh "${name}" là nhiệm vụ con của ${r.id}.`);

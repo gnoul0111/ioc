@@ -47,21 +47,25 @@
  /* ===== Trạng thái nhiệm vụ trên Noti theo «Cấu hình chức năng IOC» (js/core/ioc-cau-hinh.js, anh duyệt 17/11/2026) =====
  Trước đây 4 nhóm Mới / Sắp hết hạn / Quá hạn / Hoàn thành lọc RIÊNG từng nhóm rồi nối lại, nên 1 nhiệm vụ vừa tạo
  mà hạn đã gần (hoặc đã quá) hiện 2–3 lần. Nay mỗi nhiệm vụ chỉ có ĐÚNG 1 trạng thái: xét lần lượt theo thứ tự ưu
- tiên khai báo ở cấu hình (ichUuTien: Quá hạn khẩn cấp → Quá hạn → Hạn hôm nay → Sắp hết hạn → Mới → Trong hạn →
- Hoàn thành), lấy trạng thái đầu tiên nhiệm vụ thỏa VÀ đang bật; trạng thái tắt thì rơi xuống trạng thái kế tiếp.
- Ngưỡng ngày lấy từ cấu hình (ichSo), không viết cứng. Nhiệm vụ chờ phê duyệt (pending) không hiện trên Noti (giữ
- đúng yêu cầu cũ "bỏ thông báo chờ duyệt"); các trạng thái trước «Hoàn thành» chỉ áp cho nhiệm vụ chưa hoàn thành. */
+ tiên khai báo ở cấu hình (ichUuTien), lấy trạng thái đầu tiên nhiệm vụ thỏa VÀ đang bật; trạng thái tắt thì rơi
+ xuống trạng thái kế tiếp. Ngưỡng ngày lấy từ cấu hình (ichSo), không viết cứng.
+ 17/11/2026 sửa theo tài liệu «Quy tắc hiển thị icon và trạng thái nhiệm vụ – Màn Notify» (anh duyệt): thứ tự ưu tiên
+ Hoàn thành → Chờ duyệt → Quá hạn khẩn cấp → Quá hạn → Hạn hôm nay → Sắp hết hạn → Mới → Đang thực hiện (mã trongHan);
+ hiện lại «Chờ duyệt» (pending, trước đây ẩn); bỏ dấu ‼ (Mốc nhận biết quá hạn) và nhật ký «Cập nhật trạng thái». */
+ /* Thứ tự HIỆN trên danh sách và bộ lọc (khác thứ tự ưu tiên xếp trạng thái): việc gấp lên trước, Hoàn thành cuối. */
+ const NOI_NV_THU_TU_HIEN=['quaHanKhanCap','quaHan','hanHomNay','sapHetHan','choDuyet','moi','trongHan','hoanThanh'];
+ function noiNvKhoaHien(){ return NOI_NV_THU_TU_HIEN.filter(k=>ichThamSo('noti.nv.'+k)); }
  function noiTodayMs(){ const d=new Date(); d.setHours(0,0,0,0); return d.getTime(); }
  function noiKhoa(id){ return id.split('.').pop(); }
  /* → {key, diff (số ngày còn tới hạn, null nếu không có hạn), qh (số ngày quá hạn)} hoặc null (không hiện). */
  function noiNvTrangThai(r,todayMs){
- if(r.status==='pending') return null;
  const done=r.status==='done'||r.status==='closed';
  const dueMs=parseDMY(r.due), createdMs=parseDMY(r.created);
  const diff=dueMs?Math.round((dueMs-todayMs)/86400000):null;
  const qh=diff!=null&&diff<0?-diff:0;
  const now=Date.now();
  const thoa={
+ choDuyet:r.status==='pending',
  quaHanKhanCap:!done&&qh>0&&qh>=ichSo('noti.nv.quaHanKhanCap'),
  quaHan:!done&&qh>0,
  hanHomNay:!done&&diff===0,
@@ -84,7 +88,7 @@
  const today=noiTodayMs(), g={};
  myReceivedTasks().forEach(r=>{ const t=noiNvTrangThai(r,today); if(t) (g[t.key]=g[t.key]||[]).push(r); });
  const theoHan=(a,b)=>(parseDMY(a.due)||Infinity)-(parseDMY(b.due)||Infinity);
- ['quaHanKhanCap','quaHan','hanHomNay','sapHetHan','trongHan'].forEach(k=>g[k]&&g[k].sort(theoHan));
+ ['choDuyet','quaHanKhanCap','quaHan','hanHomNay','sapHetHan','trongHan'].forEach(k=>g[k]&&g[k].sort(theoHan));
  if(g.moi) g.moi.sort((a,b)=>parseDMY(b.created)-parseDMY(a.created));
  if(g.hoanThanh) g.hoanThanh.sort((a,b)=>b.completedAt-a.completedAt);
  if(__noiTam) __noiTam.nv=g;
@@ -112,14 +116,9 @@
  dùng đúng scope của myReceivedTasks() (role/officeId theo currentRole hiện tại) để chỉ hiện log của những
  nhiệm vụ tài khoản đang đăng nhập thực sự nhìn thấy được, tránh lộ cập nhật trạng thái của tài khoản/trục khác. */
  function myTaskStatusLogScoped(){
- /* Số ngày giữ trên Noti và bật/tắt theo «Cập nhật trạng thái» ở cấu hình (trước đây cứng 3 ngày). */
- if(!ichBat('noti.nv.capNhat')) return [];
- if(typeof __noiTam!=='undefined'&&__noiTam&&__noiTam.log) return __noiTam.log;
+ /* Nhật ký «Cập nhật trạng thái» không còn hiện trên Noti (bỏ 17/11/2026 theo tài liệu Notify); hàm giữ lại, 3 ngày. */
  const ids=new Set(myReceivedTasks().map(r=>r.id));
- const cutoff=Date.now()-ichSo('noti.nv.capNhat')*86400000;
- const log=myTaskStatusLog().filter(x=>x.ts>=cutoff&&ids.has(x.recordId));
- if(typeof __noiTam!=='undefined'&&__noiTam) __noiTam.log=log;
- return log;
+ return myTaskStatusLog().filter(x=>x.ts>=Date.now()-3*86400000&&ids.has(x.recordId));
  }
  /* Seed vài dòng "Cập nhật trạng thái" mẫu ngay khi khởi tạo dữ liệu (initData(), gọi 1 lần lúc mở trang) — nếu
  không seed, nhóm này LUÔN rỗng lúc mới mở trang vì bản chất nó chỉ ghi nhận khi bucket THẬT SỰ đổi giữa 2 lần
@@ -199,7 +198,7 @@
  /* Badge "Mới" không mang thông tin ngày (khác due_soon/overdue đã có số ngày trong badge) nên vẫn giữ ngày tạo
  ở dòng phụ, nhưng rút ngắn DD/MM (bỏ năm + chữ "Tạo") cho gọn. */
  const shortDate=(String(r.created||'').match(/^(\d{2})\/(\d{2})/)||[])[0]||r.created||'—';
- return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title)}</b><small>${esc(shortUnit(r.unit))} · ${esc(shortDate)}</small></div><span class="badge blue">Mới</span></button>`;
+ return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title||'(không có tên)')}</b><small>${esc(shortUnit(r.unit))} · ${esc(shortDate)}</small></div><span class="badge blue">Mới</span></button>`;
  }
  /* Sắp hết hạn = LUÔN vàng (warn), không chia mức đỏ/vàng theo số ngày nữa (trước đây ≤2 ngày để đỏ, anh yêu
  cầu để hết màu vàng cho đồng nhất — giống cách "Quá hạn" đã đồng nhất về đỏ). Dòng phụ bỏ "· Hạn ..." vì trùng
@@ -229,26 +228,23 @@
  const days=Math.max(0,Math.round((parseDMY(r.due)-todayMs)/86400000));
  const isToday=days===0;
  const badgeText=isToday?'Hạn hôm nay':`Còn ${fmt(days)} ngày`;
- return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title)}</b><small>${esc(shortUnit(r.unit))}</small></div><div style="display:flex;flex-direction:column;gap:4px;align-items:stretch;min-width:96px">${noiProgressBadgeHtml(r)}<span class="badge ${isToday?'orange':'warn'}" style="text-align:center">${badgeText}</span></div></button>`;
+ /* Cảnh báo tiến độ thấp chỉ ở «Hạn hôm nay» (tài liệu Notify: chỉ Quá hạn hoặc Hạn hôm nay), không ở Sắp hết hạn. */
+ return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title||'(không có tên)')}</b><small>${esc(shortUnit(r.unit))}</small></div><div style="display:flex;flex-direction:column;gap:4px;align-items:stretch;min-width:96px">${isToday?noiProgressBadgeHtml(r):''}<span class="badge ${isToday?'orange':'warn'}" style="text-align:center">${badgeText}</span></div></button>`;
  }
- /* Quá hạn = LUÔN đỏ, không chia mức nữa (trước đây ≤3 ngày còn để vàng, anh yêu cầu để hết màu đỏ cho đồng
- nhất — đã quá hạn thì mức độ nào cũng là red). Vẫn giữ dấu ‼ cho mốc >14 ngày để phân biệt độ nghiêm trọng
- dù cùng màu đỏ. */
+ /* Quá hạn = LUÔN đỏ «Quá hạn N ngày». Từ mốc «Quá hạn khẩn cấp» ở cấu hình (mặc định 10 ngày) đổi sang nhãn nền đỏ
+ đặc. Dấu ‼ (Mốc nhận biết quá hạn) đã bỏ 17/11/2026 theo tài liệu Notify. */
  function myTaskRowOverdue(r,todayMs,khanCap){
  const days=Math.max(0,Math.round((todayMs-parseDMY(r.due))/86400000));
- /* 3 mức theo cấu hình: «Quá hạn khẩn cấp · X ngày» nền đỏ đặc từ mốc Quá hạn khẩn cấp (mặc định 10 ngày); dưới
- mốc đó là «Quá hạn X ngày», thêm dấu ‼ từ «Mốc nhận biết quá hạn» (mặc định 5 ngày, trước đây cứng >14 ngày). */
- const mark=!khanCap&&ichBat('noti.nv.mocQuaHan')&&days>=ichSo('noti.nv.mocQuaHan')?'‼ ':'';
  const badge=khanCap?`<span class="badge red-solid" style="text-align:center">Quá hạn khẩn cấp · ${fmt(days)} ngày</span>`
- :`<span class="badge red" style="text-align:center">${mark}Quá hạn ${fmt(days)} ngày</span>`;
- return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title)}</b><small>${esc(shortUnit(r.unit))}</small></div><div style="display:flex;flex-direction:column;gap:4px;align-items:stretch;min-width:96px">${noiProgressBadgeHtml(r)}${badge}</div></button>`;
+ :`<span class="badge red" style="text-align:center">Quá hạn ${fmt(days)} ngày</span>`;
+ return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title||'(không có tên)')}</b><small>${esc(shortUnit(r.unit))}</small></div><div style="display:flex;flex-direction:column;gap:4px;align-items:stretch;min-width:96px">${noiProgressBadgeHtml(r)}${badge}</div></button>`;
  }
- /* Trong hạn: chưa hoàn thành, đã qua thời gian Mới, chưa tới Sắp hết hạn — nhãn trung tính «Còn X ngày» (không có
- hạn thì «Trong hạn»). */
- function myTaskRowTrongHan(r,todayMs){
- const dueMs=parseDMY(r.due);
- const text=dueMs?`Còn ${fmt(Math.max(0,Math.round((dueMs-todayMs)/86400000)))} ngày`:'Trong hạn';
- return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title)}</b><small>${esc(shortUnit(r.unit))}</small></div><span class="badge">${text}</span></button>`;
+ /* Đang thực hiện (mã trongHan): chưa hoàn thành, đã qua thời gian Mới, chưa tới Sắp hết hạn — nhãn màu mặc định
+ «Đang thực hiện» như tài liệu Notify (trước đây «Còn X ngày»). Tab KC/QT cũng dùng nhãn này cho nhiệm vụ không thuộc
+ trạng thái nào (tài liệu: trangThaiNoti trống). */
+ function myTaskRowTrongHan(r){
+ const text='Đang thực hiện';
+ return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title||'(không có tên)')}</b><small>${esc(shortUnit(r.unit))}</small></div><span class="badge">${text}</span></button>`;
  }
  /* Vẽ 1 dòng nhiệm vụ theo đúng trạng thái đã xếp (noiNvTrangThai). */
  function noiNvRow(r,key,todayMs){
@@ -256,19 +252,20 @@
  if(key==='quaHan') return myTaskRowOverdue(r,todayMs,false);
  if(key==='hanHomNay'||key==='sapHetHan') return myTaskRowDueSoon(r,todayMs);
  if(key==='moi') return myTaskRowNew(r);
- if(key==='trongHan') return myTaskRowTrongHan(r,todayMs);
+ if(key==='trongHan') return myTaskRowTrongHan(r);
+ if(key==='choDuyet') return myTaskRowPending(r);
  return myTaskRowCompleted(r);
  }
 
  /* Badge màu vàng (gold) — khớp ĐÚNG màu statusDefs.pending ('#d8a50c'/cls:'gold', data-static.js) đang dùng ở
  mọi nơi khác trong app cho trạng thái "Chờ phê duyệt", không tự bịa màu riêng. */
  function myTaskRowPending(r){
- return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title)}</b><small>${esc(shortUnit(r.unit))}</small></div><span class="badge gold">Chờ duyệt</span></button>`;
+ return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title||'(không có tên)')}</b><small>${esc(shortUnit(r.unit))}</small></div><span class="badge gold">Chờ duyệt</span></button>`;
  }
  /* Bỏ hiện số giờ còn lại theo yêu cầu — badge chỉ còn "Hoàn thành" trơn, logic tự rớt sau 24h (myTasksCompletedRecent)
  vẫn giữ nguyên, chỉ không hiển thị đếm ngược ra ngoài nữa. */
  function myTaskRowCompleted(r){
- return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title)}</b><small>${esc(shortUnit(r.unit))}</small></div><span class="badge ok">Hoàn thành</span></button>`;
+ return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title||'(không có tên)')}</b><small>${esc(shortUnit(r.unit))}</small></div><span class="badge ok">Hoàn thành</span></button>`;
  }
  /* Badge trước đây LUÔN dùng nhãn tĩnh (MY_TASK_BUCKET_META[x.to].label = "Sắp quá hạn"/"Quá hạn" trơn, không số
  ngày) — khác hẳn badge cùng nhiệm vụ đó ở nhóm "Sắp hết hạn"/"Quá hạn" (có số ngày cụ thể: "Còn 3 ngày"/"Quá
@@ -309,16 +306,12 @@
  {key:'kpi',label:'OKR/KPI'}
  ];
  /* Bộ trạng thái của bộ lọc (icon phễu) từng tab — chỉ gồm trạng thái ĐANG BẬT ở «Cấu hình chức năng IOC», nhãn và
- thứ tự lấy từ cấu hình. Nhiệm vụ: các trạng thái theo thứ tự ưu tiên + «Cập nhật trạng thái». Văn bản: Sắp đến hạn /
- Mới / Đổi trạng thái (tính theo ngày, xem noiVbTrangThai). GIS/Camera: đã giao xử lý hay chưa (linked). OKR/KPI:
- 6 trạng thái CAT_ST (indicators.js) của indicatorRecords. "Chờ duyệt" vẫn bỏ khỏi Noti theo yêu cầu cũ
- (myTasksPendingApproval()/myTaskRowPending() giữ trong code, không dùng). */
+ thứ tự lấy từ cấu hình. Nhiệm vụ: các trạng thái theo thứ tự ưu tiên (gồm Chờ duyệt). Văn bản: không có trạng thái
+ (tài liệu Notify) nên chỉ có «Tất cả». GIS/Camera: đã giao xử lý hay chưa (linked). OKR/KPI: 6 trạng thái CAT_ST
+ (indicators.js) của indicatorRecords. */
  function noiNhanCauHinh(id){ const t=ichThamSo(id); return t&&t.nhan?t.nhan[0]:noiKhoa(id); }
  function notiStatusDefsFor(typeKey){
- if(typeKey==='vb'){
- const g=noiVbNhom();
- return ichUuTien('noti','vb').filter(ichBat).map(id=>({key:noiKhoa(id),label:noiNhanCauHinh(id),count:(g[noiKhoa(id)]||[]).length}));
- }
+ if(typeKey==='vb') return [];
  if(typeKey==='gis'){
  const items=noiGisCombinedItems(), defs=[];
  if(ichBat('noti.gis.chuaXuLy')) defs.push({key:'pending',label:'Chưa xử lý',count:items.filter(it=>!noiGisItemLinked(it)).length});
@@ -330,35 +323,18 @@
  return CAT_ST.filter(s=>ichBat('noti.kpi.'+s.k)).map(s=>({key:s.k,label:s.l,count:all.filter(r=>r.status===s.k).length}));
  }
  const g=noiNvNhom();
- const defs=ichUuTien('noti','nv').filter(ichBat).map(id=>({key:noiKhoa(id),label:noiNhanCauHinh(id),count:(g[noiKhoa(id)]||[]).length}));
- if(ichBat('noti.nv.capNhat')) defs.push({key:'status',label:'Cập nhật trạng thái',count:myTaskStatusLogScoped().length});
- return defs;
+ return noiNvKhoaHien().map(k=>'noti.nv.'+k).filter(ichBat).map(id=>({key:noiKhoa(id),label:noiNhanCauHinh(id),count:(g[noiKhoa(id)]||[]).length}));
  }
- /* ===== Văn bản trên Noti (tab Văn bản và Khẩn cấp/Quan trọng) =====
- Trước đây lấy thẳng theo trạng thái có sẵn trong dữ liệu (NOTI_DOCTASK_DEFS: new/progress/dueSoon). Nay tính theo
- ngày như nhiệm vụ (anh duyệt 17/11/2026): Sắp đến hạn = còn 0..N ngày tới hạn xử lý; Mới = tạo trong N ngày; Đổi
- trạng thái = đang thực hiện (progress, chỉ hiển thị). Mỗi văn bản chỉ 1 trạng thái theo thứ tự ưu tiên ở cấu
- hình; văn bản đã hoàn thành không hiện. NOTI_DOCTASK_DEFS vẫn giữ cho các danh sách khác (audit-log.js). */
- function noiVbTrangThai(r,todayMs){
- if(r.status==='done') return null;
- const dueMs=parseDMY(r.due), createdMs=parseDMY(r.created);
- const diff=dueMs?Math.round((dueMs-todayMs)/86400000):null;
- const thoa={
- sapDenHan:diff!=null&&diff>=0&&diff<=ichSo('noti.vb.sapDenHan'),
- moi:!!createdMs&&createdMs>=Date.now()-ichSo('noti.vb.moi')*86400000,
- doiTrangThai:r.status==='progress'
- };
- for(const id of ichUuTien('noti','vb')){ const k=noiKhoa(id); if(thoa[k]&&ichBat(id)) return k; }
- return null;
- }
- function noiVbNhom(){
+ /* ===== Văn bản đến trên Noti (tab Văn bản và Khẩn cấp/Quan trọng) — theo tài liệu Notify (17/11/2026) =====
+ Văn bản đến không có trạng thái và tiến độ: tab Văn bản lấy văn bản đến chưa hoàn thành, mới nhất lên đầu (anh
+ duyệt). Dòng: icon độ khẩn + trích yếu; dòng phụ số ký hiệu · đơn vị · ngày tạo (DD/MM); nhãn loại văn bản (xanh
+ dương) và nhãn hạn (Quá hạn N ngày / Hạn hôm nay). NOTI_DOCTASK_DEFS vẫn giữ cho các danh sách khác (audit-log.js). */
+ function noiVbDanhSach(){
  if(__noiTam&&__noiTam.vb) return __noiTam.vb;
- const today=noiTodayMs(), g={};
- records.filter(r=>r.metric==='docIn'&&canSeeRole(r.role)).forEach(r=>{ const k=noiVbTrangThai(r,today); if(k) (g[k]=g[k]||[]).push(r); });
- /* Mới nhất lên đầu trong từng nhóm (như trước). */
- Object.values(g).forEach(a=>a.sort((x,y)=>parseDMY(y.created)-parseDMY(x.created)));
- if(__noiTam) __noiTam.vb=g;
- return g;
+ const ds=records.filter(r=>r.metric==='docIn'&&canSeeRole(r.role)&&r.status!=='done')
+ .sort((x,y)=>parseDMY(y.created)-parseDMY(x.created));
+ if(__noiTam) __noiTam.vb=ds;
+ return ds;
  }
  function noiGisCombinedItems(){
  return [...noticeGisItems().map(rec=>({kind:'gis',rec})),...noticeCameraItems().map(rec=>({kind:'camera',rec}))];
@@ -374,9 +350,13 @@
  const scopedNames=currentXaId!=null?new Set(roles.flatMap(r=>categorySeedForRole(r).flatMap(c=>c.items.map(it=>it[0])))):null;
  return (indicatorRecords||[]).filter(r=>roles.includes(r.role)&&(!scopedNames||scopedNames.has(r.indicator)));
  }
- function noiRowVb(r,label){
- const st=statusMeta(r.status);
- return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.title)}</b><small>${esc(shortUnit(r.unit))}</small></div><span class="badge ${st.cls||''}">${esc(label)}</span></button>`;
+ function noiNgayNgan(dmy){ return (String(dmy||'').match(/^(\d{2})\/(\d{2})/)||[])[0]||''; }
+ function noiRowVb(r){
+ const sub=[r.code,r.unit?shortUnit(r.unit):'',noiNgayNgan(r.created)].filter(Boolean).join(' · ')||'—';
+ const dueMs=parseDMY(r.due), diff=dueMs?Math.round((dueMs-noiTodayMs())/86400000):null;
+ const han=diff==null||diff>0?'':(diff===0?'<span class="badge orange" style="text-align:center">Hạn hôm nay</span>'
+ :`<span class="badge red" style="text-align:center">Quá hạn ${fmt(-diff)} ngày</span>`);
+ return `<button class="notify" onclick="closeModal();openRecordDetail('${r.id}')"><div><b>${noiStar(r)}${esc(r.summary||'(không có trích yếu)')}</b><small>${esc(sub)}</small></div><div style="display:flex;flex-direction:column;gap:4px;align-items:stretch;min-width:96px"><span class="badge blue" style="text-align:center">${esc(r.docType||'Văn bản')}</span>${han}</div></button>`;
  }
  function noiRowGis(it){
  if(it.kind==='gis'){
@@ -403,29 +383,25 @@
  {key:'kpi',short:'OKR',label:'OKR/KPI'},
  {key:'gis',short:'GIS',label:'GIS/Camera AI'}
  ];
- /* "Quan trọng" (priority='Cao') và "Khẩn cấp" (urgency='Khẩn cấp') là 2 field ĐỘC LẬP trên record (nhiệm vụ tạo
- thủ công qua form chọn riêng từng ô "Mức độ quan trọng"/"Độ khẩn") — noiIsUrgentRecord() dùng OR để LỌC (còn nằm
- trong tab KC/QT hay không, chỉ cần 1 trong 2 đúng), khác hẳn noiStar() bên dưới cần biết CHÍNH XÁC cái nào đúng
- để chọn icon phù hợp, không gộp chung 1 boolean như trước. */
- /* Mức nào được đưa vào tab KC/QT theo «Cấu hình chức năng IOC» (tab Khẩn cấp/Quan trọng): Quan trọng = Cao,
- Độ khẩn = Khẩn cấp, Gấp (mặc định tắt) — dòng nào tắt thì không đưa vào tab và không hiện icon. */
+ /* "Mức độ quan trọng" (priority) và "Độ khẩn" (urgency) là 2 field ĐỘC LẬP trên record — noiIsUrgentRecord() dùng OR
+ để LỌC vào tab KC/QT; icon (noiStar) chỉ theo độ khẩn. */
+ /* Độ khẩn theo tài liệu Notify (17/11/2026): Hỏa tốc, Thượng khẩn, Khẩn, Thường. Mức nào được đưa vào tab KC/QT theo
+ «Cấu hình chức năng IOC» (Hỏa tốc / Thượng khẩn / Khẩn / Mức độ quan trọng Cao). */
+ const NOI_DO_KHAN={'Hỏa tốc':{id:'noti.kcqt.hoaToc',hang:0,icon:'⚠️'},'Thượng khẩn':{id:'noti.kcqt.thuongKhan',hang:1,icon:'⚠️'},'Khẩn':{id:'noti.kcqt.khan',hang:2,icon:'❗'}};
  function noiLaQuanTrong(r){ return r.priority==='Cao'&&ichBat('noti.kcqt.quanTrongCao'); }
- function noiLaKhan(r){ return (r.urgency==='Khẩn cấp'&&ichBat('noti.kcqt.khanCap'))||(r.urgency==='Gấp'&&ichBat('noti.kcqt.gap')); }
+ function noiLaKhan(r){ const k=NOI_DO_KHAN[r.urgency]; return !!k&&ichBat(k.id); }
  function noiIsUrgentRecord(r){ return noiLaQuanTrong(r)||noiLaKhan(r); }
- /* Thứ tự trong tab: Khẩn cấp → Gấp → chỉ Quan trọng. */
- function noiHangKhan(r){ return r.urgency==='Khẩn cấp'&&ichBat('noti.kcqt.khanCap')?0:(r.urgency==='Gấp'&&ichBat('noti.kcqt.gap')?1:2); }
+ /* Thứ tự trong tab: Hỏa tốc → Thượng khẩn → Khẩn → chỉ mức độ quan trọng Cao. */
+ function noiHangKhan(r){ return noiLaKhan(r)?NOI_DO_KHAN[r.urgency].hang:3; }
  /* GIS: mức nguy hiểm từ ngưỡng ở cấu hình (mặc định 4) trở lên, dòng tắt thì không đưa vào; Camera AI mức Khẩn
  luôn đưa vào (dòng chỉ hiển thị ở cấu hình). */
  function noiIsUrgentGis(it){ return it.kind==='gis' ? (ichBat('noti.kcqt.gisNguyHiem')&&Number(it.rec.danger_level||0)>=ichSo('noti.kcqt.gisNguyHiem')) : it.rec.level==='Khẩn'; }
- /* Đánh dấu NGAY TRÊN mọi dòng notify (không riêng tab KC/QT) — khác tab KC/QT (thay hẳn badge trạng thái bằng
- "Khẩn cấp"/"Quan trọng"), ở đây chỉ CHÈN THÊM icon cạnh tiêu đề, badge trạng thái thật (Còn X ngày/Quá hạn X
- ngày/Mới/...) vẫn giữ nguyên — 2 việc không thay thế nhau. ❗ (đỏ) = quan trọng, ⚠️ (tam giác có "!") = khẩn
- cấp — đổi từ ⭐/🔥 theo đúng icon anh chỉ định. Vừa quan trọng vừa khẩn cấp thì hiện CẢ HAI. */
+ /* Icon độ khẩn cạnh tiêu đề, ở MỌI dòng notify (tài liệu Notify): ⚠️ = Hỏa tốc/Thượng khẩn, ❗ = Khẩn; độ khẩn khác
+ hoặc trống không có icon. Rê chuột vào icon hiện tên độ khẩn. Chỉ chèn thêm, không thay nhãn trạng thái. Mức độ
+ quan trọng không có icon (trước đây ❗ = quan trọng Cao). */
  function noiStar(r){
- let s='';
- if(noiLaQuanTrong(r)) s+='❗ ';
- if(noiLaKhan(r)) s+='⚠️ ';
- return s;
+ const k=NOI_DO_KHAN[r.urgency];
+ return k?`<span title="${esc(r.urgency)}">${k.icon}</span> `:'';
  }
  /* GIS/Camera AI chỉ có 1 khái niệm duy nhất (danger_level/level — bản chất là mức độ khẩn cấp/nguy hiểm, không
  có field "mức độ quan trọng" riêng như NV/VB) nên chỉ dùng đúng icon ⚠️ (khẩn cấp), không gán ❗ tùy tiện cho
@@ -439,21 +415,22 @@
  /* "auto lọc khẩn cấp xếp trước quan trọng" — gắn cờ urgent=true/false cho từng dòng rồi SORT ỔN ĐỊNH (Array.sort
  trong JS hiện đại luôn ổn định) theo urgent trước, giữ nguyên thứ tự gốc (theo hạn/ngày tạo/thời gian nhận) bên
  trong từng nhóm. Không thể sort sau khi đã map thành chuỗi HTML nên phải gắn cờ NGAY LÚC build rồi mới map. */
- /* Nhiệm vụ: lấy theo đúng 1 trạng thái đã xếp (noiNvTrangThai) — không còn hiện 1 nhiệm vụ 2–3 lần; gồm mọi trạng
- thái đang bật trừ Hoàn thành. Văn bản: theo noiVbTrangThai. Xếp: Khẩn cấp → Gấp → chỉ Quan trọng, giữ thứ tự gốc
- bên trong (sort ổn định); GIS/Camera/CAD tính như Khẩn cấp. */
+ /* Nhiệm vụ: theo đúng 1 trạng thái đã xếp (noiNvTrangThai), mọi trạng thái trừ Hoàn thành, nhiệm vụ chưa xong
+ không thuộc trạng thái nào thì «Đang thực hiện». Văn bản đến: dòng văn bản (noiRowVb). Xếp: Hỏa tốc → Thượng khẩn →
+ Khẩn → chỉ quan trọng Cao, giữ thứ tự gốc bên trong (sort ổn định); GIS/Camera/CAD xếp như Hỏa tốc. */
  function noiUrgentRows(matchQ){
  const todayMs=noiTodayMs();
  const mQ=r=>matchQ(`${r.title||''} ${r.unit||''}`);
  const items=[];
  const nv=noiNvNhom();
- ichUuTien('noti','nv').map(noiKhoa).filter(k=>k!=='hoanThanh').forEach(k=>{
+ noiNvKhoaHien().filter(k=>k!=='hoanThanh').forEach(k=>{
  (nv[k]||[]).filter(noiIsUrgentRecord).filter(mQ).forEach(r=>items.push({hang:noiHangKhan(r),html:()=>noiNvRow(r,k,todayMs)}));
  });
- const vb=noiVbNhom();
- ichUuTien('noti','vb').forEach(id=>{
- (vb[noiKhoa(id)]||[]).filter(noiIsUrgentRecord).filter(mQ).forEach(r=>items.push({hang:noiHangKhan(r),html:()=>noiRowVb(r,noiNhanCauHinh(id))}));
- });
+ /* Nhiệm vụ chưa hoàn thành không thuộc trạng thái nào đang bật → «Đang thực hiện» (tài liệu: trangThaiNoti trống
+ chỉ gặp ở tab Quan trọng). */
+ myReceivedTasks().filter(r=>r.status!=='done'&&r.status!=='closed'&&noiIsUrgentRecord(r)&&mQ(r)&&!noiNvTrangThai(r,todayMs))
+ .forEach(r=>items.push({hang:noiHangKhan(r),html:()=>myTaskRowTrongHan(r)}));
+ noiVbDanhSach().filter(noiIsUrgentRecord).filter(mQ).forEach(r=>items.push({hang:noiHangKhan(r),html:()=>noiRowVb(r)}));
  const tsOfGis=it=>it.kind==='gis'?(it.rec.received_at||0):Date.now();
  noiGisCombinedItems().filter(noiIsUrgentGis).filter(it=>matchQ(it.kind==='gis'?it.rec.title:`${it.rec.type} ${it.rec.camId}`))
  .sort((a,b)=>tsOfGis(b)-tsOfGis(a))
@@ -557,24 +534,17 @@
  const showAll=!statuses||statuses.length===0;
  const has=k=>showAll||statuses.includes(k);
  if(typeKey==='nv'){
- /* Mỗi nhiệm vụ 1 trạng thái (noiNvTrangThai), các nhóm nối theo thứ tự ưu tiên ở cấu hình; nhật ký «Cập nhật
- trạng thái» ở cuối (chỉ khi đang bật). */
+ /* Mỗi nhiệm vụ 1 trạng thái (noiNvTrangThai); các nhóm nối theo thứ tự hiện (việc gấp trước, Hoàn thành cuối).
+ Nhật ký «Cập nhật trạng thái» đã bỏ khỏi Noti 17/11/2026. */
  const todayMs=noiTodayMs();
  const mQ=r=>matchQ(`${r.title||''} ${r.unit||''}`);
  const g=noiNvNhom(), rows=[];
- ichUuTien('noti','nv').map(noiKhoa).forEach(k=>{ if(has(k)) rows.push(...(g[k]||[]).filter(mQ).map(r=>()=>noiNvRow(r,k,todayMs))); });
- if(has('status')) rows.push(...myTaskStatusLogScoped().filter(x=>matchQ(`${x.title||''} ${x.text||''}`)).map(x=>()=>myTaskRowStatus(x)));
+ noiNvKhoaHien().forEach(k=>{ if(has(k)) rows.push(...(g[k]||[]).filter(mQ).map(r=>()=>noiNvRow(r,k,todayMs))); });
  return rows;
  }
  if(typeKey==='vb'){
- /* Mỗi văn bản 1 trạng thái (noiVbTrangThai), nhóm nối theo thứ tự ưu tiên ở cấu hình; mới nhất lên đầu trong
- từng nhóm (noiVbNhom). */
- const g=noiVbNhom(), rows=[];
- ichUuTien('noti','vb').forEach(id=>{
- const k=noiKhoa(id); if(!has(k)) return;
- rows.push(...(g[k]||[]).filter(r=>matchQ(`${r.title||''} ${r.unit||''}`)).map(r=>()=>noiRowVb(r,noiNhanCauHinh(id))));
- });
- return rows;
+ /* Văn bản đến chưa hoàn thành, mới nhất lên đầu (noiVbDanhSach); tìm theo trích yếu, đơn vị, số ký hiệu. */
+ return noiVbDanhSach().filter(r=>matchQ(`${r.summary||''} ${r.title||''} ${r.unit||''} ${r.code||''}`)).map(r=>()=>noiRowVb(r));
  }
  if(typeKey==='gis'){
  /* GIS eform có received_at (epoch ms thật) — Camera AI không có mốc ngày (chỉ có giờ trong ngày), coi như
@@ -598,7 +568,7 @@
  return [];
  }
  function renderMyTasksNotify(){
- checkMyTaskTransitions();
+ /* checkMyTaskTransitions() (sinh nhật ký «Cập nhật trạng thái») không gọi nữa: nhật ký đã bỏ khỏi Noti 17/11/2026. */
  const tabsBox=document.getElementById('notiTabsBox');
  const filterBtn=document.getElementById('notiFilterBtn');
  const listBox=document.getElementById('myTaskList');
@@ -608,6 +578,17 @@
  try{ noiVeDanhSach(tabsBox,filterBtn,listBox,searchInput); } finally{ __noiTam=null; }
  }
  function noiVeDanhSach(tabsBox,filterBtn,listBox,searchInput){
+ /* Số thông báo từng tab (tài liệu Notify: như số server trả — không theo ô tìm kiếm, không theo lọc trạng thái).
+ Tab có 0 thông báo thì ẩn; tab đang mở mà về 0 thì chuyển sang tab đầu tiên còn thông báo (trừ khi nơi gọi cố ý
+ giữ tab — xuất PDF, window.__notiGiuTab). */
+ const tatCa=()=>true;
+ const soTab={};
+ NOTI_TAB_DEFS.forEach(t=>{ soTab[t.key]=(t.key==='urgent'?noiUrgentRows(tatCa):notiRowsForType(t.key,[],tatCa)).length; });
+ const anTheoNguoiDung=k=>typeof UV_STATE!=='undefined'&&(UV_STATE.hidden||[]).includes('notify-tab-'+k);
+ if(!soTab[window.__notiActiveTab||'urgent']&&!window.__notiGiuTab){
+ const tabCo=NOTI_TAB_DEFS.find(t=>soTab[t.key]>0&&!anTheoNguoiDung(t.key));
+ if(tabCo){ window.__notiActiveTab=tabCo.key; window.__notiActiveStatuses=[]; }
+ }
  const activeTab=window.__notiActiveTab||'urgent';
  const q=((searchInput&&searchInput.value)||'').trim().toLowerCase();
  const matchQ=txt=>!q||String(txt||'').toLowerCase().includes(q);
@@ -630,19 +611,17 @@
  window.__notiActiveStatuses=activeStatuses;
  rows=notiRowsForType(activeTab,activeStatuses,matchQ);
  }
- /* Notify đang phóng to (js/features/notify-fs.js): tab hiện thêm số thông báo của tab đó (đếm đúng danh sách tab sẽ
- hiện, theo ô tìm kiếm; tab đang mở = đúng số dòng đang hiện, kể cả lọc trạng thái). Widget nhỏ không đếm để
- khỏi tốn công vẽ. Vẽ dải tab SAU khi đã có rows để dùng lại số của tab đang mở. */
- const tabCount=(typeof nfsActive==='function'&&nfsActive())
- ? (k=>`<em class="noti-tab-count">${fmt(k===activeTab?rows.length:(k==='urgent'?noiUrgentRows(matchQ):notiRowsForType(k,[],matchQ)).length)}</em>`)
- : (()=> '');
+ /* Mọi tab luôn hiện số thông báo (cả widget thường lẫn phóng to); tab 0 thông báo ẩn (display:none — vẫn có trong
+ DOM để «Ẩn/hiện giao diện» liệt kê được). */
  tabsBox.innerHTML=NOTI_TAB_DEFS.map(t=>
- `<button class="gis-report-tab${t.key===activeTab?' active':''}" data-uv-item="notify-tab-${t.key}" data-uv-label="${esc(t.label)}" data-uv-icon="🔔" data-uv-parent="notify" style="flex:0 0 auto;white-space:nowrap;padding:8px 12px" onclick="onNotiTabClick('${t.key}')">${esc(t.label)}${tabCount(t.key)}</button>`
+ `<button class="gis-report-tab${t.key===activeTab?' active':''}" data-uv-item="notify-tab-${t.key}" data-uv-label="${esc(t.label)}" data-uv-icon="🔔" data-uv-parent="notify" style="flex:0 0 auto;white-space:nowrap;padding:8px 12px;${soTab[t.key]||t.key===activeTab?'':'display:none'}" onclick="onNotiTabClick('${t.key}')">${esc(t.label)} <em class="noti-tab-count">${fmt(soTab[t.key])}</em></button>`
  ).join('');
  renderNotiStatusFilterDropdown();
  /* Icon phễu khóa lại (disabled) khi đang ở tab KC/QT (gộp nhiều loại) — không có 1 bộ trạng thái để "ăn theo",
  tránh anh bấm vào tưởng lọc được mà không hiểu vì sao không có gì xảy ra. */
  if(filterBtn){
+ /* Đang lọc trạng thái → nút lọc sáng viền (tài liệu Notify). */
+ filterBtn.style.boxShadow=(!isCrossType&&(window.__notiActiveStatuses||[]).length)?'0 0 0 2px rgba(73,188,255,.45)':'';
  filterBtn.disabled=isCrossType;
  filterBtn.style.opacity=isCrossType?'.4':'1';
  filterBtn.title=isCrossType?'Chọn 1 loại cụ thể (NV/VB/GIS/OKR) để lọc trạng thái':'Lọc trạng thái';
@@ -686,9 +665,7 @@
  }
  }
  /* Admin lưu «Cấu hình chức năng IOC» (cùng trang, hoặc oua-admin.html ở tab khác cùng trình duyệt) → Noti vẽ lại
- ngay. Ngưỡng «Sắp hết hạn» đổi làm bucket nhật ký của nhiều nhiệm vụ đổi theo — lấy lại mốc (r._lastNotiBucket)
- trước khi vẽ để checkMyTaskTransitions() không sinh hàng loạt dòng «Cập nhật trạng thái» giả. */
+ ngay. */
  ichKhiDoi(()=>{
- (records||[]).forEach(r=>{ if(r.metric==='received'&&r._lastNotiBucket!==undefined) r._lastNotiBucket=myTaskBucket(r); });
  if(document.getElementById('myTaskList')) renderMyTasksNotify();
  });
