@@ -5,26 +5,26 @@
 
 /* Thanh lọc */
 #ouaScreen .oll-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:stretch;margin:16px 0 12px}
-#ouaScreen .oll-search{flex:1 1 300px;min-width:240px;height:48px;display:flex;align-items:center;gap:10px;padding:0 14px;border:1px solid #20496f;background:#0a213b;border-radius:14px;color:var(--sub);cursor:text}
+#ouaScreen .oll-search{flex:1 1 300px;min-width:240px;height:48px;display:flex;align-items:center;gap:10px;padding:0 14px;border:1px solid var(--oua-surface-line);background:var(--oua-surface);border-radius:14px;color:var(--sub);cursor:text}
 #ouaScreen .oll-search:focus-within{border-color:#2d80f2;box-shadow:0 0 0 3px rgba(29,127,242,.18)}
 #ouaScreen .oll-search svg{flex-shrink:0}
 #ouaScreen .oll-search input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:14px}
 #ouaScreen .oll-search input::placeholder{color:#86a4c4}
 #ouaScreen .oll-search.sm{flex:none;height:40px;border-radius:11px;margin-bottom:8px}
-#ouaScreen .oll-seg{display:flex;gap:4px;padding:4px;height:48px;border:1px solid #20496f;background:#0a213b;border-radius:14px}
+#ouaScreen .oll-seg{display:flex;gap:4px;padding:4px;height:48px;border:1px solid var(--oua-surface-line);background:var(--oua-surface);border-radius:14px}
 #ouaScreen .oll-seg button{border:0;background:transparent;color:var(--sub);font:inherit;font-size:14px;font-weight:600;padding:0 16px;border-radius:10px;cursor:pointer;white-space:nowrap}
 #ouaScreen .oll-seg button:hover{color:var(--text);background:rgba(255,255,255,.05)}
 #ouaScreen .oll-seg button.active{background:linear-gradient(180deg,#1c87ff,#1a67d8);color:#fff;box-shadow:0 4px 12px rgba(29,127,242,.35)}
 
 /* Ô chọn tự vẽ (Trạng thái / Trục) + Bộ lọc nâng cao */
 #ouaScreen .oll-dd-wrap{position:relative}
-#ouaScreen .oll-dd-btn{height:48px;min-width:200px;display:flex;align-items:center;gap:12px;padding:0 14px;border:1px solid #20496f;background:#0a213b;border-radius:14px;color:var(--text);font:inherit;font-size:14px;cursor:pointer}
+#ouaScreen .oll-dd-btn{height:48px;min-width:200px;display:flex;align-items:center;gap:12px;padding:0 14px;border:1px solid var(--oua-surface-line);background:var(--oua-surface);border-radius:14px;color:var(--text);font:inherit;font-size:14px;cursor:pointer}
 #ouaScreen .oll-dd-btn span{color:var(--muted);font-size:13px}
 #ouaScreen .oll-dd-btn b{flex:1;text-align:left;font-weight:700;white-space:nowrap}
 #ouaScreen .oll-dd-btn svg{color:var(--sub);transition:transform .15s}
 #ouaScreen .oll-dd-wrap.open .oll-dd-btn{border-color:#2d80f2;box-shadow:0 0 0 3px rgba(29,127,242,.18)}
 #ouaScreen .oll-dd-wrap.open .oll-dd-btn svg{transform:rotate(180deg)}
-#ouaScreen .oll-dd-panel{position:absolute;top:calc(100% + 6px);left:0;min-width:100%;z-index:15;background:#0b2440;border:1px solid #2f6396;border-radius:14px;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+#ouaScreen .oll-dd-panel{position:absolute;top:calc(100% + 6px);left:0;min-width:100%;z-index:15;background:var(--oua-pop);border:1px solid #2f6396;border-radius:14px;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
 #ouaScreen .oll-opt{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:var(--text);font:inherit;font-size:14px;padding:10px 12px;border-radius:10px;cursor:pointer;text-align:left}
 #ouaScreen .oll-opt span{flex:1}
 #ouaScreen .oll-opt:hover,#ouaScreen .oll-opt:focus-visible{background:rgba(255,255,255,.06);outline:0}
@@ -33,7 +33,7 @@
 #ouaScreen .oll-dot{width:8px;height:8px;border-radius:50%;background:#7794b5;flex-shrink:0}
 #ouaScreen .oll-dot.ok{background:#14c38e}
 #ouaScreen .oll-dot.fail{background:#ff5e7a}
-#ouaScreen .oll-adv-btn{height:48px;display:flex;align-items:center;gap:8px;padding:0 18px;border:1px solid #3d7cb8;background:#0e2744;border-radius:14px;color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+#ouaScreen .oll-adv-btn{height:48px;display:flex;align-items:center;gap:8px;padding:0 18px;border:1px solid #3d7cb8;background:var(--oua-btn);border-radius:14px;color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
 #ouaScreen .oll-adv-btn:hover{filter:brightness(1.1)}
 #ouaScreen .oll-adv-btn.on,#ouaScreen .oll-adv-wrap.open .oll-adv-btn{border-color:#2d80f2;background:rgba(29,127,242,.18)}
 #ouaScreen .oll-adv-badge{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#1d7ff2;font-style:normal;font-size:12px}
@@ -46,13 +46,13 @@
 #ouaScreen .oll-org-item b{display:block;font-size:13.5px;font-weight:700;line-height:1.35}
 #ouaScreen .oll-org-item small{display:block;color:var(--sub);font-size:12px;margin-top:2px}
 #ouaScreen .oll-org-empty,#ouaScreen .oll-org-more{padding:12px 10px;color:var(--sub);font-size:12.5px}
-#ouaScreen .oll-org-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid rgba(255,255,255,.08);margin-top:8px;padding-top:10px}
+#ouaScreen .oll-org-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--oua-line);margin-top:8px;padding-top:10px}
 #ouaScreen .oll-check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--sub);cursor:pointer}
 #ouaScreen .oll-check input{accent-color:#1d7ff2;width:16px;height:16px}
 
 /* Dòng chọn khoảng ngày (Tùy chọn) */
 #ouaScreen .oll-range{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 12px}
-#ouaScreen .oll-date{width:250px;height:48px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid #20496f;background:#0a213b;border-radius:14px;cursor:text}
+#ouaScreen .oll-date{width:250px;height:48px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--oua-surface-line);background:var(--oua-surface);border-radius:14px;cursor:text}
 #ouaScreen .oll-date.focus{border-color:#2d80f2;box-shadow:0 0 0 3px rgba(29,127,242,.18)}
 #ouaScreen .oll-date span{color:var(--muted);font-size:13px;white-space:nowrap}
 #ouaScreen .oll-date input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-weight:700;font-size:14px}
@@ -63,7 +63,7 @@
 #ouaScreen .oll-form-err{color:#ff8da1;font-size:13px;margin:-4px 0 12px;font-weight:600}
 
 /* Lịch 2 tháng */
-#ouaScreen .oll-cal{position:absolute;top:calc(100% + 8px);left:0;z-index:16;width:640px;max-width:calc(100vw - 40px);background:#0b2440;border:1px solid #2f6396;border-radius:16px;padding:16px 18px 14px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+#ouaScreen .oll-cal{position:absolute;top:calc(100% + 8px);left:0;z-index:16;width:640px;max-width:calc(100vw - 40px);background:var(--oua-pop);border:1px solid #2f6396;border-radius:16px;padding:16px 18px 14px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
 #ouaScreen .oll-cal.to{left:290px}
 #ouaScreen .oll-cal-nav{position:absolute;top:13px;width:30px;height:30px;display:grid;place-items:center;border:0;border-radius:8px;background:transparent;color:var(--sub);cursor:pointer}
 #ouaScreen .oll-cal-nav:hover:not(:disabled){background:rgba(255,255,255,.06);color:#fff}
@@ -76,14 +76,14 @@
 #ouaScreen .oll-dow span{text-align:center;font-size:12px;color:var(--muted);font-weight:700;padding-bottom:8px}
 #ouaScreen .oll-day{height:38px;padding:0;border:0;background:transparent;color:var(--text);font:inherit;font-size:14px;cursor:pointer;display:grid;place-items:center}
 #ouaScreen .oll-day span{display:grid;place-items:center;width:34px;height:34px;border-radius:50%}
-#ouaScreen .oll-day:hover:not(:disabled) span{background:rgba(255,255,255,.08)}
+#ouaScreen .oll-day:hover:not(:disabled) span{background:var(--oua-line)}
 #ouaScreen .oll-day.in{background:rgba(29,127,242,.2)}
 #ouaScreen .oll-day.start{background:linear-gradient(90deg,transparent 50%,rgba(29,127,242,.2) 50%)}
 #ouaScreen .oll-day.end{background:linear-gradient(90deg,rgba(29,127,242,.2) 50%,transparent 50%)}
 #ouaScreen .oll-day.sel span,#ouaScreen .oll-day.sel:hover span{background:#1d7ff2;color:#fff;font-weight:800}
 #ouaScreen .oll-day.today:not(.sel) span{box-shadow:inset 0 0 0 1px #3ec1ff}
 #ouaScreen .oll-day:disabled{color:#3f5f80;cursor:not-allowed}
-#ouaScreen .oll-cal-foot{display:flex;align-items:center;gap:10px;border-top:1px solid rgba(255,255,255,.08);margin-top:12px;padding-top:12px}
+#ouaScreen .oll-cal-foot{display:flex;align-items:center;gap:10px;border-top:1px solid var(--oua-line);margin-top:12px;padding-top:12px}
 #ouaScreen .oll-cal-hint{flex:1;color:var(--sub);font-size:13px}
 #ouaScreen .oll-cal-hint.err{color:#ff8da1;font-weight:600}
 #ouaScreen .oll-cal-foot .btn{min-width:88px}
@@ -96,7 +96,7 @@
 /* Bảng */
 #ouaScreen .oll-table-wrap{overflow-x:auto;border-radius:16px;border:1px solid rgba(255,255,255,.06)}
 #ouaScreen .oll-table{min-width:1100px;table-layout:fixed}
-#ouaScreen .oll-table thead th{background:#0f2c4d;color:#e6f1ff;font-weight:700;font-size:13.5px;white-space:nowrap;padding:14px 12px}
+#ouaScreen .oll-table thead th{background:var(--oua-th-solid);color:#e6f1ff;font-weight:700;font-size:13.5px;white-space:nowrap;padding:14px 12px}
 #ouaScreen .oll-table td{vertical-align:middle;padding:11px 12px}
 #ouaScreen .oll-table tbody tr:nth-child(even){background:rgba(255,255,255,.018)}
 #ouaScreen .oll-time{white-space:nowrap;color:var(--sub);font-size:13px}
@@ -136,7 +136,7 @@
 /* Chân bảng */
 #ouaScreen .oll-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;color:var(--sub);font-size:13.5px;min-height:40px}
 #ouaScreen .oll-pager{display:flex;gap:6px;flex-wrap:wrap}
-#ouaScreen .oll-pager button{min-width:38px;height:38px;padding:0 10px;display:grid;place-items:center;border-radius:10px;border:1px solid #28557e;background:#0a213b;color:var(--text);font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+#ouaScreen .oll-pager button{min-width:38px;height:38px;padding:0 10px;display:grid;place-items:center;border-radius:10px;border:1px solid var(--oua-btn-line);background:var(--oua-surface);color:var(--text);font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
 #ouaScreen .oll-pager button:hover:not(:disabled){border-color:#3d7cb8}
 #ouaScreen .oll-pager button.active{background:linear-gradient(180deg,#1c87ff,#1a67d8);border-color:#2d80f2;color:#fff}
 #ouaScreen .oll-pager button:disabled{opacity:.4;cursor:not-allowed}
