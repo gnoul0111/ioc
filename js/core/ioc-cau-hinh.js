@@ -83,7 +83,7 @@ const ICH_THAM_SO=[
   moTa:'Nhiệm vụ có hạn xử lý là hôm nay hiện nhãn «Hạn hôm nay» màu cam.'},
  {id:'noti.nv.quaHan',cn:'noti',tab:'nv',ten:'Nhiệm vụ quá hạn',nhan:['Quá hạn','red'],chiXem:true, // luôn bật, không tắt được (anh chốt 17/11/2026)
   moTa:'Nhiệm vụ chưa hoàn thành đã qua hạn xử lý hiện nhãn «Quá hạn N ngày», tính từ ngày quá hạn đầu tiên.'},
- {id:'noti.nv.quaHanKhanCap',cn:'noti',tab:'nv',ten:'Quá hạn khẩn cấp',nhan:['🚨 Quá hạn khẩn cấp','red'],bat:true,
+ {id:'noti.nv.quaHanKhanCap',cn:'noti',tab:'nv',ten:'Quá hạn khẩn cấp',nhan:['🚨 Quá hạn','red'],bat:true,
   so:{macDinh:10,donVi:'ngày',min:2,max:50},
   moTa:'Nhiệm vụ quá hạn từ số ngày này trở lên hiện thêm icon 🚨 ở đầu nhãn «Quá hạn N ngày» để dễ nhận biết.'},
  {id:'noti.nv.choDuyet',cn:'noti',tab:'nv',ten:'Nhiệm vụ chờ duyệt',nhan:['Chờ duyệt','gold'],bat:true,
