@@ -1738,6 +1738,7 @@ const ouaPageMeta = {
   'field-settings': {menu:'field-settings', title:'Cài đặt lĩnh vực'},
   'org-grouping': {menu:'org-grouping', title:'Phân nhóm đơn vị'},
   'indicator-mapping': {menu:'indicator-mapping', title:'Cấu hình chỉ tiêu đơn vị'},
+  'unit-indicator-visibility': {menu:'unit-indicator-visibility', title:'Cấu hình hiển thị IOC'},
   'tree-settings': {menu:'tree-settings', title:'Cài đặt cây thư mục'},
   'login-log': {menu:'login-log', title:'Nhật ký đăng nhập'},
   'source-admin': {menu:'source-admin', title:'Quản trị nguồn dữ liệu'},
@@ -1759,6 +1760,7 @@ function ouaGoPage(id){
   if(id==='field-settings') ouaFilterFieldList();
   if(id==='org-grouping') ouaFilterGroupingList();
   if(id==='indicator-mapping') ouaFilterIndicatorList();
+  if(id==='unit-indicator-visibility' && typeof uvAdminRender==='function') uvAdminRender();
   if(id==='tree-settings') ouaInitTreeSettings();
   if(id==='login-log' && typeof ollOpen==='function') ollOpen(); // js/oua-login-log.js
   if(id==='source-admin' && typeof odsOpen==='function') odsOpen(); // js/oua-data-sources.js
@@ -1766,7 +1768,29 @@ function ouaGoPage(id){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function ouaGoDetail(id){ouaGoPage(id)}
-document.querySelectorAll('#ouaScreen .nav').forEach(n=>n.onclick=()=>ouaGoPage(n.dataset.page));
+function ouaOpenUnitIndicatorVisibility(){
+  const page = window.location.pathname.endsWith('.html') ? 'demo_ioc.html' : 'demo_ioc';
+  const target = new URL(page, window.location.href);
+  target.searchParams.set('unitVisibilityAdmin', '1');
+  const selectedKey = document.getElementById('uvAdminScopeSelect')?.value || '';
+  const prefix = 'px-ioc-ui-visibility-unit:v1:';
+  if(selectedKey.startsWith(prefix)){
+    let scope = selectedKey.slice(prefix.length);
+    try { scope = decodeURIComponent(scope); } catch (e) { /* giữ key nếu dữ liệu cũ không encode */ }
+    let user = '';
+    if(scope.startsWith('role:')){
+      const role = scope.slice(5);
+      user = ({DANG:'danguy',HDND:'hdnd',UBND:'ubnd',MTTQ:'mttq',TW_ALL:'tw'})[role] || '';
+    }else if(scope.startsWith('so:')) user = `so-${scope.slice(3)}`;
+    else if(scope.startsWith('xa:')) user = `xa-${scope.slice(3)}`;
+    else if(scope.startsWith('office:')) user = `ban-${scope.slice(7)}`;
+    if(user) target.searchParams.set('unitVisibilityUser', user);
+  }
+  window.location.assign(target.toString());
+}
+document.querySelectorAll('#ouaScreen .nav').forEach(n=>n.onclick=()=>{
+  ouaGoPage(n.dataset.page);
+});
 document.querySelectorAll('#ouaScreen .tabs .tab').forEach(t=>t.onclick=()=>{let wrap=t.closest('.tabs');wrap.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');let panel=t.closest('.panel');panel.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));document.getElementById(t.dataset.target).classList.add('active');});
 /* ouaActiveModalKey theo dõi modal đang mở để ouaConfirmModal() có thể định tuyến sang xử lý riêng (vd tạo đơn
    vị mới cần đọc input thật và đẩy vào ouaOrgRows) thay vì luôn hiện toast chung chung như trước. */
