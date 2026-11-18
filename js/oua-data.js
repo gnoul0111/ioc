@@ -1769,7 +1769,7 @@ function ouaGoPage(id){
 }
 function ouaGoDetail(id){ouaGoPage(id)}
 function ouaOpenUnitIndicatorVisibility(){
-  window.location.assign('/demo_ioc');
+  window.location.assign('/');
 }
 document.querySelectorAll('#ouaScreen .nav').forEach(n=>n.onclick=()=>{
   ouaGoPage(n.dataset.page);
