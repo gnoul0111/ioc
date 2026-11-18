@@ -52,7 +52,7 @@ function uvComputeLayout(hiddenIds, isTwLayout) {
 
 /* tree: trạng thái mở/thu gọn từng nhóm trong bảng chọn ({id: 'open'|'closed'}); panelBox: vị trí, cỡ bảng chọn người
    dùng đã kéo; aliases: mã cũ → mã mới của mục (đổi cách đặt mã thì lựa chọn đã lưu không mất). */
-const UV_STATE = { hidden: [], key: null, unitHidden: [], unitKey: null, unitEditing: false, unitPreview: false, unitDraft: [], panel: null, editing: false, editBar: null, tree: {}, panelBox: null, panelRoot: null, query: '', aliases: new Map(), hiddenCount: 0, panelPosition: null, panelDrag: null, panelResize: null, badgeFrame: null, badgeTimer: null, badgeEvents: false, switchingTab: false, ignoreNextClick: false };
+const UV_STATE = { hidden: [], key: null, unitHidden: [], panel: null, editing: false, editBar: null, tree: {}, panelBox: null, panelRoot: null, query: '', aliases: new Map(), hiddenCount: 0, panelPosition: null, panelDrag: null, panelResize: null, badgeFrame: null, badgeTimer: null, badgeEvents: false, switchingTab: false, ignoreNextClick: false };
 
 /* Chiều cao mặc định của bảng Ẩn/Hiện (px) khi người dùng chưa tự kéo cỡ. */
 const UV_PANEL_H = 600;
@@ -175,16 +175,35 @@ function uvUnitCountSummary(items, hiddenIds) {
   };
 }
 
-function uvBuildUnitRecord(previous, hiddenIds, items, scopeKey, scopeLabel, updatedBy, updatedAt) {
-  const hidden = [...new Set((hiddenIds || []).filter((id) => typeof id === 'string'))];
-  const savedItems = (items || []).filter((item) => uvUnitItemKind(item.id)).map((item) => ({
+function uvUnitSavedItem(item) {
+  return {
     id: item.id,
     label: item.label,
     kind: uvUnitItemKind(item.id),
     groupLabel: item.groupLabel || '',
     groupId: item.groupId || '',
     categoryKey: item.categoryKey || ''
-  }));
+  };
+}
+
+/* Hàm thuần: thêm vào danh mục đã lưu các mục IOC mới quét được (chỉ tiêu mới thêm vào eform…). Không ghi đè cả danh
+   mục — lúc quét IOC có thể chưa dựng hết các tab — và không bỏ mục cũ; mục đang ẩn giữ nguyên. */
+function uvMergeUnitItems(savedItems, scannedItems) {
+  const items = Array.isArray(savedItems) ? [...savedItems] : [];
+  const known = new Set(items.map((item) => item && item.id));
+  let added = 0;
+  (scannedItems || []).forEach((item) => {
+    if (!item || !uvUnitItemKind(item.id) || known.has(item.id)) return;
+    known.add(item.id);
+    items.push(uvUnitSavedItem(item));
+    added += 1;
+  });
+  return { items, added };
+}
+
+function uvBuildUnitRecord(previous, hiddenIds, items, scopeKey, scopeLabel, updatedBy, updatedAt) {
+  const hidden = [...new Set((hiddenIds || []).filter((id) => typeof id === 'string'))];
+  const savedItems = (items || []).filter((item) => uvUnitItemKind(item.id)).map(uvUnitSavedItem);
   const summary = uvUnitCountSummary(savedItems, hidden);
   const history = Array.isArray(previous && previous.history) ? previous.history : [];
   const entry = {
@@ -217,13 +236,8 @@ function uvCanPersonalToggle(id, unitHidden) {
   return !hidden.has(id);
 }
 
-function uvUnitHiddenActive() {
-  return UV_STATE.unitEditing ? UV_STATE.unitDraft : UV_STATE.unitHidden;
-}
-
 function uvLoadUnit() {
   const key = uvUnitStorageKey();
-  UV_STATE.unitKey = key;
   try {
     const raw = localStorage.getItem(key);
     const parsed = raw ? JSON.parse(raw) : null;
@@ -233,30 +247,6 @@ function uvLoadUnit() {
   } catch (e) {
     UV_STATE.unitHidden = [];
     console.error('[ui-visibility-unit] Không đọc được cấu hình hiển thị đơn vị.', e);
-  }
-}
-
-function uvSaveUnit() {
-  try {
-    const key = uvUnitStorageKey();
-    const raw = localStorage.getItem(key);
-    const previous = raw ? JSON.parse(raw) : null;
-    const account = typeof currentAccount !== 'undefined' && currentAccount ? currentAccount : {};
-    const record = uvBuildUnitRecord(
-      previous,
-      UV_STATE.unitDraft,
-      uvUnitConfigItems(),
-      uvUnitScopeKey(),
-      uvUnitScopeLabel(),
-      account.user || account.title || 'Tài khoản đơn vị',
-      new Date().toISOString()
-    );
-    localStorage.setItem(key, JSON.stringify(record));
-    return true;
-  } catch (e) {
-    console.error('[ui-visibility-unit] Không lưu được cấu hình hiển thị đơn vị.', e);
-    if (typeof toast === 'function') toast('Không lưu được cấu hình hiển thị đơn vị trên trình duyệt này.');
-    return false;
   }
 }
 
@@ -274,11 +264,6 @@ function uvLoad() {
   UV_STATE.tree = parsed && parsed.tree && typeof parsed.tree === 'object' ? parsed.tree : {};
   const box = parsed && parsed.panel;
   UV_STATE.panelBox = box && Number.isFinite(box.left) && Number.isFinite(box.top) ? box : null;
-  const unitKey = uvUnitStorageKey();
-  if (unitKey !== UV_STATE.unitKey) {
-    UV_STATE.unitEditing = false;
-    UV_STATE.unitDraft = [];
-  }
   uvLoadUnit();
   uvMigrateHidden();
 }
@@ -395,12 +380,8 @@ function uvApply(notifyResize) {
   try { uvApplyPass(notifyResize); } finally { UV_PASS = prev; }
 }
 function uvApplyPass(notifyResize) {
-  const personalIds = UV_STATE.unitEditing
-    ? UV_STATE.hidden.filter((id) => !uvUnitItemKind(id))
-    : UV_STATE.hidden;
-  const personalHidden = new Set(personalIds);
-  const unitHidden = new Set(uvUnitHiddenActive());
-  const hid = uvEffectiveHidden(personalHidden, unitHidden);
+  const personalHidden = new Set(UV_STATE.hidden);
+  const hid = uvEffectiveHidden(personalHidden, UV_STATE.unitHidden);
   const blocks = uvAllBlocks();
   blocks.forEach((b) => { const el = uvEl(b); if (el) el.classList.toggle('uv-hidden', hid.has(b.id)); });
   /* Vẽ lại Notify (nếu phải đổi tab) sẽ gọi lại uvApply; lần gọi lồng đó đã áp xong mọi thứ nên dừng ở đây. */
@@ -427,28 +408,45 @@ function uvApplyPass(notifyResize) {
   }
 
   const avail = uvAvailableBlocks();
-  const shown = avail.filter((b) => uvIsVisible(b, hid));
   /* Số mục người dùng tự ẩn (mục con của khối đã ẩn không tính thêm) — hiện ở thanh chỉnh sửa, nút đầu trang, menu. */
   uvRenderCount(uvCountHidden(avail, personalHidden));
 
-  uvRenderEmpty(avail.length > 0 && shown.length === 0);
+  uvRenderEmpty(uvEmptyState(avail, personalHidden, UV_STATE.unitHidden, uvIsVisible));
   uvSyncEditControls();
   if (notifyResize) uvNotifyResize();
 }
 
-function uvRenderEmpty(show) {
+/* Hàm thuần: màn hình trống vì đâu. 'none' = còn nội dung hiện; 'unit' = riêng cấu hình đơn vị đã ẩn hết (người dùng
+   «Hiện tất cả» cũng không hiện lại được); 'personal' = người dùng tự ẩn, «Hiện tất cả» hiện lại được. isVisible là
+   uvIsVisible (truyền vào để kiểm thử). */
+function uvEmptyState(availBlocks, personalIds, unitIds, isVisible) {
+  const avail = availBlocks || [];
+  if (!avail.length) return 'none';
+  const unit = unitIds instanceof Set ? unitIds : new Set(unitIds || []);
+  const all = uvEffectiveHidden(personalIds, unit);
+  if (avail.some((b) => isVisible(b, all))) return 'none';
+  return avail.some((b) => isVisible(b, unit)) ? 'personal' : 'unit';
+}
+
+function uvRenderEmpty(state) {
   let box = document.getElementById('uvEmpty');
   if (!box) {
+    if (state === 'none') return;
     const grid = document.querySelector('.dashboard-grid');
     if (!grid || !grid.parentNode) return;
     box = document.createElement('div');
     box.id = 'uvEmpty';
     box.className = 'uv-empty';
-    box.innerHTML = '<b>Tất cả nội dung đang được ẩn</b>Bấm “Hiện tất cả nội dung” hoặc mở “Chỉnh sửa màn hình” để hiện lại.'
-      + '<br><button type="button" class="ghost" onclick="uvShowAll()">Hiện tất cả nội dung</button>';
     grid.parentNode.insertBefore(box, grid.nextSibling);
   }
-  box.classList.toggle('show', !!show);
+  if (state !== 'none' && box.dataset.state !== state) {
+    box.dataset.state = state;
+    box.innerHTML = state === 'unit'
+      ? '<b>Đơn vị đã ẩn các nội dung này</b>Liên hệ quản trị đơn vị để hiện lại.'
+      : '<b>Tất cả nội dung đang được ẩn</b>Bấm “Hiện tất cả nội dung” hoặc mở “Chỉnh sửa màn hình” để hiện lại.'
+        + '<br><button type="button" class="ghost" onclick="uvShowAll()">Hiện tất cả nội dung</button>';
+  }
+  box.classList.toggle('show', state !== 'none');
 }
 
 /* Bản đồ Leaflet và biểu đồ Chart.js chỉ tự co theo khung khi được báo kích thước đã đổi. */
@@ -461,15 +459,6 @@ function uvNotifyResize() {
 }
 
 function uvSetVisible(id, visible) {
-  if (UV_STATE.unitEditing) {
-    if (!uvUnitItemKind(id)) return;
-    const set = new Set(UV_STATE.unitDraft);
-    if (visible) set.delete(id); else set.add(id);
-    UV_STATE.unitDraft = [...set];
-    uvApply(true);
-    uvRefreshOpenPanel();
-    return;
-  }
   if (!uvCanPersonalToggle(id, UV_STATE.unitHidden)) return;
   const set = new Set(UV_STATE.hidden);
   if (visible) set.delete(id); else set.add(id);
@@ -681,12 +670,6 @@ function uvToggleEditMode(ev) {
 }
 
 function uvShowAll() {
-  if (UV_STATE.unitEditing) {
-    UV_STATE.unitDraft = [];
-    uvApply(true);
-    uvRefreshOpenPanel();
-    return;
-  }
   UV_STATE.hidden = [];
   uvSave();
   uvApply(true);
@@ -702,15 +685,15 @@ function uvEnsurePanel() {
   p.setAttribute('role', 'dialog');
   p.setAttribute('aria-label', 'Ẩn/Hiện giao diện');
   /* Khung bảng dựng 1 lần; uvRenderPanel chỉ vẽ lại danh sách → ô tìm kiếm không mất con trỏ khi đang gõ. */
-  p.innerHTML = '<div class="uv-head"><b class="uv-title">👁 Ẩn/Hiện giao diện</b>'
-    + '<small class="uv-hint">Chọn khối bên trái để xem các mục con bên phải. Kéo tiêu đề để di chuyển, kéo góc dưới phải để đổi cỡ.</small></div>'
+  p.innerHTML = '<div class="uv-head"><b>👁 Ẩn/Hiện giao diện</b>'
+    + '<small>Chọn khối bên trái để xem các mục con bên phải. Kéo tiêu đề để di chuyển, kéo góc dưới phải để đổi cỡ.</small></div>'
     + '<div class="uv-search"><input type="search" placeholder="Tìm mục cần ẩn/hiện…" aria-label="Tìm mục cần ẩn/hiện" autocomplete="off"></div>'
     /* 2 cột: trái = các khối lớn (có công tắc), phải = mục con của khối đang chọn. Bảng hẹp (điện thoại) → cột trái
        thành 1 hàng cuộn ngang phía trên (xem @container trong ui-visibility.css). */
     + '<div class="uv-list uv-2col"><div class="uv-roots" role="tablist" aria-label="Các khối"></div><div class="uv-detail" role="tabpanel"></div></div>'
-    + '<div class="uv-unit-list" hidden></div>'
-    + '<div class="uv-foot"><button type="button" class="ghost" data-uv-action="show-all">Hiện tất cả</button>'
-    + '<button type="button" class="ghost" data-uv-action="close">Đóng</button></div>'
+    + '<div class="uv-unit-note" hidden></div>'
+    + '<div class="uv-foot"><button type="button" class="ghost" onclick="uvShowAll()">Hiện tất cả</button>'
+    + '<button type="button" class="ghost" onclick="uvClosePanel()">Đóng</button></div>'
     + '<div class="uv-resize-handle" aria-hidden="true"></div>';
   const search = p.querySelector('.uv-search input');
   search.addEventListener('input', () => { UV_STATE.query = search.value; uvRenderPanel(); });
@@ -718,19 +701,6 @@ function uvEnsurePanel() {
   list.addEventListener('change', (event) => {
     const inp = event.target.closest('input[data-uv-id]');
     if (inp) uvSetVisible(inp.getAttribute('data-uv-id'), inp.checked);
-  });
-  p.querySelector('.uv-unit-list').addEventListener('change', (event) => {
-    const inp = event.target.closest('input[data-uv-id]');
-    if (inp) uvSetVisible(inp.getAttribute('data-uv-id'), inp.checked);
-  });
-  p.addEventListener('click', (event) => {
-    const action = event.target.closest('[data-uv-action]');
-    if (!action) return;
-    event.stopPropagation();
-    if (action.dataset.uvAction === 'save-unit') uvSaveUnitConfig();
-    else if (action.dataset.uvAction === 'cancel-unit') uvCancelUnitConfig();
-    else if (action.dataset.uvAction === 'show-all') uvShowAll();
-    else if (action.dataset.uvAction === 'close') uvClosePanel();
   });
   list.addEventListener('keydown', (event) => {
     if (event.key !== 'Enter' && event.key !== ' ') return;
@@ -915,168 +885,8 @@ function uvUnitConfigItems() {
   }).sort((a, b) => a.label.localeCompare(b.label, 'vi'));
 }
 
-function uvEnsureUnitEditor() {
-  let editor = document.getElementById('uvUnitEditor');
-  if (editor) return editor;
-  editor = document.createElement('section');
-  editor.id = 'uvUnitEditor';
-  editor.className = 'uv-unit-editor';
-  editor.setAttribute('role', 'dialog');
-  editor.setAttribute('aria-modal', 'true');
-  editor.setAttribute('aria-label', 'Cấu hình hiển thị cho toàn đơn vị');
-  editor.addEventListener('click', (event) => {
-    if (event.target === editor) {
-      uvCancelUnitConfig();
-      return;
-    }
-    const toggle = event.target.closest('[data-uv-unit-toggle]');
-    if (toggle) {
-      const id = toggle.getAttribute('data-uv-unit-toggle');
-      const hidden = new Set(UV_STATE.unitDraft);
-      if (hidden.has(id)) hidden.delete(id); else hidden.add(id);
-      UV_STATE.unitDraft = [...hidden];
-      uvApply(true);
-      uvRenderUnitEditor();
-      return;
-    }
-    const action = event.target.closest('[data-uv-unit-action]');
-    if (!action) return;
-    if (action.dataset.uvUnitAction === 'cancel') uvCancelUnitConfig();
-    else if (action.dataset.uvUnitAction === 'preview') uvSetUnitPreview(true);
-    else if (action.dataset.uvUnitAction === 'save') uvSaveUnitConfig();
-  });
-  document.body.appendChild(editor);
-  return editor;
-}
-
-function uvEnsureUnitPreviewBar() {
-  let bar = document.getElementById('uvUnitPreviewBar');
-  if (bar) return bar;
-  bar = document.createElement('div');
-  bar.id = 'uvUnitPreviewBar';
-  bar.className = 'uv-unit-preview-bar';
-  bar.addEventListener('click', (event) => {
-    const action = event.target.closest('[data-uv-unit-action]');
-    if (!action) return;
-    if (action.dataset.uvUnitAction === 'configure') uvSetUnitPreview(false);
-    else if (action.dataset.uvUnitAction === 'cancel') uvCancelUnitConfig();
-    else if (action.dataset.uvUnitAction === 'save') uvSaveUnitConfig();
-  });
-  document.body.appendChild(bar);
-  return bar;
-}
-
-function uvUnitToggleButton(item, hidden, label) {
-  const isHidden = hidden.has(item.id);
-  const text = isHidden ? 'Hiện' : 'Ẩn';
-  return `<button type="button" class="uv-unit-eye${isHidden ? ' is-hidden' : ''}" data-uv-unit-toggle="${uvEscText(item.id)}" aria-pressed="${!isHidden}" aria-label="${text} ${uvEscText(label)}" title="${text} ${uvEscText(label)}">${isHidden ? '◉̸' : '◉'}</button>`;
-}
-
-function uvRenderUnitEditor() {
-  const editor = uvEnsureUnitEditor();
-  const items = uvUnitConfigItems();
-  const fields = items.filter((item) => uvUnitItemKind(item.id) === 'field');
-  const groups = items.filter((item) => uvUnitItemKind(item.id) === 'group');
-  const indicators = items.filter((item) => uvUnitItemKind(item.id) === 'indicator');
-  const hidden = new Set(UV_STATE.unitDraft);
-  const saved = new Set(UV_STATE.unitHidden);
-  const summary = uvUnitCountSummary(items, hidden);
-  const pending = items.filter((item) => hidden.has(item.id) !== saved.has(item.id));
-  const pendingFields = pending.filter((item) => uvUnitItemKind(item.id) === 'field').length;
-  const pendingGroups = pending.filter((item) => uvUnitItemKind(item.id) === 'group').length;
-  const pendingIndicators = pending.filter((item) => uvUnitItemKind(item.id) === 'indicator').length;
-  const pendingParts = [];
-  if (pendingFields) pendingParts.push(`${pendingFields} lĩnh vực`);
-  if (pendingGroups) pendingParts.push(`${pendingGroups} nhóm`);
-  if (pendingIndicators) pendingParts.push(`${pendingIndicators} chỉ tiêu`);
-  const pendingText = pending.length
-    ? `Chưa lưu: ${pendingParts.join(', ')}`
-    : 'Chưa có thay đổi chưa lưu';
-  let axis = '';
-  try { if (typeof currentRole !== 'undefined' && currentRole && typeof roleMeta === 'function') axis = roleMeta(currentRole).name || currentRole; } catch (e) { /* chưa có trục */ }
-  const groupedIndicators = new Set();
-  const fieldCards = fields.map((item) => {
-    const label = uvEscText(item.label);
-    const hiddenText = hidden.has(item.id) ? 'Đã ẩn với đơn vị' : 'Đang hiển thị';
-    const children = item.categoryKey
-      ? indicators.filter((indicator) => indicator.categoryKey === item.categoryKey)
-      : [];
-    children.forEach((indicator) => groupedIndicators.add(indicator.id));
-    const childRows = children.map((indicator) => {
-      const childLabel = uvEscText(indicator.label);
-      return `<div class="uv-unit-card-indicator${hidden.has(indicator.id) ? ' is-hidden' : ''}"><span>${childLabel}</span><small>${hidden.has(indicator.id) ? 'Đang ẩn' : 'Đang hiện'}</small>${uvUnitToggleButton(indicator, hidden, indicator.label)}</div>`;
-    }).join('');
-    return `<article class="uv-unit-card${hidden.has(item.id) ? ' is-hidden' : ''}"><div class="uv-unit-card-head"><span class="uv-unit-card-kind">LĨNH VỰC</span>${uvUnitToggleButton(item, hidden, item.label)}</div>`
-      + `<h3>${label}</h3><div class="uv-unit-card-state${hidden.has(item.id) ? ' is-hidden' : ''}"><i></i>${hiddenText}</div>${childRows ? `<div class="uv-unit-card-indicators">${childRows}</div>` : ''}</article>`;
-  }).join('');
-  const groupCards = groups.map((item) => {
-    const label = uvEscText(item.label);
-    const hiddenText = hidden.has(item.id) ? 'Đã ẩn với đơn vị' : 'Đang hiển thị';
-    return `<article class="uv-unit-card${hidden.has(item.id) ? ' is-hidden' : ''}"><div class="uv-unit-card-head"><span class="uv-unit-card-kind">NHÓM LĨNH VỰC / TRỤC</span>${uvUnitToggleButton(item, hidden, item.label)}</div>`
-      + `<h3>${label}</h3><div class="uv-unit-card-state${hidden.has(item.id) ? ' is-hidden' : ''}"><i></i>${hiddenText}</div></article>`;
-  }).join('');
-  const otherIndicators = indicators.filter((item) => !groupedIndicators.has(item.id));
-  const groupPreview = summary.totalGroups
-    ? `, ${summary.totalGroups - summary.hiddenGroups}/${summary.totalGroups} nhóm`
-    : '';
-  const indicatorRows = otherIndicators.map((item) => {
-    const label = uvEscText(item.label);
-    const hiddenText = hidden.has(item.id) ? 'Đã ẩn' : 'Đang hiện';
-    return `<div class="uv-unit-indicator-row${hidden.has(item.id) ? ' is-hidden' : ''}"><div><b>${label}</b><small>${uvEscText(item.groupLabel || 'Chỉ tiêu')}</small></div><span class="uv-unit-indicator-state">${hiddenText}</span>${uvUnitToggleButton(item, hidden, item.label)}</div>`;
-  }).join('');
-  const scope = uvEscText(uvUnitScopeLabel());
-  const editorAxis = axis ? `Trục: ${uvEscText(axis)}` : '';
-  editor.innerHTML = `<div class="uv-unit-dialog"><div class="uv-unit-banner"><b>ĐANG CẤU HÌNH CHO TOÀN ĐƠN VỊ · ${scope}</b><span>Thay đổi áp dụng cho mọi người dùng</span>${editorAxis ? `<strong>${editorAxis}</strong>` : ''}<button type="button" class="uv-unit-close" data-uv-unit-action="cancel" aria-label="Đóng cấu hình" title="Đóng">×</button></div>`
-    + `<div class="uv-unit-editor-scroll"><header class="uv-unit-editor-head"><div><span class="uv-unit-eyebrow">TÙY CHỈNH HIỂN THỊ IOC</span><h1 id="uvUnitTitle">${scope}</h1><p>Chọn lĩnh vực hoặc chỉ tiêu sẽ hiển thị với người dùng trong đơn vị.</p></div><div class="uv-unit-pending${pending.length ? ' has-changes' : ''}"><i></i>${pendingText}</div></header>`
-    + `<div class="uv-unit-summary"><div class="uv-unit-summary-card"><span>Lĩnh vực đang hiện</span><b>${summary.totalFields - summary.hiddenFields}<small>/${summary.totalFields}</small></b></div><div class="uv-unit-summary-card is-hidden"><span>Lĩnh vực đang ẩn</span><b>${summary.hiddenFields}</b></div><div class="uv-unit-summary-card is-kpi"><span>Chỉ tiêu đang hiện</span><b>${summary.totalIndicators - summary.hiddenIndicators}<small>/${summary.totalIndicators}</small></b></div></div>`
-    + `<section class="uv-unit-section"><div class="uv-unit-section-head"><h2>Lĩnh vực</h2><span>${summary.totalFields - summary.hiddenFields}/${summary.totalFields} đang hiện · ${summary.hiddenFields} đang ẩn</span></div>`
-    + `<div class="uv-unit-field-grid">${fieldCards || '<div class="uv-unit-empty">Không có lĩnh vực trên màn hình IOC hiện tại.</div>'}</div></section>`
-    + (groups.length ? `<section class="uv-unit-section"><div class="uv-unit-section-head"><h2>Nhóm lĩnh vực / trục</h2><span>${summary.totalGroups - summary.hiddenGroups}/${summary.totalGroups} đang hiện · ${summary.hiddenGroups} đang ẩn</span></div><div class="uv-unit-field-grid">${groupCards}</div></section>` : '')
-    + (otherIndicators.length ? `<section class="uv-unit-section"><div class="uv-unit-section-head"><h2>Chỉ tiêu khác</h2><span>${summary.totalIndicators - summary.hiddenIndicators}/${summary.totalIndicators} đang hiện · ${summary.hiddenIndicators} đang ẩn</span></div><div class="uv-unit-indicator-list">${indicatorRows}</div></section>` : '')
-    + '<p class="uv-unit-demo-note">Bản demo: cấu hình lưu trên trình duyệt hiện tại, chưa đồng bộ giữa các máy và chưa có kiểm tra quyền admin đơn vị.</p></div>'
-    + `<footer class="uv-unit-editor-footer"><span>Xem trước: người dùng sẽ thấy ${summary.totalFields - summary.hiddenFields}/${summary.totalFields} lĩnh vực${groupPreview} và ${summary.totalIndicators - summary.hiddenIndicators}/${summary.totalIndicators} chỉ tiêu.</span>`
-    + '<div><button type="button" class="ghost" data-uv-unit-action="cancel">Hủy</button><button type="button" class="ghost" data-uv-unit-action="preview">Xem trước</button><button type="button" class="primary" data-uv-unit-action="save">Lưu cấu hình</button></div></footer></div>';
-  editor.classList.add('open');
-  document.body.classList.add('uv-unit-editor-open');
-}
-
-function uvSetUnitPreview(preview) {
-  UV_STATE.unitPreview = !!preview;
-  const editor = document.getElementById('uvUnitEditor');
-  const bar = uvEnsureUnitPreviewBar();
-  if (UV_STATE.unitPreview) {
-    if (editor) editor.classList.remove('open');
-    bar.innerHTML = `<span>ĐANG XEM TRƯỚC · ${uvEscText(uvUnitScopeLabel())} · Chưa lưu</span><div><button type="button" data-uv-unit-action="configure">Quay lại cấu hình</button><button type="button" data-uv-unit-action="cancel">Hủy</button><button type="button" data-uv-unit-action="save">Lưu cấu hình</button></div>`;
-    bar.classList.add('open');
-    document.body.classList.remove('uv-unit-editor-open');
-  } else {
-    bar.classList.remove('open');
-    uvRenderUnitEditor();
-  }
-  uvApply(true);
-}
-
-function uvCloseUnitEditor() {
-  const editor = document.getElementById('uvUnitEditor');
-  const bar = document.getElementById('uvUnitPreviewBar');
-  if (editor) editor.classList.remove('open');
-  if (bar) bar.classList.remove('open');
-  document.body.classList.remove('uv-unit-editor-open');
-  UV_STATE.unitPreview = false;
-}
-
 function uvRenderPanel(resetDetailScroll) {
-  if (UV_STATE.unitEditing) { uvRenderUnitEditor(); return; }
   const p = uvEnsurePanel();
-  const list = p.querySelector('.uv-list');
-  const unitList = p.querySelector('.uv-unit-list');
-  list.hidden = false;
-  unitList.hidden = true;
-  p.querySelector('.uv-title').textContent = '👁 Ẩn/Hiện giao diện';
-  p.querySelector('.uv-hint').textContent = 'Chọn khối bên trái để xem các mục con bên phải. Kéo tiêu đề để di chuyển, kéo góc dưới phải để đổi cỡ.';
-  p.querySelector('.uv-search input').placeholder = 'Tìm mục cần ẩn/hiện…';
-  p.querySelector('.uv-foot').innerHTML = '<button type="button" class="ghost" data-uv-action="show-all">Hiện tất cả</button>'
-    + '<button type="button" class="ghost" data-uv-action="close">Đóng</button>';
   const unitHidden = new Set(UV_STATE.unitHidden);
   const combined = uvEffectiveHidden(UV_STATE.hidden, unitHidden);
   const avail = uvAvailableBlocks();
@@ -1099,6 +909,11 @@ function uvRenderPanel(resetDetailScroll) {
   }
   roots.scrollTop = keepRoots;
   detail.scrollTop = keepDetail;
+  /* Mục do cấu hình đơn vị ẩn: «Hiện tất cả» không bật lại được → ghi rõ ở chân bảng. */
+  const unitCount = uvCountHidden(avail, unitHidden);
+  const note = p.querySelector('.uv-unit-note');
+  note.textContent = `${unitCount} mục do đơn vị ẩn, không bật lại được tại đây.`;
+  note.hidden = !unitCount;
   const search = p.querySelector('.uv-search input');
   if (search.value !== UV_STATE.query) search.value = UV_STATE.query;
   /* Mở/thu nhóm, tìm kiếm làm bảng cao/thấp đi → giữ bảng trong màn hình */
@@ -1215,12 +1030,19 @@ function uvInitUnitConfigFromAdmin() {
     if (previous && (typeof previous !== 'object' || Array.isArray(previous))) {
       throw new Error('Cấu hình hiển thị không đúng định dạng.');
     }
+    const items = uvUnitConfigItems();
+    /* Đơn vị đã có danh mục: chỉ bổ sung mục mới, không ghi «Lịch sử thay đổi» (không ai đổi cấu hình). */
     if (previous && Array.isArray(previous.items) && previous.items.length) {
+      const merged = uvMergeUnitItems(previous.items, items);
+      if (merged.added) {
+        const hidden = Array.isArray(previous.hidden) ? previous.hidden : [];
+        localStorage.setItem(storageKey, JSON.stringify({ ...previous, items: merged.items, ...uvUnitCountSummary(merged.items, hidden) }));
+        if (typeof toast === 'function') toast(`Danh mục hiển thị của đơn vị có thêm ${merged.added} mục mới.`);
+      }
       uvLoadUnit();
       uvApply(true);
       return;
     }
-    const items = uvUnitConfigItems();
     if (!items.length) {
       if (typeof toast === 'function') toast('Chưa tải được danh mục lĩnh vực và chỉ tiêu của IOC.');
       return;
@@ -1239,32 +1061,7 @@ function uvInitUnitConfigFromAdmin() {
   if (typeof toast === 'function') toast('Đã mở IOC theo cấu hình. Có thể quay lại Quản trị để chỉnh trạng thái hiển thị.');
 }
 
-function uvSaveUnitConfig() {
-  if (!UV_STATE.unitEditing) return;
-  if (UV_STATE.unitKey !== uvUnitStorageKey()) {
-    if (typeof toast === 'function') toast('Phạm vi đơn vị đã thay đổi. Hãy mở lại cấu hình trước khi lưu.');
-    uvCancelUnitConfig();
-    return;
-  }
-  if (!uvSaveUnit()) return;
-  UV_STATE.unitHidden = [...UV_STATE.unitDraft];
-  UV_STATE.unitDraft = [];
-  UV_STATE.unitEditing = false;
-  uvCloseUnitEditor();
-  uvApply(true);
-  if (typeof toast === 'function') toast('Đã lưu cấu hình hiển thị cho đơn vị trên trình duyệt này.');
-}
-
-function uvCancelUnitConfig() {
-  if (!UV_STATE.unitEditing) return;
-  UV_STATE.unitDraft = [];
-  UV_STATE.unitEditing = false;
-  uvCloseUnitEditor();
-  uvApply(true);
-}
-
 function uvClosePanel() {
-  if (UV_STATE.unitEditing) return;
   /* Đóng bảng thì xóa ô tìm — lần mở sau thấy đủ danh sách, không bị lọc sẵn từ lần trước. */
   UV_STATE.query = '';
   if (UV_STATE.panel) UV_STATE.panel.classList.remove('open');
@@ -1297,11 +1094,6 @@ function uvEscAction(state) {
 
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
-  if (UV_STATE.unitEditing) {
-    if (UV_STATE.unitPreview) uvSetUnitPreview(false);
-    else uvCancelUnitConfig();
-    return;
-  }
   const overlay = document.getElementById('overlay');
   const action = uvEscAction({
     overlayOpen: !!(overlay && overlay.classList.contains('show')),
@@ -1313,7 +1105,7 @@ document.addEventListener('keydown', (e) => {
 });
 window.addEventListener('resize', () => { if (UV_STATE.panel && UV_STATE.panel.classList.contains('open')) uvPlacePanel(); });
 window.addEventListener('storage', (event) => {
-  if (!event.key || !event.key.startsWith(UV_UNIT_STORAGE_PREFIX) || UV_STATE.unitEditing) return;
+  if (!event.key || !event.key.startsWith(UV_UNIT_STORAGE_PREFIX)) return;
   if (event.key !== uvUnitStorageKey()) return;
   uvLoadUnit();
   uvApply(true);

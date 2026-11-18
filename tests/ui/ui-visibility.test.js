@@ -19,8 +19,8 @@ vm.createContext(ctx);
 vm.runInContext(src + '\n;this.L=uvComputeLayout;this.B=UV_BLOCKS;this.V=uvIsVisible;this.A=uvAllBlocks;this.T=uvBuildTree;this.C=uvShouldCollapseSidebar;'
   + 'this.P=uvPickNotifyTab;this.BP=uvBadgePos;this.DC=uvShouldCloseOnDocClick;'
   + 'this.IID=uvIndicatorItemId;this.RN=uvRenameIds;this.COL=uvIsCollapsedIn;this.FT=uvFilterTree;this.NORM=uvNorm;this.CNT=uvCountHidden;this.ESC=uvEscAction;this.PR=uvPickRoot;this.NC=uvNodeCounts;this.EH=uvEffectiveHidden;this.CPT=uvCanPersonalToggle;'
-  + 'this.UK=uvUnitItemKind;this.US=uvUnitCountSummary;this.BR=uvBuildUnitRecord;', ctx);
-const { L, B, V, A, T, C, P, BP, DC, IID, RN, COL, FT, NORM, CNT, ESC, PR, NC, UK, US, BR } = ctx;
+  + 'this.UK=uvUnitItemKind;this.US=uvUnitCountSummary;this.BR=uvBuildUnitRecord;this.MI=uvMergeUnitItems;this.ES=uvEmptyState;', ctx);
+const { L, B, V, A, T, C, P, BP, DC, IID, RN, COL, FT, NORM, CNT, ESC, PR, NC, UK, US, BR, MI, ES } = ctx;
 
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) pass++; else { fail++; console.log('✗ ' + m); } };
@@ -74,6 +74,14 @@ const unitRecord = BR({ history: [{ at: 'old', by: 'A', hiddenCount: 0 }] }, ['i
 ok(unitRecord.hidden.length === 2 && unitRecord.totalFields === 1 && unitRecord.totalGroups === 1 && unitRecord.totalIndicators === 2 && unitRecord.hiddenFields === 1 && unitRecord.hiddenGroups === 0 && unitRecord.hiddenIndicators === 1, 'lưu metadata cấu hình và loại id ẩn trùng');
 ok(unitRecord.items.find((item) => item.id === 'ind-kpi-tiep-nhan').categoryKey === 'UBND:ubnd-y-te', 'lưu liên kết chỉ tiêu với lĩnh vực trong cấu hình đơn vị');
 ok(unitRecord.history.length === 2 && unitRecord.history[1].by === 'admin-demo', 'ghi lịch sử thay đổi cấu hình đơn vị');
+const merged = MI([{ id: 'ind-unit-y-te', label: 'Y tế (đã lưu)' }], [{ id: 'ind-unit-y-te', label: 'Y tế' }, { id: 'ind-kpi-moi', label: 'Chỉ tiêu mới', categoryKey: 'UBND:ubnd-y-te' }, { id: 'gis', label: 'Bản đồ' }]);
+ok(merged.added === 1 && merged.items.length === 2 && merged.items[0].label === 'Y tế (đã lưu)' && merged.items[1].kind === 'indicator' && merged.items[1].categoryKey === 'UBND:ubnd-y-te', 'bổ sung chỉ tiêu mới vào danh mục đơn vị, giữ mục cũ, bỏ qua mục không cấu hình được');
+ok(MI(null, [{ id: 'ind-group-a', label: 'A' }]).added === 1 && MI([{ id: 'ind-group-a', label: 'A' }], [{ id: 'ind-group-a', label: 'A' }]).added === 0, 'danh mục rỗng thì thêm, không có mục mới thì không đổi');
+const shownIf = (b, hid) => !hid.has(b.id);
+const twoBlocks = [{ id: 'ind-unit-a' }, { id: 'gis' }];
+ok(ES(twoBlocks, ['gis'], ['ind-unit-a'], shownIf) === 'personal', 'màn trống do người dùng tự ẩn một phần → Hiện tất cả hiện lại được');
+ok(ES(twoBlocks, [], ['ind-unit-a', 'gis'], shownIf) === 'unit', 'màn trống do đơn vị ẩn hết → báo liên hệ quản trị đơn vị');
+ok(ES(twoBlocks, ['gis'], [], shownIf) === 'none' && ES([], [], [], shownIf) === 'none', 'còn nội dung hiện hoặc không có khối nào → không báo trống');
 
 // Đầu vào lạ không làm hỏng
 ok(eq(L(undefined, false), { gridOn: false, fullIds: [] }), 'đầu vào undefined an toàn');
