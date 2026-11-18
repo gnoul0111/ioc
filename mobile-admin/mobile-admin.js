@@ -92,6 +92,11 @@ const ICONS = {
 const IOC_URL = (typeof window.IOC_URL === 'string' && window.IOC_URL) || '../demo_ioc.html';
 const IOC_EXTERNAL = /^https?:/i.test(IOC_URL);
 const iocAttrs = () => `href="${esc(IOC_URL)}"${IOC_EXTERNAL ? ' target="_blank" rel="noopener"' : ''}`;
+const iocUnitVisibilityAttrs = () => {
+  const url = new URL(IOC_URL, window.location.href);
+  url.searchParams.set('unitVisibilityAdmin', '1');
+  return `href="${esc(url.href)}"${IOC_EXTERNAL ? ' target="_blank" rel="noopener"' : ''}`;
+};
 const ic = (n, cls='') => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n] || ''}</svg>`;
 
 /* ---------------- Danh mục cố định ---------------- */
@@ -643,6 +648,9 @@ VIEWS.home = () => {
 function iocRow(){
   return `<a class="row has-lead sm accent" ${iocAttrs()}><span class="lead-ic sm">${ic('monitor')}</span><span class="body"><span class="title"><span class="tx">Mở màn hình IOC</span></span><span class="sub">Bảng điều hành các trục, sở, xã/phường</span></span>${ic(IOC_EXTERNAL ? 'external' : 'chevR', 'chev')}</a>`;
 }
+function iocUnitVisibilityRow(){
+  return `<a class="row has-lead sm accent" ${iocUnitVisibilityAttrs()}><span class="lead-ic sm">${ic('eye')}</span><span class="body"><span class="title"><span class="tx">Hiển thị chỉ tiêu theo đơn vị</span></span><span class="sub">Mở IOC, đăng nhập đơn vị rồi cấu hình</span></span>${ic(IOC_EXTERNAL ? 'external' : 'chevR', 'chev')}</a>`;
+}
 function accountAv(size){ return `<span class="av" style="width:${size}px;height:${size}px;font-size:${Math.round(size * .42)}px;background:var(--logo-grad);border-radius:${Math.round(size * .28)}px">I</span>`; }
 function tlItem(e){
   return `<div class="tl-item"><span class="lead-ic sm mute">${ic(e.icon)}</span><div class="tx">${esc(e.text)}<small>${relTime(e.t) === 'Hôm nay' ? 'Hôm nay ' + fmtDate(e.t, true).slice(11) : relTime(e.t)}</small></div></div>`;
@@ -935,7 +943,8 @@ VIEWS.settings = () => {
     ${section('Tổ chức', group(
       row({a:'push', d:{v:'grouping'}, lead:`<span class="lead-ic sm">${ic('layers')}</span>`, sm:true, title:'Phân nhóm đơn vị', sub:`${fmt(D.orgs.size)} đơn vị${manual ? ` · ${manual} gán tay` : ''}`, chev:true}) +
       row({a:'push', d:{v:'tree'}, lead:`<span class="lead-ic sm">${ic('tree')}</span>`, sm:true, title:'Cây thư mục tùy biến', sub:'Cây đơn vị hiện cho người dùng', chev:true}) +
-      row({a:'push', d:{v:'indicators'}, lead:`<span class="lead-ic sm">${ic('chart')}</span>`, sm:true, title:'Bảng chỉ tiêu theo đơn vị', sub:`${indicators().filter(x => x.active).length} Sở đang dùng`, chev:true})
+      row({a:'push', d:{v:'indicators'}, lead:`<span class="lead-ic sm">${ic('chart')}</span>`, sm:true, title:'Bảng chỉ tiêu theo đơn vị', sub:`${indicators().filter(x => x.active).length} Sở đang dùng`, chev:true}) +
+      iocUnitVisibilityRow()
     ))}
     ${section('Danh mục', group(
       row({a:'push', d:{v:'fields'}, lead:`<span class="lead-ic sm">${ic('tag')}</span>`, sm:true, title:'Lĩnh vực mặc định', sub:`${S.fieldDefault.filter(x => !x.hidden).length} lĩnh vực đang dùng`, chev:true}) +

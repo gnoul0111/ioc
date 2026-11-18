@@ -1,7 +1,7 @@
 /* ============================== ẨN / HIỆN GIAO DIỆN IOC ==============================
    Người dùng bấm "👁 Ẩn/Hiện" ở thanh đầu trang để chọn khối nội dung nào hiện trên màn hình IOC. Khối ẩn thì bố cục
-   tự dồn lại / kéo giãn cho kín chỗ (xem css/ui-visibility.css). Lựa chọn lưu theo TỪNG TÀI KHOẢN trong localStorage,
-   đăng nhập lại vẫn giữ.
+   tự dồn lại / kéo giãn cho kín chỗ (xem css/ui-visibility.css). Lựa chọn cá nhân lưu theo TỪNG TÀI KHOẢN; cấu hình
+   demo cấp đơn vị lưu theo phạm vi đơn vị riêng, và luôn được ưu tiên hơn lựa chọn cá nhân.
 
    Quy ước:
    - Ẩn bằng class riêng .uv-hidden, KHÔNG đụng .hidden / .btm-role-hidden / .btt-role-hidden (đó là cơ chế ẩn theo
@@ -13,6 +13,7 @@
      (tests/ui/ui-visibility.test.js). */
 
 const UV_STORAGE_PREFIX = 'px-ioc-ui-visibility:';
+const UV_UNIT_STORAGE_PREFIX = 'px-ioc-ui-visibility-unit:v1:';
 
 /* inGrid: khối nằm trong .dashboard-grid (cần tính lại bố cục khi ẩn). unavailableClass: class của cơ chế phân quyền
    cho biết tài khoản hiện tại KHÔNG có khối này. */
@@ -51,7 +52,7 @@ function uvComputeLayout(hiddenIds, isTwLayout) {
 
 /* tree: trạng thái mở/thu gọn từng nhóm trong bảng chọn ({id: 'open'|'closed'}); panelBox: vị trí, cỡ bảng chọn người
    dùng đã kéo; aliases: mã cũ → mã mới của mục (đổi cách đặt mã thì lựa chọn đã lưu không mất). */
-const UV_STATE = { hidden: [], key: null, panel: null, editing: false, editBar: null, tree: {}, panelBox: null, panelRoot: null, query: '', aliases: new Map(), hiddenCount: 0, panelPosition: null, panelDrag: null, panelResize: null, badgeFrame: null, badgeTimer: null, badgeEvents: false, switchingTab: false, ignoreNextClick: false };
+const UV_STATE = { hidden: [], key: null, unitHidden: [], unitKey: null, unitEditing: false, unitPreview: false, unitDraft: [], panel: null, editing: false, editBar: null, tree: {}, panelBox: null, panelRoot: null, query: '', aliases: new Map(), hiddenCount: 0, panelPosition: null, panelDrag: null, panelResize: null, badgeFrame: null, badgeTimer: null, badgeEvents: false, switchingTab: false, ignoreNextClick: false };
 
 /* Chiều cao mặc định của bảng Ẩn/Hiện (px) khi người dùng chưa tự kéo cỡ. */
 const UV_PANEL_H = 600;
@@ -132,6 +133,133 @@ function uvAccountKey() {
   return UV_STORAGE_PREFIX + who;
 }
 
+function uvUnitScopeKey() {
+  try {
+    if (typeof currentSoId !== 'undefined' && currentSoId) return `so:${currentSoId}`;
+    if (typeof currentOfficeId !== 'undefined' && currentOfficeId) return `office:${currentOfficeId}`;
+    if (typeof currentXaId !== 'undefined' && currentXaId != null) return `xa:${currentXaId}`;
+    if (typeof currentRole !== 'undefined' && currentRole) return `role:${currentRole}`;
+  } catch (e) { /* chưa đăng nhập */ }
+  return 'unknown';
+}
+
+function uvUnitScopeLabel() {
+  try {
+    if (typeof currentAccount !== 'undefined' && currentAccount && currentAccount.title) return currentAccount.title;
+    if (typeof currentRole !== 'undefined' && currentRole && typeof roleMeta === 'function') return roleMeta(currentRole).name;
+  } catch (e) { /* chưa đăng nhập */ }
+  return 'đơn vị hiện tại';
+}
+
+function uvUnitStorageKey() { return UV_UNIT_STORAGE_PREFIX + encodeURIComponent(uvUnitScopeKey()); }
+
+function uvUnitItemKind(id) {
+  if (/^ind-kpi-/.test(id) || /^ubnd-kpi-/.test(id)) return 'indicator';
+  if (/^ind-unit-/.test(id)) return 'field';
+  if (/^ind-group-/.test(id)) return 'group';
+  return null;
+}
+
+function uvUnitCountSummary(items, hiddenIds) {
+  const hidden = hiddenIds instanceof Set ? hiddenIds : new Set(hiddenIds || []);
+  const fields = (items || []).filter((item) => uvUnitItemKind(item.id) === 'field');
+  const groups = (items || []).filter((item) => uvUnitItemKind(item.id) === 'group');
+  const indicators = (items || []).filter((item) => uvUnitItemKind(item.id) === 'indicator');
+  return {
+    totalFields: fields.length,
+    hiddenFields: fields.filter((item) => hidden.has(item.id)).length,
+    totalGroups: groups.length,
+    hiddenGroups: groups.filter((item) => hidden.has(item.id)).length,
+    totalIndicators: indicators.length,
+    hiddenIndicators: indicators.filter((item) => hidden.has(item.id)).length
+  };
+}
+
+function uvBuildUnitRecord(previous, hiddenIds, items, scopeKey, scopeLabel, updatedBy, updatedAt) {
+  const hidden = [...new Set((hiddenIds || []).filter((id) => typeof id === 'string'))];
+  const savedItems = (items || []).filter((item) => uvUnitItemKind(item.id)).map((item) => ({
+    id: item.id,
+    label: item.label,
+    kind: uvUnitItemKind(item.id),
+    groupLabel: item.groupLabel || '',
+    groupId: item.groupId || '',
+    categoryKey: item.categoryKey || ''
+  }));
+  const summary = uvUnitCountSummary(savedItems, hidden);
+  const history = Array.isArray(previous && previous.history) ? previous.history : [];
+  const entry = {
+    at: updatedAt,
+    by: updatedBy,
+    hiddenCount: hidden.length,
+    hiddenFields: summary.hiddenFields,
+    hiddenGroups: summary.hiddenGroups,
+    hiddenIndicators: summary.hiddenIndicators
+  };
+  return {
+    ...(previous || {}),
+    hidden,
+    items: savedItems,
+    scopeKey,
+    scopeLabel,
+    updatedAt,
+    updatedBy,
+    ...summary,
+    history: [...history, entry].slice(-30)
+  };
+}
+
+function uvEffectiveHidden(personalIds, unitIds) {
+  return new Set([...(personalIds || []), ...(unitIds || [])]);
+}
+
+function uvCanPersonalToggle(id, unitHidden) {
+  const hidden = unitHidden instanceof Set ? unitHidden : new Set(unitHidden || []);
+  return !hidden.has(id);
+}
+
+function uvUnitHiddenActive() {
+  return UV_STATE.unitEditing ? UV_STATE.unitDraft : UV_STATE.unitHidden;
+}
+
+function uvLoadUnit() {
+  const key = uvUnitStorageKey();
+  UV_STATE.unitKey = key;
+  try {
+    const raw = localStorage.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : null;
+    UV_STATE.unitHidden = parsed && Array.isArray(parsed.hidden)
+      ? [...new Set(parsed.hidden.filter((id) => typeof id === 'string'))]
+      : [];
+  } catch (e) {
+    UV_STATE.unitHidden = [];
+    console.error('[ui-visibility-unit] Không đọc được cấu hình hiển thị đơn vị.', e);
+  }
+}
+
+function uvSaveUnit() {
+  try {
+    const key = uvUnitStorageKey();
+    const raw = localStorage.getItem(key);
+    const previous = raw ? JSON.parse(raw) : null;
+    const account = typeof currentAccount !== 'undefined' && currentAccount ? currentAccount : {};
+    const record = uvBuildUnitRecord(
+      previous,
+      UV_STATE.unitDraft,
+      uvUnitConfigItems(),
+      uvUnitScopeKey(),
+      uvUnitScopeLabel(),
+      account.user || account.title || 'Tài khoản đơn vị',
+      new Date().toISOString()
+    );
+    localStorage.setItem(key, JSON.stringify(record));
+    return true;
+  } catch (e) {
+    console.error('[ui-visibility-unit] Không lưu được cấu hình hiển thị đơn vị.', e);
+    if (typeof toast === 'function') toast('Không lưu được cấu hình hiển thị đơn vị trên trình duyệt này.');
+    return false;
+  }
+}
+
 function uvLoad() {
   const key = uvAccountKey();
   if (key !== UV_STATE.key) UV_STATE.query = '';
@@ -146,6 +274,12 @@ function uvLoad() {
   UV_STATE.tree = parsed && parsed.tree && typeof parsed.tree === 'object' ? parsed.tree : {};
   const box = parsed && parsed.panel;
   UV_STATE.panelBox = box && Number.isFinite(box.left) && Number.isFinite(box.top) ? box : null;
+  const unitKey = uvUnitStorageKey();
+  if (unitKey !== UV_STATE.unitKey) {
+    UV_STATE.unitEditing = false;
+    UV_STATE.unitDraft = [];
+  }
+  uvLoadUnit();
   uvMigrateHidden();
 }
 
@@ -174,6 +308,7 @@ function uvScanBlocks() {
       groupId: el.dataset.uvGroup || '',
       groupLabel: el.dataset.uvGroupLabel || '',
       groupIcon: el.dataset.uvGroupIcon || '📂',
+      categoryKey: el.dataset.uvCategoryKey || '',
       el,
       dynamic: true
     }))
@@ -260,7 +395,12 @@ function uvApply(notifyResize) {
   try { uvApplyPass(notifyResize); } finally { UV_PASS = prev; }
 }
 function uvApplyPass(notifyResize) {
-  const hid = new Set(UV_STATE.hidden);
+  const personalIds = UV_STATE.unitEditing
+    ? UV_STATE.hidden.filter((id) => !uvUnitItemKind(id))
+    : UV_STATE.hidden;
+  const personalHidden = new Set(personalIds);
+  const unitHidden = new Set(uvUnitHiddenActive());
+  const hid = uvEffectiveHidden(personalHidden, unitHidden);
   const blocks = uvAllBlocks();
   blocks.forEach((b) => { const el = uvEl(b); if (el) el.classList.toggle('uv-hidden', hid.has(b.id)); });
   /* Vẽ lại Notify (nếu phải đổi tab) sẽ gọi lại uvApply; lần gọi lồng đó đã áp xong mọi thứ nên dừng ở đây. */
@@ -289,7 +429,7 @@ function uvApplyPass(notifyResize) {
   const avail = uvAvailableBlocks();
   const shown = avail.filter((b) => uvIsVisible(b, hid));
   /* Số mục người dùng tự ẩn (mục con của khối đã ẩn không tính thêm) — hiện ở thanh chỉnh sửa, nút đầu trang, menu. */
-  uvRenderCount(uvCountHidden(avail, hid));
+  uvRenderCount(uvCountHidden(avail, personalHidden));
 
   uvRenderEmpty(avail.length > 0 && shown.length === 0);
   uvSyncEditControls();
@@ -321,6 +461,16 @@ function uvNotifyResize() {
 }
 
 function uvSetVisible(id, visible) {
+  if (UV_STATE.unitEditing) {
+    if (!uvUnitItemKind(id)) return;
+    const set = new Set(UV_STATE.unitDraft);
+    if (visible) set.delete(id); else set.add(id);
+    UV_STATE.unitDraft = [...set];
+    uvApply(true);
+    uvRefreshOpenPanel();
+    return;
+  }
+  if (!uvCanPersonalToggle(id, UV_STATE.unitHidden)) return;
   const set = new Set(UV_STATE.hidden);
   if (visible) set.delete(id); else set.add(id);
   UV_STATE.hidden = [...set];
@@ -531,6 +681,12 @@ function uvToggleEditMode(ev) {
 }
 
 function uvShowAll() {
+  if (UV_STATE.unitEditing) {
+    UV_STATE.unitDraft = [];
+    uvApply(true);
+    uvRefreshOpenPanel();
+    return;
+  }
   UV_STATE.hidden = [];
   uvSave();
   uvApply(true);
@@ -546,14 +702,15 @@ function uvEnsurePanel() {
   p.setAttribute('role', 'dialog');
   p.setAttribute('aria-label', 'Ẩn/Hiện giao diện');
   /* Khung bảng dựng 1 lần; uvRenderPanel chỉ vẽ lại danh sách → ô tìm kiếm không mất con trỏ khi đang gõ. */
-  p.innerHTML = '<div class="uv-head"><b>👁 Ẩn/Hiện giao diện</b>'
-    + '<small>Chọn khối bên trái để xem các mục con bên phải. Kéo tiêu đề để di chuyển, kéo góc dưới phải để đổi cỡ.</small></div>'
+  p.innerHTML = '<div class="uv-head"><b class="uv-title">👁 Ẩn/Hiện giao diện</b>'
+    + '<small class="uv-hint">Chọn khối bên trái để xem các mục con bên phải. Kéo tiêu đề để di chuyển, kéo góc dưới phải để đổi cỡ.</small></div>'
     + '<div class="uv-search"><input type="search" placeholder="Tìm mục cần ẩn/hiện…" aria-label="Tìm mục cần ẩn/hiện" autocomplete="off"></div>'
     /* 2 cột: trái = các khối lớn (có công tắc), phải = mục con của khối đang chọn. Bảng hẹp (điện thoại) → cột trái
        thành 1 hàng cuộn ngang phía trên (xem @container trong ui-visibility.css). */
     + '<div class="uv-list uv-2col"><div class="uv-roots" role="tablist" aria-label="Các khối"></div><div class="uv-detail" role="tabpanel"></div></div>'
-    + '<div class="uv-foot"><button type="button" class="ghost" onclick="uvShowAll()">Hiện tất cả</button>'
-    + '<button type="button" class="ghost" onclick="uvClosePanel()">Đóng</button></div>'
+    + '<div class="uv-unit-list" hidden></div>'
+    + '<div class="uv-foot"><button type="button" class="ghost" data-uv-action="show-all">Hiện tất cả</button>'
+    + '<button type="button" class="ghost" data-uv-action="close">Đóng</button></div>'
     + '<div class="uv-resize-handle" aria-hidden="true"></div>';
   const search = p.querySelector('.uv-search input');
   search.addEventListener('input', () => { UV_STATE.query = search.value; uvRenderPanel(); });
@@ -561,6 +718,19 @@ function uvEnsurePanel() {
   list.addEventListener('change', (event) => {
     const inp = event.target.closest('input[data-uv-id]');
     if (inp) uvSetVisible(inp.getAttribute('data-uv-id'), inp.checked);
+  });
+  p.querySelector('.uv-unit-list').addEventListener('change', (event) => {
+    const inp = event.target.closest('input[data-uv-id]');
+    if (inp) uvSetVisible(inp.getAttribute('data-uv-id'), inp.checked);
+  });
+  p.addEventListener('click', (event) => {
+    const action = event.target.closest('[data-uv-action]');
+    if (!action) return;
+    event.stopPropagation();
+    if (action.dataset.uvAction === 'save-unit') uvSaveUnitConfig();
+    else if (action.dataset.uvAction === 'cancel-unit') uvCancelUnitConfig();
+    else if (action.dataset.uvAction === 'show-all') uvShowAll();
+    else if (action.dataset.uvAction === 'close') uvClosePanel();
   });
   list.addEventListener('keydown', (event) => {
     if (event.key !== 'Enter' && event.key !== ' ') return;
@@ -668,22 +838,23 @@ function uvEnsurePanel() {
   return p;
 }
 
-function uvPanelNodeHtml(node, hiddenIds, depth) {
+function uvPanelNodeHtml(node, hiddenIds, depth, unitHiddenIds) {
   const block = node.block;
   const parent = block.parent ? uvBlockById(block.parent) : null;
   const parentDisabled = parent && !uvIsVisible(parent, hiddenIds);
+  const unitLocked = !block.groupOnly && unitHiddenIds.has(block.id);
   const isVisible = uvIsVisible(block, hiddenIds);
   const label = typeof esc === 'function' ? esc(block.label) : String(block.label).replace(/[&<>"']/g, '');
   const inputId = `uv-switch-${block.id}`;
   const collapsed = node.forceOpen ? false : uvIsCollapsedIn(UV_STATE.tree, block);
-  const children = node.children.map((child) => uvPanelNodeHtml(child, hiddenIds, depth + 1)).join('');
+  const children = node.children.map((child) => uvPanelNodeHtml(child, hiddenIds, depth + 1, unitHiddenIds)).join('');
   return `<div class="uv-node${depth === 0 ? ' uv-root-node' : ''}" data-depth="${depth}">`
     + `<div class="uv-row ${block.groupOnly ? 'uv-group-row' : depth === 0 ? 'uv-root-row' : 'uv-child-row'}">`
     + (children ? `<button type="button" class="uv-collapse" data-uv-collapse="${block.id}" aria-label="${collapsed ? 'Mở' : 'Thu gọn'} ${label}" aria-expanded="${!collapsed}">${collapsed ? '▸' : '▾'}</button>` : '<span class="uv-tree-spacer" aria-hidden="true"></span>')
     + `<span class="uv-ic" aria-hidden="true">${block.icon}</span>`
     + (block.groupOnly ? `<span class="uv-lb">${label}</span>`
-      : `<label class="uv-toggle" for="${inputId}"><span class="uv-lb">${label}</span>`
-        + `<input id="${inputId}" type="checkbox" data-uv-id="${block.id}" ${isVisible ? 'checked' : ''} ${parentDisabled ? 'disabled' : ''}><span class="uv-switch"></span></label>`)
+      : `<label class="uv-toggle" for="${inputId}"><span class="uv-lb">${label}${unitLocked ? '<small class="uv-unit-lock">Ẩn bởi đơn vị</small>' : ''}</span>`
+        + `<input id="${inputId}" type="checkbox" data-uv-id="${block.id}" ${isVisible ? 'checked' : ''} ${parentDisabled || unitLocked ? 'disabled' : ''}><span class="uv-switch"></span></label>`)
     + '</div>'
     + (children ? `<div class="uv-children${collapsed ? ' collapsed' : ''}">${children}</div>` : '')
     + '</div>';
@@ -724,20 +895,190 @@ function uvRootItemHtml(node, hid, selected) {
     + '</div>';
 }
 
-function uvDetailHtml(node, hid) {
+function uvDetailHtml(node, hid, unitHiddenIds) {
   if (!node) return '';
   const block = node.block;
   const label = uvEscText(block.label);
   const off = hid.has(block.id);
   const head = `<div class="uv-detail-head"><span class="uv-ic" aria-hidden="true">${block.icon}</span><b>${label}</b></div>`
     + (off ? '<div class="uv-detail-note">Khối này đang ẩn — bật công tắc của khối ở cột trái để chỉnh các mục con.</div>' : '');
-  const kids = node.children.map((child) => uvPanelNodeHtml(child, hid, 1)).join('');
+  const kids = node.children.map((child) => uvPanelNodeHtml(child, hid, 1, unitHiddenIds)).join('');
   return head + (kids || '<div class="uv-none">Khối này không có mục con để ẩn riêng — dùng công tắc của khối ở cột trái.</div>');
 }
 
+function uvUnitConfigItems() {
+  const seen = new Set();
+  return uvAvailableBlocks().filter((block) => {
+    if (!block.dynamic || !uvUnitItemKind(block.id) || seen.has(block.id)) return false;
+    seen.add(block.id);
+    return true;
+  }).sort((a, b) => a.label.localeCompare(b.label, 'vi'));
+}
+
+function uvEnsureUnitEditor() {
+  let editor = document.getElementById('uvUnitEditor');
+  if (editor) return editor;
+  editor = document.createElement('section');
+  editor.id = 'uvUnitEditor';
+  editor.className = 'uv-unit-editor';
+  editor.setAttribute('role', 'dialog');
+  editor.setAttribute('aria-modal', 'true');
+  editor.setAttribute('aria-label', 'Cấu hình hiển thị cho toàn đơn vị');
+  editor.addEventListener('click', (event) => {
+    if (event.target === editor) {
+      uvCancelUnitConfig();
+      return;
+    }
+    const toggle = event.target.closest('[data-uv-unit-toggle]');
+    if (toggle) {
+      const id = toggle.getAttribute('data-uv-unit-toggle');
+      const hidden = new Set(UV_STATE.unitDraft);
+      if (hidden.has(id)) hidden.delete(id); else hidden.add(id);
+      UV_STATE.unitDraft = [...hidden];
+      uvApply(true);
+      uvRenderUnitEditor();
+      return;
+    }
+    const action = event.target.closest('[data-uv-unit-action]');
+    if (!action) return;
+    if (action.dataset.uvUnitAction === 'cancel') uvCancelUnitConfig();
+    else if (action.dataset.uvUnitAction === 'preview') uvSetUnitPreview(true);
+    else if (action.dataset.uvUnitAction === 'save') uvSaveUnitConfig();
+  });
+  document.body.appendChild(editor);
+  return editor;
+}
+
+function uvEnsureUnitPreviewBar() {
+  let bar = document.getElementById('uvUnitPreviewBar');
+  if (bar) return bar;
+  bar = document.createElement('div');
+  bar.id = 'uvUnitPreviewBar';
+  bar.className = 'uv-unit-preview-bar';
+  bar.addEventListener('click', (event) => {
+    const action = event.target.closest('[data-uv-unit-action]');
+    if (!action) return;
+    if (action.dataset.uvUnitAction === 'configure') uvSetUnitPreview(false);
+    else if (action.dataset.uvUnitAction === 'cancel') uvCancelUnitConfig();
+    else if (action.dataset.uvUnitAction === 'save') uvSaveUnitConfig();
+  });
+  document.body.appendChild(bar);
+  return bar;
+}
+
+function uvUnitToggleButton(item, hidden, label) {
+  const isHidden = hidden.has(item.id);
+  const text = isHidden ? 'Hiện' : 'Ẩn';
+  return `<button type="button" class="uv-unit-eye${isHidden ? ' is-hidden' : ''}" data-uv-unit-toggle="${uvEscText(item.id)}" aria-pressed="${!isHidden}" aria-label="${text} ${uvEscText(label)}" title="${text} ${uvEscText(label)}">${isHidden ? '◉̸' : '◉'}</button>`;
+}
+
+function uvRenderUnitEditor() {
+  const editor = uvEnsureUnitEditor();
+  const items = uvUnitConfigItems();
+  const fields = items.filter((item) => uvUnitItemKind(item.id) === 'field');
+  const groups = items.filter((item) => uvUnitItemKind(item.id) === 'group');
+  const indicators = items.filter((item) => uvUnitItemKind(item.id) === 'indicator');
+  const hidden = new Set(UV_STATE.unitDraft);
+  const saved = new Set(UV_STATE.unitHidden);
+  const summary = uvUnitCountSummary(items, hidden);
+  const pending = items.filter((item) => hidden.has(item.id) !== saved.has(item.id));
+  const pendingFields = pending.filter((item) => uvUnitItemKind(item.id) === 'field').length;
+  const pendingGroups = pending.filter((item) => uvUnitItemKind(item.id) === 'group').length;
+  const pendingIndicators = pending.filter((item) => uvUnitItemKind(item.id) === 'indicator').length;
+  const pendingParts = [];
+  if (pendingFields) pendingParts.push(`${pendingFields} lĩnh vực`);
+  if (pendingGroups) pendingParts.push(`${pendingGroups} nhóm`);
+  if (pendingIndicators) pendingParts.push(`${pendingIndicators} chỉ tiêu`);
+  const pendingText = pending.length
+    ? `Chưa lưu: ${pendingParts.join(', ')}`
+    : 'Chưa có thay đổi chưa lưu';
+  let axis = '';
+  try { if (typeof currentRole !== 'undefined' && currentRole && typeof roleMeta === 'function') axis = roleMeta(currentRole).name || currentRole; } catch (e) { /* chưa có trục */ }
+  const groupedIndicators = new Set();
+  const fieldCards = fields.map((item) => {
+    const label = uvEscText(item.label);
+    const hiddenText = hidden.has(item.id) ? 'Đã ẩn với đơn vị' : 'Đang hiển thị';
+    const children = item.categoryKey
+      ? indicators.filter((indicator) => indicator.categoryKey === item.categoryKey)
+      : [];
+    children.forEach((indicator) => groupedIndicators.add(indicator.id));
+    const childRows = children.map((indicator) => {
+      const childLabel = uvEscText(indicator.label);
+      return `<div class="uv-unit-card-indicator${hidden.has(indicator.id) ? ' is-hidden' : ''}"><span>${childLabel}</span><small>${hidden.has(indicator.id) ? 'Đang ẩn' : 'Đang hiện'}</small>${uvUnitToggleButton(indicator, hidden, indicator.label)}</div>`;
+    }).join('');
+    return `<article class="uv-unit-card${hidden.has(item.id) ? ' is-hidden' : ''}"><div class="uv-unit-card-head"><span class="uv-unit-card-kind">LĨNH VỰC</span>${uvUnitToggleButton(item, hidden, item.label)}</div>`
+      + `<h3>${label}</h3><div class="uv-unit-card-state${hidden.has(item.id) ? ' is-hidden' : ''}"><i></i>${hiddenText}</div>${childRows ? `<div class="uv-unit-card-indicators">${childRows}</div>` : ''}</article>`;
+  }).join('');
+  const groupCards = groups.map((item) => {
+    const label = uvEscText(item.label);
+    const hiddenText = hidden.has(item.id) ? 'Đã ẩn với đơn vị' : 'Đang hiển thị';
+    return `<article class="uv-unit-card${hidden.has(item.id) ? ' is-hidden' : ''}"><div class="uv-unit-card-head"><span class="uv-unit-card-kind">NHÓM LĨNH VỰC / TRỤC</span>${uvUnitToggleButton(item, hidden, item.label)}</div>`
+      + `<h3>${label}</h3><div class="uv-unit-card-state${hidden.has(item.id) ? ' is-hidden' : ''}"><i></i>${hiddenText}</div></article>`;
+  }).join('');
+  const otherIndicators = indicators.filter((item) => !groupedIndicators.has(item.id));
+  const groupPreview = summary.totalGroups
+    ? `, ${summary.totalGroups - summary.hiddenGroups}/${summary.totalGroups} nhóm`
+    : '';
+  const indicatorRows = otherIndicators.map((item) => {
+    const label = uvEscText(item.label);
+    const hiddenText = hidden.has(item.id) ? 'Đã ẩn' : 'Đang hiện';
+    return `<div class="uv-unit-indicator-row${hidden.has(item.id) ? ' is-hidden' : ''}"><div><b>${label}</b><small>${uvEscText(item.groupLabel || 'Chỉ tiêu')}</small></div><span class="uv-unit-indicator-state">${hiddenText}</span>${uvUnitToggleButton(item, hidden, item.label)}</div>`;
+  }).join('');
+  const scope = uvEscText(uvUnitScopeLabel());
+  const editorAxis = axis ? `Trục: ${uvEscText(axis)}` : '';
+  editor.innerHTML = `<div class="uv-unit-dialog"><div class="uv-unit-banner"><b>ĐANG CẤU HÌNH CHO TOÀN ĐƠN VỊ · ${scope}</b><span>Thay đổi áp dụng cho mọi người dùng</span>${editorAxis ? `<strong>${editorAxis}</strong>` : ''}<button type="button" class="uv-unit-close" data-uv-unit-action="cancel" aria-label="Đóng cấu hình" title="Đóng">×</button></div>`
+    + `<div class="uv-unit-editor-scroll"><header class="uv-unit-editor-head"><div><span class="uv-unit-eyebrow">TÙY CHỈNH HIỂN THỊ IOC</span><h1 id="uvUnitTitle">${scope}</h1><p>Chọn lĩnh vực hoặc chỉ tiêu sẽ hiển thị với người dùng trong đơn vị.</p></div><div class="uv-unit-pending${pending.length ? ' has-changes' : ''}"><i></i>${pendingText}</div></header>`
+    + `<div class="uv-unit-summary"><div class="uv-unit-summary-card"><span>Lĩnh vực đang hiện</span><b>${summary.totalFields - summary.hiddenFields}<small>/${summary.totalFields}</small></b></div><div class="uv-unit-summary-card is-hidden"><span>Lĩnh vực đang ẩn</span><b>${summary.hiddenFields}</b></div><div class="uv-unit-summary-card is-kpi"><span>Chỉ tiêu đang hiện</span><b>${summary.totalIndicators - summary.hiddenIndicators}<small>/${summary.totalIndicators}</small></b></div></div>`
+    + `<section class="uv-unit-section"><div class="uv-unit-section-head"><h2>Lĩnh vực</h2><span>${summary.totalFields - summary.hiddenFields}/${summary.totalFields} đang hiện · ${summary.hiddenFields} đang ẩn</span></div>`
+    + `<div class="uv-unit-field-grid">${fieldCards || '<div class="uv-unit-empty">Không có lĩnh vực trên màn hình IOC hiện tại.</div>'}</div></section>`
+    + (groups.length ? `<section class="uv-unit-section"><div class="uv-unit-section-head"><h2>Nhóm lĩnh vực / trục</h2><span>${summary.totalGroups - summary.hiddenGroups}/${summary.totalGroups} đang hiện · ${summary.hiddenGroups} đang ẩn</span></div><div class="uv-unit-field-grid">${groupCards}</div></section>` : '')
+    + (otherIndicators.length ? `<section class="uv-unit-section"><div class="uv-unit-section-head"><h2>Chỉ tiêu khác</h2><span>${summary.totalIndicators - summary.hiddenIndicators}/${summary.totalIndicators} đang hiện · ${summary.hiddenIndicators} đang ẩn</span></div><div class="uv-unit-indicator-list">${indicatorRows}</div></section>` : '')
+    + '<p class="uv-unit-demo-note">Bản demo: cấu hình lưu trên trình duyệt hiện tại, chưa đồng bộ giữa các máy và chưa có kiểm tra quyền admin đơn vị.</p></div>'
+    + `<footer class="uv-unit-editor-footer"><span>Xem trước: người dùng sẽ thấy ${summary.totalFields - summary.hiddenFields}/${summary.totalFields} lĩnh vực${groupPreview} và ${summary.totalIndicators - summary.hiddenIndicators}/${summary.totalIndicators} chỉ tiêu.</span>`
+    + '<div><button type="button" class="ghost" data-uv-unit-action="cancel">Hủy</button><button type="button" class="ghost" data-uv-unit-action="preview">Xem trước</button><button type="button" class="primary" data-uv-unit-action="save">Lưu cấu hình</button></div></footer></div>';
+  editor.classList.add('open');
+  document.body.classList.add('uv-unit-editor-open');
+}
+
+function uvSetUnitPreview(preview) {
+  UV_STATE.unitPreview = !!preview;
+  const editor = document.getElementById('uvUnitEditor');
+  const bar = uvEnsureUnitPreviewBar();
+  if (UV_STATE.unitPreview) {
+    if (editor) editor.classList.remove('open');
+    bar.innerHTML = `<span>ĐANG XEM TRƯỚC · ${uvEscText(uvUnitScopeLabel())} · Chưa lưu</span><div><button type="button" data-uv-unit-action="configure">Quay lại cấu hình</button><button type="button" data-uv-unit-action="cancel">Hủy</button><button type="button" data-uv-unit-action="save">Lưu cấu hình</button></div>`;
+    bar.classList.add('open');
+    document.body.classList.remove('uv-unit-editor-open');
+  } else {
+    bar.classList.remove('open');
+    uvRenderUnitEditor();
+  }
+  uvApply(true);
+}
+
+function uvCloseUnitEditor() {
+  const editor = document.getElementById('uvUnitEditor');
+  const bar = document.getElementById('uvUnitPreviewBar');
+  if (editor) editor.classList.remove('open');
+  if (bar) bar.classList.remove('open');
+  document.body.classList.remove('uv-unit-editor-open');
+  UV_STATE.unitPreview = false;
+}
+
 function uvRenderPanel(resetDetailScroll) {
+  if (UV_STATE.unitEditing) { uvRenderUnitEditor(); return; }
   const p = uvEnsurePanel();
-  const hid = new Set(UV_STATE.hidden);
+  const list = p.querySelector('.uv-list');
+  const unitList = p.querySelector('.uv-unit-list');
+  list.hidden = false;
+  unitList.hidden = true;
+  p.querySelector('.uv-title').textContent = '👁 Ẩn/Hiện giao diện';
+  p.querySelector('.uv-hint').textContent = 'Chọn khối bên trái để xem các mục con bên phải. Kéo tiêu đề để di chuyển, kéo góc dưới phải để đổi cỡ.';
+  p.querySelector('.uv-search input').placeholder = 'Tìm mục cần ẩn/hiện…';
+  p.querySelector('.uv-foot').innerHTML = '<button type="button" class="ghost" data-uv-action="show-all">Hiện tất cả</button>'
+    + '<button type="button" class="ghost" data-uv-action="close">Đóng</button>';
+  const unitHidden = new Set(UV_STATE.unitHidden);
+  const combined = uvEffectiveHidden(UV_STATE.hidden, unitHidden);
   const avail = uvAvailableBlocks();
   const full = uvBuildTree(avail);
   const tree = uvFilterTree(full, UV_STATE.query);
@@ -753,8 +1094,8 @@ function uvRenderPanel(resetDetailScroll) {
   } else {
     const selected = uvPickRoot(tree.map((n) => n.block.id), UV_STATE.panelRoot);
     UV_STATE.panelRoot = selected;
-    roots.innerHTML = tree.map((n) => uvRootItemHtml(n, hid, n.block.id === selected)).join('');
-    detail.innerHTML = uvDetailHtml(tree.find((n) => n.block.id === selected), hid);
+    roots.innerHTML = tree.map((n) => uvRootItemHtml(n, combined, n.block.id === selected)).join('');
+    detail.innerHTML = uvDetailHtml(tree.find((n) => n.block.id === selected), combined, unitHidden);
   }
   roots.scrollTop = keepRoots;
   detail.scrollTop = keepDetail;
@@ -809,7 +1150,13 @@ function uvPlacePanel() {
     uvFitPanel();
     return;
   }
-  if (!anchor) return;
+  if (!anchor) {
+    p.style.top = `${Math.max(10, Math.round(window.innerHeight - p.offsetHeight - 16))}px`;
+    p.style.right = '16px';
+    p.style.left = 'auto';
+    uvFitPanel();
+    return;
+  }
   const r = anchor.getBoundingClientRect();
   p.style.top = Math.max(10, Math.round(r.top - p.offsetHeight - 8)) + 'px';
   p.style.right = Math.max(10, Math.round(window.innerWidth - r.right)) + 'px';
@@ -851,7 +1198,73 @@ function uvOpenPanel() {
   }
 }
 
+function uvInitUnitConfigFromAdmin() {
+  if (typeof currentAccount === 'undefined' || !currentAccount) {
+    return;
+  }
+  const scopeKey = uvUnitScopeKey();
+  if (scopeKey === 'unknown') {
+    if (typeof toast === 'function') toast('Không xác định được phạm vi đơn vị của tài khoản.');
+    return;
+  }
+  const storageKey = uvUnitStorageKey();
+  let previous = null;
+  try {
+    const raw = localStorage.getItem(storageKey);
+    previous = raw ? JSON.parse(raw) : null;
+    if (previous && (typeof previous !== 'object' || Array.isArray(previous))) {
+      throw new Error('Cấu hình hiển thị không đúng định dạng.');
+    }
+    if (previous && Array.isArray(previous.items) && previous.items.length) {
+      uvLoadUnit();
+      uvApply(true);
+      return;
+    }
+    const items = uvUnitConfigItems();
+    if (!items.length) {
+      if (typeof toast === 'function') toast('Chưa tải được danh mục lĩnh vực và chỉ tiêu của IOC.');
+      return;
+    }
+    const account = currentAccount;
+    const record = uvBuildUnitRecord(previous, previous && previous.hidden, items, scopeKey, uvUnitScopeLabel(),
+      account.user || account.title || 'Tài khoản đơn vị', new Date().toISOString());
+    localStorage.setItem(storageKey, JSON.stringify(record));
+  } catch (error) {
+    console.error('[ui-visibility-unit] Không khởi tạo được danh mục hiển thị.', error);
+    if (typeof toast === 'function') toast('Không thể khởi tạo cấu hình hiển thị trên trình duyệt này.');
+    return;
+  }
+  uvLoadUnit();
+  uvApply(true);
+  if (typeof toast === 'function') toast('Đã mở IOC theo cấu hình. Có thể quay lại Quản trị để chỉnh trạng thái hiển thị.');
+}
+
+function uvSaveUnitConfig() {
+  if (!UV_STATE.unitEditing) return;
+  if (UV_STATE.unitKey !== uvUnitStorageKey()) {
+    if (typeof toast === 'function') toast('Phạm vi đơn vị đã thay đổi. Hãy mở lại cấu hình trước khi lưu.');
+    uvCancelUnitConfig();
+    return;
+  }
+  if (!uvSaveUnit()) return;
+  UV_STATE.unitHidden = [...UV_STATE.unitDraft];
+  UV_STATE.unitDraft = [];
+  UV_STATE.unitEditing = false;
+  uvCloseUnitEditor();
+  uvApply(true);
+  if (typeof toast === 'function') toast('Đã lưu cấu hình hiển thị cho đơn vị trên trình duyệt này.');
+}
+
+function uvCancelUnitConfig() {
+  if (!UV_STATE.unitEditing) return;
+  UV_STATE.unitDraft = [];
+  UV_STATE.unitEditing = false;
+  uvCloseUnitEditor();
+  uvApply(true);
+}
+
 function uvClosePanel() {
+  if (UV_STATE.unitEditing) return;
   /* Đóng bảng thì xóa ô tìm — lần mở sau thấy đủ danh sách, không bị lọc sẵn từ lần trước. */
   UV_STATE.query = '';
   if (UV_STATE.panel) UV_STATE.panel.classList.remove('open');
@@ -884,6 +1297,11 @@ function uvEscAction(state) {
 
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
+  if (UV_STATE.unitEditing) {
+    if (UV_STATE.unitPreview) uvSetUnitPreview(false);
+    else uvCancelUnitConfig();
+    return;
+  }
   const overlay = document.getElementById('overlay');
   const action = uvEscAction({
     overlayOpen: !!(overlay && overlay.classList.contains('show')),
@@ -894,6 +1312,13 @@ document.addEventListener('keydown', (e) => {
   else if (action === 'exit-edit') uvSetEditMode(false);
 });
 window.addEventListener('resize', () => { if (UV_STATE.panel && UV_STATE.panel.classList.contains('open')) uvPlacePanel(); });
+window.addEventListener('storage', (event) => {
+  if (!event.key || !event.key.startsWith(UV_UNIT_STORAGE_PREFIX) || UV_STATE.unitEditing) return;
+  if (event.key !== uvUnitStorageKey()) return;
+  uvLoadUnit();
+  uvApply(true);
+  uvRefreshOpenPanel();
+});
 
 /* Bản đồ Leaflet chỉ tự vẽ lại khi CỬA SỔ đổi cỡ. Khung bản đồ đổi cỡ vì lý do khác — thu gọn rồi mở lại khối GIS
    (nút −), ẩn/hiện khối bên cạnh, thanh cuộn trang xuất hiện — thì bản đồ vẫn giữ cỡ cũ (rà 02/11/2026: thu gọn rồi mở

@@ -18,8 +18,9 @@ ctx.window.window = ctx.window;
 vm.createContext(ctx);
 vm.runInContext(src + '\n;this.L=uvComputeLayout;this.B=UV_BLOCKS;this.V=uvIsVisible;this.A=uvAllBlocks;this.T=uvBuildTree;this.C=uvShouldCollapseSidebar;'
   + 'this.P=uvPickNotifyTab;this.BP=uvBadgePos;this.DC=uvShouldCloseOnDocClick;'
-  + 'this.IID=uvIndicatorItemId;this.RN=uvRenameIds;this.COL=uvIsCollapsedIn;this.FT=uvFilterTree;this.NORM=uvNorm;this.CNT=uvCountHidden;this.ESC=uvEscAction;this.PR=uvPickRoot;this.NC=uvNodeCounts;', ctx);
-const { L, B, V, A, T, C, P, BP, DC, IID, RN, COL, FT, NORM, CNT, ESC, PR, NC } = ctx;
+  + 'this.IID=uvIndicatorItemId;this.RN=uvRenameIds;this.COL=uvIsCollapsedIn;this.FT=uvFilterTree;this.NORM=uvNorm;this.CNT=uvCountHidden;this.ESC=uvEscAction;this.PR=uvPickRoot;this.NC=uvNodeCounts;this.EH=uvEffectiveHidden;this.CPT=uvCanPersonalToggle;'
+  + 'this.UK=uvUnitItemKind;this.US=uvUnitCountSummary;this.BR=uvBuildUnitRecord;', ctx);
+const { L, B, V, A, T, C, P, BP, DC, IID, RN, COL, FT, NORM, CNT, ESC, PR, NC, UK, US, BR } = ctx;
 
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) pass++; else { fail++; console.log('✗ ' + m); } };
@@ -59,6 +60,20 @@ ok(eq(L(['indicators'], false), { gridOn: true, fullIds: [] }), 'ẩn Chỉ tiê
 ok(eq(L(['indicators'], true), { gridOn: true, fullIds: ['notify'] }), 'BTCTW: ẩn Chỉ tiêu → Notify kéo giãn');
 ok(eq(L(['notify'], true), { gridOn: true, fullIds: ['indicators'] }), 'BTCTW: ẩn Notify → Chỉ tiêu kéo giãn');
 ok(eq(L(['indicators', 'notify'], true), { gridOn: true, fullIds: [] }), 'BTCTW: ẩn cả hai → không kéo giãn');
+ok(eq([...ctx.EH(['ind-unit-a', 'gis'], ['ind-unit-a', 'ind-group-b'])].sort(), ['gis', 'ind-group-b', 'ind-unit-a']), 'cấu hình đơn vị và cá nhân hợp nhất, không trùng mục');
+ok(ctx.CPT('ind-unit-a', ['ind-unit-a']) === false && ctx.CPT('ind-unit-b', ['ind-unit-a']) === true, 'cá nhân không thể ghi đè mục bị đơn vị ẩn');
+const unitItems = [
+  { id: 'ind-unit-y-te', label: 'Y tế', groupLabel: 'Danh sách lĩnh vực', categoryKey: 'UBND:ubnd-y-te' },
+  { id: 'ind-group-hcc', label: 'Hành chính công', groupLabel: 'Nhóm lĩnh vực / trục' },
+  { id: 'ind-kpi-tiep-nhan', label: 'Tiếp nhận trực tuyến', groupLabel: 'Chỉ tiêu', categoryKey: 'UBND:ubnd-y-te' },
+  { id: 'ubnd-kpi-legacy', label: 'Chỉ tiêu cũ', groupLabel: 'Chỉ tiêu' }
+];
+ok(UK('ind-kpi-tiep-nhan') === 'indicator' && UK('ind-unit-y-te') === 'field' && UK('ind-group-hcc') === 'group', 'nhận diện lĩnh vực, nhóm lĩnh vực và từng chỉ tiêu cho cấu hình đơn vị');
+ok(eq(US(unitItems, ['ind-unit-y-te', 'ind-kpi-tiep-nhan']), { totalFields: 1, hiddenFields: 1, totalGroups: 1, hiddenGroups: 0, totalIndicators: 2, hiddenIndicators: 1 }), 'tổng hợp riêng số lĩnh vực, nhóm lĩnh vực và chỉ tiêu đang ẩn');
+const unitRecord = BR({ history: [{ at: 'old', by: 'A', hiddenCount: 0 }] }, ['ind-unit-y-te', 'ind-unit-y-te', 'ind-kpi-tiep-nhan'], unitItems, 'role:UBND', 'UBND', 'admin-demo', '2026-11-18T01:00:00.000Z');
+ok(unitRecord.hidden.length === 2 && unitRecord.totalFields === 1 && unitRecord.totalGroups === 1 && unitRecord.totalIndicators === 2 && unitRecord.hiddenFields === 1 && unitRecord.hiddenGroups === 0 && unitRecord.hiddenIndicators === 1, 'lưu metadata cấu hình và loại id ẩn trùng');
+ok(unitRecord.items.find((item) => item.id === 'ind-kpi-tiep-nhan').categoryKey === 'UBND:ubnd-y-te', 'lưu liên kết chỉ tiêu với lĩnh vực trong cấu hình đơn vị');
+ok(unitRecord.history.length === 2 && unitRecord.history[1].by === 'admin-demo', 'ghi lịch sử thay đổi cấu hình đơn vị');
 
 // Đầu vào lạ không làm hỏng
 ok(eq(L(undefined, false), { gridOn: false, fullIds: [] }), 'đầu vào undefined an toàn');

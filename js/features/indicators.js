@@ -243,6 +243,10 @@
  if(!grid || typeof uvApply!=='function') return;
  const selectors='.field-category-card,.uo-kpi,.uo-gcard,.uo-card,.stc-kpi,.stc-gcard,.stc-card,.indicator-kpi-tile';
  const occurrences=new Map(), legacyOccurrences=new Map(), aliases=[];
+ const categoryKeyOf=action=>{
+ const m=String(action||'').match(/openCategoryDetail\(['"]([^'"]+)['"]\s*,\s*['"]([^'"]+)['"]/);
+ return m?`${m[1]}:${m[2]}`:'';
+ };
  grid.querySelectorAll(selectors).forEach(el=>{
  const heading=el.querySelector('h2,h3,h4,.stc-lb,.ikt-label')?.textContent.trim()||el.textContent.trim().slice(0,120);
  if(!heading) return;
@@ -275,6 +279,21 @@
  el.dataset.uvGroup=`${parent}-${group.id}`;
  el.dataset.uvGroupLabel=group.label;
  el.dataset.uvGroupIcon=group.icon;
+ el.dataset.uvCategoryKey=categoryKeyOf(el.getAttribute('onclick'));
+ });
+ grid.querySelectorAll('.uo-card .uo-gl,.field-category-card .uo-gl').forEach(row=>{
+ const card=row.closest('.uo-card,.field-category-card');
+ const categoryKey=card?.dataset.uvCategoryKey;
+ if(!categoryKey) return;
+ const label=row.querySelector('.uo-l em')?.textContent.trim()||row.querySelector('.uo-l')?.textContent.trim()||row.textContent.trim();
+ if(!label) return;
+ row.dataset.uvItem=uvIndicatorItemId('kpi',`${categoryKey} ${label}`,label);
+ row.dataset.uvLabel=label;
+ row.dataset.uvIcon='📈';
+ row.dataset.uvParent='indicators';
+ row.dataset.uvGroup=`${categoryKey}-preview`;
+ row.dataset.uvGroupLabel=card.querySelector('h4')?.textContent.trim()||'Chỉ tiêu';
+ row.dataset.uvCategoryKey=categoryKey;
  });
  if(typeof uvAddIdAliases==='function') uvAddIdAliases(aliases);
  uvApply(false);

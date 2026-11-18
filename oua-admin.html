@@ -8,6 +8,7 @@
       OUA_MOBILE_NEW_UI trong js/oua-data.js (đặt false ở cả 2 nơi để quay lại bản mobile cũ). -->
  <script>(function(){var OUA_MOBILE_NEW_UI=true;try{if(OUA_MOBILE_NEW_UI&&matchMedia('(max-width:520px), (pointer:coarse)').matches)location.replace('mobile-admin/index.html');}catch(e){}})();</script>
  <link rel="stylesheet" href="css/oua.css?v=20261117-ton4" />
+ <link rel="stylesheet" href="css/unit-visibility-admin.css?v=20261118c" />
  <link rel="stylesheet" href="css/oua-login-log.css?v=20261117-ton1" />
  <link rel="stylesheet" href="css/oua-data-sources.css?v=20261117-ton1" />
  <link rel="stylesheet" href="css/oua-cau-hinh.css?v=20261117-ton1" />
@@ -321,6 +322,7 @@
     <button class="nav" data-page="tree-settings"><span>🌳</span><span><b>Cài đặt cây thư mục</b><small>Cấu hình cây đơn vị tùy biến, tách khỏi Xã/Phường</small></span></button>
     <button class="nav" data-page="org-grouping"><span>📁</span><span><b>Phân nhóm đơn vị</b><small>Gán tay nhóm TP/Sở/Xã-Phường/BTCTW cho từng đơn vị</small></span></button>
     <button class="nav" data-page="indicator-mapping"><span>📊</span><span><b>Cấu hình chỉ tiêu đơn vị</b><small>Sửa id_url_chỉ_tiêu của từng đơn vị trong user-tree</small></span></button>
+    <button class="nav" data-page="unit-indicator-visibility"><span>👁️</span><span><b>Cấu hình hiển thị IOC</b><small>Ẩn/hiện lĩnh vực, chỉ tiêu cho đơn vị</small></span></button>
     <button class="nav" data-page="ioc-config"><span>🎛️</span><span><b>Cấu hình chức năng IOC</b><small>Tham số, ngưỡng hiển thị của Noti, nhiệm vụ, GIS, chỉ tiêu…</small></span></button>
     <button class="nav" data-page="login-log"><span>🕒</span><span><b>Nhật ký đăng nhập</b><small>Lượt đăng nhập của mọi tài khoản, thành công/thất bại</small></span></button>
     <div class="oua-sidebar-footer" id="ouaSidebarFooter">
@@ -596,6 +598,46 @@
       </div>
     </section>
 
+    <section id="unit-indicator-visibility" class="page">
+      <div class="panel uv-admin-panel">
+        <div class="head">
+          <div><h2>Cấu hình hiển thị IOC</h2><p>Ẩn/hiện lĩnh vực và chỉ tiêu ngay tại đây; mở IOC để xem giao diện sau cấu hình.</p></div>
+          <div class="actions">
+            <button type="button" class="btn" data-uv-admin-action="history">Lịch sử thay đổi</button>
+            <button type="button" class="btn" data-uv-admin-action="restore">Khôi phục mặc định</button>
+            <button type="button" class="btn primary" onclick="ouaOpenUnitIndicatorVisibility()">Preview</button>
+          </div>
+        </div>
+        <div class="uv-admin-scope-row">
+          <label for="uvAdminScopeSelect">Đơn vị</label>
+          <select id="uvAdminScopeSelect" aria-label="Chọn đơn vị cấu hình"></select>
+          <span id="uvAdminLastUpdate"></span>
+        </div>
+        <div class="uv-admin-stats">
+          <article><span>Tổng lĩnh vực</span><b id="uvAdminTotalFields">0</b></article>
+          <article><span>Đang hiện</span><b id="uvAdminVisibleFields">0</b></article>
+          <article><span>Đang ẩn</span><b id="uvAdminHiddenFields">0</b></article>
+          <article><span>Chỉ tiêu bị ẩn</span><b id="uvAdminHiddenIndicators">0</b></article>
+          <article class="uv-admin-updated"><span>Cập nhật lần cuối</span><b id="uvAdminUpdatedAt">—</b><small id="uvAdminUpdatedBy"></small></article>
+        </div>
+        <div class="uv-admin-list-head"><b>CẤU HÌNH HIỂN THỊ LĨNH VỰC / CHỈ TIÊU</b><span>Thay đổi trạng thái ngay tại đây, IOC sẽ áp dụng cấu hình đã lưu</span></div>
+        <div class="uv-admin-filter-row"><label for="uvAdminVisibilityFilter">Hiển thị</label><select id="uvAdminVisibilityFilter" aria-label="Lọc trạng thái hiển thị"><option value="all">Tất cả lĩnh vực và chỉ tiêu</option><option value="visible">Đang hiển thị</option><option value="hidden">Đang ẩn</option></select></div>
+        <div class="uv-admin-table-wrap">
+          <table class="oua-table-v2">
+            <thead><tr><th>Lĩnh vực / Chỉ tiêu</th><th>Loại</th><th>Trạng thái</th><th>Cập nhật bởi</th><th>Thao tác</th></tr></thead>
+            <tbody id="uvAdminHiddenRows"></tbody>
+          </table>
+        </div>
+        <div id="uvAdminEmpty" class="empty" hidden>Chưa có danh mục IOC để cấu hình. Chọn “Preview” để khởi tạo danh mục, sau đó quay lại đây để ẩn/hiện.</div>
+        <div id="uvAdminError" class="uv-admin-error" role="status" hidden></div>
+        <section id="uvAdminHistory" class="uv-admin-history" hidden>
+          <h3>Lịch sử thay đổi</h3>
+          <div id="uvAdminHistoryRows"></div>
+        </section>
+        <p class="uv-admin-demo-note">Bản demo: cấu hình và lịch sử chỉ lưu trong localStorage của trình duyệt này; chưa đồng bộ sang máy khác và chưa kiểm tra quyền admin đơn vị.</p>
+      </div>
+    </section>
+
     <section id="login-log" class="page"><div class="panel" id="ollRoot"></div></section>
     <section id="source-admin" class="page"><div class="panel" id="odsRoot"></div></section>
     <section id="ioc-config" class="page"><div id="ichRoot"></div></section>
@@ -643,7 +685,8 @@
 <script src="js/core/account-data.js"></script>
 <script src="js/core/account-sap-xep.js?v=20261019"></script>
 <script src="js/core/login-log-data.js?v=20261014"></script>
-<script src="js/oua-data.js"></script>
+<script src="js/oua-data.js?v=20261118c"></script>
+<script src="js/features/unit-visibility-admin.js?v=20261118f"></script>
 <script src="js/oua-login-log.js?v=20261014"></script>
 <script src="js/core/data-sources.js?v=20261022"></script>
 <script src="js/oua-data-sources.js?v=20261022"></script>

@@ -160,6 +160,14 @@
  function initLogin(){
  initData();
  resetLoginCombo();
+ const requestedUser=new URLSearchParams(window.location.search).get('unitVisibilityUser');
+ if(requestedUser){
+ const userInput=document.getElementById('username');
+ if(userInput) userInput.value=requestedUser;
+ const requestedAccount=(typeof accounts!=='undefined'&&accounts[requestedUser])||((typeof twAccounts!=='undefined')?Object.values(twAccounts).find(a=>a.user===requestedUser):null);
+ const label=document.getElementById('acctComboLabel');
+ if(label) label.textContent=requestedAccount?requestedAccount.title:`Tài khoản ${requestedUser}`;
+ }
  setInterval(updateClock,1000); updateClock();
  document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openQuickCommand()}})
  document.addEventListener('keydown',e=>{if(e.key==='Enter' && !document.getElementById('loginScreen').classList.contains('hidden')){e.preventDefault();login()}})
@@ -171,6 +179,7 @@
  document.getElementById('loginScreen').classList.add('hidden');
  document.getElementById('app').classList.remove('hidden');
  renderAll();
+ if(new URLSearchParams(window.location.search).get('unitVisibilityAdmin')==='1' && typeof uvInitUnitConfigFromAdmin==='function') setTimeout(uvInitUnitConfigFromAdmin,0);
  if(typeof lhRecordLogin==='function') lhRecordLogin(account);
  const levelLabel=isTwRole(role)?'Cấp Trung ương':({1:'Cấp 04 trục',2:'Cấp sở/ngành',3:'Cấp xã/phường'}[myLevel()]);
  pushActionLog({category:'auth',icon:'',title:`${account.title} đăng nhập hệ thống`,sub:`${account.subtitle||''} · ${levelLabel} · Trục ${roleMeta(role).name||role}`,detail:`Tài khoản: ${account.user||account.title} · Vai trò: ${roleMeta(role).name||role}${soId?` · Sở/ngành: ${(categorySeed.UBND||[]).find(c=>c.id===soId)?.name||soId}`:''}${currentXaId?` · Xã/phường: ${wardNames()[Number(currentXaId)]||currentXaId}`:''}`});
