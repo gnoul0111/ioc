@@ -1768,29 +1768,29 @@ function ouaGoPage(id){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function ouaGoDetail(id){ouaGoPage(id)}
-function ouaOpenUnitIndicatorVisibility(){
-  const page = window.location.pathname.endsWith('.html') ? 'demo_ioc.html' : 'demo_ioc';
-  const target = new URL(page, window.location.href);
-  target.searchParams.set('unitVisibilityAdmin', '1');
-  const selectedKey = document.getElementById('uvAdminScopeSelect')?.value || '';
+/* «Xem trước» ở màn Cấu hình hiển thị IOC: mở IOC kèm unitVisibilityAdmin=1 (IOC dựng danh mục lĩnh vực/chỉ tiêu cho
+   đơn vị lần đầu — uvInitUnitConfigFromAdmin) và unitVisibilityUser = tài khoản của đơn vị đang chọn (điền sẵn ở màn
+   đăng nhập). Trên web mở trang gốc «/» (Vercel chuyển về demo_ioc.html); mở file trên máy thì dùng demo_ioc.html. */
+const OUA_UV_ROLE_USER = {DANG:'danguy', HDND:'hdnd', UBND:'ubnd', MTTQ:'mttq', TW_ALL:'tw'};
+function ouaUnitScopeUser(storageKey){
   const prefix = 'px-ioc-ui-visibility-unit:v1:';
-  if(selectedKey.startsWith(prefix)){
-    let scope = selectedKey.slice(prefix.length);
-    try { scope = decodeURIComponent(scope); } catch (e) { /* giữ key nếu dữ liệu cũ không encode */ }
-    let user = '';
-    if(scope.startsWith('role:')){
-      const role = scope.slice(5);
-      user = ({DANG:'danguy',HDND:'hdnd',UBND:'ubnd',MTTQ:'mttq',TW_ALL:'tw'})[role] || '';
-    }else if(scope.startsWith('so:')) user = `so-${scope.slice(3)}`;
-    else if(scope.startsWith('xa:')) user = `xa-${scope.slice(3)}`;
-    else if(scope.startsWith('office:')) user = `ban-${scope.slice(7)}`;
-    if(user) target.searchParams.set('unitVisibilityUser', user);
-  }
+  if(!storageKey || !storageKey.startsWith(prefix)) return '';
+  let scope = storageKey.slice(prefix.length);
+  try { scope = decodeURIComponent(scope); } catch (e) { /* khóa cũ không mã hóa */ }
+  const cut = scope.indexOf(':');
+  const kind = scope.slice(0, cut), id = scope.slice(cut + 1);
+  if(kind === 'role') return OUA_UV_ROLE_USER[id] || '';
+  const userPrefix = {so:'so-', xa:'xa-', office:'ban-'}[kind];
+  return userPrefix && id ? userPrefix + id : '';
+}
+function ouaOpenUnitIndicatorVisibility(){
+  const target = new URL(window.location.protocol === 'file:' ? 'demo_ioc.html' : '/', window.location.href);
+  target.searchParams.set('unitVisibilityAdmin', '1');
+  const user = ouaUnitScopeUser(document.getElementById('uvAdminScopeSelect')?.value);
+  if(user) target.searchParams.set('unitVisibilityUser', user);
   window.location.assign(target.toString());
 }
-document.querySelectorAll('#ouaScreen .nav').forEach(n=>n.onclick=()=>{
-  ouaGoPage(n.dataset.page);
-});
+document.querySelectorAll('#ouaScreen .nav').forEach(n=>n.onclick=()=>ouaGoPage(n.dataset.page));
 document.querySelectorAll('#ouaScreen .tabs .tab').forEach(t=>t.onclick=()=>{let wrap=t.closest('.tabs');wrap.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');let panel=t.closest('.panel');panel.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));document.getElementById(t.dataset.target).classList.add('active');});
 /* ouaActiveModalKey theo dõi modal đang mở để ouaConfirmModal() có thể định tuyến sang xử lý riêng (vd tạo đơn
    vị mới cần đọc input thật và đẩy vào ouaOrgRows) thay vì luôn hiện toast chung chung như trước. */
