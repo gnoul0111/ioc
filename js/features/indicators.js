@@ -355,8 +355,10 @@
  const roles=allowedCategoryRoles();
  /* Tài khoản xã/phường đại diện cho cả 4 trục của xã nên cũng có tab "Tất cả" (màn ngoài gộp 4 trục, ctm-xa-units.js). Tắt CTM_XA_ALL_TAB để bỏ. */
  const canSeeAll=currentRole==='DANG'||currentRole==='TW_ALL'||(currentXaId!=null && typeof CTM_XA_ALL_TAB!=='undefined' && CTM_XA_ALL_TAB);
+ /* Tài khoản xã, phường: trục đơn vị đã ẩn (Cấu hình hiển thị IOC, ctm-xa-bangtin.js → xbtTrucHidden) không có tab */
+ const tabRoles=(currentXaId!=null&&typeof xbtTrucHidden==='function')?roles.filter(r=>!xbtTrucHidden(r)):roles;
  if(activeCategoryRole==='ALL'){ if(!canSeeAll) activeCategoryRole=roles[0]; }
- else if(!roles.includes(activeCategoryRole)) activeCategoryRole=canSeeAll?'ALL':roles[0];
+ else if(!tabRoles.includes(activeCategoryRole)) activeCategoryRole=canSeeAll?'ALL':roles[0];
  const prevQ=document.getElementById('categorySearch')?.value||'';
  /* Nhóm con — chỉ tính khi tab trục đang chọn (không phải "Tất cả") là 1 trục TW có đơn vị lồng nhau (xem
  twCategoryTabs). Không lưu lựa chọn cũ giữa các trục khác nhau — mỗi lần đổi tab trục thì mặc định lại đúng
@@ -372,7 +374,7 @@
  if(!activeCategorySubGroup||!subGroups.some(g=>g.key===activeCategorySubGroup)) activeCategorySubGroup=subGroups[0].key;
  mainTabsHtml=subGroups.map(g=>`<button class="${activeCategorySubGroup===g.key?'active':''}" onclick="setFieldCategorySubGroup('${g.key}')">${esc(g.label)}</button>`).join('');
  } else {
- mainTabsHtml=`${canSeeAll?`<button class="${activeCategoryRole==='ALL'?'active':''}" onclick="setFieldCategoryRole('ALL')">🌐 Tất cả</button>`:''}${roles.map(r=>`<button class="${activeCategoryRole===r?'active':''}" onclick="setFieldCategoryRole('${r}')">${roleMeta(r).icon||''} ${roleAxisLabel(r)}</button>`).join('')}`;
+ mainTabsHtml=`${canSeeAll?`<button class="${activeCategoryRole==='ALL'?'active':''}" onclick="setFieldCategoryRole('ALL')">🌐 Tất cả</button>`:''}${tabRoles.map(r=>`<button class="${activeCategoryRole===r?'active':''}" onclick="setFieldCategoryRole('${r}')">${roleMeta(r).icon||''} ${roleAxisLabel(r)}</button>`).join('')}`;
  if(subGroups){
  if(!activeCategorySubGroup||!subGroups.some(g=>g.key===activeCategorySubGroup)) activeCategorySubGroup=subGroups[0].key;
  subHtml=`<div class="field-category-subtabs">${subGroups.map(g=>`<button data-key="${g.key}" class="${activeCategorySubGroup===g.key?'active':''}" onclick="setFieldCategorySubGroup('${g.key}')">${esc(g.label)}</button>`).join('')}</div>`;

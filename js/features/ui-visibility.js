@@ -136,6 +136,8 @@ function uvAccountKey() {
 function uvUnitScopeKey() {
   try {
     if (typeof currentSoId !== 'undefined' && currentSoId) return `so:${currentSoId}`;
+    /* phòng/ban của một xã, phường (tài khoản xaban-<xã>-<ban>): phạm vi riêng từng xã, không chung với phòng/ban cấp Thành phố */
+    if (typeof currentOfficeId !== 'undefined' && currentOfficeId && typeof currentXaId !== 'undefined' && currentXaId != null) return `xaban:${currentXaId}:${currentOfficeId}`;
     if (typeof currentOfficeId !== 'undefined' && currentOfficeId) return `office:${currentOfficeId}`;
     if (typeof currentXaId !== 'undefined' && currentXaId != null) return `xa:${currentXaId}`;
     if (typeof currentRole !== 'undefined' && currentRole) return `role:${currentRole}`;
@@ -236,18 +238,21 @@ function uvCanPersonalToggle(id, unitHidden) {
   return !hidden.has(id);
 }
 
-function uvLoadUnit() {
-  const key = uvUnitStorageKey();
+/* Các mục cấu hình đơn vị đang ẩn, đọc thẳng từ trình duyệt theo tài khoản đang đăng nhập — màn chỉ tiêu xã (ctm-xa-bangtin.js) gọi
+   lúc dựng màn, không phụ thuộc thứ tự nạp lại UV_STATE. */
+function uvUnitHiddenNow() {
   try {
-    const raw = localStorage.getItem(key);
+    const raw = localStorage.getItem(uvUnitStorageKey());
     const parsed = raw ? JSON.parse(raw) : null;
-    UV_STATE.unitHidden = parsed && Array.isArray(parsed.hidden)
-      ? [...new Set(parsed.hidden.filter((id) => typeof id === 'string'))]
-      : [];
+    return parsed && Array.isArray(parsed.hidden) ? [...new Set(parsed.hidden.filter((id) => typeof id === 'string'))] : [];
   } catch (e) {
-    UV_STATE.unitHidden = [];
     console.error('[ui-visibility-unit] Không đọc được cấu hình hiển thị đơn vị.', e);
+    return [];
   }
+}
+
+function uvLoadUnit() {
+  UV_STATE.unitHidden = uvUnitHiddenNow();
 }
 
 function uvLoad() {
@@ -876,9 +881,12 @@ function uvDetailHtml(node, hid, unitHiddenIds) {
   return head + (kids || '<div class="uv-none">Khối này không có mục con để ẩn riêng — dùng công tắc của khối ở cột trái.</div>');
 }
 
+/* Danh mục cấu hình được của đơn vị: các mục chỉ tiêu đang có trên màn IOC, cộng danh mục màn chỉ tiêu xã tự khai (xbtUnitCatalog —
+   trục và eform của xã lấy từ khai báo eform, vì bố cục xã do từng tài khoản tự xếp, quét màn hình sẽ thiếu). */
 function uvUnitConfigItems() {
   const seen = new Set();
-  return uvAvailableBlocks().filter((block) => {
+  const extra = typeof xbtUnitCatalog === 'function' ? xbtUnitCatalog() : [];
+  return uvAvailableBlocks().concat(extra.map((item) => ({ ...item, dynamic: true }))).filter((block) => {
     if (!block.dynamic || !uvUnitItemKind(block.id) || seen.has(block.id)) return false;
     seen.add(block.id);
     return true;
@@ -910,7 +918,7 @@ function uvRenderPanel(resetDetailScroll) {
   roots.scrollTop = keepRoots;
   detail.scrollTop = keepDetail;
   /* Mục do cấu hình đơn vị ẩn: «Hiện tất cả» không bật lại được → ghi rõ ở chân bảng. */
-  const unitCount = uvCountHidden(avail, unitHidden);
+  const unitCount = uvUnitConfigItems().filter((item) => unitHidden.has(item.id)).length;
   const note = p.querySelector('.uv-unit-note');
   note.textContent = `${unitCount} mục do đơn vị ẩn, không bật lại được tại đây.`;
   note.hidden = !unitCount;
@@ -1110,6 +1118,7 @@ window.addEventListener('storage', (event) => {
   uvLoadUnit();
   uvApply(true);
   uvRefreshOpenPanel();
+  if (typeof xbtUnitChanged === 'function') xbtUnitChanged(); // màn chỉ tiêu xã: dựng lại tab, khối
 });
 
 /* Bản đồ Leaflet chỉ tự vẽ lại khi CỬA SỔ đổi cỡ. Khung bản đồ đổi cỡ vì lý do khác — thu gọn rồi mở lại khối GIS

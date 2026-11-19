@@ -46,6 +46,33 @@ function xbtDlg() {
   }
   return d;
 }
+/* Cấu hình hiển thị IOC theo đơn vị (ui-visibility.js, màn quản trị «Cấu hình hiển thị IOC»; anh duyệt 19/11/2026): quản trị ẩn cả một trục
+   (tab Đảng ủy / HĐND / UBND / MTTQ) hoặc từng eform (lĩnh vực) của một xã, phường. Ẩn bằng cờ, không xóa: bố cục đã lưu giữ nguyên — khối
+   của eform bị ẩn chỉ không vẽ, không chọn được trong «Tùy chỉnh»; bỏ ẩn thì hiện lại đúng chỗ. Hộp eform bị ẩn chỉ báo, không mở số liệu. */
+const XBT_UV_TRUC = 'ind-group-xa-', XBT_UV_EF = 'ind-unit-xa-';
+const XBT_TRUC_ROLE = { DANG: 'Đảng ủy', HDND: 'HĐND', UBND: 'UBND', MTTQ: 'Ủy ban MTTQ' };
+function xbtUnitHidden() { try { return new Set(typeof uvUnitHiddenNow === 'function' ? uvUnitHiddenNow() : []); } catch (e) { return new Set(); } }
+function xbtTrucHidden(role, hid) { return (hid || xbtUnitHidden()).has(XBT_UV_TRUC + role); }
+function xbtEfHidden(sid, hid) {
+  const s = CTM_SPECS[sid]; if (!s) return false;
+  const h = hid || xbtUnitHidden();
+  return h.has(XBT_UV_TRUC + s.role) || h.has(XBT_UV_EF + s.kyDef.eforms[0].ef);
+}
+/* Danh mục cho màn quản trị: tài khoản xã, phường (không phải phòng/ban của xã) — 4 trục và các eform xã có, theo khai báo eform */
+function xbtUnitCatalog() {
+  if (typeof currentXaId === 'undefined' || currentXaId == null || (typeof currentOfficeId !== 'undefined' && currentOfficeId)) return [];
+  const roles = typeof allowedCategoryRoles === 'function' ? allowedCategoryRoles() : null, sids = xbtSpecs(roles), out = [];
+  (roles || Object.keys(XBT_TRUC_ROLE)).forEach((r) => { if (sids.some((sid) => CTM_SPECS[sid].role === r)) out.push({ id: XBT_UV_TRUC + r, label: XBT_TRUC_ROLE[r] || r, groupLabel: 'Trục' }); });
+  sids.forEach((sid) => { const s = CTM_SPECS[sid], ef = s.kyDef.eforms[0].ef, t = XBT_TRUC_ROLE[s.role] || s.role;
+    out.push({ id: XBT_UV_EF + ef, label: (EFK[ef] && EFK[ef].ten) || ef, groupLabel: t, groupId: XBT_UV_TRUC + s.role, categoryKey: s.role + ':' + sid }); });
+  return out;
+}
+/* đổi cấu hình hiển thị (màn quản trị ở thẻ khác lưu) → dựng lại tab, màn ngoài, hộp eform đang mở */
+function xbtUnitChanged() {
+  if (typeof currentXaId === 'undefined' || currentXaId == null) return;
+  if (typeof renderIndicators === 'function') renderIndicators();
+  if (typeof CTM_UI !== 'undefined' && CTM_UI.open && typeof ctmRerender === 'function') ctmRerender(false);
+}
 function xbtSpecs(roles) { return Object.keys(CTM_SPECS).filter((k) => { const s = CTM_SPECS[k]; return s.level === 'xa' && s.efDonVi && s.enabled !== false && (!roles || roles.indexOf(s.role) >= 0); }); }
 function xbtSidOfSlug(slug) { return xbtSpecs(null).find((k) => CTM_SPECS[k].kyDef.eforms[0].ef === 'xa_' + slug) || null; }
 function xbtXaName() {
@@ -160,6 +187,8 @@ function xbtMake(DATA, OV) {
   const XU = DATA.multi ? 'Các kỳ đã chọn' : P.length < 2 ? 'Chỉ có một kỳ' : 'Diễn biến ' + P.length + ' ' + DATA.tu + ' gần nhất';
   const xuNoteHtml = () => '<p class="xnote">' + esc(XU) + ' · đậm là ' + esc(KY.toLowerCase()) + '</p>';
   const EFS = DATA.eforms, BY = {}; EFS.forEach((e) => { BY[e.ef] = e; e.slug = e.ef.slice(3); e.dl = e.dl || []; e.dlBy = {}; e.dl.forEach((d) => { e.dlBy[d.k] = d; }); });
+  /* eform đơn vị đã ẩn (xbtEfHidden): vẫn nạp số để bố cục đã lưu không thành khối hỏng; chỉ không vẽ, không chọn được */
+  const UVH = xbtUnitHidden(), HID = new Set(EFS.filter((e) => xbtEfHidden(e.sid, UVH)).map((e) => e.ef));
   const NF = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 });
   const NF1 = new Intl.NumberFormat('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -680,7 +709,7 @@ function xbtMake(DATA, OV) {
     const kySel = EDIT || !DATA.plist ? '' : '<div class="xky" role="group" aria-label="Kỳ xem"><label><span>Xem theo</span><select data-xky="g">' + EF_GRAN.map((x) => opt(x[0], x[1], x[0] === DATA.g)).join('') + '</select></label>' +
       '<label><span>Kỳ</span><select data-xky="p">' + DATA.plist.map((p) => opt(p.id, p.label, p.id === DATA.cur)).join('') + '</select></label></div>';
     /* màn không có ô số nào (chỉ biểu đồ) thì không có mũi tên so kỳ: bỏ lời giải thích mũi tên */
-    const Q = qOf(), SH = L.blocks.map((b, i) => [b, i]).filter(([b]) => qHit(b, Q)), RG = XBT_RINGS ? L.rings.filter((r) => !Q || qHit({ t: 'so', ef: r[0], m: r[1], s: [] }, Q)) : L.rings;
+    const Q = qOf(), SH = L.blocks.map((b, i) => [b, i]).filter(([b]) => !HID.has(b.ef) && qHit(b, Q)), RG = XBT_RINGS ? L.rings.filter((r) => !Q || qHit({ t: 'so', ef: r[0], m: r[1], s: [] }, Q)) : L.rings;
     const arrows = EDIT || RG.length || SH.map((x) => x[0]).some((x) => !x.bad && (x.t === 'so' || (x.t === 'bd' && BY[x.ef].charts[x.c].nhom)));
     let h = '<div class="page-h"><div><h1>' + esc(DATA.xaName) + '</h1><p>' + esc(KY) + (arrows ? ' · ' + esc(SO) : '') + (EDIT ? '' : ' · bấm vào hình nào để xem kỹ phần đó') + '</p></div><div class="ph-act">' + kySel + acct + bar + '</div></div>';
     if (EDIT) h += '<p class="ednote">Đang tùy chỉnh màn ngoài. Bố cục lưu riêng cho tài khoản <b>' + esc(xbtWho()) + '</b> trên trình duyệt này. Chỉ chọn được ô số, biểu đồ đã có trong bản đọc eform; số đã dùng ở chỗ khác trên màn thì không chọn lại.</p>';
@@ -695,6 +724,7 @@ function xbtMake(DATA, OV) {
     h += '<div class="bgrid">' + SH.map(([b, i]) => blockHtml(b, i)).join('') + (EDIT ? '<button type="button" class="addc" data-add="1">＋ Thêm khối</button>' : '') + '</div>';
     if (Q && L.blocks.length && !SH.length) h += '<p class="hint">Không có khối nào có tên eform hoặc tên nhóm chứa «' + esc(String(XBT.q).trim()) + '».</p>';
     if (!L.blocks.length && !EDIT) h += '<p class="hint">Màn ngoài đang trống. Bấm «Tùy chỉnh» để thêm khối, hoặc «Khôi phục mặc định».</p>';
+    else if (!Q && !SH.length && !EDIT && L.blocks.some((b) => HID.has(b.ef))) h += '<p class="hint">Đơn vị đã ẩn các lĩnh vực của những khối trên màn này. Bấm «Tùy chỉnh» để thêm khối khác.</p>';
     return h;
   };
 
@@ -840,7 +870,7 @@ function xbtMake(DATA, OV) {
   /* ---------- Lớp 2: một eform, một màn ---------- */
   const ST = { sel: {}, allK: {}, kind: {} };
   /* chỉ các eform màn này có (tab trục chỉ nạp eform của trục; thiếu lọc thì «Tùy chỉnh» lỗi ở tab trục — sửa 16/11/2026) */
-  const ORDER = ['xa_hcc', 'xa_tcns', 'xa_qlvb', 'xa_gpmb', 'xa_gd', 'xa_vh', 'xa_hdnd', 'xa_mttq', 'xa_nv', 'xa_dang', 'xa_yte', 'xa_ktxh'].filter((ef) => BY[ef]);
+  const ORDER = ['xa_hcc', 'xa_tcns', 'xa_qlvb', 'xa_gpmb', 'xa_gd', 'xa_vh', 'xa_hdnd', 'xa_mttq', 'xa_nv', 'xa_dang', 'xa_yte', 'xa_ktxh'].filter((ef) => BY[ef] && !HID.has(ef));
   const DONUT_OK = { xa_gd: [0, 1, 2, 3] };
   const stage = (e, c, ci) => {
     const ks = vkinds(e, c, ci), key = e.ef + '#' + ci, k0 = ST.kind[key], kind = ks.indexOf(k0) >= 0 ? k0 : vdef(e, c, ci);
@@ -978,7 +1008,9 @@ function xbtMake(DATA, OV) {
 function xbtInst(ov, sids, baseSid) {
   const U = typeof CTM_UI !== 'undefined' ? CTM_UI : {}, b = baseSid && CTM_SPECS[baseSid];
   const ky = b ? [baseSid, ctmCurPid(b), U.gran || '', U.kyMode || '', (U.kyDs || []).join(',')] : [XBT.ky.g, XBT.ky.p || ''];
-  const k = [typeof currentXaId !== 'undefined' ? currentXaId : '', sids.join(',')].concat(ky).join('|');
+  /* mục đơn vị đã ẩn nằm trong khóa: đổi cấu hình hiển thị thì dựng lại bản bảng tin */
+  const hid = sids.filter((sid) => xbtEfHidden(sid)).join(',');
+  const k = [typeof currentXaId !== 'undefined' ? currentXaId : '', sids.join(','), hid].concat(ky).join('|');
   if (!XBT.inst[ov] || XBT.key[ov] !== k) { XBT.inst[ov] = xbtMake(xbtData(sids, baseSid || null), ov); XBT.key[ov] = k; }
   if (!b) XBT.sids[ov] = sids;
   return XBT.inst[ov];
@@ -1024,6 +1056,8 @@ if (XBT_ENABLED && typeof ctmOverviewHtml === 'function' && typeof ctmScreenHtml
     if (xbtMode() === 'cu') return XBT_OLDBAR('Xem bố cục mới') + ovOrig(cfg, cats);
     try {
       const sids = xbtSpecs(cfg.roles); if (!sids.length) return ovOrig(cfg, cats);
+      const uvh = xbtUnitHidden();
+      if (sids.every((sid) => xbtEfHidden(sid, uvh))) return '<div class="stc-root xbt-root xbt-ov" style="grid-column:1/-1;background:transparent;overflow:visible"><p class="hint">Đơn vị đã ẩn các lĩnh vực của mục này. Liên hệ quản trị đơn vị để hiện lại.</p></div>';
       const qi = typeof document !== 'undefined' && document.getElementById ? document.getElementById('categorySearch') : null; XBT.q = qi ? qi.value : '';
       const inst = xbtInst(cfg.id, sids);
       setTimeout(() => inst.mount(), 0);
@@ -1035,6 +1069,8 @@ if (XBT_ENABLED && typeof ctmOverviewHtml === 'function' && typeof ctmScreenHtml
   ctmScreenHtml = function (spec) {
     XBT.curEf = null;
     if (!spec || spec.level !== 'xa' || !spec.efDonVi) return scOrig(spec);
+    /* eform đơn vị đã ẩn: mọi màn của hộp (kể cả mở từ tìm kiếm, đường khác) chỉ báo, không hiện số liệu */
+    if (xbtEfHidden(spec.id)) return ctmHeader(spec, '') + '<div class="xbt-root xbt-modal"><p class="hint">Đơn vị đã ẩn lĩnh vực này. Liên hệ quản trị đơn vị để hiện lại.</p></div>';
     if (CTM_UI.screen !== 'home') return scOrig(spec);
     if (xbtMode() === 'cu') return XBT_OLDBAR('Xem bố cục mới') + scOrig(spec);
     try {
