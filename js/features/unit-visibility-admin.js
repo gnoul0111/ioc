@@ -132,14 +132,16 @@
     };
     const rowHtml = (item, nested, childCount, expanded) => {
       const isHidden = hiddenIds.has(item.id);
-      const status = isHidden ? 'Đang ẩn' : 'Đang hiển thị';
+      /* lĩnh vực của xã nằm trong trục đã ẩn (groupId — ctm-xa-bangtin.js → xbtUnitCatalog): trên IOC cũng không hiện */
+      const byGroup = !isHidden && item.groupId && hiddenIds.has(item.groupId);
+      const status = isHidden ? 'Đang ẩn' : byGroup ? 'Ẩn theo trục' : 'Đang hiển thị';
       const action = isHidden ? 'show' : 'hide';
       const actionLabel = isHidden ? 'Hiện lại' : 'Ẩn';
       const expand = childCount
         ? `<button type="button" class="uv-admin-expand${expanded ? ' is-open' : ''}" data-uv-admin-expand="${esc(item.id)}" aria-expanded="${expanded}" aria-label="${expanded ? 'Thu gọn' : 'Xem'} chỉ tiêu thuộc ${esc(item.label)}"><span aria-hidden="true">›</span><small>${childCount}</small></button>`
         : '';
       const detail = !nested && itemKind(item) === 'indicator' && item.groupLabel ? `<small>${esc(item.groupLabel)}</small>` : '';
-      return `<tr class="${nested ? 'uv-admin-child-row' : 'uv-admin-parent-row'}" ${nested ? `data-uv-admin-child-of="${esc(item.parentId)}"` : ''}><td><div class="uv-admin-item-cell${nested ? ' is-nested' : ''}">${expand}<div><b>${esc(item.label)}</b>${detail}</div></div></td><td><span class="uv-admin-type">${kindLabel(item)}</span></td><td><span class="uv-admin-state${isHidden ? ' is-hidden' : ''}">${status}</span></td><td>${esc(record.updatedBy || '—')}<br><small>${esc(formatDate(record.updatedAt))}</small></td><td><button type="button" class="btn${isHidden ? '' : ' danger'}" data-uv-admin-visibility="${action}" data-uv-admin-item="${esc(item.id)}">${actionLabel}</button></td></tr>`;
+      return `<tr class="${nested ? 'uv-admin-child-row' : 'uv-admin-parent-row'}" ${nested ? `data-uv-admin-child-of="${esc(item.parentId)}"` : ''}><td><div class="uv-admin-item-cell${nested ? ' is-nested' : ''}">${expand}<div><b>${esc(item.label)}</b>${detail}</div></div></td><td><span class="uv-admin-type">${kindLabel(item)}</span></td><td><span class="uv-admin-state${isHidden || byGroup ? ' is-hidden' : ''}">${status}</span></td><td>${esc(record.updatedBy || '—')}<br><small>${esc(formatDate(record.updatedAt))}</small></td><td><button type="button" class="btn${isHidden ? '' : ' danger'}" data-uv-admin-visibility="${action}" data-uv-admin-item="${esc(item.id)}">${actionLabel}</button></td></tr>`;
     };
     const fieldsInList = listedItems.filter((item) => itemKind(item) === 'field');
     const indicatorsInList = listedItems.filter((item) => itemKind(item) === 'indicator');

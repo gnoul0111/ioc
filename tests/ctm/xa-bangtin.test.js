@@ -516,5 +516,28 @@ console.log('== Ô «Tìm lĩnh vực…» lọc khối màn ngoài (17/11/2026)
   run('XBT.q = ""');
 }
 
+console.log('== Cấu hình hiển thị IOC theo đơn vị: ẩn trục, eform của xã (anh duyệt 19/11/2026) — ẩn bằng cờ, không mất bố cục');
+{
+  setXa(names[0]);
+  run('globalThis.__uvh = []; globalThis.uvUnitHiddenNow = function () { return __uvh; }');
+  const sids = run('xbtSpecs(null)');
+  const cat = run('xbtUnitCatalog()');
+  const groups = cat.filter((x) => x.id.indexOf('ind-group-xa-') === 0), fields = cat.filter((x) => x.id.indexOf('ind-unit-xa-') === 0);
+  ok(groups.length === 4 && fields.length === sids.length && new Set(cat.map((x) => x.id)).size === cat.length, 'danh mục: 4 trục + mỗi eform xã một lĩnh vực, mã không trùng');
+  ok(fields.every((f) => f.label && groups.some((g) => g.id === f.groupId)), 'mỗi lĩnh vực có tên eform và thuộc một trục');
+  const hcc = sids.find((s) => run('CTM_SPECS[' + JSON.stringify(s) + '].kyDef.eforms[0].ef') === 'xa_hcc');
+  const ubnd = sids.filter((s) => run('CTM_SPECS[' + JSON.stringify(s) + '].role') === 'UBND');
+  ok(!run('xbtEfHidden(' + JSON.stringify(hcc) + ')'), 'chưa ẩn gì: eform hiện');
+  run('__uvh = ["ind-unit-xa-xa_hcc"]');
+  ok(run('xbtEfHidden(' + JSON.stringify(hcc) + ')') && run('xbtSpecs(null)').filter((s) => run('xbtEfHidden(' + JSON.stringify(s) + ')')).length === 1, 'ẩn một lĩnh vực: chỉ eform đó bị ẩn');
+  const inst = make('xa-4truc'), home = inst.home();
+  ok(home.indexOf('href="#hcc"') < 0 && inst.test.L().blocks.some((b) => b.ef === 'xa_hcc' && !b.bad), 'eform bị ẩn: khối không vẽ nhưng vẫn còn nguyên trong bố cục (không thành khối hỏng)');
+  run('__uvh = ["ind-group-xa-UBND"]');
+  ok(ubnd.every((s) => run('xbtEfHidden(' + JSON.stringify(s) + ')')) && run('xbtTrucHidden("UBND")') && !run('xbtTrucHidden("DANG")'), 'ẩn một trục: mọi eform của trục đó bị ẩn, trục khác không');
+  run('__uvh = []');
+  ok(make('xa-4truc').home().indexOf('href="#hcc"') >= 0, 'bỏ ẩn: khối hiện lại');
+  run('delete globalThis.uvUnitHiddenNow; delete globalThis.__uvh');
+}
+
 console.log('\n' + pass + ' đạt, ' + fail + ' lỗi');
 process.exit(fail ? 1 : 0);

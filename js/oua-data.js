@@ -1780,6 +1780,7 @@ function ouaUnitScopeUser(storageKey){
   const cut = scope.indexOf(':');
   const kind = scope.slice(0, cut), id = scope.slice(cut + 1);
   if(kind === 'role') return OUA_UV_ROLE_USER[id] || '';
+  if(kind === 'xaban'){ const m = id.match(/^(\d+):(.+)$/); return m ? `xaban-${m[1]}-${m[2]}` : ''; } // phòng/ban của xã: xaban:<xã>:<ban>
   const userPrefix = {so:'so-', xa:'xa-', office:'ban-'}[kind];
   return userPrefix && id ? userPrefix + id : '';
 }
