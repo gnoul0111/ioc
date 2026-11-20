@@ -7,6 +7,8 @@
    - Số khớp IOC: nhúng đúng các file chỉ tiêu xã của IOC (từ 02/11/2026): khung eform xã (js/core/xa-eform.js), bản ghi mẫu
      (js/core/xa-eform-mau.js), khung chỉ tiêu chung (js/features/ctm-eform.js — cần js/core/eform-khung.js), khai báo 12 eform xã
      (js/features/ctm-xa-eform.js) theo bản đọc docs/BAN_DOC_EFORM/XA_*.
+   - Bố cục 2 lớp như tài khoản xã, phường trong IOC (từ 19/11/2026): nhúng js/features/ctm-xa-bangtin.js + css/ctm-xa-bangtin.css,
+     echarts (lib/echarts/echarts.min.js) nhúng sẵn để mở file không cần mạng; ô tìm có id categorySearch như IOC (lọc khối theo tên eform, nhóm mục).
    Danh sách đơn vị lấy từ DANG/HDND/UBND/MTTQ_XA_CATEGORIES trong js/core/central-level.js (chạy thử trong vm lúc dựng).
    Chạy lại mỗi khi sửa số liệu hoặc khuôn chỉ tiêu:   node tools/xa-build-doc-lap.js */
 'use strict';
@@ -93,7 +95,6 @@ function renderHead(){
   const u = ctmCurrentXaUnit();
   document.getElementById('xaH1').textContent = 'Nhóm chỉ tiêu theo lĩnh vực · ' + (u ? u.name : 'xã, phường');
   document.title = 'Chỉ tiêu ' + (u ? u.name : 'xã, phường') + ' — IOC Hà Nội';
-  document.getElementById('uoSearch').placeholder = 'Tìm đơn vị trong ' + (u && u.k === 'X' ? 'xã' : 'phường') + '...';
 }
 function pickRole(r){
   if(!CTM_SEED[r]) return;
@@ -115,12 +116,13 @@ function renderXaPick(){
   document.getElementById('xaPick').innerHTML = opt('P', n('P')+' phường') + opt('X', n('X')+' xã');
 }
 function renderCategoryGrid(){
-  const q = (document.getElementById('uoSearch').value || '').toLowerCase();
+  const q = (document.getElementById('categorySearch').value || '').toLowerCase();
   const list = CTM_SEED[currentRole].map((c)=>Object.assign({role:currentRole}, c)).filter((c)=>!q || xaRn(c.name).toLowerCase().includes(q));
   const cfg = ctmOverviewFor(currentRole==='ALL' ? ['DANG','HDND','UBND','MTTQ'] : [currentRole]);
   document.getElementById('uoOuterGrid').innerHTML = cfg ? ctmOverviewHtml(cfg, list) : '<div class="access-lock">Chưa có màn tổng quan cho trục này.</div>';
 }
 const renderIndicators = renderCategoryGrid;
+const renderCategoryGridContent = renderCategoryGrid;
 function uoSetThemeStandalone(t){
   document.documentElement.classList.remove('theme-light','theme-green');
   if(t==='light'||t==='green') document.documentElement.classList.add('theme-'+t);
@@ -158,10 +160,13 @@ html.theme-light .xa-pick option,html.theme-light .xa-pick optgroup,html.theme-g
 @media(max-width:900px){.field-category-grid{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:600px){.stc-page{padding:18px 16px 40px}.uo-tools,.uo-tools>label{width:100%}.uo-search,.xa-pick{width:100%;max-width:none}.uo-grid{grid-template-columns:minmax(0,1fr)}}
 `;
-const css = frameCss + part('css/stc.css') + part('css/sgd.css') + part('css/ubnd-overview.css') + part('css/ctm.css') + extraCss;
+const css = frameCss + part('css/stc.css') + part('css/ctm-xa-bangtin.css') + part('css/sgd.css') + part('css/ubnd-overview.css') + part('css/ctm.css') + extraCss;
 /* đúng thứ tự nạp trong demo_ioc.html (chỉ phần chỉ tiêu xã) */
 const ctmJsSrc = part('js/core/xa-dan-so.js') + part('js/core/line-chart.js') + part('js/core/ctm-xa.js') + part('js/core/xa-eform.js') + part('js/core/xa-eform-mau.js') +
-  part('js/features/ctm-engine.js') + part('js/features/ctm-xa-units.js') + part('js/core/eform-khung.js') + part('js/features/ctm-eform.js') + part('js/features/ctm-xa-eform.js');
+  part('js/features/ctm-engine.js') + part('js/features/ctm-xa-units.js') + part('js/core/eform-khung.js') + part('js/features/ctm-eform.js') + part('js/features/ctm-xa-eform.js') +
+  part('js/features/ctm-xa-bangtin.js');
+const echartsSrc = read('lib/echarts/echarts.min.js');
+if (/<\/script/i.test(echartsSrc)) throw new Error('echarts.min.js chứa thẻ đóng </script>');
 if (/<\/script/i.test(ctmJsSrc) || /<\/style/i.test(css)) throw new Error('Mã nhúng chứa thẻ đóng </script> hoặc </style>');
 
 const built = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
@@ -188,7 +193,7 @@ const html = `<!DOCTYPE html>
     </div>
     <div class="uo-tools">
       <label><span class="sr-only">Chọn xã, phường</span><select id="xaPick" class="uo-search xa-pick" onchange="pickXa(this.value)"></select></label>
-      <label><span class="sr-only">Tìm đơn vị</span><input id="uoSearch" class="uo-search" type="search" placeholder="Tìm đơn vị..." oninput="renderCategoryGrid()"></label>
+      <label><span class="sr-only">Tìm lĩnh vực</span><input id="categorySearch" class="uo-search" type="search" placeholder="Tìm lĩnh vực…" oninput="renderCategoryGrid()"></label>
       <div class="stc-theme-sw" role="group" aria-label="Chọn giao diện">
         <button type="button" data-theme="dark" onclick="uoSetThemeStandalone('dark')">Tối</button>
         <button type="button" data-theme="light" onclick="uoSetThemeStandalone('light')">Sáng</button>
@@ -207,6 +212,9 @@ const html = `<!DOCTYPE html>
 </section>
 <div class="toast" id="toast"></div>
 
+<!-- echarts — biểu đồ của bố cục 2 lớp (nhúng sẵn từ lib/echarts/echarts.min.js) -->
+<script>${echartsSrc}
+</script>
 <script>
 ${frameJs}
 ${ctmJsSrc}
