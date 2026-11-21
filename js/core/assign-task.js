@@ -119,13 +119,14 @@
  }
  function onStatusFilterChange(){setDrawerPieStatus(document.getElementById('statusFilter').value);}
  document.addEventListener('click',function(e){document.querySelectorAll('.ms-wrap').forEach(wrap=>{if(!wrap.contains(e.target))wrap.querySelectorAll('.ms-dropdown').forEach(d=>d.classList.add('hidden'))})});
- function renderComboList(inputId,dropdownId,getBaseOptions,storeKey,query){
+ /* storeKey null: không gộp mục tự thêm trên trình duyệt (ô «Nhóm lĩnh vực» chỉ lấy danh mục của «Cài đặt lĩnh vực»); emptyMsg: chữ khi không có mục nào */
+ function renderComboList(inputId,dropdownId,getBaseOptions,storeKey,query,emptyMsg){
  const q=(query||'').trim().toLowerCase();
- const custom=JSON.parse(localStorage.getItem(storeKey)||'[]');
+ const custom=storeKey?JSON.parse(localStorage.getItem(storeKey)||'[]'):[];
  const all=[...getBaseOptions(),...custom];
  const opts=q?all.filter(f=>f.toLowerCase().includes(q)):all;
  const box=document.getElementById(dropdownId);
- box.innerHTML=opts.length?opts.map(f=>`<div class="field-opt-row" style="padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13px">${f}</div>`).join(''):'<div style="padding:8px 10px;color:#8ab0c8;font-size:12.5px">Không tìm thấy, bấm + để thêm mới</div>';
+ box.innerHTML=opts.length?opts.map(f=>`<div class="field-opt-row" style="padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13px">${f}</div>`).join(''):`<div style="padding:8px 10px;color:#8ab0c8;font-size:12.5px">${emptyMsg||'Không tìm thấy, bấm + để thêm mới'}</div>`;
  Array.from(box.children).forEach((el,i)=>{if(opts[i])el.onclick=()=>{document.getElementById(inputId).value=opts[i];box.classList.add('hidden')}});
  document.querySelectorAll('.ms-dropdown').forEach(d=>{if(d.id!==dropdownId)d.classList.add('hidden')});
  box.classList.remove('hidden');
@@ -140,10 +141,24 @@
  } else toast('Lĩnh vực/loại văn bản này đã có trong danh sách.');
  document.getElementById(dropdownId).classList.add('hidden');
  }
- const ASSIGN_FIELD_OPTIONS=['Cháy nổ','An toàn thực phẩm','Trật tự đô thị','Vệ sinh môi trường','Úng ngập đô thị','Văn hóa - thể thao - du lịch','Giáo dục đào tạo','Nông nghiệp','Y tế','Tài chính','Nội vụ','Tư pháp','Công thương','Xây dựng','Khoa học công nghệ','Dân tộc tôn giáo','Khu công nghiệp','Khác'];
- function assFieldOptions(){return ASSIGN_FIELD_OPTIONS}
- function openAssFieldDropdown(){const input=document.getElementById('assFieldInput');renderComboList('assFieldInput','assFieldDropdown',assFieldOptions,'px-ioc-custom-fields-'+document.getElementById('assRole').value,'');input.select()}
- function filterAssField(){renderComboList('assFieldInput','assFieldDropdown',assFieldOptions,'px-ioc-custom-fields-'+document.getElementById('assRole').value,document.getElementById('assFieldInput').value)}
+ /* Ô «Nhóm lĩnh vực»: danh mục lĩnh vực «Đang dùng» của đơn vị người giao, cấu hình ở màn quản trị «Cài đặt lĩnh vực»
+ (js/core/field-catalog.js, anh chốt 21/11/2026). Chỉ chọn trong danh sách, không gõ lĩnh vực mới tại đây; lĩnh vực đã ẩn không chọn được,
+ riêng giá trị có sẵn khi mở form (sửa nhiệm vụ cũ, mở từ một lĩnh vực) vẫn giữ được (assFieldCheck). */
+ function assFieldOptions(){return fcActiveNames(fcOrgKeyForAccount(currentRole,currentOfficeId))}
+ const ASS_FIELD_EMPTY='Không có lĩnh vực phù hợp. Lĩnh vực do quản trị cấu hình ở «Cài đặt lĩnh vực».';
+ function openAssFieldDropdown(){const input=document.getElementById('assFieldInput');if(input&&input.dataset.init==null)input.dataset.init=input.value.trim();renderComboList('assFieldInput','assFieldDropdown',assFieldOptions,null,'',ASS_FIELD_EMPTY);input.select()}
+ function filterAssField(){renderComboList('assFieldInput','assFieldDropdown',assFieldOptions,null,document.getElementById('assFieldInput').value,ASS_FIELD_EMPTY)}
+ /* Kiểm trước khi phát hành/lưu: trống thì được («Chưa phân loại» như cũ); có chữ thì phải là một lĩnh vực trong danh sách
+ (gõ khác hoa thường, có dấu hay không dấu vẫn nhận và đổi về đúng tên) hoặc đúng giá trị có sẵn khi mở form. */
+ function assFieldCheck(){
+ const el=document.getElementById('assFieldInput'); if(!el) return true;
+ const v=el.value.trim(); if(!v) return true;
+ const fold=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').toLowerCase().replace(/\s+/g,' ').trim();
+ const hit=assFieldOptions().find(o=>fold(o)===fold(v));
+ if(hit){ el.value=hit; return true; }
+ if(el.dataset.init && v===el.dataset.init) return true;
+ toast('Nhóm lĩnh vực: vui lòng chọn một lĩnh vực trong danh sách.'); el.focus(); openAssFieldDropdown(); return false;
+ }
  function assDocTypeOptions(){return docTypeOptions}
  function openAssDocTypeDropdown(){const input=document.getElementById('assDocTypeInput');renderComboList('assDocTypeInput','assDocTypeDropdown',assDocTypeOptions,'px-ioc-custom-doctypes','');input.select()}
  function filterAssDocType(){renderComboList('assDocTypeInput','assDocTypeDropdown',assDocTypeOptions,'px-ioc-custom-doctypes',document.getElementById('assDocTypeInput').value)}

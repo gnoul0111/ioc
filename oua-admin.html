@@ -12,7 +12,7 @@
  <link rel="stylesheet" href="css/oua-login-log.css?v=20261117-ton1" />
  <link rel="stylesheet" href="css/oua-data-sources.css?v=20261117-ton1" />
  <link rel="stylesheet" href="css/oua-cau-hinh.css?v=20261117-ton1" />
- <link rel="stylesheet" href="css/oua-linh-vuc.css?v=20261121b" />
+ <link rel="stylesheet" href="css/oua-linh-vuc.css?v=20261121c" />
  <style>html,body{margin:0;background:#050f1d}</style><!-- trang quản trị độc lập: bỏ viền trắng 8px quanh trang, nền cùng tông --oua-page -->
  <style>
    #ouaScreen .oua-dnd-node{cursor:grab}
@@ -547,7 +547,7 @@
 
     <section id="field-settings" class="page">
       <div class="panel">
-        <div class="head"><div><h2>Cài đặt lĩnh vực</h2><p>Danh mục lĩnh vực dùng cho kịch bản xử lý và thống kê của từng đơn vị. Đơn vị chưa cấu hình sẽ dùng danh mục mặc định — riêng Sở/Ban chuyên môn, mặc định đã thu hẹp theo lĩnh vực của đơn vị.</p></div><div class="actions"><button class="btn primary" onclick="ouaOpenFieldForm()">+ Thêm lĩnh vực</button></div></div>
+        <div class="head"><div><h2>Cài đặt lĩnh vực</h2><p>Danh mục lĩnh vực của từng đơn vị, dùng cho ô «Nhóm lĩnh vực» khi giao nhiệm vụ: chỉ chọn được lĩnh vực đang dùng. Đơn vị chưa cấu hình dùng danh mục mặc định; tài khoản sở, xã/phường, ban dùng danh mục của trục.</p></div><div class="actions"><button class="btn primary" onclick="ouaOpenFieldForm()">+ Thêm lĩnh vực</button></div></div>
         <div class="oua-stats oua-stats-4">
           <div class="oua-stat static" title="Đang dùng danh mục hiện tại"><span class="oua-stat-label">Tổng lĩnh vực</span><span class="oua-stat-val" id="ouaFieldKpiTotal">–</span></div>
           <div class="oua-stat static" title="Có sẵn theo đơn vị"><span class="oua-stat-label">Lĩnh vực mặc định</span><span class="oua-stat-val" id="ouaFieldKpiDefault">–</span></div>
@@ -679,7 +679,8 @@
 <script src="js/core/account-data.js"></script>
 <script src="js/core/account-sap-xep.js?v=20261019"></script>
 <script src="js/core/login-log-data.js?v=20261014"></script>
-<script src="js/oua-data.js?v=20261121b"></script>
+<script src="js/core/field-catalog.js?v=20261121a"></script>
+<script src="js/oua-data.js?v=20261121c"></script>
 <script src="js/features/unit-visibility-admin.js?v=20261119a"></script>
 <script src="js/oua-login-log.js?v=20261014"></script>
 <script src="js/core/data-sources.js?v=20261022"></script>
