@@ -17,8 +17,8 @@
 #ouaScreen #field-settings .lv-table td.oua-td-title small{display:block;margin-top:3px;color:var(--sub);font-size:12px;font-weight:400;line-height:1.4}
 #ouaScreen #field-settings .lv-code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:#a9c8ea;background:rgba(255,255,255,.04);border:1px solid var(--oua-line);border-radius:6px;padding:3px 7px;white-space:nowrap}
 #ouaScreen #field-settings .lv-table .pill{padding:4px 10px}
-#ouaScreen #field-settings .lv-act{text-align:right}
-#ouaScreen #field-settings .lv-act .actions{justify-content:flex-end;flex-wrap:nowrap;gap:6px}
+#ouaScreen #field-settings .lv-table th.lv-act,#ouaScreen #field-settings .lv-table td.lv-act{text-align:center} /* tiêu đề và nhóm nút Sửa/Ẩn cùng căn giữa cột */
+#ouaScreen #field-settings .lv-act .actions{justify-content:center;flex-wrap:nowrap;gap:6px}
 #ouaScreen #field-settings .lv-act .btn.small{min-width:54px;padding:6px 12px}
 #ouaScreen #field-settings .lv-table tbody tr:hover td{background:rgba(87,178,255,.04)}
 #ouaScreen #field-settings .lv-table tr.lv-off td:not(.lv-act) > *{opacity:.55} /* mờ nội dung, không mờ ô: nền khi rê chuột đều cả dòng */
