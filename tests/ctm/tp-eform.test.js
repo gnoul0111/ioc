@@ -280,9 +280,9 @@ console.log('== Màn ngoài các trục');
   void cats;
 }
 
-console.log('== Tài khoản Ban HĐND: eform 4 lọc sẵn «Đơn vị thực hiện» = Ban của mình, bỏ lọc được');
+console.log('== Tài khoản Ban HĐND: chỉ xem eform 4, khóa lọc «Đơn vị thực hiện» = Ban của mình (câu chốt 5 sửa 20/11/2026)');
 {
-  run('CTM_UI.gran="quy";var currentRole=null,currentOfficeId=null;var categorySeed={HDND:[{id:"hdnd-kt-ns",name:"Ban Kinh tế - Ngân sách"},{id:"hdnd-khcn-mt",name:"Ban Khoa học Công nghệ và Môi trường"}]};');
+  run('CTM_UI.gran="quy";var currentRole=null,currentOfficeId=null;var categorySeed={HDND:[{id:"hdnd-kt-ns",name:"Ban Kinh tế - Ngân sách"},{id:"hdnd-khcn-mt",name:"Ban Khoa học Công nghệ và Môi trường"},{id:"hdnd-ef4",name:"Hoạt động Thường trực, Ban và Tổ đại biểu"}]};');
   const pid = run('EF_KY.quy').map((p) => p.id).find((p) => run('efPick')(CFG.hdnd4, p).used.length >= 5);
   const used = () => run('efPick')(CFG.hdnd4, pid).used;
   const hd = () => run('ctmD(CTM_SPECS["hdnd-ef4"],' + JSON.stringify(pid) + ')').hdnd4_hd;
@@ -290,28 +290,37 @@ console.log('== Tài khoản Ban HĐND: eform 4 lọc sẵn «Đơn vị thực 
   open('hdnd-ef4');
   const nAll = used().length, hAll = hd(), banTk = used().filter((R) => R.don_vi_thuc_hien === 'ban_kinh_te_ngan_sach').length;
   ok(nAll > banTk && banTk > 0, 'bản ghi mẫu ' + pid + ' có cả Ban Kinh tế - Ngân sách và đơn vị khác (' + banTk + '/' + nAll + ')');
-  ok(!/lọc sẵn/.test(screen('hdnd-ef4', 'home', pid)), 'tài khoản trục HĐND (không phải Ban): không lọc');
+  ok(!/lọc sẵn|chỉ xem bản ghi/.test(screen('hdnd-ef4', 'home', pid)), 'tài khoản trục HĐND (không phải Ban): không lọc');
+  ok(run('efLocBanCat("HDND","hdnd-kt-ns")').id === 'hdnd-ef4' && run('efLocBanCat("HDND","hdnd-khcn-mt")') === null && run('efLocBanCat("MTTQ","hdnd-kt-ns")') === null,
+    'Ban có tên trong danh mục → đơn vị eform 4; Ban không có tên, trục khác → không có');
   run('currentRole="HDND";currentOfficeId="hdnd-kt-ns";');
   ok(used().length === banTk && used().every((R) => R.don_vi_thuc_hien === 'ban_kinh_te_ngan_sach'), 'Ban Kinh tế - Ngân sách: chỉ còn bản ghi của Ban');
   ok(hd() === banTk && hAll === nAll, 'số hoạt động đổi theo bộ lọc, không lấy nhầm số cả trục từ bộ nhớ đệm (' + hd() + ' / ' + hAll + ')');
   const hh = unesc(screen('hdnd-ef4', 'home', pid));
-  ok(/Tài khoản Ban Kinh tế - Ngân sách: đang lọc sẵn «Đơn vị thực hiện» = Ban Kinh tế - Ngân sách/.test(hh) && /Bỏ lọc/.test(hh), 'màn đơn vị ghi rõ đang lọc theo tài khoản, có nút bỏ lọc');
+  ok(/Tài khoản Ban Kinh tế - Ngân sách: chỉ xem bản ghi có «Đơn vị thực hiện» = Ban Kinh tế - Ngân sách/.test(hh) && !/Bỏ lọc/.test(hh), 'màn đơn vị ghi rõ chỉ xem bản ghi của Ban, không có nút bỏ lọc');
   const hr = screen('hdnd-ef4', 'rec', pid, 'CTM_UI.rec={f:"all",q:"",key:null};');
   const ci = ths(hr, 'ctm-rect').indexOf('Đơn vị thực hiện');
   const rows = trs(hr, 'ctm-rect').map((r) => unesc(((r.match(/<td[^>]*>([\s\S]*?)<\/td>/g) || [])[ci] || '').replace(/<[^>]*>/g, '')));
   ok(rows.length === banTk && rows.every((v) => v === 'Ban Kinh tế - Ngân sách') && /lọc sẵn theo tài khoản/.test(unesc(hr)), 'Dữ liệu đã nhập: chỉ bản ghi của Ban, ghi rõ lọc sẵn');
   run('efLocTat("hdnd-ef4|hdnd-kt-ns")');
-  ok(used().length === nAll && hd() === hAll && /Lọc lại theo Ban Kinh tế - Ngân sách/.test(unesc(screen('hdnd-ef4', 'home', pid))), 'bỏ lọc → về đủ bản ghi, có nút lọc lại');
-  run('efLocTat("hdnd-ef4|hdnd-kt-ns")');
-  ok(used().length === banTk, 'lọc lại → về bản ghi của Ban');
-  open('hdnd-tp-ef');
-  ok(used().length === nAll, 'ngoài đơn vị eform 4 (màn ngoài trục, thẻ): vẫn là số cả trục');
+  ok(used().length === banTk && !run('EF_LOC_TAT["hdnd-ef4|hdnd-kt-ns"]'), 'khóa lọc: gọi bỏ lọc cũng không bỏ được');
+  run('CTM_UI.open=false;');
+  ok(used().length === banTk && hd() === banTk, 'màn ngoài (chưa mở đơn vị): ô số cũng chỉ gồm bản ghi của Ban');
+  ok(/chỉ xem bản ghi có «Đơn vị thực hiện» = Ban Kinh tế - Ngân sách/.test(unesc(run('ctmBandHtml')({ id: 'hdnd-ef4', role: 'HDND', name: 'Ban Kinh tế - Ngân sách' }))), 'băng tổng quan ngoài ghi rõ chỉ xem bản ghi của Ban');
   open('hdnd-ef1');
-  ok(!/lọc sẵn/.test(screen('hdnd-ef1', 'home', pid)), 'eform khác của trục HĐND: không lọc');
+  ok(!/lọc sẵn|chỉ xem bản ghi/.test(screen('hdnd-ef1', 'home', pid)), 'eform khác của trục HĐND: không lọc');
   open('hdnd-ef4');
   run('currentOfficeId="hdnd-khcn-mt";');
   ok(used().length === nAll && /danh mục «Đơn vị thực hiện» của eform không có «Ban Khoa học Công nghệ và Môi trường»/.test(unesc(screen('hdnd-ef4', 'home', pid))), 'Ban KHCN và Môi trường (không có trong danh mục eform): không lọc, ghi rõ lý do');
-  run('currentRole=null;currentOfficeId=null;CTM_UI.open=false;');
+  /* tắt khóa (EF_LOC_KHOA=false): về cách bản 28/10 — lọc sẵn khi mở đơn vị, bỏ lọc được, màn ngoài là số cả trục */
+  run('EF_LOC_KHOA=false;currentOfficeId="hdnd-kt-ns";');
+  ok(used().length === banTk && /đang lọc sẵn/.test(unesc(screen('hdnd-ef4', 'home', pid))) && run('efLocBanCat("HDND","hdnd-kt-ns")') === null, 'tắt khóa: lọc sẵn khi mở đơn vị, không đổi phạm vi tài khoản');
+  run('efLocTat("hdnd-ef4|hdnd-kt-ns")');
+  ok(used().length === nAll && hd() === hAll && /Lọc lại theo Ban Kinh tế - Ngân sách/.test(unesc(screen('hdnd-ef4', 'home', pid))), 'tắt khóa: bỏ lọc → về đủ bản ghi, có nút lọc lại');
+  run('efLocTat("hdnd-ef4|hdnd-kt-ns")');
+  open('hdnd-tp-ef');
+  ok(used().length === nAll, 'tắt khóa: ngoài đơn vị eform 4 (màn ngoài trục, thẻ) vẫn là số cả trục');
+  run('EF_LOC_KHOA=true;currentRole=null;currentOfficeId=null;CTM_UI.open=false;');
 }
 
 console.log('== Sở đợt 1: bản ghi ưu tiên, kỳ Đột xuất, bỏ «Không phát sinh», tỷ lệ tăng, lưu ý NN&MT');

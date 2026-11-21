@@ -241,8 +241,8 @@ function efAll(efId) {
 }
 function efKhoa(cfg, R) { return (cfg.khoa || []).map((c) => String(R[c] == null ? '' : R[c])).join('|'); }
 /* ---------- Lọc sẵn theo tài khoản (def.locTk = { ef, c: trường danh mục, tk: { mã tài khoản: mã trong danh mục, null khi danh mục không có } }) ----------
-   VD tài khoản Ban HĐND mở eform 4 thì lọc sẵn «Đơn vị thực hiện» = Ban của mình, bỏ lọc được (TRUC_HDND, câu chốt 5).
-   Chỉ lọc khi đang mở đúng đơn vị đó; thẻ, màn ngoài trục vẫn là số cả trục. Bỏ lọc nhớ theo đơn vị + tài khoản. */
+   VD tài khoản Ban HĐND: eform 4 chỉ gồm bản ghi «Đơn vị thực hiện» = Ban của mình (TRUC_HDND, câu chốt 5). Khóa lọc (EF_LOC_KHOA, mặc định): lọc ở mọi chỗ,
+   không bỏ được. Tắt khóa: chỉ lọc khi đang mở đúng đơn vị đó, thẻ, màn ngoài trục là số cả trục, bỏ lọc nhớ theo đơn vị + tài khoản. */
 const EF_LOC = {}, EF_LOC_TAT = {};
 function efLocTk(specId) {
   const L = EF_LOC[specId], role = typeof currentRole !== 'undefined' ? currentRole : null, oid = typeof currentOfficeId !== 'undefined' ? currentOfficeId : null;
@@ -250,18 +250,32 @@ function efLocTk(specId) {
   const cat = typeof categorySeed !== 'undefined' ? (categorySeed[L.role] || []).find((c) => c.id === oid) : null;
   return { ef: L.ef, c: L.c, v: L.tk[oid], ten: cat ? cat.name : oid, k: specId + '|' + oid };
 }
+/* Khóa lọc (anh chốt 20/11/2026, sửa câu chốt 5 của TRUC_HDND): tài khoản Ban có tên trong danh mục của eform (tk có mã — 4 Ban HĐND ở eform 4)
+   chỉ xem eform đó (central-level.js scopedSingleCategory → efLocBanCat), mọi số, biểu đồ, bản ghi kể cả thẻ ngoài chỉ gồm bản ghi của Ban, không bỏ lọc được.
+   Ban không có tên trong danh mục: «Đơn vị chưa có chỉ tiêu». false: tài khoản Ban mở eform thì lọc sẵn, bỏ lọc được như trước. */
+let EF_LOC_KHOA = true; // let: kiểm thử tắt được để giữ cách cũ chạy đúng
+function efLocKhoa(T) { return EF_LOC_KHOA && !!T && !!T.v; }
+/* Đơn vị eform mà tài khoản Ban (role, mã đơn vị cũ) được xem khi khóa lọc; không có thì null */
+function efLocBanCat(role, oid) {
+  if (!EF_LOC_KHOA) return null;
+  const specId = Object.keys(EF_LOC).find((s) => EF_LOC[s].role === role && EF_LOC[s].tk[oid]);
+  return specId ? (categorySeed[role] || []).find((c) => c.id === specId) || null : null;
+}
 function efLocOn(efId) {
   const specId = Object.keys(EF_LOC).find((s) => EF_LOC[s].ef === efId);
-  if (!specId || !CTM_UI.open || CTM_UI.id !== specId) return null;
+  if (!specId) return null;
   const T = efLocTk(specId);
+  if (efLocKhoa(T)) return T;
+  if (!CTM_UI.open || CTM_UI.id !== specId) return null;
   return T && T.v && !EF_LOC_TAT[T.k] ? T : null;
 }
 function efLocAll(efId) { const T = efLocOn(efId), all = efAll(efId); return T ? all.filter((R) => R[T.c] === T.v) : all; }
-function efLocTat(k) { EF_LOC_TAT[k] = !EF_LOC_TAT[k]; CTM_UI.dd = null; CTM_UI.rec = { f: 'all', q: '', key: null, ef: CTM_UI.rec.ef }; ctmRerender(false); }
+function efLocTat(k) { if (efLocKhoa(Object.keys(EF_LOC).map(efLocTk).find((T) => T && T.k === k))) return; EF_LOC_TAT[k] = !EF_LOC_TAT[k]; CTM_UI.dd = null; CTM_UI.rec = { f: 'all', q: '', key: null, ef: CTM_UI.rec.ef }; ctmRerender(false); }
 function efLocHtml(specId) {
   const T = efLocTk(specId);
   if (!T) return '';
   const f = EFK[T.ef].F[T.c], fl = '«' + f.l + '»';
+  if (efLocKhoa(T)) return '<div class="stc-mt" style="margin-bottom:14px">' + ctmNote('<b>Tài khoản ' + ctmE(T.ten) + ': chỉ xem bản ghi có ' + ctmE(fl) + ' = ' + ctmE(xaEfLb(f, T.v) || T.v) + '.</b> Mọi số, biểu đồ và bản ghi ở đây chỉ gồm các bản ghi này.') + '</div>';
   if (!T.v) return '<div class="stc-mt" style="margin-bottom:14px">' + ctmNote('Tài khoản ' + ctmE(T.ten) + ': danh mục ' + ctmE(fl) + ' của eform không có «' + ctmE(T.ten) + '» nên chưa lọc sẵn được; đang xem mọi ' + ctmE(fl) + '.') + '</div>';
   const vl = xaEfLb(f, T.v) || T.v;
   return '<div class="stc-mt" style="margin-bottom:14px">' + ctmNote(EF_LOC_TAT[T.k] ? 'Đang xem mọi ' + ctmE(fl) + '. ' + ctmLnk('Lọc lại theo ' + vl + ' ›', 'efLocTat(' + ctmJs(T.k) + ')')

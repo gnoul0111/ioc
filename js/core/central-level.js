@@ -946,7 +946,7 @@
  /* Bốn trục cấp Thành phố theo eform (chốt 28/10/2026, docs/BAN_DOC_EFORM/TRUC_*): chỉ dựng đơn vị có eform, chỉ tiêu ở
  js/features/ctm-truc-eform.js. Đảng: 4 Ban giữ mã cũ, chỉ tiêu cũ thay bằng eform (giữ ở itemsCu); VPTU · Theo dõi nhiệm vụ ẩn.
  HĐND, MTTQ: mỗi eform một đơn vị (ef:true — không phải phòng/ban, không vào cây tổ chức); mọi đơn vị cũ ẩn (an:true).
- Ẩn chứ không xóa: tài khoản ban cũ vẫn đăng nhập được và xem cả trục. Đặt TRUC_AN_DON_VI_CU = false là về như cũ. */
+ Ẩn chứ không xóa: tài khoản ban cũ vẫn đăng nhập được, chỉ xem đơn vị mình (20/11/2026, xem scopedSingleCategory). Đặt TRUC_AN_DON_VI_CU = false là về như cũ. */
  const TRUC_AN_DON_VI_CU = true;
  function efTrucCat(id,name,field,efs,desc){return {id,name,field,desc,types:['Eform'],ef:true,items:efs.map(e=>['Eform «'+e+'»',0,'Tháng/Quý/Năm','Eform',[]])};}
  if(TRUC_AN_DON_VI_CU){
@@ -1055,7 +1055,15 @@
  if(currentOfficeId){
  const allCats=categorySeedForRole(currentRole);
  const cat=allCats.find(c=>c.id===currentOfficeId);
- if(!cat) return null;
+ if(!cat){
+ /* Đơn vị cũ bị ẩn bằng cờ (an:true — ban HĐND, MTTQ Thành phố, xem TRUC_AN_DON_VI_CU): tài khoản ban chỉ xem đơn vị mình, không xem cả trục
+ (anh chốt 20/11/2026). Ban có tên trong danh mục của một eform (4 Ban HĐND ở eform 4) xem đúng eform đó, khóa lọc theo Ban (efLocBanCat,
+ ctm-eform.js); ban khác: «Đơn vị chưa có chỉ tiêu». */
+ const an=(currentXaId==null&&!isTwRole(currentRole))?(categorySeed[currentRole]||[]).find(c=>c.id===currentOfficeId&&c.an):null;
+ if(!an) return null;
+ const ef=typeof efLocBanCat==='function'?efLocBanCat(currentRole,currentOfficeId):null;
+ return ef?{...ef,name:an.name,role:currentRole}:{...an,items:[],noItems:true,types:[],role:currentRole};
+ }
  if(isTwRole(currentRole)){
  const node=findTwNode(currentRole,currentOfficeId);
  if(node && typeof node.children==='function'){

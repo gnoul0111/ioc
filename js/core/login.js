@@ -229,6 +229,7 @@
  function loginFailed(user){if(typeof lhRecordFailedLogin==='function') lhRecordFailedLogin(user);}
  function logout(){
  if(typeof wfsExit==='function') wfsExit();
+ window.__catSearchKey=null; // ô tìm ở màn chỉ tiêu trống lại (indicators.js, catSearchPrev)
  if(currentAccount) pushActionLog({category:'auth',icon:'',title:`${currentAccount.title} đăng xuất hệ thống`,sub:`Kết thúc phiên làm việc · Trục ${roleMeta(currentRole).name||currentRole}`,detail:`Tài khoản: ${currentAccount.user||currentAccount.title} · Đăng xuất chủ động.`});
  if(typeof closeLoginHistory==='function'){closeLoginHistory();toggleAccountMenu(false);}
  if(typeof mcReset==='function') mcReset();
