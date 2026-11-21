@@ -1,0 +1,43 @@
+/* Màn «Cài đặt lĩnh vực» (#field-settings) — làm lại giao diện 21/11/2026: ô số gọn (.oua-stat như «Quản lý người dùng»),
+   một hàng Đơn vị + Tìm + tổng số, bảng căn giữa theo chiều dọc, hộp Thêm/Sửa dùng chung (ouaOpenFieldForm, js/oua-data.js).
+   Viết dưới #ouaScreen #field-settings (2 id) để thắng khối <style> nạp sau trong oua-admin.html / demo_ioc.html. */
+
+/* Hàng chọn đơn vị + tìm */
+#ouaScreen #field-settings .lv-bar{flex-wrap:nowrap;gap:12px;margin:2px 0 12px}
+#ouaScreen #field-settings .lv-org{flex:0 1 400px;min-width:260px;display:flex;align-items:center;gap:10px}
+#ouaScreen #field-settings .lv-org-lb{color:var(--sub);font-size:13px;font-weight:600;white-space:nowrap}
+#ouaScreen #field-settings .lv-org .oua-dd{flex:1 1 auto;width:auto;min-width:0}
+#ouaScreen #field-settings .lv-org .oua-dd-trigger{font-weight:600}
+#ouaScreen #field-settings .lv-bar .oua-search{flex:1 1 auto;min-width:200px}
+#ouaScreen #field-settings .lv-bar .oua-total{margin-left:4px;color:var(--sub);font-weight:600}
+
+/* Bảng */
+#ouaScreen #field-settings .lv-table th,#ouaScreen #field-settings .lv-table td{vertical-align:middle;padding:11px 14px}
+#ouaScreen #field-settings .lv-table td.oua-td-title b{display:block;font-weight:700}
+#ouaScreen #field-settings .lv-table td.oua-td-title small{display:block;margin-top:3px;color:var(--sub);font-size:12px;font-weight:400;line-height:1.4}
+#ouaScreen #field-settings .lv-code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:#a9c8ea;background:rgba(255,255,255,.04);border:1px solid var(--oua-line);border-radius:6px;padding:3px 7px;white-space:nowrap}
+#ouaScreen #field-settings .lv-table .pill{padding:4px 10px}
+#ouaScreen #field-settings .lv-act{text-align:right}
+#ouaScreen #field-settings .lv-act .actions{justify-content:flex-end;flex-wrap:nowrap;gap:6px}
+#ouaScreen #field-settings .lv-act .btn.small{min-width:54px;padding:6px 12px}
+#ouaScreen #field-settings .lv-table tbody tr:hover td{background:rgba(87,178,255,.04)}
+#ouaScreen #field-settings .lv-table tr.lv-off td:not(.lv-act){opacity:.55}
+
+/* Hộp Thêm/Sửa lĩnh vực */
+#ouaScreen #ouaModalRoot .modal.oua-modal-sm{width:min(520px,96vw)}
+#ouaScreen #ouaModalRoot .lv-modal-org{display:block;margin-top:4px;font-size:13px;font-weight:500;color:var(--sub)}
+#ouaScreen #ouaModalRoot .lv-form{display:flex;flex-direction:column;gap:16px}
+#ouaScreen #ouaModalRoot .lv-form .form-control input,#ouaScreen #ouaModalRoot .lv-form .form-control textarea{font-size:14px;font-family:inherit}
+#ouaScreen #ouaModalRoot .lv-form .form-control textarea{resize:vertical;min-height:64px}
+#ouaScreen #ouaModalRoot .lv-form .form-control input:focus,#ouaScreen #ouaModalRoot .lv-form .form-control textarea:focus{border-color:#49bcff;box-shadow:0 0 0 3px rgba(73,188,255,.14)}
+#ouaScreen #ouaModalRoot .lv-form .form-control input:disabled{opacity:.6;cursor:not-allowed}
+#ouaScreen #ouaModalRoot .lv-form .lv-bad{border-color:#ff6b7f!important;box-shadow:0 0 0 3px rgba(255,107,127,.14)!important}
+#ouaScreen #ouaModalRoot .lv-req{color:#ff8a9b}
+#ouaScreen #ouaModalRoot .lv-err{font-size:12.5px;color:#ff9aa9}
+#ouaScreen #ouaModalRoot .lv-err:empty{display:none}
+
+@media(max-width:760px){
+  #ouaScreen #field-settings .lv-bar{flex-wrap:wrap}
+  #ouaScreen #field-settings .lv-org,#ouaScreen #field-settings .lv-bar .oua-search{flex:1 1 100%;min-width:0}
+  #ouaScreen #field-settings .lv-bar .oua-total{margin-left:0}
+}

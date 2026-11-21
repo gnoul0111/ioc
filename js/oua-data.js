@@ -1169,23 +1169,19 @@ function ouaRenderFieldOrgSelect(){
   ouaRenderFieldSettings();
 }
 function ouaRenderFieldSettings(){
-  const orgKey = document.getElementById('ouaFieldOrgSel')?.value;
-  const customized = !!ouaFieldOrgCatalogs[orgKey];
-  const noteEl = document.getElementById('ouaFieldOrgNote');
-  if(noteEl){
-    noteEl.innerHTML = customized
-      ? '💡 Đơn vị này đã có danh mục lĩnh vực riêng.'
-      : '💡 Đơn vị đang dùng danh mục mặc định.<br>Thêm lĩnh vực đầu tiên để tạo danh mục riêng — hệ thống sẽ giữ nguyên các lĩnh vực mặc định bên dưới rồi bổ sung thêm mục mới của bạn.';
-  }
   ouaFilterFieldList();
 }
+/* Chữ người dùng gõ (tên, mô tả lĩnh vực) đưa vào HTML phải thoát ký tự */
+function ouaFieldEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+/* So tên không phân biệt hoa thường, có dấu hay không dấu — chặn thêm trùng «Y tế» / «y te» */
+function ouaFieldFold(s){ return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/gi,'d').toLowerCase().trim().replace(/\s+/g,' '); }
 function ouaFilterFieldList(){
   const orgKey = document.getElementById('ouaFieldOrgSel')?.value;
   const catalog = ouaGetFieldCatalog(orgKey);
-  const q = (document.getElementById('ouaFieldSearch')?.value || '').trim().toLowerCase();
-  const list = catalog.filter(f => !q || f.name.toLowerCase().includes(q) || f.code.toLowerCase().includes(q));
+  const q = ouaFieldFold(document.getElementById('ouaFieldSearch')?.value || '');
+  const list = catalog.filter(f => !q || ouaFieldFold(f.name).includes(q) || ouaFieldFold(f.code).includes(q) || ouaFieldFold(f.desc).includes(q));
   const countEl = document.getElementById('ouaFieldCount');
-  if(countEl) countEl.textContent = `${list.length}/${catalog.length} lĩnh vực`;
+  if(countEl) countEl.textContent = q ? `${list.length}/${catalog.length} lĩnh vực` : `${catalog.length} lĩnh vực`;
   ouaRenderFieldRows(list, orgKey);
   ouaUpdateFieldKpis(catalog);
 }
@@ -1198,25 +1194,28 @@ function ouaRenderFieldRows(list, orgKey){
     if(cardsEl) cardsEl.innerHTML = `<div class="empty">Không tìm thấy lĩnh vực phù hợp.</div>`;
     return;
   }
-  tbody.innerHTML = list.map(f=>`<tr>
-    <td class="oua-td-title" data-th="Lĩnh vực"><b>${f.name}</b></td>
-    <td data-th="Mã">${f.code}</td>
-    <td data-th="Nguồn"><span class="pill${f.source==='custom'?' violet':''}">${f.source==='default'?'Mặc định':'Tuỳ chỉnh'}</span></td>
-    <td data-th="Trạng thái">${f.status==='active' ? '<span class="pill green">Đang dùng</span>' : '<span class="pill yellow">Ẩn</span>'}</td>
-    <td data-th="Thao tác"><div class="actions"><button class="btn small" onclick="ouaEditFieldName('${orgKey}','${f.code}')">Sửa</button><button class="btn small" onclick="ouaToggleFieldStatus('${orgKey}','${f.code}')">${f.status==='active'?'Ẩn':'Hiện'}</button></div></td>
+  const js = (s)=>ouaFieldEsc(JSON.stringify(s));
+  const src = (f)=>f.source==='default' ? '<span class="pill">Mặc định</span>' : '<span class="pill violet">Tự thêm</span>';
+  const st = (f)=>f.status==='active' ? '<span class="pill green">Đang dùng</span>' : '<span class="pill yellow">Đang ẩn</span>';
+  tbody.innerHTML = list.map(f=>`<tr class="${f.status==='hidden'?'lv-off':''}">
+    <td class="oua-td-title" data-th="Lĩnh vực"><b>${ouaFieldEsc(f.name)}</b>${f.desc?`<small>${ouaFieldEsc(f.desc)}</small>`:''}</td>
+    <td data-th="Mã"><code class="lv-code">${ouaFieldEsc(f.code)}</code></td>
+    <td data-th="Nguồn">${src(f)}</td>
+    <td data-th="Trạng thái">${st(f)}</td>
+    <td data-th="Thao tác" class="lv-act"><div class="actions"><button class="btn small" onclick="ouaOpenFieldForm(${js(f.code)})">Sửa</button><button class="btn small ghost" onclick="ouaToggleFieldStatus(${js(orgKey)},${js(f.code)})">${f.status==='active'?'Ẩn':'Hiện'}</button></div></td>
   </tr>`).join('');
   if(cardsEl) cardsEl.innerHTML = list.map(f=>`<div class="oua-m-card ${f.status==='active'?'green':'amber'}">
     <div class="oua-m-card-top">
       <div class="oua-m-card-body">
-        <div class="oua-m-card-title">${f.name}</div>
-        <div class="oua-m-card-sub">${f.code}</div>
+        <div class="oua-m-card-title">${ouaFieldEsc(f.name)}</div>
+        <div class="oua-m-card-sub">${ouaFieldEsc(f.code)}${f.desc?' · '+ouaFieldEsc(f.desc):''}</div>
         <div class="oua-m-card-chips">
-          <span class="oua-m-chip ${f.source==='custom'?'violet':'ghost'}">${f.source==='default'?'Mặc định':'Tuỳ chỉnh'}</span>
-          <span class="oua-m-chip ${f.status==='active'?'green':'amber'}">${f.status==='active'?'Đang dùng':'Ẩn'}</span>
+          <span class="oua-m-chip ${f.source==='custom'?'violet':'ghost'}">${f.source==='default'?'Mặc định':'Tự thêm'}</span>
+          <span class="oua-m-chip ${f.status==='active'?'green':'amber'}">${f.status==='active'?'Đang dùng':'Đang ẩn'}</span>
         </div>
       </div>
-      <button class="oua-m-iconbtn" title="Sửa" onclick="ouaEditFieldName('${orgKey}','${f.code}')">✎</button>
-      <button class="oua-m-iconbtn" title="${f.status==='active'?'Ẩn':'Hiện'}" onclick="ouaToggleFieldStatus('${orgKey}','${f.code}')">${f.status==='active'?'🙈':'👁'}</button>
+      <button class="oua-m-iconbtn" title="Sửa" onclick="ouaOpenFieldForm(${js(f.code)})">✎</button>
+      <button class="oua-m-iconbtn" title="${f.status==='active'?'Ẩn':'Hiện'}" onclick="ouaToggleFieldStatus(${js(orgKey)},${js(f.code)})">${f.status==='active'?'🙈':'👁'}</button>
     </div>
   </div>`).join('');
 }
@@ -1231,19 +1230,6 @@ function ouaEnsureOrgFieldCatalog(orgKey){
   if(!ouaFieldOrgCatalogs[orgKey]) ouaFieldOrgCatalogs[orgKey] = ouaFieldDefaultCatalog.map(f=>({...f}));
   return ouaFieldOrgCatalogs[orgKey];
 }
-function ouaAddField(){
-  const nameInput = document.getElementById('newFieldName');
-  const name = (nameInput?.value || '').trim();
-  if(!name){ ouaToast('Vui lòng nhập tên lĩnh vực.'); return; }
-  const orgKey = document.getElementById('ouaFieldOrgSel')?.value;
-  const catalog = ouaEnsureOrgFieldCatalog(orgKey);
-  catalog.push({code: ouaSlugify(name), name, source:'custom', status:'active'});
-  if(nameInput) nameInput.value = '';
-  const descInput = document.getElementById('newFieldDesc');
-  if(descInput) descInput.value = '';
-  ouaRenderFieldSettings();
-  ouaToast(`Đã thêm lĩnh vực "${name}" (demo, chỉ lưu trong phiên làm việc, chưa ghi backend).`);
-}
 function ouaToggleFieldStatus(orgKey, code){
   const catalog = ouaEnsureOrgFieldCatalog(orgKey);
   const f = catalog.find(x=>x.code===code);
@@ -1252,24 +1238,56 @@ function ouaToggleFieldStatus(orgKey, code){
   ouaFilterFieldList();
   ouaToast(f.status==='hidden' ? `Đã ẩn lĩnh vực "${f.name}".` : `Đã hiện lại lĩnh vực "${f.name}".`);
 }
-function ouaEditFieldName(orgKey, code){
-  const catalog = ouaGetFieldCatalog(orgKey);
-  const f = catalog.find(x=>x.code===code);
-  if(!f) return;
-  ouaEditingField = {orgKey, code};
-  ouaOpenModal('editFieldModal');
-  setTimeout(()=>{ const inp = document.getElementById('editFieldNameInput'); if(inp) inp.value = f.name; }, 0);
+/* Hộp thêm/sửa lĩnh vực (dùng chung): code = null là thêm mới vào đơn vị đang chọn, có code là sửa mục đó.
+   Hộp chỉ có tên + mô tả: mã tự sinh theo tên khi thêm, khi sửa thì mã giữ nguyên vì kịch bản, thống kê tham chiếu theo mã.
+   Lỗi (thiếu tên, trùng tên) báo ngay dưới ô nhập; Enter để lưu. */
+function ouaOpenFieldForm(code){
+  const orgKey = document.getElementById('ouaFieldOrgSel')?.value;
+  const org = ouaGetFieldOrgOptions().find(o=>o.key===orgKey);
+  const f = code ? ouaGetFieldCatalog(orgKey).find(x=>x.code===code) : null;
+  if(code && !f) return;
+  ouaEditingField = {orgKey, code: f ? f.code : null};
+  ouaOpenModal('fieldFormModal');
+  document.querySelector('#ouaModalRoot .modal')?.classList.add('oua-modal-sm');
+  document.getElementById('ouaModalTitle').innerHTML = (f ? 'Sửa lĩnh vực' : 'Thêm lĩnh vực') + `<small class="lv-modal-org">${ouaFieldEsc(org ? org.label : '')}</small>`;
+  const okBtn = document.querySelector('#ouaModalRoot .modal-footer .btn.primary');
+  if(okBtn) okBtn.textContent = f ? 'Lưu' : 'Thêm lĩnh vực';
+  document.getElementById('ouaModalBody').innerHTML = `<div class="lv-form" onkeydown="if(event.key==='Enter'&&event.target.tagName==='INPUT'){event.preventDefault();ouaSubmitFieldForm();}">
+    <div class="form-control"><label for="lvName">Tên lĩnh vực <span class="lv-req">*</span></label><input id="lvName" maxlength="80" placeholder="VD: Đô thị thông minh" value="${f?ouaFieldEsc(f.name):''}" oninput="ouaFieldFormSync()"><div class="lv-err" id="lvNameErr"></div></div>
+    <div class="form-control"><label for="lvDesc">Mô tả ngắn</label><textarea id="lvDesc" rows="2" maxlength="200" placeholder="Không bắt buộc">${f?ouaFieldEsc(f.desc||''):''}</textarea></div>
+  </div>`;
+  setTimeout(()=>{ const inp = document.getElementById('lvName'); if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } }, 30);
 }
-function ouaSubmitEditField(){
+/* Gõ tên → xóa báo lỗi cũ */
+function ouaFieldFormSync(){
+  const e = document.getElementById('lvNameErr'); if(e) e.textContent = '';
+  document.querySelectorAll('#ouaModalBody .lv-bad').forEach(x=>x.classList.remove('lv-bad'));
+}
+function ouaSubmitFieldForm(){
   if(!ouaEditingField){ ouaCloseModal(); return; }
-  const catalog = ouaEnsureOrgFieldCatalog(ouaEditingField.orgKey);
-  const f = catalog.find(x=>x.code===ouaEditingField.code);
-  const newName = (document.getElementById('editFieldNameInput')?.value || '').trim();
-  if(f && newName) f.name = newName;
+  const {orgKey, code} = ouaEditingField;
+  const nameEl = document.getElementById('lvName');
+  const name = (nameEl?.value || '').trim().replace(/\s+/g,' ');
+  const desc = (document.getElementById('lvDesc')?.value || '').trim();
+  const bad = (msg)=>{ nameEl?.classList.add('lv-bad'); const e=document.getElementById('lvNameErr'); if(e) e.textContent=msg; nameEl?.focus(); };
+  if(!name){ bad('Vui lòng nhập tên lĩnh vực.'); return; }
+  const others = ouaGetFieldCatalog(orgKey).filter(x=>x.code!==code);
+  const sameName = others.find(x=>ouaFieldFold(x.name)===ouaFieldFold(name));
+  if(sameName){ bad(`Đã có lĩnh vực «${sameName.name}».`); return; }
+  /* Mã tự sinh theo tên, người dùng không nhập; tên khác nhau mà ra cùng mã (VD «H.C.C» và «HCC») thì thêm đuôi _2, _3… */
+  let newCode = code;
+  if(!code){ const base = ouaSlugify(name); newCode = base; for(let i=2; others.some(x=>x.code===newCode); i++) newCode = base + '_' + i; }
+  const catalog = ouaEnsureOrgFieldCatalog(orgKey);
+  if(code){
+    const f = catalog.find(x=>x.code===code);
+    if(f){ f.name = name; f.desc = desc; }
+  } else {
+    catalog.push({code:newCode, name, desc, source:'custom', status:'active'});
+  }
   ouaEditingField = null;
   ouaCloseModal();
   ouaFilterFieldList();
-  ouaToast('Đã cập nhật tên lĩnh vực (demo, chỉ lưu trong phiên làm việc).');
+  ouaToast(code ? `Đã lưu lĩnh vực "${name}" (demo, chỉ lưu trong phiên làm việc).` : `Đã thêm lĩnh vực "${name}" (demo, chỉ lưu trong phiên làm việc, chưa ghi backend).`);
 }
 
 /* ===== Phân nhóm đơn vị (Phase 5, màn mới) — gộp cây đơn vị THẬT (ouaRealOrgRows, kể cả node gốc "THÀNH PHỐ
@@ -1689,7 +1707,7 @@ addVirtualFolderModal:{title:'Thêm thư mục ảo',body:`<div class="form-cont
 addIndicatorMappingModal:{title:'Thêm mapping chỉ tiêu', dynamic:'indicatorAddForm'},
 editIndicatorModal:{title:'Sửa mapping chỉ tiêu',body:`<div class="form-grid"><div class="form-control"><label>Tên đơn vị IOC</label><input id="editIndicatorNameInput" placeholder="Tên hiển thị"></div><div class="form-control"><label>Trạng thái</label><select id="editIndicatorStatusInput"><option value="active">Đang dùng</option><option value="hidden">Ẩn</option></select></div></div><div class="hint">Thay đổi chỉ lưu trong phiên làm việc (demo), chưa ghi vào backend.</div>`},
 orgAxisMappingModal:{title:'Mapping trục / địa bàn',body:`<div class="form-grid"><div class="form-control"><label>Trục</label><select id="mappingAxisInput"><option value="">— Chọn trục —</option><option value="DANG">Đảng ủy</option><option value="HDND">HĐND</option><option value="UBND">UBND</option><option value="MTTQ">MTTQ</option></select></div><div class="form-control"><label>Địa bàn</label><input id="mappingDiaBanInput" placeholder="VD: Thành phố Hà Nội"></div></div><div class="hint">Dùng để sửa tay những đơn vị chưa map đúng trục/địa bàn từ nguồn tự động. Chỉ dành cho Global Admin (demo, chỉ lưu trong phiên làm việc).</div>`},
-editFieldModal:{title:'Sửa lĩnh vực',body:`<div class="form-control"><label>Tên lĩnh vực</label><input id="editFieldNameInput" placeholder="Tên lĩnh vực"></div><div class="hint">Đổi tên chỉ áp dụng cho phiên làm việc hiện tại (demo).</div>`},
+fieldFormModal:{title:'Lĩnh vực',body:''}, // nội dung dựng ở ouaOpenFieldForm
 createUserRealModal:{title:'Tạo tài khoản',body:`<div class="form-grid"><div class="form-control"><label>Họ tên</label><input id="newUserName" placeholder="Nhập họ tên"></div><div class="form-control"><label>Email</label><input id="newUserEmail" placeholder="ten@hanoi.gov.vn"></div><div class="form-control"><label>Đơn vị công tác</label><input id="newUserOrg" placeholder="Nhập tên đơn vị"></div><div class="form-control"><label>Chức vụ</label><input id="newUserPosition" placeholder="Nhập chức vụ"></div></div><div class="hint">Tài khoản mới chỉ lưu tạm trong phiên làm việc trình duyệt (demo), chưa ghi vào backend/SSO thật.</div>`},
 importUserExcelModal:{title:'Import Excel',body:`<div class="checklist"><div class="check"><b>Input</b><span>File Excel danh sách tài khoản (họ tên, email, đơn vị, chức vụ)</span></div><div class="check"><b>Xử lý</b><span>Đọc từng dòng, đối chiếu email/username với SSO, báo lỗi dòng trùng hoặc thiếu trường bắt buộc</span></div><div class="check"><b>Output</b><span>Danh sách tài khoản chờ duyệt trước khi map vào IOC</span></div></div><div class="hint">Bản demo chưa đọc file thật — Dev cần gắn xử lý Excel (vd SheetJS) + API import ở bước sau.</div>`},
 addOrgRealModal:{title:'Tạo đơn vị mới',body:`<div class="form-grid"><div class="form-control"><label>Tên đơn vị</label><input id="newOrgName" placeholder="Nhập tên đơn vị"></div><div class="form-control"><label>Trục</label><select id="newOrgAxis"><option value="DANG">Đảng ủy</option><option value="HDND">HĐND</option><option value="UBND" selected>UBND</option><option value="MTTQ">MTTQ</option></select></div><div class="form-control"><label>Đơn vị cấp trên</label><input id="newOrgParent" placeholder="Mặc định: THÀNH PHỐ HÀ NỘI"></div></div><div class="hint">Đơn vị mới chỉ lưu tạm trong phiên làm việc trình duyệt (demo), chưa ghi vào backend/account.json thật.</div>`},
@@ -1796,13 +1814,13 @@ document.querySelectorAll('#ouaScreen .tabs .tab').forEach(t=>t.onclick=()=>{let
 /* ouaActiveModalKey theo dõi modal đang mở để ouaConfirmModal() có thể định tuyến sang xử lý riêng (vd tạo đơn
    vị mới cần đọc input thật và đẩy vào ouaOrgRows) thay vì luôn hiện toast chung chung như trước. */
 let ouaActiveModalKey = null;
-function ouaOpenModal(key){ouaActiveModalKey=key;const okBtn=document.querySelector('#ouaModalRoot .modal-footer .btn.primary');if(okBtn)okBtn.textContent='Xác nhận';let c=ouaModalContent[key]||{title:'Thông báo',body:'Chức năng đang được mô tả cho Dev.'};let body=c.dynamic==='orgTree'?ouaBuildOrgTreeHtml():(c.dynamic==='indicatorAddForm'?ouaBuildIndicatorAddFormHtml():c.body);document.getElementById('ouaModalTitle').innerHTML=c.title;document.getElementById('ouaModalBody').innerHTML=body;document.getElementById('ouaModalRoot').classList.add('show')}
+function ouaOpenModal(key){ouaActiveModalKey=key;document.querySelector('#ouaModalRoot .modal')?.classList.remove('oua-modal-sm');const okBtn=document.querySelector('#ouaModalRoot .modal-footer .btn.primary');if(okBtn)okBtn.textContent='Xác nhận';let c=ouaModalContent[key]||{title:'Thông báo',body:'Chức năng đang được mô tả cho Dev.'};let body=c.dynamic==='orgTree'?ouaBuildOrgTreeHtml():(c.dynamic==='indicatorAddForm'?ouaBuildIndicatorAddFormHtml():c.body);document.getElementById('ouaModalTitle').innerHTML=c.title;document.getElementById('ouaModalBody').innerHTML=body;document.getElementById('ouaModalRoot').classList.add('show')}
 function ouaCloseModal(){document.getElementById('ouaModalRoot').classList.remove('show')}
 function ouaConfirmModal(){
   if(ouaActiveModalKey==='addOrgRealModal'){ ouaSubmitNewOrg(); return; }
   if(ouaActiveModalKey==='createUserRealModal'){ ouaSubmitNewUser(); return; }
   if(ouaActiveModalKey==='editUserRealModal'){ ouaSubmitEditUser(); return; }
-  if(ouaActiveModalKey==='editFieldModal'){ ouaSubmitEditField(); return; }
+  if(ouaActiveModalKey==='fieldFormModal'){ ouaSubmitFieldForm(); return; }
   if(ouaActiveModalKey==='orgAxisMappingModal'){ ouaSubmitMapping(); return; }
   if(ouaActiveModalKey==='addIndicatorMappingModal'){ ouaSubmitIndicatorMapping(); return; }
   if(ouaActiveModalKey==='editIndicatorModal'){ ouaSubmitEditIndicator(); return; }
