@@ -160,6 +160,19 @@
  if(top.length>1) return top.map(t=>({key:t.officeId,label:t.label,ids:twCollectIds(t,[])}));
  return null;
  }
+ /* Thẻ «Tổng quan» của đơn vị có băng tổng quan riêng rộng cả hàng (soItemCardHtml) */
+ function catIsBandItem(it){ return !!it && (it.stcKey==='home'||it.sgdKey==='home'||it.hccKey==='home'); }
+ /* Lọc thẻ nhóm trong băng tổng quan riêng theo tên nhóm hoặc tên dòng trong thẻ; hàng ô số và thẻ xã/phường (.sgd-alt) giữ nguyên */
+ function catBandFilter(grid,qf,qRaw,fold){
+ grid.querySelectorAll('.stc-overview-band').forEach(band=>{
+ const cards=[...band.querySelectorAll('.stc-gcard:not(.sgd-alt)')]; if(!cards.length) return;
+ let shown=0;
+ cards.forEach(c=>{ const names=[...c.querySelectorAll('h3,.stc-gl>span:first-child')].map(x=>fold(x.textContent));
+ const hit=names.some(x=>x.includes(qf)); c.style.display=hit?'':'none'; if(hit) shown++; });
+ if(!shown){ const box=cards[0].parentElement, msg=document.createElement('div'); msg.className='access-lock'; msg.style.marginTop='12px';
+ msg.textContent='Không có nhóm chỉ tiêu phù hợp «'+qRaw+'».'; box.insertAdjacentElement('afterend',msg); }
+ });
+ }
  function renderCategoryGridContent(){
  const grid=document.getElementById('indicatorGrid'); if(!grid) return;
  const q=(document.getElementById('categorySearch')?.value||'').toLowerCase();
@@ -185,13 +198,17 @@
  return;
  }
  /* Đơn vị đã khai báo khuôn mới (ctm-engine.js): băng tổng quan rộng cả hàng thay cho lưới thẻ từng chỉ tiêu cũ. Tắt CTM_ENABLED để quay về lưới cũ. */
- if(typeof ctmHandles==='function' && ctmHandles(scoped.id)){ grid.innerHTML=ctmBandHtml(scoped); return; }
+ /* Đơn vị cũ bị ẩn bằng cờ (scoped.an — ban HĐND, MTTQ không có eform): không dựng băng khung cũ (số không theo eform), chỉ báo chưa có chỉ tiêu */
+ if(!scoped.an && typeof ctmHandles==='function' && ctmHandles(scoped.id)){ grid.innerHTML=ctmBandHtml(scoped,q); return; }
+ /* Ô tìm của tài khoản một đơn vị: gõ có dấu hay không dấu đều được */
+ const fold=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d');
+ const qf=fold(q).trim();
  const apiFetch=apiCategoryFetcher(scoped.id);
  if(apiFetch){
  grid.innerHTML='<div class="access-lock">Đang tải dữ liệu từ API...</div>';
  apiFetch().then(kpis=>{
  if(!kpis){ grid.innerHTML='<div class="access-lock">Không tải được dữ liệu từ API.</div>'; uvTagIndicatorItems(grid); return; }
- const filteredKpis=kpis.map((k,idx)=>[idx,k]).filter(([,k])=>!q || k.label.toLowerCase().includes(q));
+ const filteredKpis=kpis.map((k,idx)=>[idx,k]).filter(([,k])=>!qf || fold(k.label).includes(qf));
  grid.innerHTML=filteredKpis.length
  ? filteredKpis.map(([idx,k])=>apiKpiGridCardHtml(k,idx,scoped.role,scoped.id)).join('')
  : '<div class="access-lock">Không có chỉ tiêu phù hợp bộ lọc.</div>';
@@ -199,8 +216,11 @@
  });
  return;
  }
- const entries=(scoped.items||[]).map((it,idx)=>[idx,it]).filter(([,it])=>!q || it[0].toLowerCase().includes(q));
- grid.innerHTML=entries.length?entries.map(([idx,it])=>soItemCardHtml(scoped,idx,it)).join(''):'<div class="access-lock">Không có chỉ tiêu phù hợp bộ lọc.</div>';
+ /* Băng tổng quan riêng (Sở Tài chính, Sở GD&ĐT, TT Phục vụ HCC) luôn giữ; ô tìm lọc thẻ nhóm bên trong băng (catBandFilter) */
+ const entries=(scoped.items||[]).map((it,idx)=>[idx,it]).filter(([,it])=>!qf || catIsBandItem(it) || fold(it[0]).includes(qf));
+ /* Đơn vị chưa có chỉ tiêu nào (VD Sở Tư pháp): báo đúng là chưa có, không báo «không phù hợp bộ lọc» khi chưa gõ gì */
+ grid.innerHTML=entries.length?entries.map(([idx,it])=>soItemCardHtml(scoped,idx,it)).join(''):`<div class="access-lock">${(scoped.items||[]).length?'Không có chỉ tiêu phù hợp bộ lọc.':'Đơn vị chưa có chỉ tiêu.'}</div>`;
+ if(qf) catBandFilter(grid,qf,q.trim(),fold);
  return;
  }
  const roles=allowedCategoryRoles();
@@ -326,6 +346,12 @@
  row.innerHTML=tiles.map(t=>`<div class="indicator-kpi-tile" data-uv-item="ubnd-kpi-${t.id}" data-uv-label="${t.label}" data-uv-icon="📊" data-uv-parent="ubndIndicatorOverview"><p class="ikt-label">${t.label}</p><p class="ikt-value">${t.value}</p></div>`).join('');
  }
 
+ /* Chữ đã gõ ở ô tìm chỉ giữ lại khi vẽ lại cùng phạm vi xem (đổi tab, gõ tiếp); đăng nhập tài khoản khác, «Xem theo cơ cấu tổ chức»,
+ đăng xuất (login.js đặt __catSearchKey=null) thì ô tìm trống lại. */
+ function catSearchPrev(){
+ const k=[currentRole,currentSoId,currentXaId,currentOfficeId].join('|'), el=document.getElementById('categorySearch');
+ const v=(el&&window.__catSearchKey===k)?el.value:''; window.__catSearchKey=k; return v;
+ }
  function renderIndicators(){
  const tabs=document.getElementById('indicatorRoleTabs'); const grid=document.getElementById('indicatorGrid');
  if(!tabs||!grid) return;
@@ -339,14 +365,19 @@
  if(scopedNode && typeof scopedNode.children==='function'){
  const subTabs=twChildTabs(scopedNode);
  if(!activeCategorySubGroup||!subTabs.some(g=>g.key===activeCategorySubGroup)) activeCategorySubGroup=subTabs[0].key;
- const prevQ=document.getElementById('categorySearch')?.value||'';
+ const prevQ=catSearchPrev();
  const mainTabsHtml=subTabs.map(g=>`<button class="${activeCategorySubGroup===g.key?'active':''}" onclick="setFieldCategorySubGroup('${g.key}')">${esc(g.label)}</button>`).join('');
  tabs.innerHTML=`<div class="field-category-toolbar"><div class="field-category-tabs" id="fieldCategoryTabsRow">${mainTabsHtml}</div><div class="field-category-search"><input id="categorySearch" placeholder="Tìm lĩnh vực..." oninput="renderCategoryGrid()" /></div></div>`;
  if(prevQ) document.getElementById('categorySearch').value=prevQ;
  fitFieldCategoryTabsOverflow();
  } else {
+ /* Tài khoản một đơn vị (sở, ban, phòng/ban xã, đơn vị Trung ương không có đơn vị con): nhãn tên đơn vị + ô tìm (anh bảo 20/11/2026).
+ Đơn vị có băng tổng quan (ctm-engine.js) thì ô lọc thẻ nhóm; còn lại lọc thẻ từng chỉ tiêu. */
  activeCategorySubGroup=null;
- tabs.innerHTML=`<div class="field-category-toolbar"><span class="badge ok"> ${esc(scoped.name)}</span></div>`;
+ const prevQ=catSearchPrev();
+ const ph=((!scoped.an&&typeof ctmHandles==='function'&&ctmHandles(scoped.id))||(scoped.items||[]).some(catIsBandItem))?'Tìm nhóm chỉ tiêu...':'Tìm chỉ tiêu...';
+ tabs.innerHTML=`<div class="field-category-toolbar"><span class="badge ok"> ${esc(scoped.name)}</span><div class="field-category-search" style="margin-left:auto"><input id="categorySearch" placeholder="${ph}" oninput="renderCategoryGrid()" /></div></div>`;
+ if(prevQ) document.getElementById('categorySearch').value=prevQ;
  }
  renderIndicatorKpiRow();
  renderCategoryGrid();
@@ -359,7 +390,7 @@
  const tabRoles=(currentXaId!=null&&typeof xbtTrucHidden==='function')?roles.filter(r=>!xbtTrucHidden(r)):roles;
  if(activeCategoryRole==='ALL'){ if(!canSeeAll) activeCategoryRole=roles[0]; }
  else if(!tabRoles.includes(activeCategoryRole)) activeCategoryRole=canSeeAll?'ALL':roles[0];
- const prevQ=document.getElementById('categorySearch')?.value||'';
+ const prevQ=catSearchPrev();
  /* Nhóm con — chỉ tính khi tab trục đang chọn (không phải "Tất cả") là 1 trục TW có đơn vị lồng nhau (xem
  twCategoryTabs). Không lưu lựa chọn cũ giữa các trục khác nhau — mỗi lần đổi tab trục thì mặc định lại đúng
  nhóm đầu tiên, tránh giữ nhầm 1 key không thuộc trục mới. */

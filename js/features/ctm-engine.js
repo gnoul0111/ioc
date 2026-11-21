@@ -954,16 +954,27 @@ function ctmOverviewHtml(cfg, cats) {
 }
 /* Băng tổng quan cho tài khoản đăng nhập riêng MỘT đơn vị (lưới chỉ có 1 lĩnh vực — tài khoản ban của xã/phường, tài khoản sở):
    ô số chính + thẻ nhóm + thẻ xã/phường, rộng cả hàng lưới, bấm mở thẳng đúng màn của phần chi tiết (như băng của TT Phục vụ HCC). */
-function ctmBandHtml(cat) {
+/* q: chữ gõ ở ô «Tìm nhóm chỉ tiêu…» (indicators.js) — chỉ giữ thẻ nhóm có tên nhóm hoặc tên một dòng trong thẻ chứa chữ gõ (có dấu hay không dấu);
+   hàng ô số, thẻ «Dữ liệu đã nhập», thẻ xã/phường giữ nguyên */
+function ctmBandHit(spec, g, n, qn) {
+  const names = [g.label].concat(ctmGLines(g, n).map((k) => { try { const m = ctmM(spec, k); return m.short || m.l; } catch (e) { return ''; } }));
+  return names.some((x) => ctmNorm(x).indexOf(qn) >= 0);
+}
+function ctmBandHtml(cat, q) {
   const spec = CTM_SPECS[cat.id];
   if (!spec) return '';
+  const qt = String(q || '').trim(), qn = ctmNorm(qt);
   const n = ctmNP(spec), open = (t) => "openCategoryDetail('" + cat.role + "','" + cat.id + "'," + ctmJs(t || 'home') + ')';
   let h = '<div class="field-category-card so-item-card stc-overview-band" style="grid-column:1/-1"><div class="stc-root sgd-root ctm-root" style="background:transparent;overflow:visible">';
   h += '<div class="stc-gh" style="margin-bottom:12px"><h4 style="margin:0">Tổng quan · ' + ctmE(ctmName(spec)) + '</h4><button type="button" class="stc-gmore" style="background:none;border:0;cursor:pointer;padding:0;font:inherit" onclick="' + open('home') + '">Xem tổng quan đầy đủ ›</button></div>';
+  /* tài khoản Ban bị khóa lọc theo Ban (ctm-eform.js efLocHtml): ghi rõ ngay trên các ô số ngoài */
+  if (spec.locHtml) h += spec.locHtml();
   h += '<div class="stc-kpis" style="--ctm-k:' + Math.min(8, spec.kpis.length) + '">' + spec.kpis.map((k) => ctmKpiTile(spec, k, n, open(k.target))).join('') + '</div>';
   const G = spec.groups || [];
   h += '<div class="stc-sec" style="margin:4px 0 12px">' + ctmCountWord(G.length) + ' nhóm chỉ tiêu · mỗi nhóm một màn hình</div>';
-  h += '<div class="sgd-g3">' + (spec.rec ? ctmRecCard(spec, n, open('rec')) : '') + G.map((g) => ctmGroupCard(spec, g, n, open('g:' + g.id))).join('') + (spec.xa ? ctmXaCard(spec, open('xa')) : '') + '</div>';
+  const Gq = qn ? G.filter((g) => ctmBandHit(spec, g, n, qn)) : G;
+  h += '<div class="sgd-g3">' + (spec.rec ? ctmRecCard(spec, n, open('rec')) : '') + Gq.map((g) => ctmGroupCard(spec, g, n, open('g:' + g.id))).join('') + (spec.xa ? ctmXaCard(spec, open('xa')) : '') + '</div>';
+  if (qn && !Gq.length) h += '<div class="access-lock" style="margin-top:12px">Không có nhóm chỉ tiêu phù hợp «' + ctmE(qt) + '».</div>';
   h += '<p class="cpi-legend" style="margin:10px 0 0;font-size:11px">' + ctmE(ctmPLabel(spec, n.p) + (ctmOrg(spec) ? ' · ' + ctmOrg(spec) : '')) + '</p>';
   return h + '</div></div>';
 }
