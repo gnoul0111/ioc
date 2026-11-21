@@ -131,7 +131,7 @@
  </div>
  </div>
  </div>
- <div class="field half"><label>Nhóm lĩnh vực</label><div class="ms-wrap" style="display:flex;gap:6px;align-items:center"><div style="flex:1;position:relative"><input type="text" id="assFieldInput" placeholder="Tìm kiếm" autocomplete="off" value="${editRecord?esc(editRecord.field||''):(fieldCtx?esc(fieldCtx.label):esc(prefill?.field||''))}" oninput="filterAssField()" onfocus="openAssFieldDropdown()" style="width:100%;border:1px solid rgba(87,178,255,.32);background:#061528;border-radius:10px;padding:9px 30px 9px 12px;outline:0;color:#d0e8f8" /><span class="combo-caret" style="position:absolute;top:50%;right:12px;transform:translateY(-50%);pointer-events:none">⌄</span><div id="assFieldDropdown" class="ms-dropdown hidden" style="position:absolute;z-index:60;top:calc(100% + 4px);left:0;right:0;background:#071b31;border:1px solid rgba(73,188,255,.4);border-radius:10px;padding:6px;max-height:220px;overflow-y:auto;box-shadow:0 14px 30px rgba(0,0,0,.45)"></div></div></div></div>
+ <div class="field half"><label>Nhóm lĩnh vực</label><div class="ms-wrap" style="display:flex;gap:6px;align-items:center"><div style="flex:1;position:relative"><input type="text" id="assFieldInput" placeholder="Chọn lĩnh vực" autocomplete="off" value="${editRecord?esc(editRecord.field||''):(fieldCtx?esc(fieldCtx.label):esc(prefill?.field||''))}" data-init="${editRecord?esc(editRecord.field||''):(fieldCtx?esc(fieldCtx.label):esc(prefill?.field||''))}" oninput="filterAssField()" onfocus="openAssFieldDropdown()" style="width:100%;border:1px solid rgba(87,178,255,.32);background:#061528;border-radius:10px;padding:9px 30px 9px 12px;outline:0;color:#d0e8f8" /><span class="combo-caret" style="position:absolute;top:50%;right:12px;transform:translateY(-50%);pointer-events:none">⌄</span><div id="assFieldDropdown" class="ms-dropdown hidden" style="position:absolute;z-index:60;top:calc(100% + 4px);left:0;right:0;background:#071b31;border:1px solid rgba(73,188,255,.4);border-radius:10px;padding:6px;max-height:220px;overflow-y:auto;box-shadow:0 14px 30px rgba(0,0,0,.45)"></div></div></div></div>
  <div class="field"><label>Mức độ quan trọng</label>${simpleSelectHtml('assImportance',['Cao','Bình thường'],importanceVal)}</div>
  <div class="field"><label>Độ khẩn</label>${simpleSelectHtml('assUrgency',['Hỏa tốc','Thượng khẩn','Khẩn','Thường'],urgencyVal)}</div>
  <div class="field half"><label>Ngày bắt đầu</label><input id="assStart" type="date" value="${editRecord?toISODate(editRecord.startDate):''}" min="${dateMinAttr(editRecord?.startDate)}" onchange="syncDueMin('assStart','assDue')" /></div>
@@ -173,6 +173,7 @@
  const targets=window.__assignTargets||[]; const t=targets[Number(document.getElementById('assTargetIdx').value)];
  if(!t){toast('Không xác định được đơn vị nhận hợp lệ.');return}
  const title=document.getElementById('assTitle').value.trim(); if(!title){toast('Cần nhập tiêu đề nhiệm vụ.');return;}
+ if(!assFieldCheck())return;
  if(!validDateRange('assStart','assDue',r.startDate,r.due))return;
  const oldSnapshot={title:r.title,unit:r.unit,importance:r.importance,urgency:r.urgency,due:r.due,field:r.field};
  const code=document.getElementById('assCode').value.trim()||r.code;
@@ -321,6 +322,7 @@
  const targets=window.__assignTargets||[]; const t=targets[Number(document.getElementById('assTargetIdx').value)];
  if(!t){toast('Không xác định được đơn vị nhận hợp lệ.');return}
  if(!validDateRange('assStart','assDue'))return;
+ if(!assFieldCheck())return;
  const role=t.role, unit=t.label; const title=document.getElementById('assTitle').value.trim()||'Nhiệm vụ mới'; const code=document.getElementById('assCode').value.trim()||generateTaskCode();
  const coordinators=Array.from(document.querySelectorAll('.assCoord:checked')).map(c=>c.value);
  const notifyType=isNotifySource?'Thông báo':null;

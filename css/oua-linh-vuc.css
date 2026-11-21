@@ -21,7 +21,7 @@
 #ouaScreen #field-settings .lv-act .actions{justify-content:flex-end;flex-wrap:nowrap;gap:6px}
 #ouaScreen #field-settings .lv-act .btn.small{min-width:54px;padding:6px 12px}
 #ouaScreen #field-settings .lv-table tbody tr:hover td{background:rgba(87,178,255,.04)}
-#ouaScreen #field-settings .lv-table tr.lv-off td:not(.lv-act){opacity:.55}
+#ouaScreen #field-settings .lv-table tr.lv-off td:not(.lv-act) > *{opacity:.55} /* mờ nội dung, không mờ ô: nền khi rê chuột đều cả dòng */
 
 /* Hộp Thêm/Sửa lĩnh vực */
 #ouaScreen #ouaModalRoot .modal.oua-modal-sm{width:min(520px,96vw)}

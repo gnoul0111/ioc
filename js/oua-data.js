@@ -1133,17 +1133,12 @@ function ouaShowUserDetail(id){
   }
   ouaGoPage('user-detail');
 }
-/* ===== Cài đặt lĩnh vực (Phase 4, màn mới) — danh mục lĩnh vực dùng cho kịch bản xử lý/thống kê theo từng
-   đơn vị. Đơn vị chưa tự thêm lĩnh vực nào dùng chung ouaFieldDefaultCatalog; ngay khi thêm lĩnh vực đầu tiên,
-   hệ thống clone danh mục mặc định thành 1 bản riêng trong ouaFieldOrgCatalogs[orgKey] rồi mới thêm mục mới,
-   đúng hành vi mô tả trong ảnh chụp gốc. Toàn bộ chỉ lưu trong bộ nhớ phiên làm việc (demo). */
-const ouaFieldDefaultCatalog = [
-  {code:'Y_TE', name:'Y tế'}, {code:'GIAO_DUC', name:'Giáo dục'}, {code:'HCC', name:'HCC'},
-  {code:'TAI_CHINH', name:'Tài chính'}, {code:'GIAO_THONG', name:'Giao thông'}, {code:'XAY_DUNG', name:'Xây dựng'},
-  {code:'TNMT', name:'TNMT'}, {code:'KHCN', name:'KHCN'}, {code:'LDTBXH', name:'LĐTBXH'}, {code:'NOI_CHINH', name:'Nội chính'},
-  {code:'VH_XH', name:'Văn hóa - Xã hội'}, {code:'NONG_NGHIEP', name:'Nông nghiệp'}
-].map(f=>({...f, source:'default', status:'active'}));
-let ouaFieldOrgCatalogs = {};
+/* ===== Cài đặt lĩnh vực — danh mục lĩnh vực theo từng đơn vị, quyết định ô «Nhóm lĩnh vực» khi giao nhiệm vụ trong IOC
+   (anh chốt 21/11/2026). Danh mục mặc định, chỗ lưu (localStorage, dùng chung với IOC) và cách khớp tài khoản → đơn vị ở
+   js/core/field-catalog.js. Đơn vị chưa tự thêm/sửa/ẩn lĩnh vực nào dùng chung danh mục mặc định; lần thay đổi đầu tiên
+   chép danh mục mặc định thành bản riêng của đơn vị (ouaEnsureOrgFieldCatalog) rồi mới đổi. */
+const ouaFieldDefaultCatalog = FIELD_CATALOG_DEFAULT;
+let ouaFieldOrgCatalogs = fcLoadAll();
 let ouaFieldOrgOptions = null;
 let ouaEditingField = null;
 function ouaSlugify(str){
@@ -1176,6 +1171,7 @@ function ouaFieldEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&
 /* So tên không phân biệt hoa thường, có dấu hay không dấu — chặn thêm trùng «Y tế» / «y te» */
 function ouaFieldFold(s){ return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/gi,'d').toLowerCase().trim().replace(/\s+/g,' '); }
 function ouaFilterFieldList(){
+  ouaFieldOrgCatalogs = fcLoadAll();
   const orgKey = document.getElementById('ouaFieldOrgSel')?.value;
   const catalog = ouaGetFieldCatalog(orgKey);
   const q = ouaFieldFold(document.getElementById('ouaFieldSearch')?.value || '');
@@ -1235,8 +1231,9 @@ function ouaToggleFieldStatus(orgKey, code){
   const f = catalog.find(x=>x.code===code);
   if(!f) return;
   f.status = f.status==='active' ? 'hidden' : 'active';
+  fcSaveAll(ouaFieldOrgCatalogs);
   ouaFilterFieldList();
-  ouaToast(f.status==='hidden' ? `Đã ẩn lĩnh vực "${f.name}".` : `Đã hiện lại lĩnh vực "${f.name}".`);
+  ouaToast(f.status==='hidden' ? `Đã ẩn lĩnh vực "${f.name}": không chọn được khi giao nhiệm vụ.` : `Đã hiện lại lĩnh vực "${f.name}".`);
 }
 /* Hộp thêm/sửa lĩnh vực (dùng chung): code = null là thêm mới vào đơn vị đang chọn, có code là sửa mục đó.
    Hộp chỉ có tên + mô tả: mã tự sinh theo tên khi thêm, khi sửa thì mã giữ nguyên vì kịch bản, thống kê tham chiếu theo mã.
@@ -1284,10 +1281,11 @@ function ouaSubmitFieldForm(){
   } else {
     catalog.push({code:newCode, name, desc, source:'custom', status:'active'});
   }
+  fcSaveAll(ouaFieldOrgCatalogs);
   ouaEditingField = null;
   ouaCloseModal();
   ouaFilterFieldList();
-  ouaToast(code ? `Đã lưu lĩnh vực "${name}" (demo, chỉ lưu trong phiên làm việc).` : `Đã thêm lĩnh vực "${name}" (demo, chỉ lưu trong phiên làm việc, chưa ghi backend).`);
+  ouaToast(code ? `Đã lưu lĩnh vực "${name}".` : `Đã thêm lĩnh vực "${name}".`);
 }
 
 /* ===== Phân nhóm đơn vị (Phase 5, màn mới) — gộp cây đơn vị THẬT (ouaRealOrgRows, kể cả node gốc "THÀNH PHỐ
